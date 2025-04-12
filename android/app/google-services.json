@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "289973286785",
+    "project_id": "manito-e305a",
+    "storage_bucket": "manito-e305a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:289973286785:android:b5adcb3346a045c5155a80",
+        "android_client_info": {
+          "package_name": "com.example.manito"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXLLaPy04Uj24Sqd5_DFr4uOyNUS7jQ8o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:289973286785:android:4b27d44cce732d5b155a80",
+        "android_client_info": {
+          "package_name": "com.jjulme.manito"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXLLaPy04Uj24Sqd5_DFr4uOyNUS7jQ8o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

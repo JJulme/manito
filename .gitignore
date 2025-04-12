@@ -1,0 +1,93 @@
+# Flutter-specific
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.metadata
+build/
+ios/Pods/
+ios/.symlinks/
+ios/Runner.xcodeproj/project.pbxproj
+ios/Runner.xcworkspace/contents.xcworkspacedata
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/settings.gradle
+android/gradle/wrapper/gradle-wrapper.jar
+android/.idea/
+android/app/.cxx/
+android/app/intermediates/
+linux/build/
+macos/Pods/
+macos/.symlinks/
+macos/Runner.xcodeproj/project.pbxproj
+macos/Runner.xcworkspace/contents.xcworkspacedata
+macos/build/
+web/build/
+windows/build/
+
+# IDE-specific
+.idea/
+.vscode/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Gradle related (Android)
+.gradle/
+build/
+app/build/
+.cxx/
+
+# IntelliJ related (Android)
+*.iml
+.classpath
+.project
+.settings/
+
+# macOS related (iOS)
+DerivedData/
+*.app.dSYM* # Xcode 디버깅 심볼 (필요에 따라 제외)
+
+# Node.js related (Web, potentially Firebase/Supabase functions)
+node_modules/
+
+# Firebase related
+firebase-debug.log
+firebase-tools.log
+
+# Supabase related (functions build)
+supabase/functions/*/dist/
+supabase/.temp/
+
+# Crash reports
+crashlytics/
+
+# Packages caches
+packages/
+
+# Generated files
+**/generated_plugin_registrant.dart
+
+# Temporary files
+**/*.log
+**/*.tmp
+**/*.swp
+**/*.swo
+**/*.dart.tool_snapshot
+**/*.dill
+**/*.appex
+
+# Environment variables
+.env
+
+# Test results (example - adjust based on your testing framework)
+test_results/
+coverage/
+
+# 특정 IDE 임시 파일 (추가적인 예시 - 필요에 따라 추가)
+*.xcuserdatad/ # Xcode 프로젝트 설정 (user-specific 제외 권장)
+
+# Exclude specific files if needed
+# example: !lib/main.dart

@@ -1,0 +1,60 @@
+name: manito
+description: "A new Flutter project."
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  badges: ^3.1.2
+  cached_network_image: ^3.4.1
+  carousel_slider: ^5.0.0
+  firebase_core: ^3.13.0
+  firebase_messaging: ^15.2.5
+  flutter_dotenv: ^5.2.1
+  get: ^4.7.2
+  google_mobile_ads: ^5.3.1
+  intl: ^0.20.2
+  image_picker: ^1.1.2
+  photo_manager: ^3.6.4
+  photo_manager_image_provider: ^2.2.0
+  shared_preferences: ^2.5.3
+  smooth_page_indicator: ^1.2.1
+  supabase_flutter: ^2.8.4
+  timeago: ^3.2.2
+  kakao_flutter_sdk_user: ^1.9.7+3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^5.0.0
+
+
+# The following section is specific to Flutter packages.
+flutter:
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+  assets:
+    - assets/images/
+    - .env
+  #   - images/a_dot_ham.jpeg
+  
+  fonts:
+    - family: Digital
+      fonts:
+        - asset: assets/fonts/DS-DIGIB.TTF
+  
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+
