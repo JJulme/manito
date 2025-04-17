@@ -17,9 +17,7 @@ void main() async {
   // 웹바인딩 설정
   WidgetsFlutterBinding.ensureInitialized();
   // FCM 설정
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   // FCM 백그라운드 핸들러 설정
   FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);
   // Admob 설정
@@ -31,9 +29,7 @@ void main() async {
     url: dotenv.env['SUPABASE_URL']!,
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
-  KakaoSdk.init(
-    nativeAppKey: dotenv.env['KAKAO_APP_KEY']
-  );
+  KakaoSdk.init(nativeAppKey: dotenv.env['KAKAO_APP_KEY']);
   // 한국어 설정
   timeago.setLocaleMessages('ko', timeago.KoMessages());
   runApp(const Manito());
@@ -50,8 +46,10 @@ class _ManitoState extends State<Manito> {
   @override
   Widget build(BuildContext context) {
     double w = MediaQuery.of(context).size.width;
-    double di = sqrt(pow(MediaQuery.of(context).size.width, 2) +
-        pow(MediaQuery.of(context).size.height, 2));
+    double di = sqrt(
+      pow(MediaQuery.of(context).size.width, 2) +
+          pow(MediaQuery.of(context).size.height, 2),
+    );
     // 테마 설정
     var themeData = ThemeData(
       useMaterial3: true,
@@ -65,12 +63,8 @@ class _ManitoState extends State<Manito> {
         iconTheme: IconThemeData(size: 0.032 * di),
       ),
       // 바텀 시트 설정
-      bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: Colors.white,
-      ),
-      bottomAppBarTheme: BottomAppBarTheme(
-        color: Colors.white,
-      ),
+      bottomSheetTheme: BottomSheetThemeData(backgroundColor: Colors.white),
+      bottomAppBarTheme: BottomAppBarTheme(color: Colors.white),
       // 기본 배경색 설정
       scaffoldBackgroundColor: Colors.white,
       iconTheme: IconThemeData(size: 0.07 * w),

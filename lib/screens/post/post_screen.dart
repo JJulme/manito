@@ -110,7 +110,7 @@ class _PostScreenState extends State<PostScreen> with WidgetsBindingObserver {
                 .searchFriendProfile(creatorId);
             return Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: 0.03 * width,
+                horizontal: 0.04 * width,
                 vertical: 0.02 * width,
               ),
               child: Row(

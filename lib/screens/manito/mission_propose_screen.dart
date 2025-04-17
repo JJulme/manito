@@ -148,7 +148,7 @@ class MissionProposeScreen extends StatelessWidget {
                             border: Border.all(
                               color:
                                   _controller.selectedContent.value == content
-                                      ? Colors.blue
+                                      ? Colors.green
                                       : Colors.grey,
                             ),
                           ),
@@ -159,7 +159,7 @@ class MissionProposeScreen extends StatelessWidget {
                                 size: 0.12 * width,
                                 color:
                                     _controller.selectedContent.value == content
-                                        ? Colors.blueAccent
+                                        ? Colors.green
                                         : Colors.white70,
                               ),
                               SizedBox(width: 0.03 * width),
@@ -170,7 +170,7 @@ class MissionProposeScreen extends StatelessWidget {
                                   color:
                                       _controller.selectedContent.value ==
                                               content
-                                          ? Colors.blueAccent
+                                          ? Colors.green
                                           : Colors.black87,
                                 ),
                               ),

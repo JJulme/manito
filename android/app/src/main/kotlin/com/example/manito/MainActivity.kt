@@ -1,4 +1,4 @@
-package com.example.manito
+package com.jjulme.manito
 
 import io.flutter.embedding.android.FlutterActivity
 

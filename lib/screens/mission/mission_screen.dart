@@ -227,7 +227,7 @@ class _MissionScreenState extends State<MissionScreen>
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Icon(Icons.run_circle_sharp, color: Colors.amber),
+                      Icon(Icons.error_sharp, color: Colors.amber),
                       SizedBox(width: 0.02 * width),
 
                       Text(myMission.status, style: Get.textTheme.titleMedium),
@@ -317,10 +317,7 @@ class _MissionScreenState extends State<MissionScreen>
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Icon(
-                        Icons.question_mark_rounded,
-                        color: Colors.deepOrange,
-                      ),
+                      Icon(Icons.run_circle_sharp, color: Colors.deepOrange),
                       SizedBox(width: 0.02 * width),
                       Text(
                         acceptMission.status,

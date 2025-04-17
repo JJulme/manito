@@ -15,31 +15,35 @@ class AuthController extends GetxController {
       authScreenLaunchMode:
           kIsWeb ? LaunchMode.platformDefault : LaunchMode.externalApplication,
     );
-    supabase.auth.onAuthStateChange.listen(
-      (data) async {
-        final AuthChangeEvent event = data.event;
-        // 성공적으로 로그인이 완료된 경우
-        if (event == AuthChangeEvent.signedIn) {
-          debugPrint('Logged in with Kakao');
-          Get.offAll(() => SplashScreen());
-        } else {
-          debugPrint('Login failed');
-        }
-      },
-    );
+    supabase.auth.onAuthStateChange.listen((data) async {
+      final AuthChangeEvent event = data.event;
+      // 성공적으로 로그인이 완료된 경우
+      if (event == AuthChangeEvent.signedIn) {
+        debugPrint('Logged in with Kakao');
+        Get.offAll(() => SplashScreen());
+      } else {
+        debugPrint('Login failed');
+      }
+    });
   }
 
   // 로그아웃 처리
   Future<void> logout() async {
-    try{
+    try {
       await supabase.auth.signOut();
       Get.offAll(() => LoginScreen());
-
-    } catch(e){
+    } catch (e) {
       debugPrint('logout Error: $e');
     }
-    
   }
 
-
+  // 계정 삭제
+  Future<void> deleteUser() async {
+    try {
+      await supabase.auth.admin.deleteUser(supabase.auth.currentUser!.id);
+      Get.offAll(() => LoginScreen());
+    } catch (e) {
+      debugPrint('deleteUser Error: $e');
+    }
+  }
 }

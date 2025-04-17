@@ -30,15 +30,17 @@ class FriendsController extends GetxController {
   Future<void> getProfile() async {
     // isLoading.value = true;
     try {
-      final data = await _supabase
-          .from('profiles')
-          .select()
-          .eq('id', _supabase.auth.currentUser!.id)
-          .single();
+      final data =
+          await _supabase
+              .from('profiles')
+              .select()
+              .eq('id', _supabase.auth.currentUser!.id)
+              .single();
       userProfile.value = UserProfile.fromJson(data);
       // 최신 이미지를 가져오기 위해서 캐쉬 비우기
       await CachedNetworkImage.evictFromCache(
-          userProfile.value!.profileImageUrl!);
+        userProfile.value!.profileImageUrl!,
+      );
     } on PostgrestException catch (e) {
       debugPrint('getProfile PostgrestException Error: $e');
     } catch (e) {
@@ -90,8 +92,10 @@ class FriendsController extends GetxController {
       }
       // 내 id 아니면 친구 목록에서 가져옴
       else {
-        UserProfile? friendProfile =
-            friendList.firstWhere((friend) => friend.id == friendId);
+        UserProfile? friendProfile = friendList.firstWhere(
+          (friend) => friend.id == friendId,
+          orElse: () => UserProfile(nickname: '(알수없음)', profileImageUrl: ''),
+        );
         return friendProfile;
       }
     } catch (e) {
@@ -105,8 +109,9 @@ class FriendsController extends GetxController {
     List<UserProfile> friendProfiles = [];
     try {
       for (String id in ids) {
-        UserProfile friendProfile =
-            friendList.firstWhere((friend) => friend.id == id);
+        UserProfile friendProfile = friendList.firstWhere(
+          (friend) => friend.id == id,
+        );
         friendProfiles.add(friendProfile);
       }
       return friendProfiles;
@@ -135,11 +140,12 @@ class FriendSearchController extends GetxController {
   Future<void> searchEmail() async {
     isLoading.value = true;
     try {
-      var result = await _supabase
-          .from('profiles')
-          .select()
-          .eq('email', emailController.text)
-          .single();
+      var result =
+          await _supabase
+              .from('profiles')
+              .select()
+              .eq('email', emailController.text)
+              .single();
       searchProfile.value = UserProfile.fromJson(result);
     } catch (e) {
       searchProfile.value = null;
@@ -156,10 +162,7 @@ class FriendSearchController extends GetxController {
     try {
       final String result = await _supabase.rpc(
         'send_friend_request',
-        params: {
-          'sender_id': userId,
-          'receiver_id': searchProfile.value!.id,
-        },
+        params: {'sender_id': userId, 'receiver_id': searchProfile.value!.id},
       );
       return result;
     } catch (e) {
@@ -209,10 +212,7 @@ class FriendRequestController extends GetxController {
       // 수락
       await _supabase.rpc(
         'accept_friend_request',
-        params: {
-          'req_sender_id': senderId,
-          'req_receiver_id': userId,
-        },
+        params: {'req_sender_id': senderId, 'req_receiver_id': userId},
       );
       fetchFriendRequest();
       return '친구 신청을 수락 했습니다.';
@@ -229,10 +229,7 @@ class FriendRequestController extends GetxController {
       // 거절
       await _supabase.rpc(
         'reject_friend_request',
-        params: {
-          'req_sender_id': senderId,
-          'req_receiver_id': userId,
-        },
+        params: {'req_sender_id': senderId, 'req_receiver_id': userId},
       );
       fetchFriendRequest();
       return '친구 신청을 거절 했습니다.';
@@ -280,12 +277,10 @@ class BlacklistController extends GetxController {
   Future<String> unblackUser(String blackUserId) async {
     final String userId = _supabase.auth.currentUser!.id;
     try {
-      await _supabase.from('blacklist').delete().match(
-        {
-          'user_id': userId,
-          'black_user_id': blackUserId,
-        },
-      );
+      await _supabase.from('blacklist').delete().match({
+        'user_id': userId,
+        'black_user_id': blackUserId,
+      });
       return '차단을 해제 했습니다.';
     } catch (e) {
       debugPrint('unblackUser Error: $e');
@@ -323,7 +318,7 @@ class ModifyController extends GetxController {
           '${dotenv.env['SUPABASE_URL']!}/storage/v1/object/public/';
       final updateData = {
         'nickname': nameController.text,
-        'status_message': statusController.text
+        'status_message': statusController.text,
       };
 
       // 저장 이미지 이름 설정
@@ -338,7 +333,6 @@ class ModifyController extends GetxController {
         );
         updateData['profile_image_url'] = baseUrl + fullPath;
       }
-
       // 프로필 이미지 설정 안하는 경우
       else if (selectedImage.value == null && profileImageUrl.value.isEmpty) {
         await profileImageBucket.remove([fileName]);
@@ -401,10 +395,7 @@ class FriendsDetailCrontroller extends GetxController {
     try {
       await _supabase.rpc(
         'block_friend',
-        params: {
-          'user_id': userId,
-          'friend_id': friendId,
-        },
+        params: {'user_id': userId, 'friend_id': friendId},
       );
       Get.back();
     } catch (e) {
@@ -421,19 +412,27 @@ class FriendsDetailCrontroller extends GetxController {
       final originData = await _supabase
           .from('post_view')
           .select(
-              'id, manito_id, creator_id, deadline_type, content, created_at')
-          .or('manito_id.eq.${friendProfile.id},creator_id.eq.${friendProfile.id}')
+            'id, manito_id, creator_id, deadline_type, content, created_at',
+          )
+          .or(
+            'manito_id.eq.${friendProfile.id},creator_id.eq.${friendProfile.id}',
+          )
           .order('created_at', ascending: true);
-      final manitoPost = originData
-          .where((post) => post['manito_id'] == friendProfile.id)
-          .toList();
-      final creatorPost = originData
-          .where((post) => post['creator_id'] == friendProfile.id)
-          .toList();
-      final relatedPost = originData
-          .where((post) =>
-              post['manito_id'] == userId || post['creator_id'] == userId)
-          .toList();
+      final manitoPost =
+          originData
+              .where((post) => post['manito_id'] == friendProfile.id)
+              .toList();
+      final creatorPost =
+          originData
+              .where((post) => post['creator_id'] == friendProfile.id)
+              .toList();
+      final relatedPost =
+          originData
+              .where(
+                (post) =>
+                    post['manito_id'] == userId || post['creator_id'] == userId,
+              )
+              .toList();
       manitoPostCount.value = manitoPost.length;
       creatorPostCount.value = creatorPost.length;
       postList.value = relatedPost.map((post) => Post.fromJson(post)).toList();

@@ -49,6 +49,8 @@
 	</array>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>카카오 로그인 연결을 위해 네트워크 접근이 필요합니다.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>앨범 접근이 필요합니다.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>

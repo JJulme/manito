@@ -46,8 +46,11 @@ Future<bool> kOnExitConfirmation() async {
   return exit;
 }
 
-Future kDefaultDialog(String title, String message,
-    {VoidCallback? onYesPressed}) async {
+Future kDefaultDialog(
+  String title,
+  String message, {
+  VoidCallback? onYesPressed,
+}) async {
   if (GetPlatform.isIOS) {
     await Get.dialog(
       CupertinoAlertDialog(
@@ -60,16 +63,12 @@ Future kDefaultDialog(String title, String message,
               onPressed: () {
                 Get.back();
               },
-              child: const Text(
-                "Cancel",
-              ),
+              child: const Text("Cancel"),
             ),
           CupertinoDialogAction(
             isDefaultAction: true,
             onPressed: onYesPressed,
-            child: Text(
-              (onYesPressed == null) ? "OK" : "Yes",
-            ),
+            child: Text((onYesPressed == null) ? "OK" : "Yes"),
           ),
         ],
       ),
@@ -85,12 +84,7 @@ Future kDefaultDialog(String title, String message,
               onPressed: () {
                 Get.back();
               },
-              child: const Text(
-                "취소",
-                style: TextStyle(
-                  color: kFireOpal,
-                ),
-              ),
+              child: const Text("취소", style: TextStyle(color: kFireOpal)),
             ),
           TextButton(
             onPressed: () {
@@ -101,9 +95,7 @@ Future kDefaultDialog(String title, String message,
             },
             child: Text(
               (onYesPressed == null) ? "OK" : "확인",
-              style: const TextStyle(
-                color: kOffBlack,
-              ),
+              style: const TextStyle(color: kOffBlack),
             ),
           ),
         ],

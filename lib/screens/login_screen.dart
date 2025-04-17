@@ -21,8 +21,8 @@ class LoginScreen extends StatelessWidget {
               // 앱 대표 이미지
               Image.asset(
                 'assets/images/manito_dog.png',
-                width: 0.4 * width,
-                height: 0.4 * width,
+                width: 0.6 * width,
+                height: 0.6 * width,
               ),
               SizedBox(height: 0.04 * width),
               Container(
