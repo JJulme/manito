@@ -56,7 +56,7 @@ class BadgeController extends GetxController {
   void clearMission() async {
     missionBadge.value = false;
     final prefs = await SharedPreferences.getInstance();
-    prefs.remove('updata_mission');
+    prefs.remove('update_mission');
   }
 
   /// 마니또 뱃지 상태 지우기

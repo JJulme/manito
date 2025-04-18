@@ -72,7 +72,6 @@ class SettingScreen extends StatelessWidget {
                 },
               ),
             ),
-            Spacer(),
 
             // 계정 삭제
             Container(

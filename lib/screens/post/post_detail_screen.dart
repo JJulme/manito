@@ -126,11 +126,11 @@ class PostDetailScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        // 좋아요 버튼
-                        IconButton(
-                          icon: Icon(Icons.favorite_outline_rounded),
-                          onPressed: () {},
-                        ),
+                        // // 좋아요 버튼
+                        // IconButton(
+                        //   icon: Icon(Icons.favorite_outline_rounded),
+                        //   onPressed: () {},
+                        // ),
                         //  댓글 버튼
                         IconButton(
                           icon: Icon(Icons.comment_outlined),

@@ -10,12 +10,7 @@ class CommentSheet extends StatefulWidget {
   final double width;
 
   final String missionId;
-  const CommentSheet({
-    super.key,
-    required this.width,
-
-    required this.missionId,
-  });
+  const CommentSheet({super.key, required this.width, required this.missionId});
 
   @override
   State<CommentSheet> createState() => _CommentSheet2State();
@@ -70,15 +65,18 @@ class _CommentSheet2State extends State<CommentSheet> {
             ),
             // 댓글 목록
             Expanded(
-              child: Obx(
-                () {
-                  if (_controller.isLoading.value) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (_controller.commentList.isEmpty) {
-                    return Center(child: Text('댓글이 없습니다'));
-                  } else {
-                    return ListView.builder(
+              child: Obx(() {
+                if (_controller.isLoading.value) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (_controller.commentList.isEmpty) {
+                  return Center(child: Text('댓글이 없습니다'));
+                } else {
+                  return Align(
+                    alignment: Alignment.topCenter,
+                    child: ListView.builder(
                       reverse: true,
+                      shrinkWrap: true,
+                      padding: EdgeInsets.all(0),
                       itemCount: _controller.commentList.length,
                       itemBuilder: (context, index) {
                         final Comment comment = _controller.commentList[index];
@@ -86,10 +84,11 @@ class _CommentSheet2State extends State<CommentSheet> {
                             .searchFriendProfile(comment.userId);
                         return Container(
                           margin: EdgeInsets.only(
-                              top: 0,
-                              bottom: 0.04 * widget.width,
-                              left: 0.04 * widget.width,
-                              right: 0.04 * widget.width),
+                            top: 0.02 * widget.width,
+                            bottom: 0.02 * widget.width,
+                            left: 0.04 * widget.width,
+                            right: 0.04 * widget.width,
+                          ),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -128,10 +127,10 @@ class _CommentSheet2State extends State<CommentSheet> {
                           ),
                         );
                       },
-                    );
-                  }
-                },
-              ),
+                    ),
+                  );
+                }
+              }),
             ),
             // 채팅창
             Padding(
@@ -149,11 +148,13 @@ class _CommentSheet2State extends State<CommentSheet> {
                       minLines: 1,
                       maxLines: 3,
                       maxLength: 99,
-                      buildCounter: (context,
-                              {required currentLength,
-                              required isFocused,
-                              required maxLength}) =>
-                          null,
+                      buildCounter:
+                          (
+                            context, {
+                            required currentLength,
+                            required isFocused,
+                            required maxLength,
+                          }) => null,
                       keyboardType: TextInputType.multiline,
                       decoration: InputDecoration(
                         hintText: '메시지 입력',
