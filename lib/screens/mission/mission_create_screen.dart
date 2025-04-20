@@ -26,22 +26,31 @@ class _MissionCreateScreenState extends State<MissionCreateScreen> {
     if (_controller.selectedFriends.length < 3) {
       Get.snackbar('알림', '최소 3명 이상의 친구를 선택해 주세요.');
     } else {
-      Get.dialog(
-        AlertDialog(
-          title: Text('미션 생성'),
-          content: Text('미션을 생성하고 취소/수정 할 수 없습니다.'),
-          actions: [
-            TextButton(child: Text('취소'), onPressed: () => Get.back()),
-            TextButton(
-              child: Text('확인'),
-              onPressed: () async {
-                Get.back(); // 다이얼로그 닫기
-                String result = await _controller.createMission(_selectedIndex);
-                Get.snackbar('알림', result);
-              },
-            ),
-          ],
-        ),
+      // Get.dialog(
+      //   AlertDialog(
+      //     title: Text('미션 생성'),
+      //     content: Text('미션을 생성하고 취소/수정 할 수 없습니다.'),
+      //     actions: [
+      //       TextButton(child: Text('취소'), onPressed: () => Get.back()),
+      //       TextButton(
+      //         child: Text('확인'),
+      //         onPressed: () async {
+      //           Get.back(); // 다이얼로그 닫기
+      //           String result = await _controller.createMission(_selectedIndex);
+      //           Get.snackbar('알림', result);
+      //         },
+      //       ),
+      //     ],
+      //   ),
+      // );
+      kDefaultDialog(
+        '미션 생성',
+        '미션을 생성하고 취소/수정 할 수 없습니다.',
+        onYesPressed: () async {
+          Get.back();
+          String result = await _controller.createMission(_selectedIndex);
+          Get.snackbar('알림', result);
+        },
       );
     }
   }

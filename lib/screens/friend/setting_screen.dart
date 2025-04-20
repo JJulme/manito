@@ -50,7 +50,14 @@ class SettingScreen extends StatelessWidget {
                 contentPadding: EdgeInsets.symmetric(horizontal: 0.05 * width),
                 leading: Icon(Icons.logout_outlined),
                 title: Text('로그아웃'),
-                onTap: _authController.logout,
+                // onTap: _authController.logout,
+                onTap: () {
+                  kDefaultDialog(
+                    '로그아웃',
+                    '로그아웃 하시겠습니까?',
+                    onYesPressed: () => _authController.logout(),
+                  );
+                },
               ),
             ),
             // 문의하기

@@ -1,12 +1,15 @@
 import 'dart:io';
-
+import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:manito/models/auto_reply.dart';
 import 'package:manito/models/mission.dart';
 import 'package:manito/models/user_profile.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -89,11 +92,15 @@ class MissionProposeController extends GetxController {
     isLoading.value = true;
     try {
       final Map<String, dynamic> data =
-          await _supabase.from('mission_propose').select('''
+          await _supabase
+              .from('mission_propose')
+              .select('''
               mission_id,
               random_contents,
               missions:mission_id(status, accept_deadline, deadline_type, deadline)
-              ''').eq('id', missionProposeId).single();
+              ''')
+              .eq('id', missionProposeId)
+              .single();
       missionPropose.value = MissionPropose.fromJson(data);
     } catch (e) {
       debugPrint('fetchMissionPropose Error: $e');
@@ -207,11 +214,21 @@ class ManitoPostController extends GetxController {
         for (AssetEntity assetImage in selectedImages) {
           // 파일 형식으로 변환
           var fileImage = await assetImage.originFile;
+          if (fileImage == null) continue;
+
+          // HEIC 이미지인지 확인하고 변환
+          File fileToUpload;
+          if (_isHeicImage(fileImage.path)) {
+            fileToUpload = await _convertHeicToPng(fileImage);
+          } else {
+            fileToUpload = fileImage;
+          }
+
           String fileName =
               '${missionAccept.missionId}_post_${DateTime.now().millisecondsSinceEpoch}.png';
           final String fullPath = await postImageBucket.upload(
             fileName,
-            fileImage!,
+            fileToUpload,
             fileOptions: const FileOptions(cacheControl: '3600', upsert: true),
           );
           imagePathList.add(baseUrl + fullPath);
@@ -231,13 +248,44 @@ class ManitoPostController extends GetxController {
       await postTable.update(upsertData).eq('id', missionAccept.missionId);
       // 저장 상태 변경
       isPosting.value = true;
-      Get.snackbar('저장 성공', '게시하기 버튼을 누르면 친구에게 알림이 갑니다.');
+      Get.snackbar('저장 성공', '미션종료 버튼을 누르면 친구에게 알림이 갑니다.');
     } catch (e) {
       Get.snackbar('오류', '$e');
       debugPrint('updatePost Error: $e');
     } finally {
       updateLoading.value = false;
     }
+  }
+
+  // HEIC 이미지인지 확인하는 함수
+  bool _isHeicImage(String filePath) {
+    final extension = path.extension(filePath).toLowerCase();
+    return extension == '.heic' || extension == '.heif';
+  }
+
+  // HEIC 이미지를 PNG로 변환하는 함수
+  Future<File> _convertHeicToPng(File file) async {
+    // 원본 이미지 데이터 가져오기
+    final Uint8List imageData = await file.readAsBytes();
+
+    // PNG로 압축
+    final Uint8List pngData = await FlutterImageCompress.compressWithList(
+      imageData,
+      format: CompressFormat.jpeg,
+      minWidth: 1280,
+      quality: 70,
+    );
+
+    // 임시 저장 경로 생성
+    final String tempDir = (await getTemporaryDirectory()).path;
+    final String tempPath =
+        '$tempDir/${DateTime.now().millisecondsSinceEpoch}.png';
+
+    // 새 파일 생성 및 데이터 쓰기
+    final File pngFile = File(tempPath);
+    await pngFile.writeAsBytes(pngData);
+
+    return pngFile;
   }
 
   /// 게시하기 - mission_manito(status 수정), missions(status 수정)
@@ -315,9 +363,7 @@ class AutoReplyController extends GetxController {
       final autoReplyImageBucket = _supabase.storage.from('auto-reply-image');
       const String baseUrl =
           'https://rkfdbtdicxarrctsvmif.supabase.co/storage/v1/object/public/';
-      final updateData = {
-        'reply': text,
-      };
+      final updateData = {'reply': text};
 
       // 선택한 이미지가 있을 경우
       if (selectedImage.value != null) {

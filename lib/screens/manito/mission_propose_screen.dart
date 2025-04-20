@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:manito/constants.dart';
 import 'package:manito/controllers/manito_controller.dart';
 import 'package:manito/models/user_profile.dart';
 import 'package:manito/widgets/mission/timer.dart';
@@ -17,24 +18,16 @@ class MissionProposeScreen extends StatelessWidget {
     if (_controller.selectedContent.value == null) {
       Get.snackbar('알림', '미션을 선택해주세요.');
     } else {
-      Get.dialog(
-        AlertDialog(
-          title: Text('미션 수락'),
-          content: Text('미션을 수락하고 취소 할 수 없습니다.'),
-          actions: [
-            TextButton(child: Text('취소'), onPressed: () => Get.back()),
-            TextButton(
-              child: Text('확인'),
-              onPressed: () async {
-                Get.back(); // 다이얼로그 닫기
-                String result = await _controller.acceptMissionPropose(
-                  _controller.selectedContent.value!,
-                );
-                Get.snackbar('알림', result);
-              },
-            ),
-          ],
-        ),
+      kDefaultDialog(
+        '미션 수락',
+        '미션을 수락하고 취소 할 수 없습니다.',
+        onYesPressed: () async {
+          Get.back();
+          String result = await _controller.acceptMissionPropose(
+            _controller.selectedContent.value!,
+          );
+          Get.snackbar('알림', result);
+        },
       );
     }
   }
@@ -44,6 +37,8 @@ class MissionProposeScreen extends StatelessWidget {
     double width = Get.width;
     return Scaffold(
       appBar: AppBar(
+        centerTitle: false,
+        titleSpacing: 0.07 * width,
         automaticallyImplyLeading: false,
         title: Text(
           '${_controller.creatorProfile.nickname} 님 몰래 도움을 주세요!',

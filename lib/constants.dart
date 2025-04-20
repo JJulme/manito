@@ -54,8 +54,8 @@ Future kDefaultDialog(
   if (GetPlatform.isIOS) {
     await Get.dialog(
       CupertinoAlertDialog(
-        title: Text(title),
-        content: Text(message),
+        title: Text(title, style: Get.textTheme.titleMedium),
+        content: Text(message, style: Get.textTheme.bodySmall),
         actions: [
           if (onYesPressed != null)
             CupertinoDialogAction(
