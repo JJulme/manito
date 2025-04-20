@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
@@ -46,10 +45,6 @@ class _ManitoState extends State<Manito> {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-    // double di = sqrt(
-    //   pow(MediaQuery.of(context).size.width, 2) +
-    //       pow(MediaQuery.of(context).size.height, 2),
-    // );
     // 테마 설정
     var themeData = ThemeData(
       useMaterial3: true,
