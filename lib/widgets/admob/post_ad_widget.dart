@@ -87,32 +87,31 @@ class _AdmobBannerState extends State<PostAdWidget> {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(widget.borderRadius),
-      child: _isAdLoaded
-          ? SizedBox(
-              width: widget.width,
-              height: _height,
-              child: Center(
-                child: Transform.scale(
-                  scale: widget.width / BANNER_DEFAULT_WIDTH,
-                  child: SizedBox(
-                    width: BANNER_DEFAULT_WIDTH,
-                    height: BANNER_DEFAULT_HEIGHT,
-                    child: AdWidget(ad: _bannerAd!),
+      child:
+          _isAdLoaded
+              ? SizedBox(
+                width: widget.width,
+                height: _height,
+                child: Center(
+                  child: Transform.scale(
+                    scale: widget.width / BANNER_DEFAULT_WIDTH,
+                    child: SizedBox(
+                      width: BANNER_DEFAULT_WIDTH,
+                      height: BANNER_DEFAULT_HEIGHT,
+                      child: AdWidget(ad: _bannerAd!),
+                    ),
                   ),
                 ),
+              )
+              : Container(
+                width: widget.width,
+                height: _height,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(widget.borderRadius),
+                ),
+                child: const Center(child: CircularProgressIndicator()),
               ),
-            )
-          : Container(
-              width: widget.width,
-              height: _height,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(widget.borderRadius),
-              ),
-              child: const Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
     );
   }
 }

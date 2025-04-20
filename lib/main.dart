@@ -45,11 +45,11 @@ class Manito extends StatefulWidget {
 class _ManitoState extends State<Manito> {
   @override
   Widget build(BuildContext context) {
-    double w = MediaQuery.of(context).size.width;
-    double di = sqrt(
-      pow(MediaQuery.of(context).size.width, 2) +
-          pow(MediaQuery.of(context).size.height, 2),
-    );
+    double width = MediaQuery.of(context).size.width;
+    // double di = sqrt(
+    //   pow(MediaQuery.of(context).size.width, 2) +
+    //       pow(MediaQuery.of(context).size.height, 2),
+    // );
     // 테마 설정
     var themeData = ThemeData(
       useMaterial3: true,
@@ -60,26 +60,38 @@ class _ManitoState extends State<Manito> {
       appBarTheme: AppBarTheme(
         color: Colors.white,
         elevation: 0,
-        iconTheme: IconThemeData(size: 0.032 * di),
+        iconTheme: IconThemeData(size: 0.05 * width),
+      ),
+      // 바텀 네비 설정
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        selectedItemColor: Colors.black87,
+        unselectedItemColor: Colors.black26,
+        backgroundColor: Colors.white,
+        // 라벨 숨기기
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        // 움직임 효과 제거
+        type: BottomNavigationBarType.fixed,
       ),
       // 바텀 시트 설정
       bottomSheetTheme: BottomSheetThemeData(backgroundColor: Colors.white),
       bottomAppBarTheme: BottomAppBarTheme(color: Colors.white),
       // 기본 배경색 설정
       scaffoldBackgroundColor: Colors.white,
-      iconTheme: IconThemeData(size: 0.07 * w),
+      // 기본 아이콘 설정
+      iconTheme: IconThemeData(size: 0.07 * width),
       // 팝업 메뉴 버튼 설정
       popupMenuTheme: PopupMenuThemeData(color: Colors.white),
       // 다이얼로그 테마 설정
       dialogTheme: DialogTheme(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(0.01 * di),
+          borderRadius: BorderRadius.circular(0.02 * width),
         ),
       ),
       // 텍스트 입력 설정
       inputDecorationTheme: InputDecorationTheme(
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(0.01 * di),
+          borderRadius: BorderRadius.circular(0.02 * width),
         ),
       ),
       // 입체 버튼 설정
@@ -88,7 +100,7 @@ class _ManitoState extends State<Manito> {
           foregroundColor: Colors.black,
           backgroundColor: Colors.yellowAccent[700],
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(0.01 * di),
+            borderRadius: BorderRadius.circular(0.02 * width),
           ),
         ),
       ),
@@ -98,7 +110,7 @@ class _ManitoState extends State<Manito> {
           foregroundColor: kDarkWalnut,
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(0.01 * di),
+            borderRadius: BorderRadius.circular(0.02 * width),
           ),
         ),
       ),
@@ -106,82 +118,82 @@ class _ManitoState extends State<Manito> {
       textTheme: TextTheme(
         /// 로그인 화면
         displayMedium: TextStyle(
-          fontSize: 0.05 * di,
+          fontSize: 0.15 * width,
           color: kOffBlack,
           fontWeight: FontWeight.bold,
         ),
         displaySmall: TextStyle(
-          fontSize: 0.03 * di,
+          fontSize: 0.09 * width,
           color: kOffBlack,
           fontWeight: FontWeight.bold,
         ),
 
         /// 앱바 타이틀
         headlineLarge: TextStyle(
-          fontSize: 0.056 * w,
+          fontSize: 0.056 * width,
           color: kOffBlack,
           fontWeight: FontWeight.bold,
         ),
         headlineMedium: TextStyle(
-          fontSize: 0.054 * w,
+          fontSize: 0.054 * width,
           color: kOffBlack,
           fontWeight: FontWeight.bold,
         ),
         headlineSmall: TextStyle(
-          fontSize: 0.052 * w,
+          fontSize: 0.052 * width,
           color: kOffBlack,
           fontWeight: FontWeight.bold,
         ),
         // 강조
         titleLarge: TextStyle(
-          fontSize: 0.054 * w,
+          fontSize: 0.054 * width,
           color: kOffBlack,
           fontWeight: FontWeight.bold,
         ),
         titleMedium: TextStyle(
-          fontSize: 0.052 * w,
+          fontSize: 0.052 * width,
           color: kOffBlack,
           fontWeight: FontWeight.bold,
         ),
         titleSmall: TextStyle(
-          fontSize: 0.05 * w,
+          fontSize: 0.05 * width,
           color: kOffBlack,
           fontWeight: FontWeight.bold,
         ),
 
         /// 기본 대분류
         bodyLarge: TextStyle(
-          fontSize: 0.046 * w,
+          fontSize: 0.046 * width,
           color: kOffBlack,
           fontWeight: FontWeight.normal,
         ),
 
         /// 기본 내용
         bodyMedium: TextStyle(
-          fontSize: 0.044 * w,
+          fontSize: 0.044 * width,
           color: kOffBlack,
           fontWeight: FontWeight.normal,
         ),
 
         /// 친구 상태 메시지
         bodySmall: TextStyle(
-          fontSize: 0.042 * w,
+          fontSize: 0.042 * width,
           color: kOffBlack,
           fontWeight: FontWeight.normal,
         ),
         // 라벨
         labelLarge: TextStyle(
-          fontSize: 0.034 * w,
+          fontSize: 0.034 * width,
           color: kGrey,
           fontWeight: FontWeight.normal,
         ),
         labelMedium: TextStyle(
-          fontSize: 0.032 * w,
+          fontSize: 0.032 * width,
           color: kGrey,
           fontWeight: FontWeight.normal,
         ),
         labelSmall: TextStyle(
-          fontSize: 0.03 * w,
+          fontSize: 0.03 * width,
           color: kGrey,
           fontWeight: FontWeight.normal,
         ),

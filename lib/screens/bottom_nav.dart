@@ -109,14 +109,6 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
     return Scaffold(
       body: IndexedStack(index: _selectedIndex, children: _screens),
       bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.black87,
-        unselectedItemColor: Colors.black26,
-        backgroundColor: Colors.white,
-        // 라벨 숨기기
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        // 움직임 효과 제거
-        type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
         onTap: (index) {
           setState(() {
