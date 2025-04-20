@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manito/controllers/manito_controller.dart';
 import 'package:manito/screens/album_screen.dart';
+import 'package:manito/widgets/post/image_slider.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -21,15 +22,6 @@ class ManitoPostScreen extends StatelessWidget {
       _controller.isPosting.value = false;
     }
   }
-
-  /// post 저장하는 함수
-  // void _updatePost() {
-  //   if (_controller.descController.text.length < 5) {
-  //     Get.snackbar('정성부족', '5글자 이상 작성해 주세요.');
-  //   } else {
-  //     _controller.updatePost();
-  //   }
-  // }
 
   /// 친구에게 게시물 보내는 함수
   void _completePost() async {
@@ -60,6 +52,8 @@ class ManitoPostScreen extends StatelessWidget {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
+          centerTitle: false,
+          titleSpacing: 0.07 * width,
           automaticallyImplyLeading: false,
           title: Text('미션 기록하기'),
           actions: [
@@ -94,7 +88,10 @@ class ManitoPostScreen extends StatelessWidget {
                                 selectedImageRow(width, selectedImages),
                                 SizedBox(height: 0.01 * width),
                                 // 이미지 보여주는 슬라이더
-                                imageSlider(selectedImages, width),
+                                ImageSlider(
+                                  images: selectedImages,
+                                  width: width,
+                                ),
                                 SizedBox(height: 0.01 * width),
                               ],
                             );
@@ -107,9 +104,8 @@ class ManitoPostScreen extends StatelessWidget {
                                 // 가로 스크롤 - 이미지 추가 버튼, 이미지 보여주는 목록
                                 selectedImageRow(width, cachedImages),
                                 SizedBox(height: 0.01 * width),
-
                                 // 이미지 보여주는 슬라이더
-                                imageSlider(cachedImages, width),
+                                ImageSlider(images: cachedImages, width: width),
                                 SizedBox(height: 0.01 * width),
                               ],
                             );

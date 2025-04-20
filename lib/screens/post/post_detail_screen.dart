@@ -80,8 +80,8 @@ class PostDetailScreen extends StatelessWidget {
                     detailPost.imageUrlList!.isNotEmpty
                         ? ImageSlider(
                           images: detailPost.imageUrlList!,
-                          fit: BoxFit.contain,
                           width: width,
+                          boxFit: BoxFit.contain,
                         )
                         : SizedBox.shrink(),
                     // 설명 글

@@ -1,79 +1,89 @@
-import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:manito/constants.dart';
+import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:photo_manager/photo_manager.dart';
 
-/// 이미지 슬라이더
 class ImageSlider extends StatefulWidget {
   final List<dynamic> images;
   final double width;
-  final BoxFit fit;
+  final BoxFit? boxFit;
 
   const ImageSlider({
-    super.key,
+    Key? key,
     required this.images,
     required this.width,
-    required this.fit,
-  });
+    this.boxFit = BoxFit.cover,
+  }) : super(key: key);
 
   @override
-  _ImageSliderState createState() => _ImageSliderState();
+  State<ImageSlider> createState() => _ImageSliderState();
 }
 
 class _ImageSliderState extends State<ImageSlider> {
-  int _currentIndex = 0;
+  final RxInt _activeIndex = 0.obs;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Stack(
       children: [
         CarouselSlider.builder(
           itemCount: widget.images.length,
           itemBuilder: (context, index, realIndex) {
             final image = widget.images[index];
             return Container(
-              width: widget.width,
-              height: widget.width,
+              width: Get.width,
+              height: Get.width,
               color: Colors.grey[100],
-              margin: EdgeInsets.all(0.005 * widget.width),
-              child: Image(
-                image: CachedNetworkImageProvider(image),
-                fit: widget.fit,
-              ),
+              margin: EdgeInsets.all(0.01 * widget.width),
+              child: _buildImageItem(image, widget.boxFit),
             );
           },
           options: CarouselOptions(
             enableInfiniteScroll: false,
             viewportFraction: 1,
-            height: widget.width,
+            height: Get.width,
             onPageChanged: (index, reason) {
-              setState(() {
-                _currentIndex = index;
-              });
+              _activeIndex.value = index;
             },
           ),
         ),
-        SizedBox(height: 8), // 인디케이터와 슬라이더 간의 간격
-        if (widget.images.length > 1)
-          _buildIndicator(), // 이미지가 1개 이상일 때만 인디케이터 표시
+        Positioned(
+          bottom: 0.02 * widget.width,
+          child: Container(
+            width: Get.width,
+            alignment: Alignment.bottomCenter,
+            child: Obx(
+              () => AnimatedSmoothIndicator(
+                activeIndex: _activeIndex.value,
+                count: widget.images.length,
+                effect: JumpingDotEffect(
+                  dotWidth: 0.02 * widget.width,
+                  dotHeight: 0.02 * widget.width,
+                  activeDotColor: Colors.grey[700]!,
+                  dotColor: Colors.grey,
+                ),
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildIndicator() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(widget.images.length, (index) {
-        return Container(
-          margin: EdgeInsets.symmetric(horizontal: 4.0),
-          width: _currentIndex == index ? 12.0 : 8.0,
-          height: 8.0,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: _currentIndex == index ? kOffBlack : kGrey,
-          ),
-        );
-      }),
-    );
+  Widget _buildImageItem(dynamic image, BoxFit? boxFit) {
+    final fit = boxFit ?? BoxFit.cover;
+    if (image is AssetEntity) {
+      return AssetEntityImage(image, fit: fit);
+    } else if (image is ImageProvider) {
+      return Image(image: image, fit: fit);
+    } else if (image is String) {
+      return Image(image: CachedNetworkImageProvider(image));
+    } else {
+      // 예상치 못한 타입 처리 (필요에 따라 수정)
+      return const SizedBox.shrink();
+    }
   }
 }

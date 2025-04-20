@@ -55,8 +55,8 @@ class PostDetail extends StatelessWidget {
         detailPost.imageUrlList!.isNotEmpty
             ? ImageSlider(
               images: detailPost.imageUrlList!,
-              fit: BoxFit.contain,
               width: di,
+              boxFit: BoxFit.contain,
             )
             : SizedBox.shrink(),
 
