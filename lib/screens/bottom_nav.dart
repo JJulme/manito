@@ -1,4 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manito/controllers/badge_controller.dart';
@@ -145,7 +146,7 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
           BottomNavigationBarItem(
             icon: badgeIcon(
               _badgeController.missonProposeBadge,
-              Icon(Icons.rocket_launch),
+              Icon(Icons.list_alt),
             ),
             label: '마니또',
           ),

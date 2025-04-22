@@ -33,7 +33,7 @@ class MissionGuessScreen extends StatelessWidget {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           centerTitle: false,
-          titleSpacing: 0.03 * width,
+          titleSpacing: 0.07 * width,
           title: Text('마니또 추리하기'),
           actions: [
             IconButton(

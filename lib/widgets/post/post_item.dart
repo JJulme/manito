@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manito/controllers/badge_controller.dart';
@@ -44,10 +45,7 @@ class PostItem extends StatelessWidget {
     Get.bottomSheet(
       enableDrag: true,
       isScrollControlled: true,
-      CommentSheet(
-        width: w,
-        missionId: missionId,
-      ),
+      CommentSheet(width: w, missionId: missionId),
     );
   }
 
@@ -55,8 +53,8 @@ class PostItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () => _showCommentSheet(width, post.id!),
-      onLongPress: () =>
-          _toPostDetailScreen(post, manitoProfile, creatorProfile),
+      onLongPress:
+          () => _toPostDetailScreen(post, manitoProfile, creatorProfile),
       child: Padding(
         padding: EdgeInsets.symmetric(
           vertical: 0.02 * width,
@@ -65,23 +63,15 @@ class PostItem extends StatelessWidget {
         child: Row(
           children: [
             // Manito Profile
-            _buildProfileColumn(
-              manitoProfile,
-              width,
-            ),
+            _buildProfileColumn(manitoProfile, width),
             SizedBox(width: 0.02 * width),
 
             // Creator Profile
-            _buildProfileColumn(
-              creatorProfile,
-              width,
-            ),
+            _buildProfileColumn(creatorProfile, width),
             SizedBox(width: 0.04 * width),
 
             // Mission Details
-            Expanded(
-              child: _buildMissionDetails(post),
-            ),
+            Expanded(child: _buildMissionDetails(post)),
 
             // Timestamp and Badge
             _buildTimestampAndBadge(post, _badgeController, width),
@@ -96,10 +86,7 @@ class PostItem extends StatelessWidget {
       width: 0.14 * width,
       child: Column(
         children: [
-          profileImageOrDefault(
-            profile?.profileImageUrl,
-            0.14 * width,
-          ),
+          profileImageOrDefault(profile?.profileImageUrl, 0.14 * width),
           SizedBox(height: 0.01 * width),
           Text(
             profile?.nickname ?? 'Unknown',
@@ -118,7 +105,8 @@ class PostItem extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const Icon(Icons.rocket_launch),
+            Icon(Icons.event, size: 0.05 * width),
+            SizedBox(width: 0.01 * width),
             Text(
               post.deadlineType ?? 'No Type',
               style: Get.textTheme.bodySmall,
@@ -126,23 +114,20 @@ class PostItem extends StatelessWidget {
           ],
         ),
         SizedBox(height: 0.02 * width),
-        Text(
-          post.content ?? 'No Content',
-          style: Get.textTheme.bodySmall,
-        )
+        Text(post.content ?? 'No Content', style: Get.textTheme.bodySmall),
       ],
     );
   }
 
   Widget _buildTimestampAndBadge(
-      dynamic post, BadgeController badgeController, double width) {
+    dynamic post,
+    BadgeController badgeController,
+    double width,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Text(
-          post.createdAt ?? 'No Date',
-          style: Get.textTheme.labelMedium,
-        ),
+        Text(post.createdAt ?? 'No Date', style: Get.textTheme.labelMedium),
         SizedBox(height: 0.02 * width),
         Obx(() {
           return badgeController.postBadge[post.id]?.value == true
