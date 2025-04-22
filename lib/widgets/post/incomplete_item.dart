@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:manito/models/user_profile.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
 
@@ -37,6 +38,7 @@ class IncompleteItem extends StatelessWidget {
           SizedBox(width: 0.03 * width),
           Text(
             '${creatorProfile.nickname} (이)가 마니또 추측중 입니다.',
+            style: Get.textTheme.bodyMedium,
             overflow: TextOverflow.ellipsis,
           ),
         ],

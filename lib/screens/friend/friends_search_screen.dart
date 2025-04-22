@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:manito/controllers/friends_controller.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
@@ -105,15 +106,27 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
                           borderRadius: BorderRadius.circular(0.02 * width),
                         ),
                         // 내 이메일
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('내 이메일', style: Get.textTheme.bodySmall),
-                            Text(
-                              _friendsController.userProfile.value!.email,
-                              style: Get.textTheme.bodySmall,
-                            ),
-                          ],
+                        child: GestureDetector(
+                          onTap:
+                              () => Clipboard.setData(
+                                ClipboardData(
+                                  text:
+                                      _friendsController
+                                          .userProfile
+                                          .value!
+                                          .email,
+                                ),
+                              ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('내 이메일', style: Get.textTheme.bodySmall),
+                              Text(
+                                _friendsController.userProfile.value!.email,
+                                style: Get.textTheme.bodySmall,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       SizedBox(
