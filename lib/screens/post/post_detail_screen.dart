@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:manito/controllers/badge_controller.dart';
 import 'package:manito/controllers/friends_controller.dart';
 import 'package:manito/controllers/post_controller.dart';
 import 'package:manito/models/post.dart';
 import 'package:manito/models/user_profile.dart';
+import 'package:manito/widgets/common/custom_badge.dart';
 import 'package:manito/widgets/post/comment_sheet.dart';
 import 'package:manito/widgets/post/image_slider.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
@@ -13,9 +15,11 @@ class PostDetailScreen extends StatelessWidget {
 
   final PostDetailController _controller = Get.put(PostDetailController());
   final FriendsController friendsController = Get.find<FriendsController>();
+  final BadgeController _badgeController = Get.find<BadgeController>();
 
   /// 댓글창 열기
   void _showCommentSheet(double width, String missionId) {
+    _badgeController.clearComment(missionId);
     // 댓글 바텀 시트
     Get.bottomSheet(
       enableDrag: true,
@@ -123,22 +127,31 @@ class PostDetailScreen extends StatelessWidget {
                       child: Text(detailPost.guess!),
                     ),
                     // 버튼 모음
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        // // 좋아요 버튼
-                        // IconButton(
-                        //   icon: Icon(Icons.favorite_outline_rounded),
-                        //   onPressed: () {},
-                        // ),
-                        //  댓글 버튼
-                        IconButton(
-                          icon: Icon(Icons.comment_outlined),
-                          onPressed: () {
-                            _showCommentSheet(width, detailPost.id!);
-                          },
-                        ),
-                      ],
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 0.05 * width),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          // // 좋아요 버튼
+                          // IconButton(
+                          //   icon: Icon(Icons.favorite_outline_rounded),
+                          //   onPressed: () {},
+                          // ),
+                          //  댓글 버튼
+                          Obx(() {
+                            return IconButton(
+                              padding: EdgeInsets.all(0),
+                              onPressed:
+                                  () =>
+                                      _showCommentSheet(width, detailPost.id!),
+                              icon: badgeIcon(
+                                _badgeController.postBadge[detailPost.id]!,
+                                Icon(Icons.comment_outlined),
+                              ),
+                            );
+                          }),
+                        ],
+                      ),
                     ),
                     SizedBox(height: 0.03 * width),
                   ],

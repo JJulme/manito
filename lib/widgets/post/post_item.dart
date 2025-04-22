@@ -1,13 +1,12 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manito/controllers/badge_controller.dart';
 import 'package:manito/models/post.dart';
 import 'package:manito/models/user_profile.dart';
 import 'package:manito/screens/post/post_detail_screen.dart';
+import 'package:manito/widgets/common/custom_badge.dart';
 import 'package:manito/widgets/post/comment_sheet.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
-import 'package:badges/badges.dart' as badges;
 
 //
 
@@ -52,9 +51,7 @@ class PostItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => _showCommentSheet(width, post.id!),
-      onLongPress:
-          () => _toPostDetailScreen(post, manitoProfile, creatorProfile),
+      onTap: () => _toPostDetailScreen(post, manitoProfile, creatorProfile),
       child: Padding(
         padding: EdgeInsets.symmetric(
           vertical: 0.02 * width,
@@ -130,9 +127,14 @@ class PostItem extends StatelessWidget {
         Text(post.createdAt ?? 'No Date', style: Get.textTheme.labelMedium),
         SizedBox(height: 0.02 * width),
         Obx(() {
-          return badgeController.postBadge[post.id]?.value == true
-              ? badges.Badge()
-              : const SizedBox.shrink();
+          return IconButton(
+            padding: EdgeInsets.all(0),
+            onPressed: () => _showCommentSheet(width, post.id!),
+            icon: badgeIcon(
+              badgeController.postBadge[post.id]!,
+              Icon(Icons.comment_outlined),
+            ),
+          );
         }),
       ],
     );

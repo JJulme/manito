@@ -6,6 +6,7 @@ import 'package:manito/controllers/post_controller.dart';
 import 'package:manito/models/post.dart';
 import 'package:manito/models/user_profile.dart';
 import 'package:manito/widgets/admob/banner_ad_widget.dart';
+import 'package:manito/widgets/post/incomplete_item.dart';
 import 'package:manito/widgets/post/post_item.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
 
@@ -108,37 +109,10 @@ class _PostScreenState extends State<PostScreen> with WidgetsBindingObserver {
             final String creatorId = _controller.inCompletePostList[index];
             UserProfile? creatorProfile = _friendsController
                 .searchFriendProfile(creatorId);
-            return Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: 0.04 * width,
-                vertical: 0.02 * width,
-              ),
-              child: Row(
-                children: [
-                  Column(
-                    children: [
-                      profileImageOrDefault(
-                        creatorProfile!.profileImageUrl,
-                        0.14 * width,
-                      ),
-                      SizedBox(height: 0.01 * width),
-                      Text(
-                        creatorProfile.nickname,
-                        style: Get.textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                  SizedBox(width: 0.02 * width),
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        '친구가 마니또 추측중 입니다.',
-                        style: Get.textTheme.bodySmall,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            return IncompleteItem(
+              width: width,
+              creatorId: creatorId,
+              creatorProfile: creatorProfile!,
             );
           },
         );

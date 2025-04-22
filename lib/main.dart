@@ -74,7 +74,7 @@ class _ManitoState extends State<Manito> {
       // 기본 배경색 설정
       scaffoldBackgroundColor: Colors.white,
       // 기본 아이콘 설정
-      iconTheme: IconThemeData(size: 0.07 * width),
+      iconTheme: IconThemeData(size: 0.06 * width),
       // 팝업 메뉴 버튼 설정
       popupMenuTheme: PopupMenuThemeData(color: Colors.white),
       // 다이얼로그 테마 설정
