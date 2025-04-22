@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -68,9 +69,13 @@ class BadgeController extends GetxController {
 
   /// 각 포스트 상태 지우기
   void clearComment(String missionId) async {
-    postBadge[missionId] = false.obs;
-    updateHasAnyPost();
-    final prefs = await SharedPreferences.getInstance();
-    prefs.remove('post_$missionId');
+    try {
+      postBadge[missionId] = false.obs;
+      updateHasAnyPost();
+      final prefs = await SharedPreferences.getInstance();
+      prefs.remove('post_$missionId');
+    } catch (e) {
+      debugPrint('clearComment Error: $e');
+    }
   }
 }

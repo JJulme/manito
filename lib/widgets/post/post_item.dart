@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manito/controllers/badge_controller.dart';
+import 'package:manito/custom_icons.dart';
 import 'package:manito/models/post.dart';
 import 'package:manito/models/user_profile.dart';
 import 'package:manito/screens/post/post_detail_screen.dart';
@@ -132,7 +133,7 @@ class PostItem extends StatelessWidget {
             onPressed: () => _showCommentSheet(width, post.id!),
             icon: badgeIcon(
               badgeController.postBadge[post.id]!,
-              Icon(Icons.comment_outlined),
+              Icon(CustomIcons.comment_empty),
             ),
           );
         }),

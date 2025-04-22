@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:manito/controllers/badge_controller.dart';
 import 'package:manito/controllers/friends_controller.dart';
 import 'package:manito/controllers/post_controller.dart';
+import 'package:manito/custom_icons.dart';
 import 'package:manito/models/post.dart';
 import 'package:manito/models/user_profile.dart';
 import 'package:manito/widgets/common/custom_badge.dart';
@@ -146,7 +147,7 @@ class PostDetailScreen extends StatelessWidget {
                                       _showCommentSheet(width, detailPost.id!),
                               icon: badgeIcon(
                                 _badgeController.postBadge[detailPost.id]!,
-                                Icon(Icons.comment_outlined),
+                                Icon(CustomIcons.comment_empty),
                               ),
                             );
                           }),

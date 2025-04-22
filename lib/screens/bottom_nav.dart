@@ -1,8 +1,8 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manito/controllers/badge_controller.dart';
+import 'package:manito/custom_icons.dart';
 import 'package:manito/firebase_handler.dart';
 import 'package:manito/screens/friend/friends_screen.dart';
 import 'package:manito/screens/manito/manito_screen.dart';
@@ -107,6 +107,7 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    double width = Get.width;
     return Scaffold(
       body: IndexedStack(index: _selectedIndex, children: _screens),
       bottomNavigationBar: BottomNavigationBar(
@@ -125,28 +126,28 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
           BottomNavigationBarItem(
             icon: badgeIcon(
               _badgeController.friendRequestBadge,
-              Icon(Icons.person_rounded),
+              Icon(CustomIcons.user, size: 0.055 * width),
             ),
             label: '친구',
           ),
           BottomNavigationBarItem(
             icon: badgeIcon(
               _badgeController.allPostBadge,
-              Icon(Icons.chat_rounded),
+              Icon(CustomIcons.comment, size: 0.065 * width),
             ),
             label: '게시물',
           ),
           BottomNavigationBarItem(
             icon: badgeIcon(
               _badgeController.missionBadge,
-              Icon(Icons.mail_rounded),
+              Icon(CustomIcons.star, size: 0.065 * width),
             ),
             label: '미션',
           ),
           BottomNavigationBarItem(
             icon: badgeIcon(
               _badgeController.missonProposeBadge,
-              Icon(Icons.list_alt),
+              Icon(CustomIcons.scroll, size: 0.06 * width),
             ),
             label: '마니또',
           ),

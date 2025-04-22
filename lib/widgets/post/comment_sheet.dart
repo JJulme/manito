@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:manito/controllers/badge_controller.dart';
 import 'package:manito/controllers/friends_controller.dart';
 import 'package:manito/controllers/post_controller.dart';
+import 'package:manito/custom_icons.dart';
 import 'package:manito/models/comment.dart';
 import 'package:manito/models/user_profile.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
@@ -19,6 +21,7 @@ class CommentSheet extends StatefulWidget {
 class _CommentSheet2State extends State<CommentSheet> {
   late final CommentController _controller;
   final FriendsController _friendsController = Get.find<FriendsController>();
+  // final BadgeController _badgeController = Get.find<BadgeController>();
 
   @override
   void initState() {
@@ -26,6 +29,12 @@ class _CommentSheet2State extends State<CommentSheet> {
     // 컨트롤러 초기화
     _controller = Get.put(CommentController(widget.missionId));
   }
+
+  // @override
+  // void dispose() {
+  //   _badgeController.clearComment(widget.missionId);
+  //   super.dispose();
+  // }
 
   /// 댓글 공백 입력 방지
   void _handleSendComment() {
@@ -165,7 +174,7 @@ class _CommentSheet2State extends State<CommentSheet> {
                   ),
                   SizedBox(width: 0.02 * widget.width),
                   ElevatedButton.icon(
-                    label: Icon(Icons.send_rounded),
+                    label: Icon(CustomIcons.send),
                     style: ElevatedButton.styleFrom(
                       shape: CircleBorder(),
                       padding: EdgeInsets.zero,

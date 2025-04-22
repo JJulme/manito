@@ -54,6 +54,10 @@ flutter:
       fonts:
         - asset: assets/fonts/DS-DIGIB.TTF
 
+    - family: CustomIcons
+      fonts:
+        - asset: assets/fonts/custom_icons.ttf
+
   #     fonts:
   #       - asset: fonts/TrajanPro.ttf
   #       - asset: fonts/TrajanPro_Bold.ttf
