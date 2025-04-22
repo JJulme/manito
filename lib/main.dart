@@ -48,6 +48,7 @@ class _ManitoState extends State<Manito> {
     // 테마 설정
     var themeData = ThemeData(
       useMaterial3: true,
+      primarySwatch: Colors.amber,
       primaryColor: kSunsetPeach,
       primaryColorLight: kSunsetPeachLight,
       primaryColorDark: kSunsetPeachDark,

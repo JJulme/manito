@@ -129,10 +129,6 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(
-                        height: 0.6 * width,
-                        child: Center(child: Text('친구 추가할 이메일을 입력해주세요.')),
-                      ),
                     ],
                   );
                 }

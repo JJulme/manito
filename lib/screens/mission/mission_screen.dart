@@ -232,7 +232,7 @@ class _MissionScreenState extends State<MissionScreen>
 
                       Text(myMission.status, style: Get.textTheme.titleMedium),
                       SizedBox(width: 0.01 * width),
-                      Text('(${myMission.deadlineType})'),
+                      Text('(${myMission.deadlineType}) '),
                       Tooltip(
                         showDuration: Duration(days: 1),
                         triggerMode: TooltipTriggerMode.tap,
@@ -324,7 +324,7 @@ class _MissionScreenState extends State<MissionScreen>
                         style: Get.textTheme.titleMedium,
                       ),
                       SizedBox(width: 0.01 * width),
-                      Text('(${acceptMission.deadlineType})'),
+                      Text('(${acceptMission.deadlineType}) '),
                       Tooltip(
                         showDuration: Duration(days: 1),
                         triggerMode: TooltipTriggerMode.tap,
