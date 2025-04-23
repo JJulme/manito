@@ -8,7 +8,6 @@ import 'package:manito/models/user_profile.dart';
 import 'package:manito/widgets/admob/banner_ad_widget.dart';
 import 'package:manito/widgets/post/incomplete_item.dart';
 import 'package:manito/widgets/post/post_item.dart';
-import 'package:manito/widgets/profile/profile_image_view.dart';
 
 class PostScreen extends StatefulWidget {
   const PostScreen({super.key});

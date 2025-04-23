@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:manito/controllers/badge_controller.dart';
 import 'package:manito/controllers/friends_controller.dart';
 import 'package:manito/controllers/post_controller.dart';
 import 'package:manito/custom_icons.dart';
