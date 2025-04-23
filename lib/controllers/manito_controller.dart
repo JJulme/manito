@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:manito/models/auto_reply.dart';
 import 'package:manito/models/mission.dart';
 import 'package:manito/models/user_profile.dart';
+import 'package:manito/widgets/common/custom_snackbar.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -248,9 +249,9 @@ class ManitoPostController extends GetxController {
       await postTable.update(upsertData).eq('id', missionAccept.missionId);
       // 저장 상태 변경
       isPosting.value = true;
-      Get.snackbar('저장 성공', '미션종료 버튼을 누르면 친구에게 알림이 갑니다.');
+      customSnackbar(title: '저장 성공', message: '미션종료 버튼을 누르면 친구에게 알림이 갑니다.');
     } catch (e) {
-      Get.snackbar('오류', '$e');
+      customSnackbar(title: '오류', message: '$e');
       debugPrint('updatePost Error: $e');
     } finally {
       updateLoading.value = false;

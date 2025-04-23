@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manito/controllers/friends_controller.dart';
+import 'package:manito/widgets/common/custom_snackbar.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
 
 class FriendsRequestScreen extends StatefulWidget {
@@ -24,14 +25,14 @@ class _FriendsRequestScreenState extends State<FriendsRequestScreen> {
     _controller.fetchFriendRequest();
     // 친구 목록 다시 가져오기
     friendsController.fetchFriendList();
-    Get.snackbar('알림', result);
+    customSnackbar(title: '알림', message: result);
   }
 
   /// 거절 함수
   Future<void> _rejectRequest(String senderId) async {
     String result = await _controller.rejectFriendRequest(senderId);
     _controller.fetchFriendRequest();
-    Get.snackbar('알림', result);
+    customSnackbar(title: '알림', message: result);
   }
 
   @override

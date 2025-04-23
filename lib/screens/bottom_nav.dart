@@ -9,6 +9,7 @@ import 'package:manito/screens/manito/manito_screen.dart';
 import 'package:manito/screens/mission/mission_screen.dart';
 import 'package:manito/screens/post/post_screen.dart';
 import 'package:manito/widgets/common/custom_badge.dart';
+import 'package:manito/widgets/common/custom_snackbar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Bottom Nav Bar
@@ -52,7 +53,7 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
       NotificationSettings settings =
           await FirebaseMessaging.instance.requestPermission();
       if (settings.authorizationStatus == AuthorizationStatus.denied) {
-        Get.snackbar('알림 권한', '알림을 받으려면 설정에서 알림을 활성화해야 합니다.');
+        customSnackbar(title: '알림 권한', message: '알림을 받으려면 설정에서 알림을 활성화해야 합니다.');
       }
       // late String? fcmToken;
       // // FCM 토큰 가져오기
@@ -81,7 +82,7 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
       FirebaseMessaging.onMessage.listen(handleForegroundMessage);
     } catch (e) {
       debugPrint('_handleFCMToken Error: $e');
-      Get.snackbar('오류', 'FCM 토큰 오류');
+      customSnackbar(title: '오류', message: 'FCM 토큰 오류');
     }
   }
 

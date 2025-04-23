@@ -7,6 +7,7 @@ import 'package:manito/models/mission.dart';
 import 'package:manito/screens/mission/mission_create_screen.dart';
 import 'package:manito/screens/mission/mission_guess_screen.dart';
 import 'package:manito/widgets/admob/banner_ad_widget.dart';
+import 'package:manito/widgets/common/custom_snackbar.dart';
 import 'package:manito/widgets/mission/timer.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
 
@@ -47,7 +48,7 @@ class _MissionScreenState extends State<MissionScreen>
     if (_controller.pendingMyMissions.length +
             _controller.acceptMyMissions.length >
         2) {
-      Get.snackbar('알림', '미션은 최대 3개 만들 수 있습니다.');
+      customSnackbar(title: '알림', message: '미션은 최대 3개 만들 수 있습니다.');
     } else {
       final result = await Get.to(() => MissionCreateScreen());
       if (result == true) {

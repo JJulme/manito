@@ -5,6 +5,7 @@ import 'package:manito/controllers/badge_controller.dart';
 import 'package:manito/controllers/manito_controller.dart';
 import 'package:manito/controllers/mission_controller.dart';
 import 'package:manito/controllers/post_controller.dart';
+import 'package:manito/widgets/common/custom_snackbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// 포그라운드 메시지 처리 - 데이터 새로고침, 뱃지 기능 추가 필요
@@ -51,9 +52,9 @@ void handleForegroundMessage(RemoteMessage message) async {
     await prefs.setBool('post_$missionId', true);
   }
 
-  Get.snackbar(
-    message.notification!.title!,
-    message.notification!.body!,
+  customSnackbar(
+    title: message.notification!.title!,
+    message: message.notification!.body!,
   );
 }
 

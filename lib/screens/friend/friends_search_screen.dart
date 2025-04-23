@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:manito/controllers/friends_controller.dart';
+import 'package:manito/widgets/common/custom_snackbar.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
 
 class FriendsSearchScreen extends StatefulWidget {
@@ -42,7 +43,7 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
   /// 친구 신청
   Future<void> _friendRequest() async {
     final result = await _controller.sendFriendRequest();
-    Get.snackbar('알림', result);
+    customSnackbar(title: '알림', message: result);
   }
 
   @override

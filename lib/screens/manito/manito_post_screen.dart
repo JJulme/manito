@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manito/controllers/manito_controller.dart';
 import 'package:manito/screens/album_screen.dart';
+import 'package:manito/widgets/common/custom_snackbar.dart';
 import 'package:manito/widgets/post/image_slider.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
@@ -36,7 +37,7 @@ class ManitoPostScreen extends StatelessWidget {
             onPressed: () async {
               Get.back(); // 다이얼로그 닫기
               String result = await _controller.completePost();
-              Get.snackbar('알림', result);
+              customSnackbar(title: '알림', message: result);
             },
           ),
         ],
@@ -183,7 +184,10 @@ class ManitoPostScreen extends StatelessWidget {
                         : () {
                           // 5글자 이상인지 확인
                           if (_controller.descController.text.length < 5) {
-                            Get.snackbar('정성부족', '5글자 이상 작성해 주세요.');
+                            customSnackbar(
+                              title: '정성부족',
+                              message: '5글자 이상 작성해 주세요.',
+                            );
                             return;
                           }
                           // 상태에 따라 적절한 함수 호출

@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:manito/models/post.dart';
 import 'package:manito/models/user_profile.dart';
+import 'package:manito/widgets/common/custom_snackbar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// 친구 화면 컨트롤러
@@ -149,7 +150,7 @@ class FriendSearchController extends GetxController {
       searchProfile.value = UserProfile.fromJson(result);
     } catch (e) {
       searchProfile.value = null;
-      Get.snackbar('알림', '검색 결과가 없습니다.');
+      customSnackbar(title: '알림', message: '검색 결과가 없습니다.');
       debugPrint('searchEmail Error: $e');
     } finally {
       isLoading.value = false;
@@ -399,7 +400,7 @@ class FriendsDetailCrontroller extends GetxController {
       );
       Get.back();
     } catch (e) {
-      Get.snackbar('오류', '$e');
+      customSnackbar(title: '오류', message: '$e');
       debugPrint('blockFriend Error: $e');
     }
   }

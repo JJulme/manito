@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:manito/constants.dart';
 import 'package:manito/controllers/manito_controller.dart';
 import 'package:manito/models/user_profile.dart';
+import 'package:manito/widgets/common/custom_snackbar.dart';
 import 'package:manito/widgets/mission/timer.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
 
@@ -16,7 +17,7 @@ class MissionProposeScreen extends StatelessWidget {
   /// 미션 수락 함수
   void _showAcceptMissionDialog() async {
     if (_controller.selectedContent.value == null) {
-      Get.snackbar('알림', '미션을 선택해주세요.');
+      customSnackbar(title: '알림', message: '미션을 선택해주세요.');
     } else {
       kDefaultDialog(
         '미션 수락',
@@ -26,7 +27,7 @@ class MissionProposeScreen extends StatelessWidget {
           String result = await _controller.acceptMissionPropose(
             _controller.selectedContent.value!,
           );
-          Get.snackbar('알림', result);
+          customSnackbar(title: '알림', message: result);
         },
       );
     }

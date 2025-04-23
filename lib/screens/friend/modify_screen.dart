@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:manito/controllers/friends_controller.dart';
+import 'package:manito/widgets/common/custom_snackbar.dart';
 
 class ModifyScreen extends StatelessWidget {
   ModifyScreen({super.key});
@@ -27,7 +28,7 @@ class ModifyScreen extends StatelessWidget {
     } else {
       if (_formKey.currentState!.validate()) {
         String result = await _controller.updateProfile();
-        Get.snackbar('알림', result);
+        customSnackbar(title: '알림', message: result);
       }
     }
   }

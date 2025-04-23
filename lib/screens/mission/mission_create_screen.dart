@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:manito/constants.dart';
 import 'package:manito/controllers/friends_controller.dart';
 import 'package:manito/controllers/mission_controller.dart';
+import 'package:manito/widgets/common/custom_snackbar.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
 
 class MissionCreateScreen extends StatefulWidget {
@@ -24,14 +25,14 @@ class _MissionCreateScreenState extends State<MissionCreateScreen> {
   /// 미션 생성 다이얼로그
   void _showMissionCreationDialog() {
     if (_controller.selectedFriends.length < 3) {
-      Get.snackbar('알림', '최소 3명 이상의 친구를 선택해 주세요.');
+      customSnackbar(title: '알림', message: '최소 3명 이상의 친구를 선택해 주세요.');
     } else {
       kDefaultDialog(
         '미션 생성',
         '미션을 생성하고 취소/수정 할 수 없습니다.',
         onYesPressed: () async {
           String result = await _controller.createMission(_selectedIndex);
-          Get.snackbar('알림', result);
+          customSnackbar(title: '알림', message: result);
         },
       );
     }

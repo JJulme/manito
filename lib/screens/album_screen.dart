@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:manito/widgets/common/custom_snackbar.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 
@@ -144,12 +145,11 @@ class AlbumController extends GetxController {
           (a, b) => b.createDateTime.compareTo(a.createDateTime),
         );
       } else {
-        Get.snackbar(
-          '알림',
-          '이미지 접근 권한이 필요합니다.',
-          onTap: (snack) => PhotoManager.openSetting(),
+        customSnackbar(
+          title: '알림',
+          message: '이미지 접근 권한이 필요합니다.',
+          onTap: (_) => PhotoManager.openSetting(),
         );
-        // PhotoManager.openSetting();
       }
     } catch (e) {
       debugPrint('fetchImages Error: $e');
@@ -172,7 +172,7 @@ class AlbumController extends GetxController {
     }
     // 선택 가능 이미지 개수 제한
     else if ((selectedImages.length >= 6)) {
-      Get.snackbar('선택 제한', '최대 6개까지 선택할 수 있습니다.');
+      customSnackbar(title: '선택 제한', message: '최대 6개까지 선택할 수 있습니다.');
     }
     // 선택한 이미지 추가
     else {

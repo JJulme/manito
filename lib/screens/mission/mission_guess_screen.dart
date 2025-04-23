@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:manito/controllers/mission_controller.dart';
 import 'package:manito/controllers/post_controller.dart';
 import 'package:manito/models/user_profile.dart';
+import 'package:manito/widgets/common/custom_snackbar.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
 
 class MissionGuessScreen extends StatelessWidget {
@@ -16,11 +17,11 @@ class MissionGuessScreen extends StatelessWidget {
     if (_controller.updateLoading.value) {
       return;
     } else if (_controller.descController.text.length < 5) {
-      Get.snackbar('알림', '최소 5글자 이상 작성해주세요.');
+      customSnackbar(title: '알림', message: '최소 5글자 이상 작성해주세요.');
     } else {
       String result = await _controller.updateMissionGuess();
       await _postController.fetchPosts();
-      Get.snackbar('알림', result);
+      customSnackbar(title: '알림', message: result);
     }
   }
 

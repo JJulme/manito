@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manito/constants.dart';
 import 'package:manito/controllers/manito_controller.dart';
+import 'package:manito/widgets/common/custom_snackbar.dart';
 
 class AutoReplyScreen extends StatefulWidget {
   const AutoReplyScreen({super.key});
@@ -45,12 +46,15 @@ class _AutoReplyScreenState extends State<AutoReplyScreen> {
                         ? null
                         : () async {
                           if (_controller.replyController.text.length < 5) {
-                            Get.snackbar('알림', '5글자 이상 작성되어야 합니다.');
+                            customSnackbar(
+                              title: '알림',
+                              message: '5글자 이상 작성되어야 합니다.',
+                            );
                           } else {
                             String result = await _controller.updateAutoReply(
                               _controller.replyController.text,
                             );
-                            Get.snackbar('알림', result);
+                            customSnackbar(title: '알림', message: result);
                           }
                         },
               ),
