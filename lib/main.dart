@@ -31,6 +31,8 @@ void main() async {
   KakaoSdk.init(nativeAppKey: dotenv.env['KAKAO_APP_KEY']);
   // 한국어 설정
   timeago.setLocaleMessages('ko', timeago.KoMessages());
+  // 딥링크 설정
+  // await initDeepLinks();
   runApp(const Manito());
 }
 

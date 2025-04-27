@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manito/controllers/auth_controller.dart';
+import 'package:manito/screens/kakao_login_webview.dart';
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
@@ -42,7 +43,8 @@ class LoginScreen extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 0.05 * width),
                 child: InkWell(
-                  onTap: () => authController.loginWithKakao(),
+                  // onTap: () => authController.loginWithKakao(),
+                  onTap: () => Get.to(() => KakaoLoginWebview()),
                   child: Image.asset(
                     'assets/images/kakao_login_large_wide.png',
                     fit: BoxFit.cover,

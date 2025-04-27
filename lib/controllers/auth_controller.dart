@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:manito/screens/login_screen.dart';
 import 'package:manito/screens/splash_screen.dart';
@@ -12,9 +13,13 @@ class AuthController extends GetxController {
     // Kakao OAuth 로그인 시도
     await supabase.auth.signInWithOAuth(
       OAuthProvider.kakao,
-      authScreenLaunchMode:
-          kIsWeb ? LaunchMode.platformDefault : LaunchMode.externalApplication,
+      redirectTo: 'kakao1a36ff49b64f62a81bd117e504fe332b://oauth',
+      // authScreenLaunchMode: LaunchMode.externalApplication,
+      // authScreenLaunchMode: LaunchMode.inAppBrowserView,
+      authScreenLaunchMode: LaunchMode.inAppWebView,
+      // authScreenLaunchMode: LaunchMode.platformDefault,
     );
+
     supabase.auth.onAuthStateChange.listen((data) async {
       final AuthChangeEvent event = data.event;
       // 성공적으로 로그인이 완료된 경우
@@ -26,6 +31,26 @@ class AuthController extends GetxController {
       }
     });
   }
+
+  // Future<void> loginWithKakao() async {
+  //   // Kakao OAuth 로그인 시도
+  //   final oauthResponse = await supabase.auth.getOAuthSignInUrl(
+  //     provider: OAuthProvider.kakao,
+  //     redirectTo: 'kakao1a36ff49b64f62a81bd117e504fe332b://oauth',
+  //   );
+  //   print('oauthResponse: ${oauthResponse.url}');
+
+  //   supabase.auth.onAuthStateChange.listen((data) async {
+  //     final AuthChangeEvent event = data.event;
+  //     // 성공적으로 로그인이 완료된 경우
+  //     if (event == AuthChangeEvent.signedIn) {
+  //       debugPrint('Logged in with Kakao');
+  //       Get.offAll(() => SplashScreen());
+  //     } else {
+  //       debugPrint('Login failed');
+  //     }
+  //   });
+  // }
 
   // 로그아웃 처리
   Future<void> logout() async {
