@@ -24,8 +24,8 @@ class _MissionCreateScreenState extends State<MissionCreateScreen> {
 
   /// 미션 생성 다이얼로그
   void _showMissionCreationDialog() {
-    if (_controller.selectedFriends.length < 3) {
-      customSnackbar(title: '알림', message: '최소 3명 이상의 친구를 선택해 주세요.');
+    if (_controller.selectedFriends.length < 2) {
+      customSnackbar(title: '알림', message: '최소 2명 이상의 친구를 선택해 주세요.');
     } else {
       kDefaultDialog(
         '미션 생성',
