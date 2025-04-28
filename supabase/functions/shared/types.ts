@@ -8,7 +8,7 @@ export interface FCMPayload {
   android?: {
     notification: {
       icon: string;
-      large_icon?: string;
+      image?: string;
     };
   };
 }
