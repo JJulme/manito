@@ -187,32 +187,43 @@ class _MissionCreateScreenState extends State<MissionCreateScreen> {
                             horizontal: 0.05 * width,
                             vertical: 0.01 * width,
                           ),
-                          title: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          title: Row(
                             children: [
-                              Text(
-                                userProfile.nickname,
-                                style: Get.textTheme.bodyMedium,
+                              profileImageOrDefault(
+                                userProfile.profileImageUrl,
+                                0.16 * width,
                               ),
-                              Text(
-                                userProfile.statusMessage,
-                                style: Get.textTheme.labelMedium,
+                              SizedBox(width: 0.02 * width),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      userProfile.nickname,
+                                      style: Get.textTheme.bodyMedium,
+                                    ),
+                                    Text(
+                                      userProfile.statusMessage,
+                                      style: Get.textTheme.labelMedium,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
                           visualDensity: const VisualDensity(vertical: 4),
-                          leading: profileImageOrDefault(
-                            userProfile.profileImageUrl!,
-                            0.16 * width,
-                          ),
-                          trailing: Checkbox(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
+                          trailing: Transform.scale(
+                            scale: 0.0025 * width,
+                            child: Checkbox(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              value: _controller.isSelected(userProfile),
+                              onChanged: (_) {
+                                _controller.toggleSelection(userProfile);
+                              },
                             ),
-                            value: _controller.isSelected(userProfile),
-                            onChanged: (_) {
-                              _controller.toggleSelection(userProfile);
-                            },
                           ),
                           onTap: () {
                             _controller.toggleSelection(userProfile);

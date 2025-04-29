@@ -128,8 +128,8 @@ class _PostScreenState extends State<PostScreen> with WidgetsBindingObserver {
       // 게시물이 없을 경우
       if (_controller.postList.isEmpty) {
         return Container(
-          height: Get.height * 0.3,
-          alignment: Alignment.bottomCenter,
+          height: Get.height * 0.5,
+          alignment: Alignment.center,
           child: Text('친구들과 미션을 주고 받아보세요!', style: Get.textTheme.bodySmall),
         );
       }

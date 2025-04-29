@@ -125,7 +125,10 @@ class _ManitoScreenState extends State<ManitoScreen>
                       height: Get.height * 0.5,
                       width: double.infinity,
                       alignment: Alignment.center,
-                      child: Text('진행중인 미션이 없습니다.'),
+                      child: Text(
+                        '진행중인 미션이 없습니다.',
+                        style: Get.textTheme.bodySmall,
+                      ),
                     )
                     : SizedBox.shrink(),
 

@@ -23,7 +23,6 @@ class MissionProposeScreen extends StatelessWidget {
         '미션 수락',
         '미션을 수락하고 취소 할 수 없습니다.',
         onYesPressed: () async {
-          Get.back();
           String result = await _controller.acceptMissionPropose(
             _controller.selectedContent.value!,
           );
@@ -47,10 +46,13 @@ class MissionProposeScreen extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         actions: [
-          IconButton(
-            padding: EdgeInsets.all(0),
-            icon: Icon(Icons.close_rounded, size: 0.07 * width),
-            onPressed: () => Get.back(result: false),
+          Padding(
+            padding: EdgeInsets.only(right: 0.02 * width),
+            child: IconButton(
+              padding: EdgeInsets.all(0),
+              icon: Icon(Icons.close_rounded, size: 0.07 * width),
+              onPressed: () => Get.back(result: false),
+            ),
           ),
         ],
       ),
@@ -61,160 +63,146 @@ class MissionProposeScreen extends StatelessWidget {
           } else {
             final UserProfile creatorProfile = _controller.creatorProfile;
             final missionPropose = _controller.missionPropose.value;
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                // 프로필 이미지
-                SizedBox(height: 0.03 * width),
-                profileImageOrDefault(
-                  creatorProfile.profileImageUrl!,
-                  0.3 * width,
-                ),
-                SizedBox(height: 0.03 * width),
-                // 설명
-                Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(horizontal: 0.05 * width),
-                  alignment: Alignment.center,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${creatorProfile.nickname} 에게',
-                        style: Get.textTheme.titleMedium,
-                      ),
-                      Text(
-                        '${missionPropose!.deadlineType} 내에  (${missionPropose.deadline})',
-                        style: Get.textTheme.titleMedium,
-                      ),
-                    ],
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 프로필 이미지
+                  SizedBox(height: 0.03 * width),
+                  profileImageOrDefault(
+                    creatorProfile.profileImageUrl!,
+                    0.3 * width,
                   ),
-                ),
-                SizedBox(height: 0.03 * width),
-                // 수락 기한
-                // Padding(
-                //   padding: EdgeInsets.symmetric(horizontal: 0.02 * di),
-                //   child: Row(
-                //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //     children: [
-                //       Text(
-                //         '수락기한 ',
-                //         style: Get.textTheme.titleLarge,
-                //       ),
-                //       TimerWidget(
-                //         targetDateTimeString: missionPropose.acceptDeadline,
-                //         fontSize: 0.05 * di,
-                //         color: kFireOpal,
-                //       ),
-                //     ],
-                //   ),
-                // ),
-                // SizedBox(height: 0.02 * di),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 0.05 * width),
-                  alignment: Alignment.centerLeft,
-                  child: Text('미션 선택', style: Get.textTheme.titleMedium),
-                ),
-                SizedBox(height: 0.03 * width),
-                // 미션 버튼 목록
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: missionPropose.randomContents.length,
-                  itemBuilder: (context, index) {
-                    final content = missionPropose.randomContents[index];
-                    return Obx(() {
-                      return GestureDetector(
-                        onTap: () {
-                          _controller.selectedContent.value = content;
-                        },
-                        child: Container(
-                          height: 0.15 * width,
-                          margin: EdgeInsets.symmetric(
-                            horizontal: 0.05 * width,
-                            vertical: 0.015 * width,
-                          ),
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 0.05 * width,
-                            vertical: 0.015 * width,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white70,
-                            borderRadius: BorderRadius.circular(0.02 * width),
-                            border: Border.all(
-                              color:
-                                  _controller.selectedContent.value == content
-                                      ? Colors.green
-                                      : Colors.grey,
+                  SizedBox(height: 0.03 * width),
+                  // 설명
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(horizontal: 0.05 * width),
+                    alignment: Alignment.center,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${creatorProfile.nickname} 에게',
+                          style: Get.textTheme.titleMedium,
+                        ),
+                        Text(
+                          '${missionPropose!.deadlineType} 내에  (${missionPropose.deadline})',
+                          style: Get.textTheme.titleMedium,
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 0.03 * width),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 0.05 * width),
+                    alignment: Alignment.centerLeft,
+                    child: Text('미션 선택', style: Get.textTheme.titleMedium),
+                  ),
+                  SizedBox(height: 0.03 * width),
+                  // 미션 버튼 목록
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: missionPropose.randomContents.length,
+                    itemBuilder: (context, index) {
+                      final content = missionPropose.randomContents[index];
+                      return Obx(() {
+                        return GestureDetector(
+                          onTap: () {
+                            _controller.selectedContent.value = content;
+                          },
+                          child: Container(
+                            height: 0.15 * width,
+                            margin: EdgeInsets.symmetric(
+                              horizontal: 0.05 * width,
+                              vertical: 0.015 * width,
                             ),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.arrow_right_rounded,
-                                size: 0.12 * width,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 0.05 * width,
+                              vertical: 0.015 * width,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white70,
+                              borderRadius: BorderRadius.circular(0.02 * width),
+                              border: Border.all(
                                 color:
                                     _controller.selectedContent.value == content
                                         ? Colors.green
-                                        : Colors.white70,
+                                        : Colors.grey,
                               ),
-                              SizedBox(width: 0.03 * width),
-                              Text(
-                                content,
-                                style: TextStyle(
-                                  fontSize: 0.05 * width,
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.arrow_right_rounded,
+                                  size: 0.12 * width,
                                   color:
                                       _controller.selectedContent.value ==
                                               content
                                           ? Colors.green
-                                          : Colors.black87,
+                                          : Colors.white70,
                                 ),
-                              ),
-                            ],
+                                SizedBox(width: 0.03 * width),
+                                Text(
+                                  content,
+                                  style: TextStyle(
+                                    fontSize: 0.05 * width,
+                                    color:
+                                        _controller.selectedContent.value ==
+                                                content
+                                            ? Colors.green
+                                            : Colors.black87,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    });
-                  },
-                ),
-                // 광고 버튼
-                Container(
-                  width: double.infinity,
-                  height: 0.15 * width,
-                  margin: EdgeInsets.symmetric(
-                    horizontal: 0.05 * width,
-                    vertical: 0.015 * width,
-                  ),
-                  child: OutlinedButton(
-                    // style: ElevatedButton.styleFrom(
-                    //   backgroundColor: Colors.lime,
-                    // ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.movie_creation_outlined, size: 0.07 * width),
-                        Text(
-                          ' 광고보고 +1',
-                          style: TextStyle(fontSize: 0.05 * width),
-                        ),
-                      ],
-                    ),
-                    onPressed: () {
-                      Get.snackbar('알림', '광고 구현하기');
+                        );
+                      });
                     },
                   ),
-                ),
-              ],
+                  // // 광고 버튼
+                  // Container(
+                  //   width: double.infinity,
+                  //   height: 0.15 * width,
+                  //   margin: EdgeInsets.symmetric(
+                  //     horizontal: 0.05 * width,
+                  //     vertical: 0.015 * width,
+                  //   ),
+                  //   child: OutlinedButton(
+                  //     // style: ElevatedButton.styleFrom(
+                  //     //   backgroundColor: Colors.lime,
+                  //     // ),
+                  //     child: Row(
+                  //       mainAxisAlignment: MainAxisAlignment.center,
+                  //       children: [
+                  //         Icon(Icons.movie_creation_outlined, size: 0.07 * width),
+                  //         Text(
+                  //           ' 광고보고 +1',
+                  //           style: TextStyle(fontSize: 0.05 * width),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //     onPressed: () {
+                  //       Get.snackbar('알림', '광고 구현하기');
+                  //     },
+                  //   ),
+                  // ),
+                ],
+              ),
             );
           }
         }),
       ),
       // 수락하기 버튼
       bottomNavigationBar: BottomAppBar(
+        height: 0.18 * width,
         padding: EdgeInsets.all(0),
         child: Container(
           width: double.infinity,
-          height: 0.2 * width,
+          height: 0.18 * width,
           margin: EdgeInsets.symmetric(
             horizontal: 0.05 * width,
             vertical: 0.03 * width,

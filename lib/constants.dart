@@ -55,10 +55,7 @@ Future kDefaultDialog(
     await Get.dialog(
       CupertinoAlertDialog(
         title: Text(title, style: Get.textTheme.titleMedium),
-        content: Container(
-          width: 0.8 * Get.width,
-          child: Text(message, style: Get.textTheme.bodySmall),
-        ),
+        content: Text(message, style: Get.textTheme.bodySmall),
         actions: [
           if (onYesPressed != null)
             CupertinoDialogAction(
@@ -70,7 +67,12 @@ Future kDefaultDialog(
             ),
           CupertinoDialogAction(
             isDefaultAction: true,
-            onPressed: onYesPressed,
+            onPressed: () {
+              if (onYesPressed != null) {
+                onYesPressed();
+              }
+              Get.back();
+            },
             child: Text((onYesPressed == null) ? "OK" : "Yes"),
           ),
         ],

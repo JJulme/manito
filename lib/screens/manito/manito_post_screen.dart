@@ -1,7 +1,9 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:manito/constants.dart';
 import 'package:manito/controllers/manito_controller.dart';
+import 'package:manito/controllers/post_controller.dart';
 import 'package:manito/screens/album_screen.dart';
 import 'package:manito/widgets/common/custom_snackbar.dart';
 import 'package:manito/widgets/post/image_slider.dart';
@@ -13,6 +15,7 @@ class ManitoPostScreen extends StatelessWidget {
   ManitoPostScreen({super.key});
 
   final ManitoPostController _controller = Get.put(ManitoPostController());
+  final PostController _postController = Get.find<PostController>();
 
   /// 앨범에서 이미지 선택 함수
   void _selectImages() async {
@@ -26,22 +29,14 @@ class ManitoPostScreen extends StatelessWidget {
 
   /// 친구에게 게시물 보내는 함수
   void _completePost() async {
-    Get.dialog(
-      AlertDialog(
-        title: Text('미션 완료'),
-        content: Text('미션을 종료하고 친구에게 알립니다.'),
-        actions: [
-          TextButton(child: Text('취소'), onPressed: () => Get.back()),
-          TextButton(
-            child: Text('확인'),
-            onPressed: () async {
-              Get.back(); // 다이얼로그 닫기
-              String result = await _controller.completePost();
-              customSnackbar(title: '알림', message: result);
-            },
-          ),
-        ],
-      ),
+    kDefaultDialog(
+      '미션 완료',
+      '미션을 종료하고 친구에게 알립니다.',
+      onYesPressed: () async {
+        String result = await _controller.completePost();
+        await _postController.fetchPosts();
+        customSnackbar(title: '알림', message: result);
+      },
     );
   }
 
@@ -58,10 +53,13 @@ class ManitoPostScreen extends StatelessWidget {
           automaticallyImplyLeading: false,
           title: Text('미션 기록하기'),
           actions: [
-            IconButton(
-              padding: EdgeInsets.all(0),
-              icon: Icon(Icons.close_rounded, size: 0.07 * width),
-              onPressed: () => Get.back(result: false),
+            Padding(
+              padding: EdgeInsets.only(right: 0.02 * width),
+              child: IconButton(
+                padding: EdgeInsets.all(0),
+                icon: Icon(Icons.close_rounded, size: 0.07 * width),
+                onPressed: () => Get.back(result: false),
+              ),
             ),
           ],
         ),
@@ -172,9 +170,10 @@ class ManitoPostScreen extends StatelessWidget {
         ),
         // 저장, 전송 버튼
         bottomNavigationBar: BottomAppBar(
+          height: 0.18 * width,
           padding: EdgeInsets.all(0 * width),
           child: Container(
-            height: 0.15 * width,
+            height: 0.18 * width,
             margin: EdgeInsets.all(0.03 * width),
             child: Obx(() {
               return ElevatedButton(
