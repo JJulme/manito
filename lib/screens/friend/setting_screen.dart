@@ -16,7 +16,7 @@ class SettingScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
-        titleSpacing: 0,
+        titleSpacing: 0.02 * width,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => Get.back(),

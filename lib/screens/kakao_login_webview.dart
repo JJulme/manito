@@ -30,7 +30,7 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
         _kakaoLoginUrl = response.url;
       });
     } catch (e) {
-      print('카카오 로그인 URL 요청 오류: $e');
+      debugPrint('카카오 로그인 URL 요청 오류: $e');
     }
   }
 

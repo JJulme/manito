@@ -77,11 +77,14 @@ class _MissionScreenState extends State<MissionScreen>
         titleSpacing: 0.07 * width,
         title: Text('나의 미션', style: Get.textTheme.headlineLarge),
         actions: [
-          IconButton(
-            icon: Icon(Icons.refresh, size: 0.07 * width),
-            onPressed: () {
-              _controller.fetchMyMissions();
-            },
+          Padding(
+            padding: EdgeInsets.only(right: 0.02 * width),
+            child: IconButton(
+              icon: Icon(Icons.refresh, size: 0.07 * width),
+              onPressed: () {
+                _controller.fetchMyMissions();
+              },
+            ),
           ),
         ],
       ),

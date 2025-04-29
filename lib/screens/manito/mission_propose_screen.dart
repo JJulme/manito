@@ -177,24 +177,33 @@ class MissionProposeScreen extends StatelessWidget {
                     });
                   },
                 ),
-                // // 광고 버튼
-                // Container(
-                //   width: double.infinity,
-                //   height: 0.065 * di,
-                //   margin: EdgeInsets.symmetric(
-                //     horizontal: 0.02 * di,
-                //     vertical: 0.005 * di,
-                //   ),
-                //   child: ElevatedButton(
-                //     child: Text(
-                //       '광고 버튼',
-                //       style: TextStyle(fontSize: 0.025 * di),
-                //     ),
-                //     onPressed: () {
-                //       Get.snackbar('알림', '광고 구현하기');
-                //     },
-                //   ),
-                // ),
+                // 광고 버튼
+                Container(
+                  width: double.infinity,
+                  height: 0.15 * width,
+                  margin: EdgeInsets.symmetric(
+                    horizontal: 0.05 * width,
+                    vertical: 0.015 * width,
+                  ),
+                  child: OutlinedButton(
+                    // style: ElevatedButton.styleFrom(
+                    //   backgroundColor: Colors.lime,
+                    // ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.movie_creation_outlined, size: 0.07 * width),
+                        Text(
+                          ' 광고보고 +1',
+                          style: TextStyle(fontSize: 0.05 * width),
+                        ),
+                      ],
+                    ),
+                    onPressed: () {
+                      Get.snackbar('알림', '광고 구현하기');
+                    },
+                  ),
+                ),
               ],
             );
           }

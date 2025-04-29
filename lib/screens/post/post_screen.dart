@@ -52,14 +52,17 @@ class _PostScreenState extends State<PostScreen> with WidgetsBindingObserver {
         titleSpacing: 0.07 * width,
         title: Text('게시물', style: Get.textTheme.headlineLarge),
         actions: [
-          IconButton(
-            icon: Icon(Icons.refresh, size: 0.07 * width),
-            onPressed: () async {
-              _controller.isLoading.value = true;
-              await _controller.fetchPosts();
-              await _controller.fetchIncompletePost();
-              _controller.isLoading.value = false;
-            },
+          Padding(
+            padding: EdgeInsets.only(right: 0.02 * width),
+            child: IconButton(
+              icon: Icon(Icons.refresh, size: 0.07 * width),
+              onPressed: () async {
+                _controller.isLoading.value = true;
+                await _controller.fetchPosts();
+                await _controller.fetchIncompletePost();
+                _controller.isLoading.value = false;
+              },
+            ),
           ),
         ],
       ),

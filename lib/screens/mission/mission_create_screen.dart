@@ -44,16 +44,19 @@ class _MissionCreateScreenState extends State<MissionCreateScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
-        titleSpacing: 0,
+        titleSpacing: 0.02 * width,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => Get.back(),
         ),
         title: Text('미션 만들기', style: Get.textTheme.headlineMedium),
         actions: [
-          TextButton(
-            child: Text('확인', style: Get.textTheme.bodyMedium),
-            onPressed: () => _showMissionCreationDialog(),
+          Padding(
+            padding: EdgeInsets.only(right: 0.02 * width),
+            child: TextButton(
+              child: Text('확인', style: Get.textTheme.bodyMedium),
+              onPressed: () => _showMissionCreationDialog(),
+            ),
           ),
         ],
       ),

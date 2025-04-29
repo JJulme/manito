@@ -9,7 +9,6 @@ import 'package:manito/widgets/profile/profile_image_view.dart';
 
 class CommentSheet extends StatefulWidget {
   final double width;
-
   final String missionId;
   const CommentSheet({super.key, required this.width, required this.missionId});
 
@@ -173,7 +172,7 @@ class _CommentSheet2State extends State<CommentSheet> {
                   ),
                   SizedBox(width: 0.02 * widget.width),
                   ElevatedButton.icon(
-                    label: Icon(CustomIcons.send),
+                    label: Icon(CustomIcons.send, size: 0.05 * widget.width),
                     style: ElevatedButton.styleFrom(
                       shape: CircleBorder(),
                       padding: EdgeInsets.zero,

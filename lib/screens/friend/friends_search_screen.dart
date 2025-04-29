@@ -77,8 +77,11 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
                     decoration: InputDecoration(
                       labelStyle: Get.textTheme.bodyLarge,
                       hintText: '친구의 이메일을 입력하세요.',
-                      hintStyle: Get.textTheme.titleSmall,
-                      prefixIcon: Icon(Icons.search_rounded),
+                      hintStyle: Get.textTheme.bodySmall,
+                      prefixIcon: Icon(
+                        Icons.search_rounded,
+                        size: 0.06 * width,
+                      ),
                       suffixIcon: IconButton(
                         padding: EdgeInsets.all(0),
                         icon: Icon(Icons.cancel_rounded, size: 0.06 * width),

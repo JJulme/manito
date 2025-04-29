@@ -107,9 +107,12 @@ class FriendsScreen extends StatelessWidget {
           ),
 
           // 설정 버튼
-          IconButton(
-            icon: Icon(Icons.settings_rounded, size: 0.07 * width),
-            onPressed: () => Get.to(() => SettingScreen()),
+          Padding(
+            padding: EdgeInsets.only(right: 0.02 * width),
+            child: IconButton(
+              icon: Icon(Icons.settings_rounded, size: 0.07 * width),
+              onPressed: () => Get.to(() => SettingScreen()),
+            ),
           ),
         ],
       ),

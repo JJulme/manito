@@ -29,34 +29,37 @@ class _AutoReplyScreenState extends State<AutoReplyScreen> {
           ),
           title: Text('자동 응답 설정', style: Get.textTheme.headlineMedium),
           actions: [
-            Obx(
-              () => IconButton(
-                icon:
-                    _controller.updateLoading.value
-                        ? CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation(kGrey),
-                        )
-                        : Icon(
-                          Icons.check,
-                          color: Colors.green,
-                          size: 0.08 * width,
-                        ),
-                onPressed:
-                    _controller.updateLoading.value
-                        ? null
-                        : () async {
-                          if (_controller.replyController.text.length < 5) {
-                            customSnackbar(
-                              title: '알림',
-                              message: '5글자 이상 작성되어야 합니다.',
-                            );
-                          } else {
-                            String result = await _controller.updateAutoReply(
-                              _controller.replyController.text,
-                            );
-                            customSnackbar(title: '알림', message: result);
-                          }
-                        },
+            Padding(
+              padding: EdgeInsets.only(right: 0.02 * width),
+              child: Obx(
+                () => IconButton(
+                  icon:
+                      _controller.updateLoading.value
+                          ? CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation(kGrey),
+                          )
+                          : Icon(
+                            Icons.check,
+                            color: Colors.green,
+                            size: 0.08 * width,
+                          ),
+                  onPressed:
+                      _controller.updateLoading.value
+                          ? null
+                          : () async {
+                            if (_controller.replyController.text.length < 5) {
+                              customSnackbar(
+                                title: '알림',
+                                message: '5글자 이상 작성되어야 합니다.',
+                              );
+                            } else {
+                              String result = await _controller.updateAutoReply(
+                                _controller.replyController.text,
+                              );
+                              customSnackbar(title: '알림', message: result);
+                            }
+                          },
+                ),
               ),
             ),
           ],

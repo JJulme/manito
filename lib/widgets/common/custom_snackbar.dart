@@ -12,5 +12,12 @@ void customSnackbar({
   if (Get.isSnackbarOpen) return;
 
   // 스낵바 표시
-  Get.snackbar(title, message, icon: icon, onTap: onTap);
+  Get.snackbar(
+    title,
+    message,
+    titleText: Text(title, style: Get.textTheme.titleSmall),
+    messageText: Text(message, style: Get.textTheme.bodyMedium),
+    icon: icon,
+    onTap: onTap,
+  );
 }

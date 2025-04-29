@@ -55,7 +55,10 @@ Future kDefaultDialog(
     await Get.dialog(
       CupertinoAlertDialog(
         title: Text(title, style: Get.textTheme.titleMedium),
-        content: Text(message, style: Get.textTheme.bodySmall),
+        content: Container(
+          width: 0.8 * Get.width,
+          child: Text(message, style: Get.textTheme.bodySmall),
+        ),
         actions: [
           if (onYesPressed != null)
             CupertinoDialogAction(
@@ -63,7 +66,7 @@ Future kDefaultDialog(
               onPressed: () {
                 Get.back();
               },
-              child: const Text("Cancel"),
+              child: Text("Cancel"),
             ),
           CupertinoDialogAction(
             isDefaultAction: true,

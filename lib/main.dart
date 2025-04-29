@@ -59,6 +59,7 @@ class _ManitoState extends State<Manito> {
         color: Colors.white,
         elevation: 0,
         iconTheme: IconThemeData(size: 0.05 * width),
+        toolbarHeight: 0.155 * width,
       ),
       // 바텀 네비 설정
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
@@ -105,7 +106,7 @@ class _ManitoState extends State<Manito> {
       // 테두리 버튼 설정
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: kDarkWalnut,
+          foregroundColor: Colors.black,
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(0.02 * width),

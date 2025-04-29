@@ -88,9 +88,12 @@ class _ManitoScreenState extends State<ManitoScreen>
         titleSpacing: 0.07 * width,
         title: Text('마니또 미션', style: Get.textTheme.headlineLarge),
         actions: [
-          IconButton(
-            icon: Icon(Icons.reply_rounded, size: 0.07 * width),
-            onPressed: () => Get.to(() => AutoReplyScreen()),
+          Padding(
+            padding: EdgeInsets.only(right: 0.02 * width),
+            child: IconButton(
+              icon: Icon(Icons.reply_rounded, size: 0.07 * width),
+              onPressed: () => Get.to(() => AutoReplyScreen()),
+            ),
           ),
         ],
       ),
