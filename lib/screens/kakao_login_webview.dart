@@ -25,6 +25,7 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
     try {
       final response = await Supabase.instance.client.auth.getOAuthSignInUrl(
         provider: OAuthProvider.kakao,
+        queryParams: {'scope': 'profile_nickname,account_email'},
       );
       setState(() {
         _kakaoLoginUrl = response.url;
