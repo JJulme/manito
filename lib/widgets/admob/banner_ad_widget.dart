@@ -27,7 +27,8 @@ class _AdmobBannerState extends State<BannerAdWidget> {
   // 테스트 광고 ID
   static const Map<String, String> _testAdUnitIds = {
     'android': 'ca-app-pub-3940256099942544/6300978111',
-    'ios': 'ca-app-pub-3940256099942544/2934735716',
+    // 'ios': 'ca-app-pub-3940256099942544/2934735716',
+    'ios': 'ca-app-pub-3940256099942544/2435281174',
   };
 
   // 배너 기본 크기 상수
@@ -83,7 +84,7 @@ class _AdmobBannerState extends State<BannerAdWidget> {
         },
         onAdFailedToLoad: (ad, error) {
           ad.dispose();
-          debugPrint('광고 로딩 실패: ${error.message}');
+          debugPrint('광고 로딩 실패 (Code ${error.code}): ${error.message}');
         },
       ),
       request: const AdRequest(),
@@ -96,32 +97,31 @@ class _AdmobBannerState extends State<BannerAdWidget> {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(widget.borderRadius),
-      child: _isAdLoaded
-          ? SizedBox(
-              width: widget.width,
-              height: _height,
-              child: Center(
-                child: Transform.scale(
-                  scale: widget.width / BANNER_DEFAULT_WIDTH,
-                  child: SizedBox(
-                    width: BANNER_DEFAULT_WIDTH,
-                    height: BANNER_DEFAULT_HEIGHT,
-                    child: AdWidget(ad: _bannerAd!),
+      child:
+          _isAdLoaded
+              ? SizedBox(
+                width: widget.width,
+                height: _height,
+                child: Center(
+                  child: Transform.scale(
+                    scale: widget.width / BANNER_DEFAULT_WIDTH,
+                    child: SizedBox(
+                      width: BANNER_DEFAULT_WIDTH,
+                      height: BANNER_DEFAULT_HEIGHT,
+                      child: AdWidget(ad: _bannerAd!),
+                    ),
                   ),
                 ),
+              )
+              : Container(
+                width: widget.width,
+                height: _height,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(widget.borderRadius),
+                ),
+                child: const Center(child: CircularProgressIndicator()),
               ),
-            )
-          : Container(
-              width: widget.width,
-              height: _height,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(widget.borderRadius),
-              ),
-              child: const Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
     );
   }
 }
