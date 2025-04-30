@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
 import 'package:manito/screens/login_screen.dart';
 import 'package:manito/screens/splash_screen.dart';
@@ -56,6 +57,7 @@ class AuthController extends GetxController {
   // 로그아웃 처리
   Future<void> logout() async {
     try {
+      await CookieManager.instance().deleteAllCookies();
       await supabase.auth.signOut();
       Get.offAll(() => LoginScreen());
     } catch (e) {
@@ -66,6 +68,7 @@ class AuthController extends GetxController {
   // 계정 삭제
   Future<void> deleteUser() async {
     try {
+      await CookieManager.instance().deleteAllCookies();
       await supabase.rpc('delete_user');
       Get.offAll(() => LoginScreen());
       customSnackbar(title: '계정 삭제 완료', message: '계정이 삭제 되었습니다.');
