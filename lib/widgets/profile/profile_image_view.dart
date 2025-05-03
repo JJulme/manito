@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:manito/custom_icons.dart';
 
 Widget profileImageOrDefault(String? profileImageUrl, double size) {
   return profileImageUrl!.isNotEmpty
@@ -28,8 +29,8 @@ Widget profileImageOrDefault(String? profileImageUrl, double size) {
           shape: BoxShape.circle,
         ),
         child: Icon(
-          Icons.person_rounded,
-          size: size * 0.5,
+          CustomIcons.user,
+          size: size * 0.35,
           color: Colors.grey[500],
         ),
       );
