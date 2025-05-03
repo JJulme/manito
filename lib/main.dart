@@ -49,12 +49,14 @@ class _ManitoState extends State<Manito> {
     var themeData = ThemeData(
       useMaterial3: true,
       primarySwatch: Colors.amber,
-      primaryColor: kSunsetPeach,
-      primaryColorLight: kSunsetPeachLight,
-      primaryColorDark: kSunsetPeachDark,
+      // primaryColor: kSunsetPeach,
+      // primaryColorLight: kSunsetPeachLight,
+      // primaryColorDark: kSunsetPeachDark,
+      colorScheme: ColorScheme.fromSeed(seedColor: Colors.amber),
       // 앱바 설정
       appBarTheme: AppBarTheme(
         color: Colors.white,
+        surfaceTintColor: Colors.white,
         elevation: 0,
         iconTheme: IconThemeData(size: 0.05 * width),
         toolbarHeight: 0.155 * width,
@@ -76,7 +78,7 @@ class _ManitoState extends State<Manito> {
       // 기본 배경색 설정
       scaffoldBackgroundColor: Colors.white,
       // 기본 아이콘 설정
-      iconTheme: IconThemeData(size: 0.06 * width),
+      iconTheme: IconThemeData(size: 0.065 * width),
       // 팝업 메뉴 버튼 설정
       popupMenuTheme: PopupMenuThemeData(color: Colors.white),
       // 디바이더 설정

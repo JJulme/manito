@@ -67,173 +67,199 @@ class _MissionCreateScreenState extends State<MissionCreateScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // 기간 텍스트
-              Padding(
-                padding: EdgeInsets.all(0.05 * width),
-                child: Text('기간', style: Get.textTheme.titleLarge),
-              ),
-              // 기간 선택 토글 버튼
-              Container(
-                width: double.infinity,
-                alignment: Alignment.center,
-                child: ToggleButtons(
-                  borderRadius: BorderRadius.circular(0.01 * width),
-                  constraints: BoxConstraints(
-                    minHeight: 0.25 * width,
-                    minWidth: (Get.width - 0.1 * width) / 2,
-                  ),
-                  isSelected: List.generate(
-                    2,
-                    (index) => index == _selectedIndex,
-                  ),
-                  onPressed: (index) {
-                    setState(() {
-                      _selectedIndex = index;
-                    });
-                  },
-                  children: [
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [Text('1 Day'), Text('하루')],
-                    ),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [Text('1 Week'), Text('한주')],
-                    ),
-                  ],
-                ),
-              ),
+              _buildPeriodSection(width),
               Divider(),
-              // 친구 텍스트
-              Padding(
-                padding: EdgeInsets.fromLTRB(
-                  0.05 * width,
-                  0,
-                  0.05 * width,
-                  0.05 * width,
-                ),
-                child: Text('친구', style: Get.textTheme.titleLarge),
-              ),
               // 친구 선택/목록
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    height: 0.25 * width,
-                    alignment: Alignment.centerLeft,
-                    child: Obx(() {
-                      if (_controller.selectedFriends.isEmpty) {
-                        return Center(child: Text('친구를 선택해 주세요'));
-                      } else {
-                        return ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          separatorBuilder:
-                              (context, index) =>
-                                  SizedBox(width: 0.0000 * width),
-                          itemCount: _controller.selectedFriends.length,
-                          itemBuilder: (context, index) {
-                            final userProfile =
-                                _controller.selectedFriends[index];
-                            return InkWell(
-                              onTap:
-                                  () =>
-                                      _controller.toggleSelection(userProfile),
-                              child: Column(
-                                children: [
-                                  Stack(
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 0.03 * width,
-                                        ),
-                                        child: profileImageOrDefault(
-                                          userProfile.profileImageUrl!,
-                                          0.16 * width,
-                                        ),
-                                      ),
-                                      Positioned(
-                                        top: 0,
-                                        right: 0,
-                                        child: Icon(
-                                          Icons.remove_circle_rounded,
-                                          color: kGrey,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Text(userProfile.nickname),
-                                ],
-                              ),
-                            );
-                          },
-                        );
-                      }
-                    }),
-                  ),
-
-                  // 전체 친구 목록
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: _friendsController.friendList.length,
-                    itemBuilder: (context, index) {
-                      final userProfile = _friendsController.friendList[index];
-                      return Obx(() {
-                        return ListTile(
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 0.05 * width,
-                            vertical: 0.01 * width,
-                          ),
-                          title: Row(
-                            children: [
-                              profileImageOrDefault(
-                                userProfile.profileImageUrl,
-                                0.16 * width,
-                              ),
-                              SizedBox(width: 0.02 * width),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      userProfile.nickname,
-                                      style: Get.textTheme.bodyMedium,
-                                    ),
-                                    Text(
-                                      userProfile.statusMessage,
-                                      style: Get.textTheme.labelMedium,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          visualDensity: const VisualDensity(vertical: 4),
-                          trailing: Transform.scale(
-                            scale: 0.0025 * width,
-                            child: Checkbox(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              value: _controller.isSelected(userProfile),
-                              onChanged: (_) {
-                                _controller.toggleSelection(userProfile);
-                              },
-                            ),
-                          ),
-                          onTap: () {
-                            _controller.toggleSelection(userProfile);
-                          },
-                        );
-                      });
-                    },
-                  ),
-                ],
-              ),
+              _buildFriendsSection(width),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  // 기간 선택 섹션
+  Widget _buildPeriodSection(double width) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 기간 텍스트
+        Padding(
+          padding: EdgeInsets.all(0.05 * width),
+          child: Text('기간', style: Get.textTheme.titleLarge),
+        ),
+        // 기간 선택 토글 버튼
+        Container(
+          width: double.infinity,
+          alignment: Alignment.center,
+          child: ToggleButtons(
+            fillColor: Colors.yellowAccent[300],
+            selectedColor: Colors.yellowAccent[900],
+            selectedBorderColor: Colors.yellowAccent[900],
+            borderRadius: BorderRadius.circular(0.01 * width),
+            constraints: BoxConstraints(
+              minHeight: 0.25 * width,
+              minWidth: (Get.width - 0.1 * width) / 2,
+            ),
+            isSelected: List.generate(2, (index) => index == _selectedIndex),
+            onPressed: (index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+            },
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [Text('1 Day'), Text('하루')],
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [Text('1 Week'), Text('한주')],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 친구 선택 섹션
+  Widget _buildFriendsSection(double width) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 친구 텍스트
+        Padding(
+          padding: EdgeInsets.fromLTRB(
+            0.05 * width,
+            0,
+            0.05 * width,
+            0.05 * width,
+          ),
+          child: Text('친구', style: Get.textTheme.titleLarge),
+        ),
+        // 친구 선택/목록
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildSelectedFriendsList(width),
+            _buildAllFriendsList(width),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // 선택된 친구 목록
+  Widget _buildSelectedFriendsList(double width) {
+    return Container(
+      height: 0.25 * width,
+      alignment: Alignment.centerLeft,
+      child: Obx(() {
+        if (_controller.selectedFriends.isEmpty) {
+          return Center(child: Text('친구를 선택해 주세요'));
+        }
+
+        return ListView.separated(
+          scrollDirection: Axis.horizontal,
+          separatorBuilder: (_, __) => SizedBox(width: 0),
+          itemCount: _controller.selectedFriends.length,
+          itemBuilder: (context, index) {
+            final userProfile = _controller.selectedFriends[index];
+            return GestureDetector(
+              onTap: () => _controller.toggleSelection(userProfile),
+              child: Column(
+                children: [
+                  Stack(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 0.03 * width),
+                        child: profileImageOrDefault(
+                          userProfile.profileImageUrl!,
+                          0.16 * width,
+                        ),
+                      ),
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: Icon(Icons.remove_circle_rounded, color: kGrey),
+                      ),
+                    ],
+                  ),
+                  Text(userProfile.nickname),
+                ],
+              ),
+            );
+          },
+        );
+      }),
+    );
+  }
+
+  // 전체 친구 목록
+  Widget _buildAllFriendsList(double width) {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: _friendsController.friendList.length,
+      itemBuilder: (context, index) {
+        final userProfile = _friendsController.friendList[index];
+
+        return Obx(() {
+          return ListTile(
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: 0.05 * width,
+              vertical: 0.01 * width,
+            ),
+            title: Row(
+              children: [
+                profileImageOrDefault(
+                  userProfile.profileImageUrl,
+                  0.16 * width,
+                ),
+                SizedBox(width: 0.02 * width),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        userProfile.nickname,
+                        style: Get.textTheme.bodyMedium,
+                      ),
+                      Text(
+                        userProfile.statusMessage,
+                        style: Get.textTheme.labelMedium,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            visualDensity: const VisualDensity(vertical: 4),
+            trailing: Transform.scale(
+              scale: 0.0028 * width,
+              child: Checkbox(
+                checkColor: Colors.black,
+                fillColor: WidgetStateProperty.resolveWith<Color>((
+                  Set<WidgetState> states,
+                ) {
+                  if (states.contains(WidgetState.selected)) {
+                    return Colors.yellowAccent[700]!;
+                  }
+                  return Colors.white;
+                }),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                value: _controller.isSelected(userProfile),
+                onChanged: (_) => _controller.toggleSelection(userProfile),
+              ),
+            ),
+            onTap: () => _controller.toggleSelection(userProfile),
+          );
+        });
+      },
     );
   }
 }
