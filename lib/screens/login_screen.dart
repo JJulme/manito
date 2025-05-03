@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
 import 'package:manito/controllers/auth_controller.dart';
 import 'package:manito/screens/kakao_login_webview.dart';
@@ -44,7 +45,10 @@ class LoginScreen extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 0.05 * width),
                 child: InkWell(
                   // onTap: () => authController.loginWithKakao(),
-                  onTap: () => Get.to(() => KakaoLoginWebview()),
+                  onTap: () async {
+                    await CookieManager.instance().deleteAllCookies();
+                    Get.to(() => KakaoLoginWebview());
+                  },
                   child: Image.asset(
                     'assets/images/kakao_login_large_wide.png',
                     fit: BoxFit.cover,

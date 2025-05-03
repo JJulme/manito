@@ -84,6 +84,7 @@ class _AdmobBannerState extends State<BannerAdWidget> {
         },
         onAdFailedToLoad: (ad, error) {
           ad.dispose();
+          debugPrint(_getAdUnitId());
           debugPrint('광고 로딩 실패 (Code ${error.code}): ${error.message}');
         },
       ),
