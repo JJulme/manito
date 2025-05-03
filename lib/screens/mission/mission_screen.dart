@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
@@ -97,35 +99,7 @@ class _MissionScreenState extends State<MissionScreen>
             child: Column(
               children: [
                 // 생성 버튼 - 생성 미션의 개수가 3개 미만이면 생김
-                _controller.pendingMyMissions.length +
-                            _controller.acceptMyMissions.length <
-                        3
-                    ? Container(
-                      width: Get.width - 0.06 * width,
-                      height: (Get.width - 0.06 * width) * 0.15,
-                      margin: EdgeInsets.only(
-                        left: 0.03 * width,
-                        right: 0.03 * width,
-                        bottom: 0.03 * width,
-                      ),
-                      child: ElevatedButton(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.add_rounded,
-                              size: 0.08 * width,
-                              color: Colors.black,
-                            ),
-                            Text(' 미션 만들기', style: Get.textTheme.bodyLarge),
-                          ],
-                        ),
-                        onPressed: () => _toMissionCreateScreen(),
-                      ),
-                    )
-                    : SizedBox.shrink(),
-
+                _buildCreateMissionButton(width),
                 // 광고
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 0.03 * width),
@@ -151,6 +125,34 @@ class _MissionScreenState extends State<MissionScreen>
         }),
       ),
     );
+  }
+
+  /// 생성 버튼
+  Widget _buildCreateMissionButton(double width) {
+    final totalMissions =
+        _controller.pendingMyMissions.length +
+        _controller.acceptMyMissions.length;
+    return totalMissions < 3
+        ? Container(
+          width: width - 0.06 * width,
+          height: (width - 0.06 * width) * 0.15,
+          margin: EdgeInsets.only(
+            left: 0.03 * width,
+            right: 0.03 * width,
+            bottom: 0.03 * width,
+          ),
+          child: ElevatedButton(
+            onPressed: _toMissionCreateScreen,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.add, size: 0.07 * width, color: Colors.black),
+                Text(' 미션 만들기', style: Get.textTheme.bodyLarge),
+              ],
+            ),
+          ),
+        )
+        : const SizedBox.shrink();
   }
 
   /// 완료된 내 미션
