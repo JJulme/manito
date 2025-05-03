@@ -97,11 +97,7 @@ class PostDetailScreen extends StatelessWidget {
                       ),
                       child: Text(detailPost.description!),
                     ),
-                    Divider(
-                      thickness: 0.05 * width,
-                      height: 0.15 * width,
-                      color: Colors.grey[200],
-                    ),
+                    Divider(),
 
                     // 마니또 프로필
                     Padding(

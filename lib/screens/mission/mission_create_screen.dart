@@ -102,11 +102,7 @@ class _MissionCreateScreenState extends State<MissionCreateScreen> {
                   ],
                 ),
               ),
-              Divider(
-                height: 0.15 * width,
-                thickness: 0.03 * width,
-                color: Colors.grey[300],
-              ),
+              Divider(),
               // 친구 텍스트
               Padding(
                 padding: EdgeInsets.fromLTRB(

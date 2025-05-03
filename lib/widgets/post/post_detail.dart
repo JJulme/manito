@@ -68,11 +68,7 @@ class PostDetail extends StatelessWidget {
           ),
           child: Text(detailPost.description!),
         ),
-        Divider(
-          thickness: 0.02 * di,
-          height: 0.06 * di,
-          color: Colors.grey[200],
-        ),
+        Divider(),
 
         // 크리에이터 프로필
         Padding(

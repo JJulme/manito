@@ -79,6 +79,12 @@ class _ManitoState extends State<Manito> {
       iconTheme: IconThemeData(size: 0.06 * width),
       // 팝업 메뉴 버튼 설정
       popupMenuTheme: PopupMenuThemeData(color: Colors.white),
+      // 디바이더 설정
+      dividerTheme: DividerThemeData(
+        color: Colors.grey[200],
+        space: 0.15 * width,
+        thickness: 0.03 * width,
+      ),
       // 다이얼로그 테마 설정
       dialogTheme: DialogTheme(
         shape: RoundedRectangleBorder(

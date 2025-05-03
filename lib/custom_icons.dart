@@ -36,6 +36,16 @@ class CustomIcons {
     fontFamily: _kFontFam,
     fontPackage: _kFontPkg,
   );
+  static const IconData comment_inv_alt2 = IconData(
+    0xe806,
+    fontFamily: _kFontFam,
+    fontPackage: _kFontPkg,
+  );
+  static const IconData comment_alt2 = IconData(
+    0xe807,
+    fontFamily: _kFontFam,
+    fontPackage: _kFontPkg,
+  );
   static const IconData star = IconData(
     0xf005,
     fontFamily: _kFontFam,
