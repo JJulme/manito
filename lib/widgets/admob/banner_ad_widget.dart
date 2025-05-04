@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:image_picker/image_picker.dart';
 
 class BannerAdWidget extends StatefulWidget {
   final double width;
@@ -23,6 +24,7 @@ class BannerAdWidget extends StatefulWidget {
 class _AdmobBannerState extends State<BannerAdWidget> {
   BannerAd? _bannerAd;
   bool _isAdLoaded = false;
+  bool _isAdFailed = false;
 
   // 테스트 광고 ID
   static const Map<String, String> _testAdUnitIds = {
@@ -32,8 +34,8 @@ class _AdmobBannerState extends State<BannerAdWidget> {
   };
 
   // 배너 기본 크기 상수
-  static const double BANNER_DEFAULT_WIDTH = 320.0;
-  static const double BANNER_DEFAULT_HEIGHT = 50.0;
+  static const double bannerDefaultWidth = 320.0;
+  static const double bannerDefaultHeight = 50.0;
 
   @override
   void initState() {
@@ -70,7 +72,7 @@ class _AdmobBannerState extends State<BannerAdWidget> {
 
   // 너비에 맞는 높이 계산 (50/320 비율 유지)
   double get _height =>
-      widget.width * (BANNER_DEFAULT_HEIGHT / BANNER_DEFAULT_WIDTH);
+      widget.width * (bannerDefaultHeight / bannerDefaultWidth);
 
   void _loadAd() {
     _bannerAd = BannerAd(
@@ -80,12 +82,17 @@ class _AdmobBannerState extends State<BannerAdWidget> {
         onAdLoaded: (ad) {
           setState(() {
             _isAdLoaded = true;
+            _isAdFailed = false;
           });
         },
         onAdFailedToLoad: (ad, error) {
           ad.dispose();
           debugPrint(_getAdUnitId());
           debugPrint('광고 로딩 실패 (Code ${error.code}): ${error.message}');
+          setState(() {
+            _isAdLoaded = false;
+            _isAdFailed = true;
+          });
         },
       ),
       request: const AdRequest(),
@@ -98,31 +105,68 @@ class _AdmobBannerState extends State<BannerAdWidget> {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(widget.borderRadius),
-      child:
-          _isAdLoaded
-              ? SizedBox(
-                width: widget.width,
-                height: _height,
-                child: Center(
-                  child: Transform.scale(
-                    scale: widget.width / BANNER_DEFAULT_WIDTH,
-                    child: SizedBox(
-                      width: BANNER_DEFAULT_WIDTH,
-                      height: BANNER_DEFAULT_HEIGHT,
-                      child: AdWidget(ad: _bannerAd!),
-                    ),
+      child: Builder(
+        builder: (context) {
+          if (_isAdLoaded && _bannerAd != null) {
+            return SizedBox(
+              width: widget.width,
+              height: _height,
+              child: Center(
+                child: Transform.scale(
+                  scale: widget.width / bannerDefaultWidth,
+                  child: SizedBox(
+                    width: bannerDefaultWidth,
+                    height: bannerDefaultHeight,
+                    child: AdWidget(ad: _bannerAd!),
                   ),
                 ),
-              )
-              : Container(
-                width: widget.width,
-                height: _height,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(widget.borderRadius),
-                ),
-                child: const Center(child: CircularProgressIndicator()),
               ),
+            );
+          }
+          //
+          else if (_isAdFailed) {
+            return Container(
+              width: widget.width,
+              height: _height,
+              color: Colors.grey[200],
+              child: Center(child: Text('광고 오류')),
+            );
+          }
+          //
+          else {
+            return Container(
+              width: widget.width,
+              height: _height,
+              decoration: BoxDecoration(color: Colors.grey[200]),
+              child: const Center(child: CircularProgressIndicator()),
+            );
+          }
+        },
+      ),
+      // _isAdLoaded
+      //     ? SizedBox(
+      //       width: widget.width,
+      //       height: _height,
+      //       child: Center(
+      //         child: Transform.scale(
+      //           scale: widget.width / bannerDefaultWidth,
+      //           child: SizedBox(
+      //             width: bannerDefaultWidth,
+      //             height: bannerDefaultHeight,
+      //             child: AdWidget(ad: _bannerAd!),
+      //           ),
+      //         ),
+      //       ),
+      //     )
+      //     : Container(
+      //       width: widget.width,
+      //       height: _height,
+      //       decoration: BoxDecoration(
+      //         color: Colors.grey[200],
+      //         borderRadius: BorderRadius.circular(widget.borderRadius),
+      //       ),
+      //       child: const Center(child: CircularProgressIndicator()),
+      //     ),
     );
   }
 }

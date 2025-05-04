@@ -123,6 +123,8 @@ class MissionProposeController extends GetxController {
       Get.back(result: true);
       return '미션을 수락 했습니다.';
     } catch (e) {
+      // 화면을 나가고 제안 새로고침 필요함
+      Get.back(result: true);
       debugPrint('acceptMissionPropose Error: $e');
       return '이미 삭제된 미션입니다.';
     }

@@ -198,7 +198,7 @@ class MissionProposeScreen extends StatelessWidget {
       ),
       // 수락하기 버튼
       bottomNavigationBar: BottomAppBar(
-        height: 0.18 * width,
+        height: 0.2 * width,
         padding: EdgeInsets.all(0),
         child: Container(
           width: double.infinity,
