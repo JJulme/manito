@@ -106,6 +106,7 @@ class _AdmobBannerState extends State<BannerAdWidget> {
     return ClipRRect(
       borderRadius: BorderRadius.circular(widget.borderRadius),
       child: Builder(
+        // 광고 로딩 성공
         builder: (context) {
           if (_isAdLoaded && _bannerAd != null) {
             return SizedBox(
@@ -123,16 +124,17 @@ class _AdmobBannerState extends State<BannerAdWidget> {
               ),
             );
           }
-          //
+          // 광고 로딩 실패
           else if (_isAdFailed) {
-            return Container(
-              width: widget.width,
-              height: _height,
-              color: Colors.grey[200],
-              child: Center(child: Text('광고 오류')),
-            );
+            return SizedBox.shrink();
+            // Container(
+            //   width: widget.width,
+            //   height: _height,
+            //   color: Colors.grey[200],
+            //   child: Center(child: Text('광고 오류')),
+            // );
           }
-          //
+          // 광고 로딩중
           else {
             return Container(
               width: widget.width,
