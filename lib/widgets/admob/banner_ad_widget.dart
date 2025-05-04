@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:image_picker/image_picker.dart';
 
 class BannerAdWidget extends StatefulWidget {
   final double width;
