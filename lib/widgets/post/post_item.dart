@@ -4,6 +4,7 @@ import 'package:manito/controllers/badge_controller.dart';
 import 'package:manito/custom_icons.dart';
 import 'package:manito/models/post.dart';
 import 'package:manito/models/user_profile.dart';
+import 'package:manito/screens/chat/chat_screen.dart';
 import 'package:manito/screens/post/post_detail_screen.dart';
 import 'package:manito/widgets/common/custom_badge.dart';
 import 'package:manito/widgets/post/comment_sheet.dart';
@@ -47,6 +48,12 @@ class PostItem extends StatelessWidget {
       isScrollControlled: true,
       CommentSheet(width: w, missionId: missionId),
     );
+  }
+
+  /// 채팅장 열기
+  void _showChatting(String missionId) {
+    // _badgeController.clearComment(missionId);
+    Get.to(() => ChatScreen(), arguments: missionId);
   }
 
   @override
@@ -131,6 +138,7 @@ class PostItem extends StatelessWidget {
           return IconButton(
             padding: EdgeInsets.all(0),
             onPressed: () => _showCommentSheet(width, post.id!),
+            onLongPress: () => _showChatting(post.id),
             icon: badgeIcon(
               badgeController.postBadge[post.id]!,
               Icon(CustomIcons.comment_empty),

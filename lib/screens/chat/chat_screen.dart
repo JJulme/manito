@@ -1,73 +1,65 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:manito/controllers/chat_controller.dart';
+import 'package:manito/controllers/friends_controller.dart';
+import 'package:manito/custom_icons.dart';
 import 'package:manito/models/message.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:manito/models/user_profile.dart';
+import 'package:manito/widgets/profile/profile_image_view.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class ChatScreen extends StatelessWidget {
   ChatScreen({super.key});
 
-  final _chatController = Get.put(ChatController());
-
-  final _textController = TextEditingController();
+  final ChatController _controller = Get.put(ChatController());
+  final FriendsController _friendsController = Get.find<FriendsController>();
 
   @override
   Widget build(BuildContext context) {
-    // double di = sqrt(pow(MediaQuery.of(context).size.width, 2) +
-    //     pow(MediaQuery.of(context).size.height, 2));
-    double di = sqrt(pow(Get.width, 2) + pow(Get.height, 2));
+    double width = MediaQuery.of(context).size.width;
     return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
+      onTap: () => Get.focusScope?.unfocus(),
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(
-            _chatController.friendNickname,
-            style: Get.textTheme.headlineMedium,
-          ),
-        ),
+        appBar: AppBar(title: Text('채팅방')),
         body: SafeArea(
           child: Column(
             children: [
-              // 채팅창
               Expanded(
-                child: Obx(
-                  () {
-                    return ListView.builder(
-                      itemCount: _chatController.chattings.length,
-                      itemBuilder: (context, index) {
-                        final message = _chatController.chattings[index];
-                        return ListTile(
-                          title: Text(message.content),
-                          subtitle: Text(message.senderId),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-              // 하단 채팅 입력창
-              SafeArea(
-                child: Padding(
-                  padding: EdgeInsets.all(0.01 * di),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _textController,
-                          keyboardType: TextInputType.text,
-                          maxLines: null,
-                        ),
-                      ),
-                      IconButton(
-                        padding: EdgeInsets.all(0),
-                        icon: Icon(Icons.send_rounded),
-                        onPressed: () {
-                          _chatController.sendMessage(_textController.text);
+                child: Obx(() {
+                  if (_controller.isLoading.value) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (_controller.messages.isEmpty) {
+                    return Center(child: Text('새로운 채팅을 시작해보세요.'));
+                  } else {
+                    return Align(
+                      alignment: Alignment.topCenter,
+                      child: ListView.separated(
+                        separatorBuilder:
+                            (context, index) => SizedBox(height: 0.02 * width),
+                        reverse: true,
+                        shrinkWrap: true,
+                        itemCount: _controller.messages.length,
+                        itemBuilder: (context, index) {
+                          final Message message = _controller.messages[index];
+                          final isMine =
+                              message.senderId ==
+                              _friendsController.userProfile.value!.id;
+                          final UserProfile? userProfile = _friendsController
+                              .searchFriendProfile(message.senderId);
+                          return _ChatBubble(
+                            message: message,
+                            isMine: isMine,
+                            userProfile: userProfile,
+                          );
                         },
                       ),
-                    ],
-                  ),
-                ),
+                    );
+                  }
+                }),
+              ),
+              _MessageBar(
+                messageTextController: _controller.messageTextController,
+                onSendPressed: _controller.sendMessage,
               ),
             ],
           ),
@@ -77,63 +69,108 @@ class ChatScreen extends StatelessWidget {
   }
 }
 
-class ChatController extends GetxController {
-  final _supabase = Supabase.instance.client;
-  late String friendId;
-  late String friendNickname;
-  late String? friendProfileImage;
-  var chattings = <Message>[].obs;
-  late final RealtimeChannel channel;
+/// 말풍선
+class _ChatBubble extends StatelessWidget {
+  final Message message;
+  final bool isMine;
+  final UserProfile? userProfile;
+  const _ChatBubble({
+    required this.message,
+    required this.isMine,
+    this.userProfile,
+  });
 
   @override
-  void onInit() async {
-    super.onInit();
-    friendId = Get.arguments[0];
-    friendNickname = Get.arguments[1];
-    friendProfileImage = Get.arguments[2];
-    await fetchMessages();
-  }
+  Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
 
-  void initChannel() {
-    _supabase
-        .channel('public:chat_messages')
-        .onPostgresChanges(
-          event: PostgresChangeEvent.all,
-          schema: 'public',
-          table: 'chat_messages',
-          callback: (payload) {
-            debugPrint(payload.toString());
-          },
-        )
-        .subscribe();
-  }
+    /// Row 에 들어갈 채팅 버블 내용
+    List<Widget> chatContents = [
+      if (!isMine)
+        profileImageOrDefault(userProfile!.profileImageUrl, 0.12 * width),
+      SizedBox(width: 0.02 * width),
+      Flexible(
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            vertical: 0.02 * width,
+            horizontal: 0.03 * width,
+          ),
+          decoration: BoxDecoration(
+            color: isMine ? Colors.yellowAccent[700] : Colors.grey[350],
+            borderRadius: BorderRadius.circular(0.025 * width),
+          ),
+          child: Text(message.content, style: Get.textTheme.bodySmall),
+        ),
+      ),
+      SizedBox(width: 0.01 * width),
+      Text(
+        timeago.format(message.createdAt, locale: 'ko'),
+        style: Get.textTheme.labelSmall,
+      ),
+    ];
 
-  /// 채팅 내용 가져오기
-  Future<void> fetchMessages() async {
-    String userId = _supabase.auth.currentUser!.id;
-    try {
-      final data = await _supabase
-          .from('chat_messages')
-          .select()
-          .or('sender_id.eq.$userId,receiver_id.eq.$userId')
-          .or('sender_id.eq.$friendId,receiver_id.eq.$friendId')
-          .order('created_at', ascending: true);
-      chattings.value = data.map((e) => Message.fromJson(e)).toList();
-    } catch (e) {
-      debugPrint('fetchMessages Error: $e');
+    /// 내가 보낸거면 보낸시간, 채팅 순
+    if (isMine) {
+      chatContents = chatContents.reversed.toList();
     }
-  }
 
-  /// 채팅 보내기
-  Future<void> sendMessage(String message) async {
-    try {
-      await _supabase.from('chat_messages').insert({
-        'sender_id': _supabase.auth.currentUser!.id,
-        'receiver_id': friendId,
-        'content': message,
-      });
-    } catch (e) {
-      debugPrint('sendMessage Error: $e');
-    }
+    /// 니꺼 내꺼 배치 변경
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 0.03 * width),
+      child: Row(
+        mainAxisAlignment:
+            isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
+        children: chatContents,
+      ),
+    );
+  }
+}
+
+/// 채팅 입력창
+class _MessageBar extends StatelessWidget {
+  final TextEditingController messageTextController;
+  final VoidCallback onSendPressed;
+  _MessageBar({
+    super.key,
+    required this.messageTextController,
+    required this.onSendPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    return Padding(
+      padding: EdgeInsets.all(0.02 * width),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: messageTextController,
+              minLines: 1,
+              maxLines: 3,
+              maxLength: 99,
+              autofocus: true,
+              keyboardType: TextInputType.multiline,
+              decoration: InputDecoration(
+                hintText: '메시지 입력',
+                hintStyle: Get.textTheme.labelLarge,
+                counterText: '',
+                contentPadding: EdgeInsets.all(0.02 * width),
+              ),
+            ),
+          ),
+          SizedBox(width: 0.02 * width),
+          ElevatedButton.icon(
+            label: Icon(CustomIcons.send, size: 0.05 * width),
+            style: ElevatedButton.styleFrom(
+              shape: CircleBorder(),
+              padding: EdgeInsets.zero,
+              minimumSize: Size(0.1 * width, 0.1 * width),
+            ),
+            onPressed: onSendPressed,
+          ),
+        ],
+      ),
+    );
   }
 }
