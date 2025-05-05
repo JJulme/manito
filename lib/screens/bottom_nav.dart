@@ -55,15 +55,8 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
       if (settings.authorizationStatus == AuthorizationStatus.denied) {
         customSnackbar(title: '알림 권한', message: '알림을 받으려면 설정에서 알림을 활성화해야 합니다.');
       }
-      // late String? fcmToken;
-      // // FCM 토큰 가져오기
-      // if (GetPlatform.isAndroid) {
-      //   // android의 경우 APNs 토큰 요청
-      //   fcmToken = await FirebaseMessaging.instance.getToken();
-      // } else {
-      //   // iOS의 경우 APNs 토큰 요청
-      //   fcmToken = await FirebaseMessaging.instance.getAPNSToken();
-      // }
+
+      // 토큰 설정
       await FirebaseMessaging.instance.getAPNSToken();
       final fcmToken = await FirebaseMessaging.instance.getToken();
       debugPrint('fcm token: $fcmToken');
@@ -72,6 +65,7 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
       if (fcmToken != null) {
         await _setFCMToken(fcmToken);
       }
+
       // FCM 토큰이 갱신될 때의 리스너 설정
       FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) async {
         // 갱신된 FCM 토큰을 서버에 저장

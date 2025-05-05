@@ -20,29 +20,49 @@ void handleForegroundMessage(RemoteMessage message) async {
   if (message.data['type'] == 'friend_request') {
     badgeController.friendRequestBadge.value = true;
     await prefs.setBool('friend_request', true);
+    customSnackbar(
+      title: message.notification!.title!,
+      message: message.notification!.body!,
+    );
   }
   // 미션 제의
   else if (message.data['type'] == 'mission_propose') {
     await manitoController.fetchMissionProposeList();
     badgeController.missonProposeBadge.value = true;
     await prefs.setBool('mission_propose', true);
+    customSnackbar(
+      title: message.notification!.title!,
+      message: message.notification!.body!,
+    );
   }
   // 마니또가 미션을 수락
   else if (message.data['type'] == 'update_mission_progress') {
     await missionController.fetchMyMissions();
     badgeController.missionBadge.value = true;
     await prefs.setBool('update_mission', true);
+    customSnackbar(
+      title: message.notification!.title!,
+      message: message.notification!.body!,
+    );
   }
   // 마니또가 미션을 완료
   else if (message.data['type'] == 'update_mission_done') {
     await missionController.fetchMyMissions();
     badgeController.missionBadge.value = true;
     await prefs.setBool('update_mission', true);
+    customSnackbar(
+      title: message.notification!.title!,
+      message: message.notification!.body!,
+    );
   }
   // 생성자가 추측을 완료
   else if (message.data['type'] == 'update_mission_guess') {
     await postController.fetchPosts();
     await postController.fetchIncompletePost();
+    customSnackbar(
+      title: message.notification!.title!,
+      message: message.notification!.body!,
+    );
   }
   // 새로운 댓글
   else if (message.data['type'] == 'insert_comment') {
@@ -58,11 +78,6 @@ void handleForegroundMessage(RemoteMessage message) async {
     badgeController.updateHasAnyPost();
     await prefs.setBool('post_$missionId', true);
   }
-
-  customSnackbar(
-    title: message.notification!.title!,
-    message: message.notification!.body!,
-  );
 }
 
 /// 백그라운드 메시지 처리 - 뱃지 기능
