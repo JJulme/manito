@@ -51,9 +51,9 @@ class PostItem extends StatelessWidget {
   }
 
   /// 채팅장 열기
-  void _showChatting(String missionId) {
-    // _badgeController.clearComment(missionId);
-    Get.to(() => ChatScreen(), arguments: missionId);
+  void _showChatting(dynamic post) {
+    _badgeController.clearChat(post.id);
+    Get.to(() => ChatScreen(), arguments: post);
   }
 
   @override
@@ -138,7 +138,7 @@ class PostItem extends StatelessWidget {
           return IconButton(
             padding: EdgeInsets.all(0),
             onPressed: () => _showCommentSheet(width, post.id!),
-            onLongPress: () => _showChatting(post.id),
+            onLongPress: () => _showChatting(post),
             icon: badgeIcon(
               badgeController.postBadge[post.id]!,
               Icon(CustomIcons.comment_empty),

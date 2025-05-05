@@ -76,6 +76,20 @@ export interface CommentWebhookPayload {
   schema: "public";
 }
 
+/// 채팅 알림
+export interface Chat {
+  id: string;
+  post_id: string;
+  sender_id: string;
+  content: string;
+}
+export interface ChatWebhookPayload {
+  type: "INSERT";
+  table: "chat_messages";
+  record: Chat;
+  schema: "public";
+}
+
 /// 친구 요청 인터페이스 정의
 export interface FriendRequest {
   id: string;

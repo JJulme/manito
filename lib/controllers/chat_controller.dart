@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manito/models/message.dart';
+import 'package:manito/models/post.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ChatController extends GetxController {
   final isLoading = false.obs;
   final _supabase = Supabase.instance.client;
-  late String postId;
+  late Post post;
   RealtimeChannel? _channel;
   var messages = <Message>[].obs;
   final messageTextController = TextEditingController();
@@ -15,7 +16,7 @@ class ChatController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    postId = Get.arguments;
+    post = Get.arguments;
     fetchExistingMessages();
     subscribToMessages();
   }
@@ -35,7 +36,7 @@ class ChatController extends GetxController {
       final data = await _supabase
           .from('chat_messages')
           .select()
-          .eq('post_id', postId)
+          .eq('post_id', post.id!)
           .order('created_at', ascending: false);
       messages.value = data.map((e) => Message.fromJson(e)).toList();
     } catch (e) {
@@ -49,7 +50,7 @@ class ChatController extends GetxController {
   void subscribToMessages() {
     _channel =
         _supabase
-            .channel('chat_messages:$postId')
+            .channel('chat_messages:${post.id}')
             .onPostgresChanges(
               event: PostgresChangeEvent.all,
               schema: 'public',
@@ -57,12 +58,12 @@ class ChatController extends GetxController {
               filter: PostgresChangeFilter(
                 type: PostgresChangeFilterType.eq,
                 column: 'post_id',
-                value: postId,
+                value: post.id,
               ),
               callback: _messageEventHandler,
             )
             .subscribe();
-    debugPrint('채널 실시간 구독: $postId');
+    debugPrint('채널 실시간 구독: ${post.id}');
   }
 
   /// 채널 이벤트 핸들러
@@ -100,7 +101,7 @@ class ChatController extends GetxController {
       // 전송
       try {
         final data = {
-          "post_id": postId,
+          "post_id": post.id,
           "sender_id": _supabase.auth.currentUser!.id,
           "content": messageTextController.text,
         };

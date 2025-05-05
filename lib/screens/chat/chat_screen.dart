@@ -20,7 +20,12 @@ class ChatScreen extends StatelessWidget {
     return GestureDetector(
       onTap: () => Get.focusScope?.unfocus(),
       child: Scaffold(
-        appBar: AppBar(title: Text('채팅방')),
+        appBar: AppBar(
+          title: Text(
+            '${_controller.post.deadlineType} / ${_controller.post.content!}',
+            style: Get.textTheme.headlineSmall,
+          ),
+        ),
         body: SafeArea(
           child: Column(
             children: [
@@ -87,7 +92,7 @@ class _ChatBubble extends StatelessWidget {
     /// Row 에 들어갈 채팅 버블 내용
     List<Widget> chatContents = [
       if (!isMine)
-        profileImageOrDefault(userProfile!.profileImageUrl, 0.12 * width),
+        profileImageOrDefault(userProfile!.profileImageUrl, 0.1 * width),
       SizedBox(width: 0.02 * width),
       Flexible(
         child: Container(
@@ -120,6 +125,7 @@ class _ChatBubble extends StatelessWidget {
       child: Row(
         mainAxisAlignment:
             isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: chatContents,
       ),
     );

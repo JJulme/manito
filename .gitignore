@@ -59,6 +59,7 @@ firebase-tools.log
 
 # Supabase related (functions build)
 supabase/functions/*/dist/
+supabase/functions/service-account.json
 supabase/.temp/
 
 # Crash reports

@@ -78,4 +78,16 @@ class BadgeController extends GetxController {
       debugPrint('clearComment Error: $e');
     }
   }
+
+  /// 각 포스트 상태 지우기
+  void clearChat(String missionId) async {
+    try {
+      postBadge[missionId] = false.obs;
+      updateHasAnyPost();
+      final prefs = await SharedPreferences.getInstance();
+      prefs.remove('post_$missionId');
+    } catch (e) {
+      debugPrint('clearComment Error: $e');
+    }
+  }
 }

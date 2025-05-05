@@ -51,6 +51,13 @@ void handleForegroundMessage(RemoteMessage message) async {
     badgeController.updateHasAnyPost();
     await prefs.setBool('post_$missionId', true);
   }
+  // 새로운 채팅
+  else if (message.data['type'] == 'insert_chat') {
+    final String missionId = message.data['mission_id'];
+    badgeController.postBadge[missionId] = true.obs;
+    badgeController.updateHasAnyPost();
+    await prefs.setBool('post_$missionId', true);
+  }
 
   customSnackbar(
     title: message.notification!.title!,
@@ -92,6 +99,12 @@ Future<void> handleBackgroundMessage(RemoteMessage message) async {
   // 댓글 뱃지
   else if (message.data['type'] == 'insert_comment') {
     String missionId = message.data['mission_id'];
+    await prefs.setBool('post_$missionId', true);
+    debugPrint('post: ${prefs.getBool('post_$missionId')}');
+  }
+  // 채팅 뱃지
+  else if (message.data['type'] == 'insert_chat') {
+    String missionId = message.data['post_id'];
     await prefs.setBool('post_$missionId', true);
     debugPrint('post: ${prefs.getBool('post_$missionId')}');
   }

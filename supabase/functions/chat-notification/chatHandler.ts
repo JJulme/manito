@@ -2,29 +2,29 @@
 
 import { SupabaseClient } from "npm:@supabase/supabase-js@2.49.1";
 import { sendFCMNotification } from "../shared/fcmService.ts";
-import { CommentWebhookPayload, FCMPayload } from "../shared/types.ts";
+import { ChatWebhookPayload, FCMPayload } from "../shared/types.ts";
 
-export async function handleComment(
-  payload: CommentWebhookPayload,
+export async function handleChat(
+  payload: ChatWebhookPayload,
   supabase: SupabaseClient,
 ) {
-  const { mission_id, user_id, comment } = payload.record;
+  const { post_id, sender_id, content } = payload.record;
 
   // post_view 데이터 가져오기
   const { data: post_view } = await supabase
     .from("post_view")
     .select("creator_id, manito_id")
-    .eq("id", mission_id)
+    .eq("id", post_id)
     .single();
 
   let receiver_id;
-  if (post_view?.creator_id === user_id) {
+  if (post_view?.creator_id === sender_id) {
     receiver_id = post_view.manito_id;
-  } else if (post_view?.manito_id === user_id) {
+  } else if (post_view?.manito_id === sender_id) {
     receiver_id = post_view.creator_id;
   } else {
     console.error("일치하는 사용자가 없습니다.");
-    throw new Error("댓글 알릴 사용자 없음");
+    throw new Error("채팅 알릴 사용자 없음");
   }
 
   // 수신자 토큰 가져오기
@@ -44,7 +44,7 @@ export async function handleComment(
   const { data: senderData, error: senderError } = await supabase
     .from("profiles")
     .select("nickname")
-    .eq("id", user_id)
+    .eq("id", sender_id)
     .single();
 
   if (senderError || !senderData) {
@@ -54,12 +54,12 @@ export async function handleComment(
   // 푸시 알림 내용 설정
   const notificationPayload: FCMPayload = {
     title: senderData.nickname,
-    body: comment,
+    body: content,
     data: {
-      type: "insert_comment",
+      type: "insert_chat",
       click_action: "FLUTTER_NOTIFICATION_CLICK",
-      mission_id: mission_id,
-      sender_id: user_id,
+      mission_id: post_id,
+      sender_id: sender_id,
     },
   };
 
