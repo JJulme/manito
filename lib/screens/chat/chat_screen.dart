@@ -101,7 +101,7 @@ class _ChatBubble extends StatelessWidget {
             horizontal: 0.03 * width,
           ),
           decoration: BoxDecoration(
-            color: isMine ? Colors.yellowAccent[700] : Colors.grey[350],
+            color: isMine ? Colors.yellowAccent[700] : Colors.grey[300],
             borderRadius: BorderRadius.circular(0.025 * width),
           ),
           child: Text(message.content, style: Get.textTheme.bodySmall),
