@@ -16,6 +16,17 @@ class BadgeController extends GetxController {
   /// 저장된 뱃지 상태 정보를 가져옴 - postBadge가 바뀌는 모든 곳에 실행
   Future<void> loadBadgeState() async {
     final prefs = await SharedPreferences.getInstance();
+    // 데이터 확인
+    final keys = prefs.getKeys();
+    debugPrint('=== SharedPreferences 저장된 모든 데이터 ===');
+    for (String key in keys) {
+      // SharedPreferences에는 다양한 타입이 저장될 수 있으므로
+      // 각 타입에 맞는 getter를 시도합니다
+      final value = prefs.get(key);
+      debugPrint('$key: $value (${value.runtimeType})');
+    }
+    debugPrint('======================================');
+
     // 저장소 새로고침
     await prefs.reload();
     // 친구신청

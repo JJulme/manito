@@ -137,7 +137,6 @@ class _MessageBar extends StatelessWidget {
   final TextEditingController messageTextController;
   final VoidCallback onSendPressed;
   _MessageBar({
-    super.key,
     required this.messageTextController,
     required this.onSendPressed,
   });

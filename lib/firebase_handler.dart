@@ -119,7 +119,7 @@ Future<void> handleBackgroundMessage(RemoteMessage message) async {
   }
   // 채팅 뱃지
   else if (message.data['type'] == 'insert_chat') {
-    String missionId = message.data['post_id'];
+    String missionId = message.data['mission_id'];
     await prefs.setBool('post_$missionId', true);
     debugPrint('post: ${prefs.getBool('post_$missionId')}');
   }
