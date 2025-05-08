@@ -3,16 +3,50 @@ import 'package:get/get.dart';
 import 'package:manito/constants.dart';
 import 'package:manito/controllers/manito_controller.dart';
 import 'package:manito/models/user_profile.dart';
+import 'package:manito/widgets/admob/rewarded_ad_manager.dart';
 import 'package:manito/widgets/common/custom_snackbar.dart';
 import 'package:manito/widgets/mission/timer.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
 
-class MissionProposeScreen extends StatelessWidget {
-  MissionProposeScreen({super.key});
+class MissionProposeScreen extends StatefulWidget {
+  const MissionProposeScreen({super.key});
 
+  @override
+  State<MissionProposeScreen> createState() => _MissionProposeScreenState();
+}
+
+class _MissionProposeScreenState extends State<MissionProposeScreen> {
   final MissionProposeController _controller = Get.put(
     MissionProposeController(),
   );
+  final _rewardedAdManager = RewardedAdManager();
+
+  @override
+  void initState() {
+    super.initState();
+    _rewardedAdManager.loadRewardedAd(() {
+      debugPrint('광고 로드 완료');
+    });
+  }
+
+  @override
+  void dispose() {
+    _rewardedAdManager.disposeRewardedAd();
+    super.dispose();
+  }
+
+  void _showRewardedAd() {
+    if (_rewardedAdManager.isRewardedAdReady) {
+      _rewardedAdManager.showRewardedAd(() async {
+        print('광고 시청 완료');
+        // 미션 하나 추가되는 함수 설정
+        await _controller.addRandomMissionContent();
+        await _controller.fetchMissionPropose();
+      });
+    } else {
+      customSnackbar(title: '오류', message: '광고가 준비되지 않았습니다.\n잠시 후 다시 시도해주세요.');
+    }
+  }
 
   /// 미션 수락 함수
   void _showAcceptMissionDialog() async {
@@ -163,33 +197,34 @@ class MissionProposeScreen extends StatelessWidget {
                       });
                     },
                   ),
-                  // // 광고 버튼
-                  // Container(
-                  //   width: double.infinity,
-                  //   height: 0.15 * width,
-                  //   margin: EdgeInsets.symmetric(
-                  //     horizontal: 0.05 * width,
-                  //     vertical: 0.015 * width,
-                  //   ),
-                  //   child: OutlinedButton(
-                  //     // style: ElevatedButton.styleFrom(
-                  //     //   backgroundColor: Colors.lime,
-                  //     // ),
-                  //     child: Row(
-                  //       mainAxisAlignment: MainAxisAlignment.center,
-                  //       children: [
-                  //         Icon(Icons.movie_creation_outlined, size: 0.07 * width),
-                  //         Text(
-                  //           ' 광고보고 +1',
-                  //           style: TextStyle(fontSize: 0.05 * width),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //     onPressed: () {
-                  //       Get.snackbar('알림', '광고 구현하기');
-                  //     },
-                  //   ),
-                  // ),
+                  // 광고 버튼
+                  if (GetPlatform.isAndroid)
+                    if (missionPropose.randomContents.length < 3)
+                      Container(
+                        width: double.infinity,
+                        height: 0.15 * width,
+                        margin: EdgeInsets.symmetric(
+                          horizontal: 0.05 * width,
+                          vertical: 0.015 * width,
+                        ),
+                        child: OutlinedButton(
+                          onPressed: _showRewardedAd,
+                          // onPressed: _controller.addRandomMissionContent,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.movie_creation_outlined,
+                                size: 0.07 * width,
+                              ),
+                              Text(
+                                ' 광고보고 +1',
+                                style: TextStyle(fontSize: 0.05 * width),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                 ],
               ),
             );

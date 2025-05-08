@@ -110,6 +110,22 @@ class MissionProposeController extends GetxController {
     }
   }
 
+  /// 미션 선택지 추가
+  Future<void> addRandomMissionContent() async {
+    try {
+      await _supabase.rpc(
+        'add_random_mission_content',
+        params: {
+          'p_mission_propose_id': missionProposeId,
+          'p_deadline_type': missionPropose.value!.deadlineType,
+        },
+      );
+      print('미션 추가 완료');
+    } catch (e) {
+      debugPrint('addRandomMissionContent Error: $e');
+    }
+  }
+
   /// 미션 선택 후 미션 수락
   Future<String> acceptMissionPropose(String content) async {
     try {
