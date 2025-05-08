@@ -39,6 +39,15 @@ export async function sendFCMNotification(
               image: "ic_notification_large",
             },
           },
+          // iOS 설정 추가
+          apns: {
+            payload: {
+              aps: {
+                // "content-available": 1, // 백그라운드 처리를 위한 중요 설정
+                "mutable-content": 1,
+              },
+            },
+          },
         },
       }),
     },

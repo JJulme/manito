@@ -11,6 +11,16 @@ export interface FCMPayload {
       image?: string;
     };
   };
+
+  // iOS 설정
+  apns?: {
+    payload: {
+      aps: {
+        // "content-available"?: string;
+        "mutable-content"?: string;
+      };
+    };
+  };
 }
 
 /// 미션 제의 알림

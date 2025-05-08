@@ -83,6 +83,7 @@ void handleForegroundMessage(RemoteMessage message) async {
 /// 백그라운드 메시지 처리 - 뱃지 기능
 @pragma('vm:entry-point')
 Future<void> handleBackgroundMessage(RemoteMessage message) async {
+  debugPrint("handleBackgroundMessage 동작");
   final prefs = await SharedPreferences.getInstance();
 
   // 친구 신청

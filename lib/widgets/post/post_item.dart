@@ -138,7 +138,7 @@ class PostItem extends StatelessWidget {
           return IconButton(
             padding: EdgeInsets.all(0),
             onPressed: () => _showCommentSheet(width, post.id!),
-            onLongPress: () => _showChatting(post),
+            // onLongPress: () => _showChatting(post),
             icon: badgeIcon(
               badgeController.postBadge[post.id]!,
               Icon(CustomIcons.comment_empty),
