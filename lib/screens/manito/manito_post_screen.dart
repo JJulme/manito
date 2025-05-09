@@ -6,6 +6,7 @@ import 'package:manito/controllers/manito_controller.dart';
 import 'package:manito/controllers/post_controller.dart';
 import 'package:manito/screens/album_screen.dart';
 import 'package:manito/widgets/common/custom_snackbar.dart';
+import 'package:manito/widgets/mission/timer.dart';
 import 'package:manito/widgets/post/image_slider.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
@@ -51,7 +52,16 @@ class ManitoPostScreen extends StatelessWidget {
           centerTitle: false,
           titleSpacing: 0.07 * width,
           automaticallyImplyLeading: false,
-          title: Text('미션 기록하기'),
+          title: Row(
+            children: [
+              Text('미션 기록하기'),
+              SizedBox(width: 0.02 * width),
+              TimerWidget(
+                targetDateTimeString: _controller.missionAccept.deadline,
+                fontSize: 0.065 * width,
+              ),
+            ],
+          ),
           actions: [
             Padding(
               padding: EdgeInsets.only(right: 0.02 * width),
@@ -148,6 +158,7 @@ class ManitoPostScreen extends StatelessWidget {
                               _controller.isPosting.value = false;
                             },
                             decoration: InputDecoration(
+                              counterText: '',
                               hintText:
                                   '[${_controller.creatorProfile.nickname}] 에게\n[${_controller.missionAccept.content}]\n미션을 어떻게 수행 했는지 작성 해주세요.',
                             ),
