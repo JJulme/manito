@@ -44,7 +44,6 @@ class ManitoPostScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double width = Get.width;
-
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
