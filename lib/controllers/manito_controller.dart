@@ -117,10 +117,10 @@ class MissionProposeController extends GetxController {
         'add_random_mission_content',
         params: {
           'p_mission_propose_id': missionProposeId,
-          'p_deadline_type': missionPropose.value!.deadlineType,
+          'p_deadline': missionPropose.value!.deadlineType,
         },
       );
-      print('미션 추가 완료');
+      debugPrint('미션 추가 완료');
     } catch (e) {
       debugPrint('addRandomMissionContent Error: $e');
     }
