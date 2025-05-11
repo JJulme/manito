@@ -44,39 +44,44 @@ class LoginScreen extends StatelessWidget {
               ),
               SizedBox(height: 0.04 * width),
               // 카카오 로그인 버튼
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 0.05 * width),
-                child: InkWell(
-                  // onTap: () => authController.loginWithKakao(),
-                  onTap: () async {
-                    await CookieManager.instance().deleteAllCookies();
-                    Get.to(() => KakaoLoginWebview());
-                  },
-                  child: Image.asset(
-                    'assets/images/kakao_login_large_wide.png',
-                    fit: BoxFit.cover,
-                  ),
-                ),
+              AuthButton(
+                imagePath: 'assets/images/kakao_login_large_wide.png',
+                onTap: () async {
+                  await CookieManager.instance().deleteAllCookies();
+                  Get.to(() => KakaoLoginWebview());
+                },
               ),
+              SizedBox(height: isTablet ? 0.03 * width : 0.05 * width),
 
-              SizedBox(height: isTablet ? 0.025 * width : 0.05 * width),
               // 애플 로그인
               if (GetPlatform.isIOS)
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 0.05 * width),
-                  child: InkWell(
-                    onTap: () async {
-                      await authController.signInWithApple();
-                    },
-                    child: Image.asset(
-                      'assets/images/apple_login_large_wide.png',
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+                AuthButton(
+                  imagePath: 'assets/images/apple_login_large_wide.png',
+                  onTap: () async {
+                    await authController.signInWithApple();
+                  },
                 ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class AuthButton extends StatelessWidget {
+  final String imagePath;
+  final VoidCallback onTap;
+  const AuthButton({super.key, required this.imagePath, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 0.05 * width),
+      child: InkWell(
+        onTap: onTap,
+        child: Image.asset(imagePath, fit: BoxFit.cover),
       ),
     );
   }

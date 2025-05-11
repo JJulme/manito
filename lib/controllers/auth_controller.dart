@@ -86,6 +86,8 @@ class AuthController extends GetxController {
     } on SignInWithAppleAuthorizationException catch (e) {
       if (e.code == AuthorizationErrorCode.canceled) {
         debugPrint('사용자 로그인 취소');
+      } else if (e.code == AuthorizationErrorCode.unknown) {
+        debugPrint('사용자 계정 미설정');
       } else {
         customSnackbar(title: '로그인 실패', message: '오류 코드: ${e.code}');
         debugPrint('로그인 실패: $e');
