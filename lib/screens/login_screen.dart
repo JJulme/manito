@@ -12,6 +12,7 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // 화면 크기에 비례한 수
     double width = Get.width;
+    final isTablet = MediaQuery.of(context).size.shortestSide > 600;
     return Scaffold(
       body: SafeArea(
         // 중앙에 배치
@@ -27,6 +28,7 @@ class LoginScreen extends StatelessWidget {
                 height: 0.6 * width,
               ),
               SizedBox(height: 0.01 * width),
+              // 문구
               Container(
                 height: 0.2 * width,
                 width: width,
@@ -41,6 +43,7 @@ class LoginScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 0.04 * width),
+              // 카카오 로그인 버튼
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 0.05 * width),
                 child: InkWell(
@@ -55,7 +58,9 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 0.05 * width),
+
+              SizedBox(height: isTablet ? 0.025 * width : 0.05 * width),
+              // 애플 로그인
               if (GetPlatform.isIOS)
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 0.05 * width),
@@ -63,34 +68,9 @@ class LoginScreen extends StatelessWidget {
                     onTap: () async {
                       await authController.signInWithApple();
                     },
-                    child: Container(
-                      height: 0.14 * width,
-                      decoration: BoxDecoration(
-                        color: Colors.black87,
-                        borderRadius: BorderRadius.circular(0.015 * width),
-                      ),
-                      padding: EdgeInsets.symmetric(horizontal: 0.027 * width),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.apple_sharp,
-                            color: Colors.white,
-                            size: 0.08 * width,
-                          ),
-                          Expanded(
-                            child: Center(
-                              child: Text(
-                                'Apple 로그인  ',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 0.0445 * width,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                    child: Image.asset(
+                      'assets/images/apple_login_large_wide.png',
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
