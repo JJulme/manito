@@ -49,6 +49,7 @@ class _SplashScreenState extends State<SplashScreen> {
     }
     // 로그인 세션이 없다면
     else {
+      debugPrint('로그인 세션 없음');
       Get.offAll(() => LoginScreen(), transition: Transition.fade);
     }
   }

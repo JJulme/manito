@@ -8,7 +8,7 @@ class IncompleteItem extends StatelessWidget {
   final String creatorId;
   final UserProfile creatorProfile;
 
-  IncompleteItem({
+  const IncompleteItem({
     super.key,
     required this.width,
     required this.creatorId,
@@ -36,10 +36,12 @@ class IncompleteItem extends StatelessWidget {
         children: [
           profileImageOrDefault(creatorProfile.profileImageUrl, 0.14 * width),
           SizedBox(width: 0.03 * width),
-          Text(
-            '${creatorProfile.nickname} (이)가 마니또 추측중 입니다.',
-            style: Get.textTheme.bodyMedium,
-            overflow: TextOverflow.ellipsis,
+          Expanded(
+            child: Text(
+              '${creatorProfile.nickname} (이)가 마니또 추측중 입니다.',
+              style: Get.textTheme.bodyMedium,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),

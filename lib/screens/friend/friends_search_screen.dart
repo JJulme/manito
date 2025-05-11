@@ -146,7 +146,7 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
                       alignment: Alignment.center,
                       padding: EdgeInsets.all(0.06 * width),
                       decoration: BoxDecoration(
-                        color: Colors.black12,
+                        color: Colors.grey[200],
                         borderRadius: BorderRadius.circular(0.02 * width),
                       ),
                       child: Column(

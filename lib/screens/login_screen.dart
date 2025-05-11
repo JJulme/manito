@@ -26,7 +26,7 @@ class LoginScreen extends StatelessWidget {
                 width: 0.6 * width,
                 height: 0.6 * width,
               ),
-              SizedBox(height: 0.04 * width),
+              SizedBox(height: 0.01 * width),
               Container(
                 height: 0.2 * width,
                 width: width,
@@ -34,7 +34,7 @@ class LoginScreen extends StatelessWidget {
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
-                    '선택의 여지 없이\n카카오로 마니또를 시작하세요!',
+                    '지금 친구들과\n마니또를 즐겨보세요!',
                     style: Get.textTheme.displaySmall,
                     textAlign: TextAlign.center,
                   ),
@@ -55,6 +55,45 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
               ),
+              SizedBox(height: 0.05 * width),
+              if (GetPlatform.isIOS)
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 0.05 * width),
+                  child: InkWell(
+                    onTap: () async {
+                      await authController.signInWithApple();
+                    },
+                    child: Container(
+                      height: 0.14 * width,
+                      decoration: BoxDecoration(
+                        color: Colors.black87,
+                        borderRadius: BorderRadius.circular(0.015 * width),
+                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 0.027 * width),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.apple_sharp,
+                            color: Colors.white,
+                            size: 0.08 * width,
+                          ),
+                          Expanded(
+                            child: Center(
+                              child: Text(
+                                'Apple 로그인  ',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 0.0445 * width,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
