@@ -51,16 +51,16 @@ class LoginScreen extends StatelessWidget {
                   Get.to(() => KakaoLoginWebview());
                 },
               ),
-              SizedBox(height: isTablet ? 0.03 * width : 0.05 * width),
+              // SizedBox(height: isTablet ? 0.03 * width : 0.05 * width),
 
-              // 애플 로그인
-              if (GetPlatform.isIOS)
-                AuthButton(
-                  imagePath: 'assets/images/apple_login_large_wide.png',
-                  onTap: () async {
-                    await authController.signInWithApple();
-                  },
-                ),
+              // // 애플 로그인
+              // if (GetPlatform.isIOS)
+              //   AuthButton(
+              //     imagePath: 'assets/images/apple_login_large_wide.png',
+              //     onTap: () async {
+              //       await authController.signInWithApple();
+              //     },
+              //   ),
             ],
           ),
         ),
