@@ -68,10 +68,10 @@ Future kDefaultDialog(
           CupertinoDialogAction(
             isDefaultAction: true,
             onPressed: () {
+              Get.back();
               if (onYesPressed != null) {
                 onYesPressed();
               }
-              Get.back();
             },
             child: Text((onYesPressed == null) ? "OK" : "Yes"),
           ),
@@ -93,10 +93,10 @@ Future kDefaultDialog(
             ),
           TextButton(
             onPressed: () {
+              Get.back();
               if (onYesPressed != null) {
                 onYesPressed();
               }
-              Get.back();
             },
             child: Text(
               (onYesPressed == null) ? "OK" : "확인",

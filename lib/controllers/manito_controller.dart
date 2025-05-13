@@ -38,6 +38,7 @@ class ManitoController extends GetxController {
           .from('mission_propose')
           .select('id, missions:mission_id(creator_id, accept_deadline)')
           .eq('friend_id', _supabase.auth.currentUser!.id);
+      print(data);
 
       missionProposeList.value =
           data.map((e) => MissionProposeList.fromJson(e)).toList();
@@ -267,7 +268,7 @@ class ManitoPostController extends GetxController {
       await postTable.update(upsertData).eq('id', missionAccept.missionId);
       // 저장 상태 변경
       isPosting.value = true;
-      customSnackbar(title: '저장 성공', message: '미션종료 버튼을 누르면 친구에게 알림이 갑니다.');
+      // customSnackbar(title: '저장 성공', message: '미션종료 버튼을 누르면 친구에게 알림이 갑니다.');
     } catch (e) {
       customSnackbar(title: '오류', message: '$e');
       debugPrint('updatePost Error: $e');

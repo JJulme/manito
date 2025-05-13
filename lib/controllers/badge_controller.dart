@@ -13,19 +13,13 @@ class BadgeController extends GetxController {
   var missionBadge = false.obs;
   var missonProposeBadge = false.obs;
 
+  // 뱃지 설정
+  // 뱃지 구독 채널
+  RealtimeChannel? _channel;
+
   /// 저장된 뱃지 상태 정보를 가져옴 - postBadge가 바뀌는 모든 곳에 실행
   Future<void> loadBadgeState() async {
     final prefs = await SharedPreferences.getInstance();
-    // 데이터 확인
-    final keys = prefs.getKeys();
-    debugPrint('=== SharedPreferences 저장된 모든 데이터 ===');
-    for (String key in keys) {
-      // SharedPreferences에는 다양한 타입이 저장될 수 있으므로
-      // 각 타입에 맞는 getter를 시도합니다
-      final value = prefs.get(key);
-      debugPrint('$key: $value (${value.runtimeType})');
-    }
-    debugPrint('======================================');
 
     // 저장소 새로고침
     await prefs.reload();
@@ -100,5 +94,52 @@ class BadgeController extends GetxController {
     } catch (e) {
       debugPrint('clearComment Error: $e');
     }
+  }
+
+  /// 뱃지 목록 가져오기 - 미완성
+  Future<void> fetchExistingBadges() async {
+    try {
+      final data = await _supabase
+          .from('badges')
+          .select()
+          .eq('user_id', _supabase.auth.currentUser!.id);
+      print(data);
+    } catch (e) {
+      debugPrint('fetchExistingBadges Error: $e');
+    }
+  }
+
+  /// 실시간 뱃지 구독
+  void subscribToBadges() {
+    final userId = _supabase.auth.currentUser!.id;
+    _channel =
+        _supabase
+            .channel('badges: $userId')
+            .onPostgresChanges(
+              event: PostgresChangeEvent.all,
+              schema: 'public',
+              table: 'badges',
+              filter: PostgresChangeFilter(
+                type: PostgresChangeFilterType.eq,
+                column: 'user_id',
+                value: userId,
+              ),
+              callback: _badgeEventHandler,
+            )
+            .subscribe();
+    debugPrint('뱃지 실시간 구독: $userId');
+  }
+
+  /// 채널 이벤트 핸들러 - 미완성
+  void _badgeEventHandler(payload) {
+    debugPrint('Real-time event received: ${payload.toString()}');
+    // 인서트
+    if (payload.eventType == PostgresChangeEvent.insert) {
+    }
+    // 업데이트
+    else if (payload.eventType == PostgresChangeEvent.update) {
+    }
+    // 삭제
+    else if (payload.eventType == PostgresChangeEvent.delete) {}
   }
 }
