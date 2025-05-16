@@ -14,12 +14,13 @@ void handleForegroundMessage(RemoteMessage message) async {
   final ManitoController manitoController = Get.find<ManitoController>();
   final MissionController missionController = Get.find<MissionController>();
   final BadgeController badgeController = Get.find<BadgeController>();
-  final prefs = await SharedPreferences.getInstance();
+  // final prefs = await SharedPreferences.getInstance();
 
   // 친구 신청
   if (message.data['type'] == 'friend_request') {
-    badgeController.friendRequestBadge.value = true;
-    await prefs.setBool('friend_request', true);
+    // badgeController.friendRequestBadge.value = true;
+    badgeController.badgeFriendRequest.value++;
+    // await prefs.setBool('friend_request', true);
     customSnackbar(
       title: message.notification!.title!,
       message: message.notification!.body!,
@@ -28,8 +29,9 @@ void handleForegroundMessage(RemoteMessage message) async {
   // 미션 제의
   else if (message.data['type'] == 'mission_propose') {
     await manitoController.fetchMissionProposeList();
-    badgeController.missonProposeBadge.value = true;
-    await prefs.setBool('mission_propose', true);
+    // badgeController.missonProposeBadge.value = true;
+    badgeController.badgeMissionPropose.value++;
+    // await prefs.setBool('mission_propose', true);
     customSnackbar(
       title: message.notification!.title!,
       message: message.notification!.body!,
@@ -38,8 +40,9 @@ void handleForegroundMessage(RemoteMessage message) async {
   // 마니또가 미션을 수락
   else if (message.data['type'] == 'update_mission_progress') {
     await missionController.fetchMyMissions();
-    badgeController.missionBadge.value = true;
-    await prefs.setBool('update_mission', true);
+    // badgeController.missionBadge.value = true;
+    badgeController.badgeMission.value++;
+    // await prefs.setBool('update_mission', true);
     customSnackbar(
       title: message.notification!.title!,
       message: message.notification!.body!,
@@ -48,8 +51,9 @@ void handleForegroundMessage(RemoteMessage message) async {
   // 마니또가 미션을 완료
   else if (message.data['type'] == 'update_mission_done') {
     await missionController.fetchMyMissions();
-    badgeController.missionBadge.value = true;
-    await prefs.setBool('update_mission', true);
+    // badgeController.missionBadge.value = true;
+    badgeController.badgeMission.value++;
+    // await prefs.setBool('update_mission', true);
     customSnackbar(
       title: message.notification!.title!,
       message: message.notification!.body!,
@@ -58,7 +62,7 @@ void handleForegroundMessage(RemoteMessage message) async {
   // 생성자가 추측을 완료
   else if (message.data['type'] == 'update_mission_guess') {
     await postController.fetchPosts();
-    await postController.fetchIncompletePost();
+    // await postController.fetchIncompletePost();
     customSnackbar(
       title: message.notification!.title!,
       message: message.notification!.body!,
@@ -67,16 +71,16 @@ void handleForegroundMessage(RemoteMessage message) async {
   // 새로운 댓글
   else if (message.data['type'] == 'insert_comment') {
     final String missionId = message.data['mission_id'];
-    badgeController.postBadge[missionId] = true.obs;
+    // badgeController.postBadge[missionId] = true.obs;
     badgeController.updateHasAnyPost();
-    await prefs.setBool('post_$missionId', true);
+    // await prefs.setBool('post_$missionId', true);
   }
   // 새로운 채팅
   else if (message.data['type'] == 'insert_chat') {
     final String missionId = message.data['mission_id'];
-    badgeController.postBadge[missionId] = true.obs;
+    // badgeController.postBadge[missionId] = true.obs;
     badgeController.updateHasAnyPost();
-    await prefs.setBool('post_$missionId', true);
+    // await prefs.setBool('post_$missionId', true);
   }
 }
 

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:intl/intl.dart';
 import 'package:manito/models/user_profile.dart';
 
@@ -24,9 +26,10 @@ class MyMission {
     List<UserProfile> friendProfiles,
   ) {
     final DateFormat formatter = DateFormat('yy-MM-dd HH:mm:ss');
-    String? acceptDeadlineFormatted = json['accept_deadline'] != null
-        ? formatter.format(DateTime.parse(json['accept_deadline']))
-        : null;
+    String? acceptDeadlineFormatted =
+        json['accept_deadline'] != null
+            ? formatter.format(DateTime.parse(json['accept_deadline']))
+            : null;
     return MyMission(
       id: json['id'],
       friendsProfile: friendProfiles,
@@ -64,8 +67,9 @@ class MissionPropose {
       missionId: json['mission_id'],
       randomContents: List<String>.from(json['random_contents']),
       status: missions['status'],
-      acceptDeadline:
-          formatter.format(DateTime.parse(missions['accept_deadline'])),
+      acceptDeadline: formatter.format(
+        DateTime.parse(missions['accept_deadline']),
+      ),
       deadline: formatter.format(DateTime.parse(missions['deadline'])),
       deadlineType: missions['deadline_type'],
     );
@@ -91,8 +95,9 @@ class MissionProposeList {
     return MissionProposeList(
       id: json['id'],
       creatorId: missions['creator_id'],
-      acceptDeadline:
-          formatter.format(DateTime.parse(missions['accept_deadline'])),
+      acceptDeadline: formatter.format(
+        DateTime.parse(missions['accept_deadline']),
+      ),
     );
   }
 }
@@ -116,15 +121,14 @@ class MissionAccept {
   });
 
   factory MissionAccept.fromJson(Map<String, dynamic> json) {
-    final missions = json['missions'];
     final DateFormat formatter = DateFormat('yy-MM-dd HH:mm:ss');
     return MissionAccept(
       missionId: json['id'],
-      creatorId: missions['creator_id'],
+      creatorId: json['creator_id'],
       content: json['content'],
       status: json['status'],
-      deadline: formatter.format(DateTime.parse(missions['deadline'])),
-      deadlineType: missions['deadline_type'],
+      deadline: formatter.format(DateTime.parse(json['deadline'])),
+      deadlineType: json['deadline_type'],
     );
   }
 }
@@ -134,23 +138,41 @@ class MissionPost {
   final String? description;
   final List<String>? imageUrlList;
 
-  MissionPost({
-    this.description,
-    this.imageUrlList,
-  });
+  MissionPost({this.description, this.imageUrlList});
 
   factory MissionPost.fromJson(Map<String, dynamic> json) {
     // 자동 응답에서 가져오는 경우 리스트 변환
-    var imageUrls = json['image_url_list'];
     List<String>? imageUrlList;
-    if (imageUrls is List) {
-      imageUrlList = List<String>.from(imageUrls);
-    } else if (imageUrls != null) {
-      imageUrlList = [imageUrls];
+
+    // 문자열을 리스트로 변환
+    var parsed = jsonDecode(json['image_url_list']);
+    if (parsed is List) {
+      imageUrlList =
+          parsed
+              .where((item) => item != null)
+              .map((item) => item.toString())
+              .toList();
+    } else {
+      imageUrlList = [];
     }
+
     return MissionPost(
-      description: json['description'] as String?,
+      description: json['description'],
       imageUrlList: imageUrlList,
     );
   }
 }
+
+// class MissionPost {
+//   final String? description; // null 허용
+//   final List<String> imageUrlList;
+
+//   MissionPost({this.description, required this.imageUrlList});
+
+//   factory MissionPost.fromJson(Map<String, dynamic> json) {
+//     return MissionPost(
+//       description: json['description'], // 이미 nullable이므로 변환 필요 없음
+//       imageUrlList: List<String>.from(json['image_url_list'] ?? []),
+//     );
+//   }
+// }

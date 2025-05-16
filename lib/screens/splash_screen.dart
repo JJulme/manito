@@ -40,7 +40,7 @@ class _SplashScreenState extends State<SplashScreen> {
       await friendsController.getProfile();
       await friendsController.fetchFriendList();
       final badgeContorller = Get.put(BadgeController(), permanent: true);
-      await badgeContorller.loadBadgeState();
+      await badgeContorller.fetchExistingBadges();
       Get.put(ManitoController(), permanent: true);
       Get.put(MissionController(), permanent: true);
       Get.put(PostController(), permanent: true);

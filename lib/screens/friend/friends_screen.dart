@@ -49,8 +49,8 @@ class FriendsScreen extends StatelessWidget {
         title: Text('친구', style: Get.textTheme.headlineLarge),
         actions: [
           PopupMenuButton(
-            icon: badgeIcon(
-              _badgeContorller.friendRequestBadge,
+            icon: customBadgeIcon(
+              _badgeContorller.badgeFriendRequest,
               Icon(Icons.person_add_alt_1_rounded, size: 0.07 * width),
             ),
             position: PopupMenuPosition.under,
@@ -76,13 +76,15 @@ class FriendsScreen extends StatelessWidget {
                   // 친구 요청
                   PopupMenuItem(
                     value: FriendsRequestScreen(),
-                    onTap: () => _badgeContorller.clearFriendRequest(),
+                    onTap:
+                        () =>
+                            _badgeContorller.resetBadgeCount('friend_request'),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        badgeIcon(
-                          _badgeContorller.friendRequestBadge,
+                        customBadgeIcon(
+                          _badgeContorller.badgeFriendRequest,
                           Icon(Icons.supervisor_account_rounded),
                         ),
                         SizedBox(width: 0.02 * width),

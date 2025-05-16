@@ -12,11 +12,11 @@ class ImageSlider extends StatefulWidget {
   final BoxFit? boxFit;
 
   const ImageSlider({
-    Key? key,
+    super.key,
     required this.images,
     required this.width,
     this.boxFit = BoxFit.cover,
-  }) : super(key: key);
+  });
 
   @override
   State<ImageSlider> createState() => _ImageSliderState();

@@ -30,12 +30,14 @@ class Post {
       id: json['id'] ?? '',
       manitoId: json['manito_id'] ?? '',
       description: json['description'] ?? '',
-      imageUrlList: json['image_url_list'] != null
-          ? List<String>.from(json['image_url_list'])
-          : null,
-      createdAt: json['created_at'] != null
-          ? timeago.format(DateTime.parse(json['created_at']), locale: 'ko')
-          : '',
+      imageUrlList:
+          json['image_url_list'] != null
+              ? List<String>.from(json['image_url_list'])
+              : null,
+      createdAt:
+          json['created_at'] != null
+              ? timeago.format(DateTime.parse(json['created_at']), locale: 'ko')
+              : '',
       creatorId: json['creator_id'] ?? '',
       deadlineType: json['deadline_type'] ?? '',
       content: json['content'] ?? '',

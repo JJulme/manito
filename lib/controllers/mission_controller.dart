@@ -124,24 +124,26 @@ class MissionController extends GetxController {
       final List<dynamic> missionsData = await _supabase
           .from('missions')
           .select(
-              'id, friend_ids, status, deadline_type, deadline, accept_deadline')
+            'id, friend_ids, status, deadline_type, deadline, accept_deadline',
+          )
           .eq('creator_id', userId)
           .isFilter('guess', null);
 
       List<MyMission> allMissions = [];
       // 각 미션 반복문으로 친구들 id를 통해 프로필 넣어줌
       for (var mission in missionsData) {
-        List<UserProfile> friendProfiles =
-            friendsController.searchFriendProfiles(mission['friend_ids']);
+        List<UserProfile> friendProfiles = friendsController
+            .searchFriendProfiles(mission['friend_ids']);
         var myMission = MyMission.fromJson(mission, friendProfiles);
         allMissions.add(myMission);
       }
+
       pendingMyMissions.value =
           allMissions.where((mission) => mission.status == '대기중').toList();
       acceptMyMissions.value =
           allMissions.where((mission) => mission.status == '진행중').toList();
       completeMyMissions.value =
-          allMissions.where((mission) => mission.status == '완료').toList();
+          allMissions.where((mission) => mission.status == '추측중').toList();
     } catch (e) {
       debugPrint('fetchMyMissions Error: $e');
     } finally {
@@ -219,7 +221,8 @@ class MissionGuessController extends GetxController {
     try {
       await _supabase
           .from('missions')
-          .update({'guess': descController.text}).eq('id', completeMission.id);
+          .update({'status': '완료', 'guess': descController.text})
+          .eq('id', completeMission.id);
       Get.back(result: true);
       return '마니또가 누구인지 확인해보세요!';
     } catch (e) {

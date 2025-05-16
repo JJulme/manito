@@ -79,7 +79,8 @@ class PostItem extends StatelessWidget {
             Expanded(child: _buildMissionDetails(post)),
 
             // Timestamp and Badge
-            _buildTimestampAndBadge(post, _badgeController, width),
+            // _buildTimestampAndBadge(post, _badgeController, width),
+            Text(post.createdAt ?? 'No Date', style: Get.textTheme.labelMedium),
           ],
         ),
       ),
@@ -139,10 +140,11 @@ class PostItem extends StatelessWidget {
             padding: EdgeInsets.all(0),
             onPressed: () => _showCommentSheet(width, post.id!),
             // onLongPress: () => _showChatting(post),
-            icon: badgeIcon(
-              badgeController.postBadge[post.id]!,
-              Icon(CustomIcons.comment_empty),
-            ),
+            icon: Icon(CustomIcons.comment_empty),
+            // badgeIcon(
+            //   badgeController.postBadge[post.id]!,
+            //   Icon(CustomIcons.comment_empty),
+            // ),
           );
         }),
       ],

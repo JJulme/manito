@@ -42,7 +42,8 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
     super.didChangeAppLifecycleState(state);
     // 앱이 포커스를 받을 때
     if (state == AppLifecycleState.resumed) {
-      await _badgeController.loadBadgeState();
+      // await _badgeController.loadBadgeState();
+      await _badgeController.fetchExistingBadges();
     }
   }
 
@@ -111,37 +112,42 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
           setState(() {
             _selectedIndex = index;
           });
+          // 미션 탭 클릭
           if (index == 2) {
-            _badgeController.clearMission();
-          } else if (index == 3) {
-            _badgeController.clearMissionPropose();
+            _badgeController.resetBadgeCount('mission_accept');
+            _badgeController.resetBadgeCount('mission_complete');
+          }
+          // 마니또 탭 클릭
+          else if (index == 3) {
+            _badgeController.resetBadgeCount('mission_propose');
           }
         },
         items: [
           BottomNavigationBarItem(
-            icon: badgeIcon(
-              _badgeController.friendRequestBadge,
+            icon: customBadgeIcon(
+              _badgeController.badgeFriendRequest,
               Icon(CustomIcons.user, size: 0.055 * width),
             ),
             label: '친구',
           ),
           BottomNavigationBarItem(
-            icon: badgeIcon(
-              _badgeController.allPostBadge,
-              Icon(CustomIcons.comment, size: 0.065 * width),
-            ),
+            icon: Icon(CustomIcons.comment),
+            // custobadgeIcon(
+            //   _badgeController.allPostBadge,
+            //   Icon(CustomIcons.comment, size: 0.065 * width),
+            // ),
             label: '게시물',
           ),
           BottomNavigationBarItem(
-            icon: badgeIcon(
-              _badgeController.missionBadge,
+            icon: customBadgeIcon(
+              _badgeController.badgeMission,
               Icon(CustomIcons.star, size: 0.065 * width),
             ),
             label: '미션',
           ),
           BottomNavigationBarItem(
-            icon: badgeIcon(
-              _badgeController.missonProposeBadge,
+            icon: customBadgeIcon(
+              _badgeController.badgeMissionPropose,
               Icon(CustomIcons.scroll, size: 0.06 * width),
             ),
             label: '마니또',

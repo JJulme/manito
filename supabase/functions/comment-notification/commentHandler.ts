@@ -10,18 +10,18 @@ export async function handleComment(
 ) {
   const { mission_id, user_id, comment } = payload.record;
 
-  // post_view 데이터 가져오기
-  const { data: post_view } = await supabase
-    .from("post_view")
+  // missions 데이터 가져오기
+  const { data: missions } = await supabase
+    .from("missions")
     .select("creator_id, manito_id")
     .eq("id", mission_id)
     .single();
 
   let receiver_id;
-  if (post_view?.creator_id === user_id) {
-    receiver_id = post_view.manito_id;
-  } else if (post_view?.manito_id === user_id) {
-    receiver_id = post_view.creator_id;
+  if (missions?.creator_id === user_id) {
+    receiver_id = missions.manito_id;
+  } else if (missions?.manito_id === user_id) {
+    receiver_id = missions.creator_id;
   } else {
     console.error("일치하는 사용자가 없습니다.");
     throw new Error("댓글 알릴 사용자 없음");

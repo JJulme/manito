@@ -36,34 +36,13 @@ export interface MissionProposeWebhookPayload {
   schema: "public";
 }
 
-// /// 미션 생성자에게 마니또의 미션 수락 알림
-// export interface MissionProgress {
-//   id: string
-// }
-// export interface MissionProgressWebhookPayload {
-//   type: 'INSERT'
-//   table: 'manito_posts'
-//   record: MissionProgress
-//   schema: 'public'
-// }
-
-/// 미션 생성자에게 마니또의 미션 완료 알림
-export interface MissionDone {
-  id: string;
-}
-export interface MissionDoneWebhookPayload {
-  type: "UPDATE";
-  table: "missions";
-  record: MissionDone;
-  schema: "public";
-}
-
 /// 미션 진행중, 완료, 추리 완료
 export interface MissionsUpdate {
   id: string;
   creator_id: string;
+  manito_id: string;
   status: string;
-  guess: string;
+  description: string;
 }
 export interface MissionsUpdateWebhookPayload {
   type: "UPDATE";

@@ -38,7 +38,6 @@ class ManitoController extends GetxController {
           .from('mission_propose')
           .select('id, missions:mission_id(creator_id, accept_deadline)')
           .eq('friend_id', _supabase.auth.currentUser!.id);
-      print(data);
 
       missionProposeList.value =
           data.map((e) => MissionProposeList.fromJson(e)).toList();
@@ -53,12 +52,15 @@ class ManitoController extends GetxController {
   Future<void> fetchMissionAcceptList() async {
     // isLoading.value = true;
     try {
+      // missions:mission_posts_id_fkey(creator_id, deadline, deadline_type)
       final List<dynamic> data = await _supabase
-          .from('manito_posts')
+          .from('missions')
           .select('''id, 
+              creator_id, 
               content, 
               status, 
-              missions:mission_posts_id_fkey(creator_id, deadline, deadline_type)
+              deadline, 
+              deadline_type
               ''')
           .eq('manito_id', _supabase.auth.currentUser!.id)
           .eq('status', '진행중');
@@ -130,13 +132,14 @@ class MissionProposeController extends GetxController {
   /// 미션 선택 후 미션 수락
   Future<String> acceptMissionPropose(String content) async {
     try {
-      await _supabase.from('manito_posts').insert({
-        'id': missionPropose.value!.missionId,
-        'manito_id': _supabase.auth.currentUser!.id,
-        'content': content,
-        'status': '진행중',
-        'image_url_list': [],
-      });
+      await _supabase.rpc(
+        'accept_mission',
+        params: {
+          'p_id': missionPropose.value!.missionId,
+          'p_manito_id': _supabase.auth.currentUser!.id,
+          'p_content': content,
+        },
+      );
       Get.back(result: true);
       return '미션을 수락 했습니다.';
     } catch (e) {
@@ -170,20 +173,22 @@ class ManitoPostController extends GetxController {
     super.onInit();
     missionAccept = Get.arguments[0];
     creatorProfile = Get.arguments[1];
-    getPost();
+    await getPost();
   }
 
   /// 작성해둔 게시물이 있으면 가져오고 없으면 자동응답 가져옴
   Future<void> getPost() async {
     isLoading.value = true;
     try {
-      final post = await _supabase
-          .from('manito_posts')
-          .select('description, image_url_list')
-          .eq('id', missionAccept.missionId)
-          .eq('manito_id', _supabase.auth.currentUser!.id);
+      final post =
+          await _supabase
+              .from('missions')
+              .select('description, image_url_list')
+              .eq('id', missionAccept.missionId)
+              .eq('manito_id', _supabase.auth.currentUser!.id)
+              .single();
 
-      missionPost.value = MissionPost.fromJson(post.first);
+      missionPost.value = MissionPost.fromJson(post);
       descController.text = missionPost.value?.description ?? '';
 
       // 이미지 캐쉬로 저장
@@ -218,7 +223,7 @@ class ManitoPostController extends GetxController {
   Future<void> updatePost() async {
     updateLoading.value = true;
     try {
-      final postTable = _supabase.from('manito_posts');
+      final postTable = _supabase.from('missions');
       final postImageBucket = _supabase.storage.from('post-image');
       const String baseUrl =
           'https://rkfdbtdicxarrctsvmif.supabase.co/storage/v1/object/public/';
@@ -313,13 +318,16 @@ class ManitoPostController extends GetxController {
     updateLoading.value = true;
     try {
       await _supabase.rpc(
-        'missions_status_complete',
-        params: {'mission_id': missionAccept.missionId},
+        'mission_status_guess',
+        params: {
+          'p_mission_id': missionAccept.missionId,
+          'p_creator_id': missionAccept.creatorId,
+        },
       );
       Get.back(result: true);
       return '친구에게 게시물 전송을 완료 했습니다.';
     } catch (e) {
-      debugPrint('endPost Error: $e');
+      debugPrint('completePost Error: $e');
       return '게시물 전송에 실패 했습니다.';
     } finally {
       updateLoading.value = false;

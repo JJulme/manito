@@ -37,7 +37,7 @@ class _PostScreenState extends State<PostScreen> with WidgetsBindingObserver {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
       _controller.isLoading.value = true;
-      _controller.fetchIncompletePost();
+      // _controller.fetchIncompletePost();
       _controller.fetchPosts();
       _controller.isLoading.value = false;
     }
@@ -59,7 +59,7 @@ class _PostScreenState extends State<PostScreen> with WidgetsBindingObserver {
               onPressed: () async {
                 _controller.isLoading.value = true;
                 await _controller.fetchPosts();
-                await _controller.fetchIncompletePost();
+                // await _controller.fetchIncompletePost();
                 _controller.isLoading.value = false;
               },
             ),
