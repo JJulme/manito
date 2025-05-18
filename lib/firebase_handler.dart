@@ -34,6 +34,7 @@ void handleForegroundMessage(RemoteMessage message) async {
   else if (message.data['type'] == 'update_mission_progress') {
     await missionController.fetchMyMissions();
     badgeController.badgeMap['mission_accept']!.value++;
+    badgeController.updateBadgeMissionCount();
     customSnackbar(
       title: message.notification!.title!,
       message: message.notification!.body!,
@@ -43,6 +44,7 @@ void handleForegroundMessage(RemoteMessage message) async {
   else if (message.data['type'] == 'update_mission_guess') {
     await missionController.fetchMyMissions();
     badgeController.badgeMap['mission_guess']!.value++;
+    badgeController.updateBadgeMissionCount();
     customSnackbar(
       title: message.notification!.title!,
       message: message.notification!.body!,
@@ -52,6 +54,7 @@ void handleForegroundMessage(RemoteMessage message) async {
   else if (message.data['type'] == 'update_mission_complete') {
     await postController.fetchPosts();
     badgeController.badgeMap['mission_complete']!.value++;
+    badgeController.updateBadgePostCount();
     customSnackbar(
       title: message.notification!.title!,
       message: message.notification!.body!,

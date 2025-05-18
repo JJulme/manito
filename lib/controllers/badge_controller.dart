@@ -20,15 +20,6 @@ class BadgeController extends GetxController {
   // 포스트 바텀 버튼 뱃지
   final RxInt badgePostCount = RxInt(0);
 
-  @override
-  void onInit() {
-    super.onInit();
-    // 값이 바뀌면 바뀜
-    badgeMap['mission_accept']?.listen((_) => updateBadgeMissionCount());
-    badgeMap['mission_guess']?.listen((_) => updateBadgeMissionCount());
-    badgeMap['mission_complete']?.listen((_) => updateBadgePostCount());
-  }
-
   /// 값을 업데이트 하는 함수 - 댓글
   void addBadgeComment(missionId) {
     if (badgeComment.containsKey(missionId)) {
@@ -83,6 +74,10 @@ class BadgeController extends GetxController {
       }
       updateBadgeMissionCount();
       updateBadgePostCount();
+      print('badgeMap: $badgeMap');
+      print('badgeComment: $badgeComment');
+      print('badgeMissionCount: $badgeMissionCount');
+      print('badgePostCount: $badgePostCount');
     } catch (e) {
       debugPrint('fetchExistingBadges Error: $e');
     }

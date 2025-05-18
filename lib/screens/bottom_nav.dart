@@ -42,7 +42,6 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
     super.didChangeAppLifecycleState(state);
     // 앱이 포커스를 받을 때
     if (state == AppLifecycleState.resumed) {
-      // await _badgeController.loadBadgeState();
       await _badgeController.fetchExistingBadges();
     }
   }

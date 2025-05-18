@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:manito/constants.dart';
+import 'package:manito/controllers/badge_controller.dart';
 import 'package:manito/controllers/mission_controller.dart';
 import 'package:manito/models/mission.dart';
 import 'package:manito/screens/mission/mission_create_screen.dart';
@@ -21,6 +22,7 @@ class MissionScreen extends StatefulWidget {
 class _MissionScreenState extends State<MissionScreen>
     with WidgetsBindingObserver {
   final MissionController _controller = Get.find<MissionController>();
+  final BadgeController _badgeController = Get.find<BadgeController>();
 
   @override
   void initState() {
@@ -65,6 +67,8 @@ class _MissionScreenState extends State<MissionScreen>
     );
     if (result) {
       _controller.fetchMyMissions();
+      _badgeController.badgeMap['mission_complete']!.value++;
+      _badgeController.updateBadgePostCount();
     }
   }
 
