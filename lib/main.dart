@@ -1,12 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:manito/constants.dart';
-import 'package:manito/firebase_handler.dart';
 import 'package:manito/screens/splash_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -17,8 +15,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // FCM 설정
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // FCM 백그라운드 핸들러 설정
-  FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);
   // Admob 설정
   MobileAds.instance.initialize();
   // .env 변수 가져오기

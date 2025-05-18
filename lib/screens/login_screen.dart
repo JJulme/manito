@@ -12,7 +12,7 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // 화면 크기에 비례한 수
     double width = Get.width;
-    final isTablet = MediaQuery.of(context).size.shortestSide > 600;
+    // final isTablet = MediaQuery.of(context).size.shortestSide > 600;
     return Scaffold(
       body: SafeArea(
         // 중앙에 배치

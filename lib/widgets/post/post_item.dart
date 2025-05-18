@@ -10,8 +10,6 @@ import 'package:manito/widgets/common/custom_badge.dart';
 import 'package:manito/widgets/post/comment_sheet.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
 
-//
-
 class PostItem extends StatelessWidget {
   final dynamic post;
   final dynamic manitoProfile;
@@ -41,7 +39,6 @@ class PostItem extends StatelessWidget {
 
   /// 댓글창 열기
   void _showCommentSheet(double w, String missionId) {
-    _badgeController.clearComment(missionId);
     // 댓글 바텀 시트
     Get.bottomSheet(
       enableDrag: true,
@@ -52,7 +49,6 @@ class PostItem extends StatelessWidget {
 
   /// 채팅장 열기
   void _showChatting(dynamic post) {
-    _badgeController.clearChat(post.id);
     Get.to(() => ChatScreen(), arguments: post);
   }
 
@@ -79,8 +75,7 @@ class PostItem extends StatelessWidget {
             Expanded(child: _buildMissionDetails(post)),
 
             // Timestamp and Badge
-            // _buildTimestampAndBadge(post, _badgeController, width),
-            Text(post.createdAt ?? 'No Date', style: Get.textTheme.labelMedium),
+            _buildTimestampAndBadge(post, _badgeController, width),
           ],
         ),
       ),
@@ -138,13 +133,18 @@ class PostItem extends StatelessWidget {
         Obx(() {
           return IconButton(
             padding: EdgeInsets.all(0),
-            onPressed: () => _showCommentSheet(width, post.id!),
+            // onPressed: () => _showCommentSheet(width, post.id!),
+            onPressed: () {
+              _showCommentSheet(width, post.id!);
+              _badgeController.resetBadgeCount(post.id);
+            },
             // onLongPress: () => _showChatting(post),
-            icon: Icon(CustomIcons.comment_empty),
-            // badgeIcon(
-            //   badgeController.postBadge[post.id]!,
-            //   Icon(CustomIcons.comment_empty),
-            // ),
+            icon:
+            // Icon(CustomIcons.comment_empty),
+            customBadgeIcon(
+              badgeController.badgeComment[post.id] ?? 0.obs,
+              Icon(CustomIcons.comment_empty),
+            ),
           );
         }),
       ],

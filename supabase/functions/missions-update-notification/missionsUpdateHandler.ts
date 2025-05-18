@@ -49,7 +49,7 @@ export async function handleMissionsUpdate(
         title: "마니또 미션 완료!",
         body: `마니또를 추측 해보세요.`,
         data: {
-          type: "update_mission_guessing",
+          type: "update_mission_guess",
           click_action: "FLUTTER_NOTIFICATION_CLICK",
           mission_id: id,
         },
@@ -62,7 +62,7 @@ export async function handleMissionsUpdate(
         title: "미션 종료!",
         body: `친구가 추리한 내용을 확인해보세요.`,
         data: {
-          type: "update_mission_guess",
+          type: "update_mission_complete",
           click_action: "FLUTTER_NOTIFICATION_CLICK",
           mission_id: id,
         },

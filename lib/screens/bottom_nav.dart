@@ -112,10 +112,14 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
           setState(() {
             _selectedIndex = index;
           });
-          // 미션 탭 클릭
-          if (index == 2) {
-            _badgeController.resetBadgeCount('mission_accept');
+          // 포스트 탭 클릭
+          if (index == 1) {
             _badgeController.resetBadgeCount('mission_complete');
+          }
+          // 미션 탭 클릭
+          else if (index == 2) {
+            _badgeController.resetBadgeCount('mission_accept');
+            _badgeController.resetBadgeCount('mission_guess');
           }
           // 마니또 탭 클릭
           else if (index == 3) {
@@ -125,29 +129,28 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
         items: [
           BottomNavigationBarItem(
             icon: customBadgeIcon(
-              _badgeController.badgeFriendRequest,
+              _badgeController.badgeMap['friend_request']!,
               Icon(CustomIcons.user, size: 0.055 * width),
             ),
             label: '친구',
           ),
           BottomNavigationBarItem(
-            icon: Icon(CustomIcons.comment),
-            // custobadgeIcon(
-            //   _badgeController.allPostBadge,
-            //   Icon(CustomIcons.comment, size: 0.065 * width),
-            // ),
+            icon: customBadgeIcon(
+              _badgeController.badgePostCount,
+              Icon(CustomIcons.comment, size: 0.065 * width),
+            ),
             label: '게시물',
           ),
           BottomNavigationBarItem(
             icon: customBadgeIcon(
-              _badgeController.badgeMission,
+              _badgeController.badgeMissionCount,
               Icon(CustomIcons.star, size: 0.065 * width),
             ),
             label: '미션',
           ),
           BottomNavigationBarItem(
             icon: customBadgeIcon(
-              _badgeController.badgeMissionPropose,
+              _badgeController.badgeMap['mission_propose']!,
               Icon(CustomIcons.scroll, size: 0.06 * width),
             ),
             label: '마니또',

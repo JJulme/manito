@@ -50,7 +50,7 @@ class FriendsScreen extends StatelessWidget {
         actions: [
           PopupMenuButton(
             icon: customBadgeIcon(
-              _badgeContorller.badgeFriendRequest,
+              _badgeContorller.badgeMap['friend_request']!,
               Icon(Icons.person_add_alt_1_rounded, size: 0.07 * width),
             ),
             position: PopupMenuPosition.under,
@@ -84,7 +84,7 @@ class FriendsScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         customBadgeIcon(
-                          _badgeContorller.badgeFriendRequest,
+                          _badgeContorller.badgeMap['friend_request']!,
                           Icon(Icons.supervisor_account_rounded),
                         ),
                         SizedBox(width: 0.02 * width),

@@ -136,7 +136,7 @@ class _ChatBubble extends StatelessWidget {
 class _MessageBar extends StatelessWidget {
   final TextEditingController messageTextController;
   final VoidCallback onSendPressed;
-  _MessageBar({
+  const _MessageBar({
     required this.messageTextController,
     required this.onSendPressed,
   });
