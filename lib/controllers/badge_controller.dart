@@ -74,10 +74,6 @@ class BadgeController extends GetxController {
       }
       updateBadgeMissionCount();
       updateBadgePostCount();
-      print('badgeMap: $badgeMap');
-      print('badgeComment: $badgeComment');
-      print('badgeMissionCount: $badgeMissionCount');
-      print('badgePostCount: $badgePostCount');
     } catch (e) {
       debugPrint('fetchExistingBadges Error: $e');
     }

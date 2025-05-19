@@ -187,10 +187,8 @@ class ManitoPostController extends GetxController {
               .eq('id', missionAccept.missionId)
               .eq('manito_id', _supabase.auth.currentUser!.id)
               .single();
-      print(post);
 
       missionPost.value = MissionPost.fromJson(post);
-      print(missionPost.value);
       descController.text = missionPost.value?.description ?? '';
 
       // 이미지 캐쉬로 저장
@@ -318,7 +316,7 @@ class ManitoPostController extends GetxController {
         quality: 100, // PNG는 무손실
       );
     } else {
-      print('지원하지 않는 이미지 형식: $extension');
+      debugPrint('지원하지 않는 이미지 형식: $extension');
       return originalFile; // 또는 null
     }
 
