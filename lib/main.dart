@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -12,7 +13,10 @@ import 'package:manito/firebase_options.dart';
 
 void main() async {
   // 웹바인딩 설정
-  WidgetsFlutterBinding.ensureInitialized();
+  // WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  // 런처 스플래쉬 화면 설정
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   // FCM 설정
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   // Admob 설정
