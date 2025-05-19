@@ -243,13 +243,8 @@ class ManitoPostController extends GetxController {
           var fileImage = await assetImage.originFile;
           if (fileImage == null) continue;
 
-          // HEIC 이미지인지 확인하고 변환
-          File fileToUpload;
-          if (_isHeicImage(fileImage.path)) {
-            fileToUpload = await _convertHeicToPng(fileImage);
-          } else {
-            fileToUpload = fileImage;
-          }
+          // 이미지 크기변환
+          File? fileToUpload = await compressImageFileUnified(fileImage);
 
           String fileName =
               '${missionAccept.missionId}_post_${DateTime.now().millisecondsSinceEpoch}.png';
@@ -284,35 +279,55 @@ class ManitoPostController extends GetxController {
     }
   }
 
-  // HEIC 이미지인지 확인하는 함수
-  bool _isHeicImage(String filePath) {
-    final extension = path.extension(filePath).toLowerCase();
-    return extension == '.heic' || extension == '.heif';
-  }
+  // 이미지 크기 변환
+  Future<File> compressImageFileUnified(
+    File originalFile, {
+    int minWidth = 640,
+    int quality = 70,
+  }) async {
+    final String extension = path.extension(originalFile.path).toLowerCase();
 
-  // HEIC 이미지를 PNG로 변환하는 함수
-  Future<File> _convertHeicToPng(File file) async {
-    // 원본 이미지 데이터 가져오기
-    final Uint8List imageData = await file.readAsBytes();
+    Uint8List? compressedData;
+    CompressFormat? format;
+    String targetExtension = extension;
 
-    // JPEG로 압축
-    final Uint8List pngData = await FlutterImageCompress.compressWithList(
-      imageData,
-      format: CompressFormat.jpeg,
-      minWidth: 640,
-      quality: 70,
-    );
+    if (extension == '.heic' || extension == '.heif') {
+      format = CompressFormat.jpeg;
+      targetExtension = '.jpeg';
+      final Uint8List imageData = await originalFile.readAsBytes();
+      compressedData = await FlutterImageCompress.compressWithList(
+        imageData,
+        format: format,
+        minWidth: minWidth,
+        quality: quality,
+      );
+    } else if (extension == '.jpg' || extension == '.jpeg') {
+      format = CompressFormat.jpeg;
+      compressedData = await FlutterImageCompress.compressWithList(
+        await originalFile.readAsBytes(),
+        format: format,
+        minWidth: minWidth,
+        quality: quality,
+      );
+    } else if (extension == '.png') {
+      format = CompressFormat.png;
+      compressedData = await FlutterImageCompress.compressWithList(
+        await originalFile.readAsBytes(),
+        format: format,
+        minWidth: minWidth,
+        quality: 100, // PNG는 무손실
+      );
+    } else {
+      print('지원하지 않는 이미지 형식: $extension');
+      return originalFile; // 또는 null
+    }
 
-    // 임시 저장 경로 생성
     final String tempDir = (await getTemporaryDirectory()).path;
-    final String tempPath =
-        '$tempDir/${DateTime.now().millisecondsSinceEpoch}.png';
-
-    // 새 파일 생성 및 데이터 쓰기
-    final File pngFile = File(tempPath);
-    await pngFile.writeAsBytes(pngData);
-
-    return pngFile;
+    final String compressedPath =
+        '$tempDir/${DateTime.now().millisecondsSinceEpoch}$targetExtension';
+    final File compressedFile = File(compressedPath);
+    await compressedFile.writeAsBytes(compressedData);
+    return compressedFile;
   }
 
   /// 게시하기 - mission_manito(status 수정), missions(status 수정)

@@ -125,6 +125,7 @@ class AlbumController extends GetxController {
     isLoading.value = true;
     final PermissionState ps = await PhotoManager.requestPermissionExtend();
     try {
+      // 권한 승인
       if (ps.isAuth) {
         final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList(
           onlyAll: false,
@@ -132,11 +133,20 @@ class AlbumController extends GetxController {
         );
         imageAssets.clear();
         for (var path in paths) {
-          final List<AssetEntity> entities = await path.getAssetListPaged(
-            page: 0,
-            size: await path.assetCountAsync,
-          );
-          imageAssets.addAll(entities);
+          // 해당 앨범에 포함된 에셋의 총 개수를 비동기적으로 가져옵니다.
+          final int assetCount = await path.assetCountAsync;
+          // 앨범에 하나 이상의 에셋이 존재하는 경우에만 해당 앨범의 에셋 목록을 가져옵니다.
+          // 이렇게 함으로써 size 매개변수가 0이 되어 발생하는 오류를 방지합니다.
+          if (assetCount > 0) {
+            // 해당 앨범의 이미지 에셋 목록을 페이지 단위로 가져옵니다.
+            // page: 0 -> 첫 번째 페이지부터 가져옵니다.
+            // size: await path.assetCountAsync -> 해당 앨범의 모든 에셋을 한 번에 가져옵니다.
+            final List<AssetEntity> entities = await path.getAssetListPaged(
+              page: 0,
+              size: await path.assetCountAsync,
+            );
+            imageAssets.addAll(entities);
+          }
         }
         // 이미지 중복제거
         imageAssets.value = imageAssets.toSet().toList();
@@ -144,7 +154,9 @@ class AlbumController extends GetxController {
         imageAssets.sort(
           (a, b) => b.createDateTime.compareTo(a.createDateTime),
         );
-      } else {
+      }
+      // 권한 거절
+      else {
         customSnackbar(
           title: '알림',
           message: '이미지 접근 권한이 필요합니다.',
