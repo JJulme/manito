@@ -145,7 +145,7 @@ class MissionPost {
     List<String>? imageUrlList;
 
     // 문자열을 리스트로 변환
-    var parsed = jsonDecode(json['image_url_list']);
+    var parsed = json['image_url_list'];
     if (parsed is List) {
       imageUrlList =
           parsed

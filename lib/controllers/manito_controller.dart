@@ -187,8 +187,10 @@ class ManitoPostController extends GetxController {
               .eq('id', missionAccept.missionId)
               .eq('manito_id', _supabase.auth.currentUser!.id)
               .single();
+      print(post);
 
       missionPost.value = MissionPost.fromJson(post);
+      print(missionPost.value);
       descController.text = missionPost.value?.description ?? '';
 
       // 이미지 캐쉬로 저장
@@ -293,11 +295,11 @@ class ManitoPostController extends GetxController {
     // 원본 이미지 데이터 가져오기
     final Uint8List imageData = await file.readAsBytes();
 
-    // PNG로 압축
+    // JPEG로 압축
     final Uint8List pngData = await FlutterImageCompress.compressWithList(
       imageData,
       format: CompressFormat.jpeg,
-      minWidth: 1280,
+      minWidth: 640,
       quality: 70,
     );
 
