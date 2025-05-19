@@ -411,7 +411,7 @@ class FriendsDetailCrontroller extends GetxController {
     String userId = _supabase.auth.currentUser!.id;
     try {
       final originData = await _supabase
-          .from('post_view')
+          .from('missions')
           .select(
             'id, manito_id, creator_id, deadline_type, content, created_at',
           )
