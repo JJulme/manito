@@ -180,10 +180,7 @@ class ManitoPostScreen extends StatelessWidget {
         ),
         // 저장, 전송 버튼
         bottomNavigationBar: BottomAppBar(
-          height: 0.18 * width,
-          padding: EdgeInsets.all(0 * width),
           child: Container(
-            height: 0.18 * width,
             margin: EdgeInsets.all(0.03 * width),
             child: Obx(() {
               return ElevatedButton(

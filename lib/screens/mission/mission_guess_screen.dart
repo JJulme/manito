@@ -157,9 +157,7 @@ class MissionGuessScreen extends StatelessWidget {
         ),
         // 마니또 확인하기 버튼
         bottomNavigationBar: BottomAppBar(
-          padding: EdgeInsets.all(0),
           child: Container(
-            height: 0.18 * width,
             margin: EdgeInsets.all(0.03 * width),
             child: ElevatedButton(
               onPressed: _updateMission,

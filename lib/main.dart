@@ -74,7 +74,11 @@ class _ManitoState extends State<Manito> {
       ),
       // 바텀 시트 설정
       bottomSheetTheme: BottomSheetThemeData(backgroundColor: Colors.white),
-      bottomAppBarTheme: BottomAppBarTheme(color: Colors.white),
+      bottomAppBarTheme: BottomAppBarTheme(
+        color: Colors.white,
+        height: 0.2 * width,
+        padding: EdgeInsets.zero,
+      ),
       // 기본 배경색 설정
       scaffoldBackgroundColor: Colors.white,
       // 기본 아이콘 설정

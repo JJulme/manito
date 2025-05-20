@@ -250,15 +250,9 @@ class _MissionProposeScreenState extends State<MissionProposeScreen> {
   // 하단 바 위젯
   Widget _buildBottomBar(double width) {
     return BottomAppBar(
-      height: 0.2 * width,
-      padding: EdgeInsets.zero,
       child: Container(
         width: double.infinity,
-        height: 0.18 * width,
-        margin: EdgeInsets.symmetric(
-          horizontal: 0.05 * width,
-          vertical: 0.03 * width,
-        ),
+        margin: EdgeInsets.all(0.03 * width),
         child: ElevatedButton(
           onPressed: _showAcceptMissionDialog,
           child: Obx(() {

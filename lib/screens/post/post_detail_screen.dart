@@ -20,7 +20,7 @@ class PostDetailScreen extends StatelessWidget {
 
   /// 댓글창 열기
   void _showCommentSheet(double width, String missionId) {
-    // _badgeController.clearComment(missionId);
+    _badgeController.resetBadgeCount(missionId);
     // 댓글 바텀 시트
     Get.bottomSheet(
       enableDrag: true,
