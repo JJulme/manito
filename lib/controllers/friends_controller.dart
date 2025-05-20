@@ -60,13 +60,13 @@ class FriendsController extends GetxController {
       final data = await _supabase
           .from('friends')
           .select('''
-        profiles!friends_friend_id_fkey(
-          id,
-          nickname,
-          status_message,
-          profile_image_url
-        )
-      ''')
+            profiles!friends_friend_id_fkey(
+              id,
+              nickname,
+              status_message,
+              profile_image_url
+            )
+          ''')
           .eq('user_id', _supabase.auth.currentUser!.id)
           .order('profiles(nickname)', ascending: true);
 

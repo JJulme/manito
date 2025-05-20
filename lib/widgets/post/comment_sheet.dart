@@ -155,6 +155,7 @@ class _CommentSheet2State extends State<CommentSheet> {
                       minLines: 1,
                       maxLines: 3,
                       maxLength: 99,
+                      autofocus: true,
                       buildCounter:
                           (
                             context, {

@@ -51,7 +51,7 @@ class FriendsScreen extends StatelessWidget {
           PopupMenuButton(
             icon: customBadgeIcon(
               _badgeContorller.badgeMap['friend_request']!,
-              Icon(Icons.person_add_alt_1_rounded, size: 0.07 * width),
+              child: Icon(Icons.person_add_alt_1_rounded, size: 0.07 * width),
             ),
             position: PopupMenuPosition.under,
             offset: Offset(width, 0),
@@ -85,7 +85,7 @@ class FriendsScreen extends StatelessWidget {
                       children: [
                         customBadgeIcon(
                           _badgeContorller.badgeMap['friend_request']!,
-                          Icon(Icons.supervisor_account_rounded),
+                          child: Icon(Icons.supervisor_account_rounded),
                         ),
                         SizedBox(width: 0.02 * width),
                         Text('친구 요청', style: Get.textTheme.bodyMedium),

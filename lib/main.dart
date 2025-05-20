@@ -88,8 +88,8 @@ class _ManitoState extends State<Manito> {
       // 디바이더 설정
       dividerTheme: DividerThemeData(
         color: Colors.grey[200],
-        space: 0.15 * width,
-        thickness: 0.03 * width,
+        space: 0.12 * width,
+        thickness: 0.025 * width,
       ),
       // 다이얼로그 테마 설정
       dialogTheme: DialogTheme(

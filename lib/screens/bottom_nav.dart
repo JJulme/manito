@@ -129,28 +129,28 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
           BottomNavigationBarItem(
             icon: customBadgeIcon(
               _badgeController.badgeMap['friend_request']!,
-              Icon(CustomIcons.user, size: 0.055 * width),
+              child: Icon(CustomIcons.user, size: 0.055 * width),
             ),
             label: '친구',
           ),
           BottomNavigationBarItem(
             icon: customBadgeIcon(
               _badgeController.badgePostCount,
-              Icon(CustomIcons.comment, size: 0.065 * width),
+              child: Icon(CustomIcons.comment, size: 0.065 * width),
             ),
             label: '게시물',
           ),
           BottomNavigationBarItem(
             icon: customBadgeIcon(
               _badgeController.badgeMissionCount,
-              Icon(CustomIcons.star, size: 0.065 * width),
+              child: Icon(CustomIcons.star, size: 0.065 * width),
             ),
             label: '미션',
           ),
           BottomNavigationBarItem(
             icon: customBadgeIcon(
               _badgeController.badgeMap['mission_propose']!,
-              Icon(CustomIcons.scroll, size: 0.06 * width),
+              child: Icon(CustomIcons.scroll, size: 0.06 * width),
             ),
             label: '마니또',
           ),

@@ -77,31 +77,37 @@ class PostController extends GetxController {
 class PostDetailController extends GetxController {
   final _supabase = Supabase.instance.client;
   var isLoading = false.obs;
+  var commentLoading = false.obs;
   late UserProfile manitoProfile;
   late UserProfile creatorProfile;
   late Post post; // deadlineType, content, createdAt
   var detailPost = Rx<Post?>(null);
   var commentList = <Comment>[].obs; // 댓글 목록
+  // 텍스트 컨트롤러
   final TextEditingController commentController = TextEditingController();
+  // 스크롤 컨트롤러
+  final ScrollController commentScrollController = ScrollController();
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
     post = Get.arguments[0];
     manitoProfile = Get.arguments[1];
     creatorProfile = Get.arguments[2];
-    getPost(post.id!);
+    isLoading.value = true;
+    await getPost();
+    await fetchComment();
+    isLoading.value = false;
   }
 
   /// 게시물 가져오기
-  Future<void> getPost(String id) async {
-    isLoading.value = true;
+  Future<void> getPost() async {
     try {
       final data =
           await _supabase
               .from('missions')
               .select('description, image_url_list, guess')
-              .eq('id', id)
+              .eq('id', post.id!)
               .single();
       detailPost.value = Post.fromJson(data);
       // 기존 썸네일 정보 덮어쓰기
@@ -113,40 +119,40 @@ class PostDetailController extends GetxController {
       );
     } catch (e) {
       debugPrint('getPost Error: $e');
-    } finally {
-      isLoading.value = false;
     }
   }
 
-  // /// 게시물의 댓글 가져오기
-  // Future<void> fetchComment() async {
-  //   commentLoading.value = true;
-  //   try {
-  //     final data =
-  //         await _supabase.from('comments').select().eq('mission_id', post.id!);
-  //     commentList.value =
-  //         data.map((comment) => Comment.fromJson(comment)).toList();
-  //   } catch (e) {
-  //     debugPrint('fetchComment Error: $e');
-  //   } finally {
-  //     commentLoading.value = false;
-  //   }
-  // }
+  /// 게시물의 댓글 가져오기
+  Future<void> fetchComment() async {
+    commentLoading.value = true;
+    try {
+      final data = await _supabase
+          .from('comments')
+          .select()
+          .eq('mission_id', post.id!)
+          .order('created_at', ascending: false);
+      commentList.value =
+          data.map((comment) => Comment.fromJson(comment)).toList();
+    } catch (e) {
+      debugPrint('fetchComment Error: $e');
+    } finally {
+      commentLoading.value = false;
+    }
+  }
 
-  // /// 댓글 보내기
-  // Future<void> insertComment() async {
-  //   try {
-  //     final data = {
-  //       "mission_id": post.id,
-  //       "user_id": _supabase.auth.currentUser!.id,
-  //       "comment": commentController.text,
-  //     };
-  //     await _supabase.from('comments').insert(data);
-  //     fetchComment();
-  //   } catch (e) {
-  //     debugPrint('insertComment Error: $e');
-  //   }
-  // }
+  /// 댓글 보내기
+  Future<void> insertComment() async {
+    try {
+      await _supabase.from('comments').insert({
+        "mission_id": post.id,
+        "user_id": _supabase.auth.currentUser!.id,
+        "comment": commentController.text,
+      });
+      fetchComment();
+    } catch (e) {
+      debugPrint('insertComment Error: $e');
+    }
+  }
 }
 
 class CommentController extends GetxController {

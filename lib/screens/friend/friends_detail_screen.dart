@@ -5,6 +5,7 @@ import 'package:manito/constants.dart';
 import 'package:manito/controllers/friends_controller.dart';
 import 'package:manito/models/post.dart';
 import 'package:manito/models/user_profile.dart';
+import 'package:manito/screens/friend/friends_modify_screen.dart';
 import 'package:manito/widgets/admob/banner_ad_widget.dart';
 import 'package:manito/widgets/post/post_item.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
@@ -35,6 +36,18 @@ class FriendsDetailScreen extends StatelessWidget {
               position: PopupMenuPosition.under,
               itemBuilder:
                   (context) => [
+                    PopupMenuItem(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.mode),
+                          SizedBox(width: 0.02 * width),
+                          Text('이름 수정', style: Get.textTheme.bodyMedium),
+                        ],
+                      ),
+                      onTap: () => Get.to(() => FriendsModifyScreen()),
+                    ),
                     // 친구 차단
                     PopupMenuItem(
                       child: Row(
