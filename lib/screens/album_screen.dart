@@ -82,9 +82,9 @@ class AlbumScreen extends GetResponsiveView<AlbumController> {
                                     width: 0.08 * width,
                                     height: 0.08 * width,
                                     alignment: Alignment.center,
-                                    decoration: const BoxDecoration(
+                                    decoration: BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: Colors.green,
+                                      color: Colors.yellowAccent[700],
                                     ),
                                     child: Text(
                                       '${selectedImages[imageAsset.id]! + 1}',
