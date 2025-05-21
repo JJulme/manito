@@ -49,21 +49,14 @@ class PostController extends GetxController {
     // isLoading.value = true;
     String userId = _supabase.auth.currentUser!.id;
     try {
-      // final data = await _supabase
-      //     .from('post_view')
-      //     .select(
-      //       'id, manito_id, creator_id, deadline_type, content, created_at',
-      //     )
-      //     .or('creator_id.eq.$userId, manito_id.eq.$userId')
-      //     .order('created_at', ascending: false);
       final data = await _supabase
           .from('missions')
           .select(
-            'id, manito_id, creator_id, deadline_type, content, created_at',
+            'id, manito_id, creator_id, deadline_type, content, complete_at',
           )
           .or('creator_id.eq.$userId, manito_id.eq.$userId')
           .not('guess', 'is', null)
-          .order('created_at', ascending: false);
+          .order('complete_at', ascending: false);
       postList.value = data.map((post) => Post.fromJson(post)).toList();
     } catch (e) {
       debugPrint('fetchPosts Error: $e');
@@ -112,7 +105,7 @@ class PostDetailController extends GetxController {
       // 기존 썸네일 정보 덮어쓰기
       detailPost.value = detailPost.value?.copyWith(
         id: post.id,
-        createdAt: post.createdAt,
+        completeAt: post.completeAt,
         deadlineType: post.deadlineType,
         content: post.content,
       );

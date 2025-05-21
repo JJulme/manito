@@ -130,7 +130,7 @@ class PostItem extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Text(post.createdAt ?? 'No Date', style: Get.textTheme.labelMedium),
+        Text(post.completeAt ?? 'No Date', style: Get.textTheme.labelMedium),
         SizedBox(height: 0.02 * width),
         Obx(() {
           return customBadgeIcon(

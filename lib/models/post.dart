@@ -7,6 +7,7 @@ class Post {
   final String? description;
   final List<String?>? imageUrlList;
   final String? createdAt;
+  final String? completeAt;
 
   final String? creatorId;
   final String? deadlineType;
@@ -19,6 +20,7 @@ class Post {
     this.description,
     this.imageUrlList,
     this.createdAt,
+    this.completeAt,
     this.creatorId,
     this.deadlineType,
     this.content,
@@ -38,6 +40,13 @@ class Post {
           json['created_at'] != null
               ? timeago.format(DateTime.parse(json['created_at']), locale: 'ko')
               : '',
+      completeAt:
+          json['complete_at'] != null
+              ? timeago.format(
+                DateTime.parse(json['complete_at']),
+                locale: 'ko',
+              )
+              : '',
       creatorId: json['creator_id'] ?? '',
       deadlineType: json['deadline_type'] ?? '',
       content: json['content'] ?? '',
@@ -49,6 +58,7 @@ class Post {
   Post copyWith({
     String? id,
     String? createdAt,
+    String? completeAt,
     String? description,
     List<String?>? imageUrlList,
     String? manitoId,
@@ -63,6 +73,7 @@ class Post {
       description: description ?? this.description,
       imageUrlList: imageUrlList ?? this.imageUrlList,
       createdAt: createdAt ?? this.createdAt,
+      completeAt: completeAt ?? this.completeAt,
       creatorId: creatorId ?? this.creatorId,
       deadlineType: deadlineType ?? this.deadlineType,
       content: content ?? this.content,

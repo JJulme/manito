@@ -415,12 +415,12 @@ class FriendsDetailCrontroller extends GetxController {
       final originData = await _supabase
           .from('missions')
           .select(
-            'id, manito_id, creator_id, deadline_type, content, created_at',
+            'id, manito_id, creator_id, deadline_type, content, complete_at',
           )
           .or(
             'manito_id.eq.${friendProfile.id},creator_id.eq.${friendProfile.id}',
           )
-          .order('created_at', ascending: true);
+          .order('complete_at', ascending: true);
       final manitoPost =
           originData
               .where((post) => post['manito_id'] == friendProfile.id)
