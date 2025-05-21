@@ -215,10 +215,10 @@ class FriendsScreen extends StatelessWidget {
           physics: NeverScrollableScrollPhysics(),
           itemCount: _controller.friendList.length,
           itemBuilder: (context, index) {
-            final userProfile = _controller.friendList[index];
+            final friendProfile = _controller.friendList[index];
             return InkWell(
               onTap: () {
-                Get.to(() => FriendsDetailScreen(), arguments: userProfile);
+                Get.to(() => FriendsDetailScreen(), arguments: friendProfile);
               },
               child: Container(
                 padding: EdgeInsets.symmetric(
@@ -231,7 +231,7 @@ class FriendsScreen extends StatelessWidget {
                   children: [
                     // 프로필 이미지
                     profileImageOrDefault(
-                      userProfile.profileImageUrl!,
+                      friendProfile.profileImageUrl!,
                       0.15 * width,
                     ),
                     SizedBox(width: 0.035 * width),
@@ -242,13 +242,13 @@ class FriendsScreen extends StatelessWidget {
                         children: [
                           // 친구 이름
                           Text(
-                            userProfile.nickname,
+                            friendProfile.nickname!,
                             style: Get.textTheme.bodyMedium,
                             overflow: TextOverflow.ellipsis,
                           ),
                           // 친구 상태 메시지
                           Text(
-                            userProfile.statusMessage,
+                            friendProfile.statusMessage!,
                             style: Get.textTheme.labelMedium,
                             maxLines: 2,
                             softWrap: true,

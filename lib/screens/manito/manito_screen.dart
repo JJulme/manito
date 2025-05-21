@@ -50,10 +50,7 @@ class _ManitoScreenState extends State<ManitoScreen>
   }
 
   /// 미션 제안 상세 페이지 이동
-  Future<void> _toMissionProposeScreen(
-    String missionId,
-    UserProfile creatorProfile,
-  ) async {
+  Future<void> _toMissionProposeScreen(String missionId, creatorProfile) async {
     final result = await Get.to(
       () => MissionProposeScreen(),
       arguments: [missionId, creatorProfile],
@@ -67,7 +64,7 @@ class _ManitoScreenState extends State<ManitoScreen>
   /// 미션 게시물 작성 페이지 이동
   Future<void> _toMissionPostScreen(
     MissionAccept mission,
-    UserProfile creatorProfile,
+    creatorProfile,
   ) async {
     final result = await Get.to(
       () => ManitoPostScreen(),
@@ -158,8 +155,9 @@ class _ManitoScreenState extends State<ManitoScreen>
             // 미션 정보
             final missionPropose = _controller.missionProposeList[index];
             // 친구 정보
-            final UserProfile? creatorProfile = _friendsController
-                .searchFriendProfile(missionPropose.creatorId);
+            final creatorProfile = _friendsController.searchFriendProfile(
+              missionPropose.creatorId,
+            );
             return GestureDetector(
               onTap:
                   () => _toMissionProposeScreen(
@@ -221,8 +219,9 @@ class _ManitoScreenState extends State<ManitoScreen>
           itemBuilder: (context, index) {
             final MissionAccept missionAccept =
                 _controller.missionAcceptList[index];
-            final UserProfile? creatorProfile = _friendsController
-                .searchFriendProfile(missionAccept.creatorId);
+            final creatorProfile = _friendsController.searchFriendProfile(
+              missionAccept.creatorId,
+            );
             return CustomSlide(
               mainWidget: Container(
                 width: width - 0.06 * width,

@@ -25,8 +25,8 @@ class PostItem extends StatelessWidget {
   // 게시물 상세 보기
   Future<void> _toPostDetailScreen(
     Post post,
-    UserProfile? manitoProfile,
-    UserProfile? creatorProfile,
+    manitoProfile,
+    creatorProfile,
   ) async {
     await Get.to(
       () => PostDetailScreen(),

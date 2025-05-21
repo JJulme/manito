@@ -165,9 +165,9 @@ class _MissionCreateScreenState extends State<MissionCreateScreen> {
           separatorBuilder: (_, __) => SizedBox(width: 0),
           itemCount: _controller.selectedFriends.length,
           itemBuilder: (context, index) {
-            final userProfile = _controller.selectedFriends[index];
+            final friendProfile = _controller.selectedFriends[index];
             return GestureDetector(
-              onTap: () => _controller.toggleSelection(userProfile),
+              onTap: () => _controller.toggleSelection(friendProfile),
               child: Column(
                 children: [
                   Stack(
@@ -175,7 +175,7 @@ class _MissionCreateScreenState extends State<MissionCreateScreen> {
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 0.03 * width),
                         child: profileImageOrDefault(
-                          userProfile.profileImageUrl!,
+                          friendProfile.profileImageUrl!,
                           0.16 * width,
                         ),
                       ),
@@ -186,7 +186,7 @@ class _MissionCreateScreenState extends State<MissionCreateScreen> {
                       ),
                     ],
                   ),
-                  Text(userProfile.nickname),
+                  Text(friendProfile.nickname!),
                 ],
               ),
             );
@@ -203,7 +203,7 @@ class _MissionCreateScreenState extends State<MissionCreateScreen> {
       physics: NeverScrollableScrollPhysics(),
       itemCount: _friendsController.friendList.length,
       itemBuilder: (context, index) {
-        final userProfile = _friendsController.friendList[index];
+        final friendProfile = _friendsController.friendList[index];
 
         return Obx(() {
           return ListTile(
@@ -214,7 +214,7 @@ class _MissionCreateScreenState extends State<MissionCreateScreen> {
             title: Row(
               children: [
                 profileImageOrDefault(
-                  userProfile.profileImageUrl,
+                  friendProfile.profileImageUrl,
                   0.16 * width,
                 ),
                 SizedBox(width: 0.02 * width),
@@ -223,11 +223,11 @@ class _MissionCreateScreenState extends State<MissionCreateScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        userProfile.nickname,
+                        friendProfile.nickname!,
                         style: Get.textTheme.bodyMedium,
                       ),
                       Text(
-                        userProfile.statusMessage,
+                        friendProfile.statusMessage!,
                         style: Get.textTheme.labelMedium,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -252,11 +252,11 @@ class _MissionCreateScreenState extends State<MissionCreateScreen> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
                 ),
-                value: _controller.isSelected(userProfile),
-                onChanged: (_) => _controller.toggleSelection(userProfile),
+                value: _controller.isSelected(friendProfile),
+                onChanged: (_) => _controller.toggleSelection(friendProfile),
               ),
             ),
-            onTap: () => _controller.toggleSelection(userProfile),
+            onTap: () => _controller.toggleSelection(friendProfile),
           );
         });
       },

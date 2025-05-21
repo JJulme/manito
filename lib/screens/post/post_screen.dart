@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:manito/controllers/friends_controller.dart';
 import 'package:manito/controllers/post_controller.dart';
 import 'package:manito/models/post.dart';
-import 'package:manito/models/user_profile.dart';
 import 'package:manito/widgets/admob/banner_ad_widget.dart';
 import 'package:manito/widgets/post/incomplete_item.dart';
 import 'package:manito/widgets/post/post_item.dart';
@@ -109,8 +108,9 @@ class _PostScreenState extends State<PostScreen> with WidgetsBindingObserver {
           itemCount: _controller.inCompletePostList.length,
           itemBuilder: (context, index) {
             final String creatorId = _controller.inCompletePostList[index];
-            UserProfile? creatorProfile = _friendsController
-                .searchFriendProfile(creatorId);
+            final creatorProfile = _friendsController.searchFriendProfile(
+              creatorId,
+            );
             return IncompleteItem(
               width: width,
               creatorId: creatorId,
@@ -141,11 +141,12 @@ class _PostScreenState extends State<PostScreen> with WidgetsBindingObserver {
           itemCount: _controller.postList.length,
           itemBuilder: (context, index) {
             Post post = _controller.postList[index];
-            UserProfile? manitoProfile = _friendsController.searchFriendProfile(
+            final manitoProfile = _friendsController.searchFriendProfile(
               post.manitoId!,
             );
-            UserProfile? creatorProfile = _friendsController
-                .searchFriendProfile(post.creatorId!);
+            final creatorProfile = _friendsController.searchFriendProfile(
+              post.creatorId!,
+            );
             return PostItem(
               width: width,
               post: post,

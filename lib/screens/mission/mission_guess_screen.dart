@@ -98,7 +98,7 @@ class MissionGuessScreen extends StatelessWidget {
                                     .friendsProfile
                                     .length,
                             itemBuilder: (context, index) {
-                              UserProfile friendProfile =
+                              FriendProfile friendProfile =
                                   _controller
                                       .completeMission
                                       .friendsProfile[index];
@@ -114,7 +114,7 @@ class MissionGuessScreen extends StatelessWidget {
                                     ),
                                     SizedBox(height: 0.02 * width),
                                     Text(
-                                      friendProfile.nickname,
+                                      friendProfile.nickname!,
                                       style: Get.textTheme.bodyMedium,
                                     ),
                                   ],

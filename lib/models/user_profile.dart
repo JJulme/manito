@@ -35,3 +35,30 @@ class UserProfile {
     };
   }
 }
+
+class FriendProfile {
+  final String? friendNickname;
+  final String? id;
+  final String? nickname;
+  final String? statusMessage;
+  final String? profileImageUrl;
+
+  FriendProfile({
+    this.friendNickname,
+    this.id,
+    this.nickname,
+    this.statusMessage,
+    this.profileImageUrl,
+  });
+
+  factory FriendProfile.fromJson(Map<String, dynamic> json) {
+    final Map<String, dynamic>? profileJson = json['profiles'];
+    return FriendProfile(
+      friendNickname: json['friend_nickname'] as String?,
+      id: profileJson?['id'] as String?,
+      nickname: profileJson?['nickname'] as String?,
+      statusMessage: profileJson?['status_message'] as String?,
+      profileImageUrl: profileJson?['profile_image_url'] as String?,
+    );
+  }
+}

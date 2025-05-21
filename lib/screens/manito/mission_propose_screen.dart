@@ -107,7 +107,7 @@ class _MissionProposeScreenState extends State<MissionProposeScreen> {
 
   // 화면 본문 위젯
   Widget _buildContent(double width) {
-    final UserProfile creatorProfile = _controller.creatorProfile;
+    final creatorProfile = _controller.creatorProfile;
     final missionPropose = _controller.missionPropose.value;
 
     if (missionPropose == null) {
@@ -148,11 +148,7 @@ class _MissionProposeScreenState extends State<MissionProposeScreen> {
   }
 
   // 미션 설명 위젯
-  Widget _buildMissionDescription(
-    double width,
-    UserProfile profile,
-    dynamic mission,
-  ) {
+  Widget _buildMissionDescription(double width, profile, dynamic mission) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 0.05 * width),

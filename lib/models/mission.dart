@@ -4,7 +4,7 @@ import 'package:manito/models/user_profile.dart';
 /// 내가 만든 미션 목록
 class MyMission {
   final String id;
-  final List<UserProfile> friendsProfile;
+  final List<FriendProfile> friendsProfile;
   final String status;
   final String deadlineType;
   final String? acceptDeadline;
@@ -21,7 +21,7 @@ class MyMission {
 
   factory MyMission.fromJson(
     Map<String, dynamic> json,
-    List<UserProfile> friendProfiles,
+    List<FriendProfile> friendProfiles,
   ) {
     final DateFormat formatter = DateFormat('yy-MM-dd HH:mm:ss');
     String? acceptDeadlineFormatted =

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:manito/models/user_profile.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
 
 class IncompleteItem extends StatelessWidget {
   final double width;
   final String creatorId;
-  final UserProfile creatorProfile;
+  final creatorProfile;
 
   const IncompleteItem({
     super.key,

@@ -13,7 +13,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class FriendsController extends GetxController {
   final _supabase = Supabase.instance.client;
   var userProfile = Rx<UserProfile?>(null); // 사용자 프로필 정보
-  var friendList = <UserProfile>[].obs; // 친구 목록
+  // var friendList = <UserProfile>[].obs; // 친구 목록
+  var friendList = <FriendProfile>[].obs; // 친구 목록
   var isLoading = false.obs; // 친구 화면 로딩
 
   // var friendProfile = Rx<UserProfile?>(null); // 검색된 사용자
@@ -60,6 +61,7 @@ class FriendsController extends GetxController {
       final data = await _supabase
           .from('friends')
           .select('''
+            friend_nickname, 
             profiles!friends_friend_id_fkey(
               id,
               nickname,
@@ -69,10 +71,10 @@ class FriendsController extends GetxController {
           ''')
           .eq('user_id', _supabase.auth.currentUser!.id)
           .order('profiles(nickname)', ascending: true);
+      print(data);
 
       // 유저 정보 모델 변환
-      friendList.value =
-          data.map((e) => UserProfile.fromJson(e['profiles'])).toList();
+      friendList.value = data.map((e) => FriendProfile.fromJson(e)).toList();
       // 캐시 비우기
       for (var friend in friendList) {
         await CachedNetworkImage.evictFromCache(friend.profileImageUrl!);
@@ -85,7 +87,7 @@ class FriendsController extends GetxController {
   }
 
   /// ID 넣어서 친구목록에서 친구 정보 가져오기 - 한명
-  UserProfile? searchFriendProfile(String friendId) {
+  searchFriendProfile(String friendId) {
     try {
       // 내 id 이면 내 정보 넘겨줌
       if (userProfile.value!.id == friendId) {
@@ -93,9 +95,9 @@ class FriendsController extends GetxController {
       }
       // 내 id 아니면 친구 목록에서 가져옴
       else {
-        UserProfile? friendProfile = friendList.firstWhere(
+        FriendProfile? friendProfile = friendList.firstWhere(
           (friend) => friend.id == friendId,
-          orElse: () => UserProfile(nickname: '(알수없음)', profileImageUrl: ''),
+          orElse: () => FriendProfile(nickname: '(알수없음)', profileImageUrl: ''),
         );
         return friendProfile;
       }
@@ -106,11 +108,11 @@ class FriendsController extends GetxController {
   }
 
   /// ID 넣어서 친구목록에서 친구 정보 가져오기 - 여러명
-  List<UserProfile> searchFriendProfiles(List<dynamic> ids) {
-    List<UserProfile> friendProfiles = [];
+  List<FriendProfile> searchFriendProfiles(List<dynamic> ids) {
+    List<FriendProfile> friendProfiles = [];
     try {
       for (String id in ids) {
-        UserProfile friendProfile = friendList.firstWhere(
+        FriendProfile friendProfile = friendList.firstWhere(
           (friend) => friend.id == id,
         );
         friendProfiles.add(friendProfile);
@@ -379,7 +381,7 @@ class FriendsDetailCrontroller extends GetxController {
   var isLoading = false.obs;
   var manitoPostCount = 0.obs;
   var creatorPostCount = 0.obs;
-  late UserProfile friendProfile;
+  late FriendProfile friendProfile;
   var postList = <Post>[].obs; // 게시물 목록
 
   @override
@@ -392,7 +394,7 @@ class FriendsDetailCrontroller extends GetxController {
   /// 친구 차단
   Future<void> blockFriend() async {
     String userId = _supabase.auth.currentUser!.id;
-    String friendId = friendProfile.id;
+    String friendId = friendProfile.id!;
     try {
       await _supabase.rpc(
         'block_friend',

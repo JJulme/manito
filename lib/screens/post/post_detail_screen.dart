@@ -5,7 +5,6 @@ import 'package:manito/controllers/post_controller.dart';
 import 'package:manito/custom_icons.dart';
 import 'package:manito/models/comment.dart';
 import 'package:manito/models/post.dart';
-import 'package:manito/models/user_profile.dart';
 import 'package:manito/widgets/post/image_slider.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
 
@@ -56,8 +55,8 @@ class PostDetailScreen extends StatelessWidget {
                     return Center(child: CircularProgressIndicator());
                   } else {
                     Post detailPost = _controller.detailPost.value!;
-                    UserProfile manitoProfile = _controller.manitoProfile;
-                    UserProfile? creatorProfile = _controller.creatorProfile;
+                    final manitoProfile = _controller.manitoProfile;
+                    final creatorProfile = _controller.creatorProfile;
                     return SingleChildScrollView(
                       controller: _controller.commentScrollController,
                       child: Column(
@@ -117,7 +116,7 @@ class _PostHeader extends StatelessWidget {
 
   final double width;
   final Post detailPost;
-  final UserProfile manitoProfile;
+  final manitoProfile;
 
   @override
   Widget build(BuildContext context) {
@@ -169,7 +168,7 @@ class _GuessSection extends StatelessWidget {
 
   final double width;
   final Post detailPost;
-  final UserProfile? creatorProfile;
+  final creatorProfile;
 
   @override
   Widget build(BuildContext context) {
@@ -232,8 +231,9 @@ class _CommentList extends StatelessWidget {
             itemCount: comments.length,
             itemBuilder: (context, index) {
               final Comment comment = comments[index];
-              final UserProfile? userProfile = friendsController
-                  .searchFriendProfile(comment.userId);
+              final userProfile = friendsController.searchFriendProfile(
+                comment.userId,
+              );
               return Container(
                 margin: EdgeInsets.only(
                   top: 0.02 * width, // 상단 마진

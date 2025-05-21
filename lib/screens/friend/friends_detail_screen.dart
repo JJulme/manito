@@ -28,7 +28,7 @@ class FriendsDetailScreen extends StatelessWidget {
           icon: Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => Get.back(),
         ),
-        title: Text(_controller.friendProfile.nickname),
+        title: Text(_controller.friendProfile.nickname!),
         actions: [
           Padding(
             padding: EdgeInsets.only(right: 0.02 * width),
@@ -80,7 +80,7 @@ class FriendsDetailScreen extends StatelessWidget {
           if (_controller.isLoading.value) {
             return Center(child: CircularProgressIndicator());
           } else {
-            final UserProfile friendProfile = _controller.friendProfile;
+            final FriendProfile friendProfile = _controller.friendProfile;
             return SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -124,7 +124,7 @@ class FriendsDetailScreen extends StatelessWidget {
                   // 상태 메시지
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 0.04 * width),
-                    child: Text(friendProfile.statusMessage, softWrap: true),
+                    child: Text(friendProfile.statusMessage!, softWrap: true),
                   ),
                   SizedBox(height: 0.04 * width),
                   // 광고
@@ -162,9 +162,9 @@ class FriendsDetailScreen extends StatelessWidget {
                       itemCount: _controller.postList.length,
                       itemBuilder: (context, index) {
                         Post post = _controller.postList[index];
-                        UserProfile? manitoProfile = _friendsController
+                        final manitoProfile = _friendsController
                             .searchFriendProfile(post.manitoId!);
-                        UserProfile? creatorProfile = _friendsController
+                        final creatorProfile = _friendsController
                             .searchFriendProfile(post.creatorId!);
                         return PostItem(
                           width: width,

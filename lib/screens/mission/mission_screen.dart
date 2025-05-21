@@ -276,7 +276,7 @@ class _MissionScreenState extends State<MissionScreen>
                                 0.15 * width,
                               ),
                               Text(
-                                friendProfile.nickname,
+                                friendProfile.nickname!,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ],
@@ -357,18 +357,19 @@ class _MissionScreenState extends State<MissionScreen>
                           (context, index) => SizedBox(width: 0.02 * width),
                       itemCount: acceptMission.friendsProfile.length,
                       itemBuilder: (context, index) {
-                        final userProfile = acceptMission.friendsProfile[index];
+                        final friendProfile =
+                            acceptMission.friendsProfile[index];
                         return SizedBox(
                           width: 0.14 * width,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               profileImageOrDefault(
-                                userProfile.profileImageUrl!,
+                                friendProfile.profileImageUrl!,
                                 0.14 * width,
                               ),
                               Text(
-                                userProfile.nickname,
+                                friendProfile.nickname!,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ],

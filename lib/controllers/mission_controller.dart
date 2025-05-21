@@ -36,7 +36,7 @@ class MissionController extends GetxController {
       List<MyMission> allMissions = [];
       // 각 미션 반복문으로 친구들 id를 통해 프로필 넣어줌
       for (var mission in missionsData) {
-        List<UserProfile> friendProfiles = friendsController
+        List<FriendProfile> friendProfiles = friendsController
             .searchFriendProfiles(mission['friend_ids']);
         var myMission = MyMission.fromJson(mission, friendProfiles);
         allMissions.add(myMission);
@@ -61,10 +61,10 @@ class MissionCreateController extends GetxController {
   final _supabase = Supabase.instance.client;
   var isLoading = false.obs;
   // 선택된 친구 ID 목록
-  var selectedFriends = <UserProfile>[].obs;
+  var selectedFriends = <FriendProfile>[].obs;
 
   /// 체크 상태 토글 함수
-  void toggleSelection(UserProfile friendProfile) {
+  void toggleSelection(FriendProfile friendProfile) {
     if (selectedFriends.contains(friendProfile)) {
       selectedFriends.remove(friendProfile);
     } else {
@@ -73,15 +73,15 @@ class MissionCreateController extends GetxController {
   }
 
   /// 체크 상태 확인 함수
-  bool isSelected(UserProfile friendProfile) {
+  bool isSelected(FriendProfile friendProfile) {
     return selectedFriends.contains(friendProfile);
   }
 
   /// 미션 생성 - 친구의 순서를 랜덤으로 보내게 되는데 필요 없는 기능일 수 있음
   Future<String> createMission(int selectedIndex) async {
     isLoading.value = true;
-    final List<String> friendsIds =
-        selectedFriends.map((friend) => friend.id).toList()..shuffle();
+    final List<String?> friendsIds =
+        selectedFriends.map((friend) => friend.id).toList();
     try {
       final String result = await _supabase.rpc(
         'create_mission',

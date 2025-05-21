@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:manito/models/comment.dart';
 import 'package:manito/models/post.dart';
-import 'package:manito/models/user_profile.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PostController extends GetxController {
@@ -78,8 +77,8 @@ class PostDetailController extends GetxController {
   final _supabase = Supabase.instance.client;
   var isLoading = false.obs;
   var commentLoading = false.obs;
-  late UserProfile manitoProfile;
-  late UserProfile creatorProfile;
+  late var manitoProfile;
+  late var creatorProfile;
   late Post post; // deadlineType, content, createdAt
   var detailPost = Rx<Post?>(null);
   var commentList = <Comment>[].obs; // 댓글 목록

@@ -79,7 +79,7 @@ class MissionProposeController extends GetxController {
   final _supabase = Supabase.instance.client;
   var isLoading = false.obs;
   late String missionProposeId;
-  late UserProfile creatorProfile;
+  late var creatorProfile;
   var missionPropose = Rx<MissionPropose?>(null);
   Rx<String?> selectedContent = Rx<String?>(null);
 
@@ -159,7 +159,7 @@ class ManitoPostController extends GetxController {
   var isPosting = true.obs;
   // Get.arguments로 받아올 변수
   late MissionAccept missionAccept;
-  late UserProfile creatorProfile;
+  late var creatorProfile;
   // 서버에서 가져오는 게시물 또는 자동응답
   var missionPost = Rx<MissionPost?>(null);
   final TextEditingController descController = TextEditingController();

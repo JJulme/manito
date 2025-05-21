@@ -106,7 +106,7 @@ class PostDetailScreen extends StatelessWidget {
                       child: Row(
                         children: [
                           profileImageOrDefault(
-                            creatorProfile.profileImageUrl,
+                            creatorProfile!.profileImageUrl,
                             0.15 * width,
                           ),
                           SizedBox(width: 0.03 * width),
