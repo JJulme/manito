@@ -7,7 +7,6 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:manito/models/auto_reply.dart';
 import 'package:manito/models/mission.dart';
-import 'package:manito/models/user_profile.dart';
 import 'package:manito/widgets/common/custom_snackbar.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';

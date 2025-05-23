@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manito/controllers/badge_controller.dart';
 import 'package:manito/models/post.dart';
-import 'package:manito/models/user_profile.dart';
 import 'package:manito/screens/post/post_detail_screen.dart';
 import 'package:manito/widgets/common/custom_badge.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';

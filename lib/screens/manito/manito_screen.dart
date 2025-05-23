@@ -5,7 +5,6 @@ import 'package:manito/constants.dart';
 import 'package:manito/controllers/friends_controller.dart';
 import 'package:manito/controllers/manito_controller.dart';
 import 'package:manito/models/mission.dart';
-import 'package:manito/models/user_profile.dart';
 import 'package:manito/screens/manito/auto_reply_screen.dart';
 import 'package:manito/screens/manito/manito_post_screen.dart';
 import 'package:manito/screens/manito/mission_propose_screen.dart';

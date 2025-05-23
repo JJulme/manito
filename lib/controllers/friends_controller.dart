@@ -1,12 +1,16 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:manito/models/post.dart';
 import 'package:manito/models/user_profile.dart';
 import 'package:manito/widgets/common/custom_snackbar.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// 친구 화면 컨트롤러
@@ -71,7 +75,6 @@ class FriendsController extends GetxController {
           ''')
           .eq('user_id', _supabase.auth.currentUser!.id)
           .order('profiles(nickname)', ascending: true);
-      print(data);
 
       // 유저 정보 모델 변환
       friendList.value = data.map((e) => FriendProfile.fromJson(e)).toList();
@@ -320,7 +323,7 @@ class ModifyController extends GetxController {
       String baseUrl =
           '${dotenv.env['SUPABASE_URL']!}/storage/v1/object/public/';
       final updateData = {
-        'nickname': nameController.text,
+        'nickname': nameController.text.trim(),
         'status_message': statusController.text,
       };
 
@@ -329,9 +332,12 @@ class ModifyController extends GetxController {
 
       // 선택한 이미지가 있을 경우
       if (selectedImage.value != null) {
+        File? fileToUpload = await compressImageFileUnified(
+          selectedImage.value!,
+        );
         final String fullPath = await profileImageBucket.upload(
           fileName,
-          selectedImage.value!,
+          fileToUpload,
           fileOptions: FileOptions(cacheControl: '3600', upsert: true),
         );
         updateData['profile_image_url'] = baseUrl + fullPath;
@@ -372,6 +378,57 @@ class ModifyController extends GetxController {
   void deleteImage() {
     profileImageUrl.value = '';
     selectedImage.value = null;
+  }
+
+  // 이미지 크기 변환
+  Future<File> compressImageFileUnified(
+    File originalFile, {
+    int minWidth = 640,
+    int quality = 70,
+  }) async {
+    final String extension = path.extension(originalFile.path).toLowerCase();
+
+    Uint8List? compressedData;
+    CompressFormat? format;
+    String targetExtension = extension;
+
+    if (extension == '.heic' || extension == '.heif') {
+      format = CompressFormat.jpeg;
+      targetExtension = '.jpeg';
+      final Uint8List imageData = await originalFile.readAsBytes();
+      compressedData = await FlutterImageCompress.compressWithList(
+        imageData,
+        format: format,
+        minWidth: minWidth,
+        quality: quality,
+      );
+    } else if (extension == '.jpg' || extension == '.jpeg') {
+      format = CompressFormat.jpeg;
+      compressedData = await FlutterImageCompress.compressWithList(
+        await originalFile.readAsBytes(),
+        format: format,
+        minWidth: minWidth,
+        quality: quality,
+      );
+    } else if (extension == '.png') {
+      format = CompressFormat.png;
+      compressedData = await FlutterImageCompress.compressWithList(
+        await originalFile.readAsBytes(),
+        format: format,
+        minWidth: minWidth,
+        quality: 100, // PNG는 무손실
+      );
+    } else {
+      debugPrint('지원하지 않는 이미지 형식: $extension');
+      return originalFile; // 또는 null
+    }
+
+    final String tempDir = (await getTemporaryDirectory()).path;
+    final String compressedPath =
+        '$tempDir/${DateTime.now().millisecondsSinceEpoch}$targetExtension';
+    final File compressedFile = File(compressedPath);
+    await compressedFile.writeAsBytes(compressedData);
+    return compressedFile;
   }
 }
 
@@ -443,6 +500,72 @@ class FriendsDetailCrontroller extends GetxController {
       debugPrint('fetchPosts Error: $e');
     } finally {
       isLoading.value = false;
+    }
+  }
+}
+
+/// 친구 이름 설정
+class FriendsModifyController extends GetxController {
+  final _supabase = Supabase.instance.client;
+  var isLoading = false.obs;
+  var isUpdate = false.obs;
+  late String friendId;
+  late String nickname;
+  late String? friendNickname;
+  final TextEditingController friendNameController = TextEditingController();
+
+  @override
+  void onInit() {
+    super.onInit();
+    friendId = Get.arguments;
+    getFriendNickname();
+  }
+
+  /// 친구의 이름과 내가 설정한 이름 가져오기
+  void getFriendNickname() async {
+    isLoading.value = true;
+    try {
+      final data =
+          await _supabase
+              .from('friends')
+              .select('''
+              friend_nickname, 
+              profiles!friends_friend_id_fkey(
+              nickname
+              )''')
+              .eq('friend_id', friendId)
+              .eq('user_id', _supabase.auth.currentUser!.id)
+              .single();
+
+      // 원래 이름
+      nickname = data['profiles']['nickname'];
+      // 설정된 이름
+      friendNickname = data['friend_nickname'] ?? '';
+      friendNameController.text = friendNickname!;
+    } catch (e) {
+      debugPrint('getFriendNickname Error: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  /// 친구 이름 변경
+  Future<String> updateFriendName() async {
+    isUpdate.value = true;
+    try {
+      await _supabase
+          .from('friends')
+          .update({'friend_nickname': friendNameController.text.trim()})
+          .eq('friend_id', friendId)
+          .eq('user_id', _supabase.auth.currentUser!.id);
+
+      Get.back(result: true);
+      return '이름 수정 성공';
+    } catch (e) {
+      debugPrint('updateFriendName Error: $e');
+      return '저장 오류: $e';
+    } finally {
+      isUpdate.value = false;
     }
   }
 }

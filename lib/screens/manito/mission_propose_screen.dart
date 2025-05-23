@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manito/constants.dart';
 import 'package:manito/controllers/manito_controller.dart';
-import 'package:manito/models/user_profile.dart';
 import 'package:manito/widgets/admob/rewarded_ad_manager.dart';
 import 'package:manito/widgets/common/custom_snackbar.dart';
 import 'package:manito/widgets/mission/timer.dart';

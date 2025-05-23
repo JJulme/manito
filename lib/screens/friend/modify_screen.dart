@@ -18,6 +18,11 @@ class ModifyScreen extends StatelessWidget {
     if (value == null || value.isEmpty) {
       return '이름을 입력해주세요.';
     }
+    final String trimmedValue = value.trim();
+    if (trimmedValue.isEmpty) {
+      return '이름을 입력해주세요.';
+    }
+
     return null;
   }
 

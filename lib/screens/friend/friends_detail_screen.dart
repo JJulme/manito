@@ -28,6 +28,7 @@ class FriendsDetailScreen extends StatelessWidget {
           icon: Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => Get.back(),
         ),
+        // 친구 이름 제목
         title: Text(_controller.friendProfile.nickname!),
         actions: [
           Padding(
@@ -36,6 +37,7 @@ class FriendsDetailScreen extends StatelessWidget {
               position: PopupMenuPosition.under,
               itemBuilder:
                   (context) => [
+                    // 이름 수정
                     PopupMenuItem(
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -46,7 +48,16 @@ class FriendsDetailScreen extends StatelessWidget {
                           Text('이름 수정', style: Get.textTheme.bodyMedium),
                         ],
                       ),
-                      onTap: () => Get.to(() => FriendsModifyScreen()),
+                      onTap: () async {
+                        var result = await Get.to(
+                          () => FriendsModifyScreen(),
+                          arguments: _controller.friendProfile.id,
+                        );
+                        if (result == true) {
+                          _friendsController.fetchFriendList();
+                          Get.back();
+                        }
+                      },
                     ),
                     // 친구 차단
                     PopupMenuItem(
