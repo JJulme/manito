@@ -116,7 +116,6 @@ class AuthController extends GetxController {
       await CookieManager.instance().deleteAllCookies();
       await supabase.rpc('delete_user');
       Get.offAll(() => LoginScreen());
-      customSnackbar(title: '계정 삭제 완료', message: '계정이 삭제 되었습니다.');
     } catch (e) {
       debugPrint('deleteUser Error: $e');
     }

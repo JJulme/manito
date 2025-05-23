@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:manito/constants.dart';
 import 'package:manito/controllers/auth_controller.dart';
 import 'package:manito/controllers/friends_controller.dart';
+import 'package:manito/widgets/common/custom_snackbar.dart';
 
 class SettingScreen extends StatelessWidget {
   SettingScreen({super.key});
@@ -76,6 +77,12 @@ class SettingScreen extends StatelessWidget {
                   Clipboard.setData(
                     ClipboardData(text: 'manito.ask@gmail.com'),
                   );
+                  if (GetPlatform.isIOS) {
+                    customSnackbar(
+                      title: '복사 완료',
+                      message: '이메일 주소가 복사 되었습니다.',
+                    );
+                  }
                 },
               ),
             ),
