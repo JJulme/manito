@@ -5,6 +5,7 @@ import 'package:manito/models/post.dart';
 import 'package:manito/screens/post/post_detail_screen.dart';
 import 'package:manito/widgets/common/custom_badge.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class PostItem extends StatelessWidget {
   final dynamic post;
@@ -129,7 +130,12 @@ class PostItem extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Text(post.completeAt ?? 'No Date', style: Get.textTheme.labelMedium),
+        Text(
+          post.createdAt != null
+              ? timeago.format(post.createdAt, locale: 'ko')
+              : 'No Date',
+          style: Get.textTheme.labelMedium,
+        ),
         SizedBox(height: 0.02 * width),
         Obx(() {
           return customBadgeIcon(

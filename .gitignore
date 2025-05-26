@@ -67,6 +67,7 @@ crashlytics/
 
 # Packages caches
 packages/
+doc/
 
 # Generated files
 **/generated_plugin_registrant.dart
