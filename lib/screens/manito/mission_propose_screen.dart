@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:manito/constants.dart';
 import 'package:manito/controllers/manito_controller.dart';
 import 'package:manito/widgets/admob/rewarded_ad_manager.dart';
@@ -148,6 +149,7 @@ class _MissionProposeScreenState extends State<MissionProposeScreen> {
 
   // 미션 설명 위젯
   Widget _buildMissionDescription(double width, profile, dynamic mission) {
+    final DateFormat formatter = DateFormat('yy-MM-dd HH:mm');
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 0.05 * width),
@@ -157,7 +159,7 @@ class _MissionProposeScreenState extends State<MissionProposeScreen> {
         children: [
           Text('${profile.nickname} 에게', style: Get.textTheme.titleMedium),
           Text(
-            '${mission.deadlineType} 내에  (${mission.deadline})',
+            '${mission.deadlineType} 내에  (${formatter.format(mission.deadline)})',
             style: Get.textTheme.titleMedium,
           ),
         ],
@@ -260,7 +262,7 @@ class _MissionProposeScreenState extends State<MissionProposeScreen> {
               children: [
                 Text('수락하기 ', style: Get.textTheme.titleLarge),
                 TimerWidget(
-                  targetDateTimeString:
+                  targetDateTime:
                       _controller.missionPropose.value!.acceptDeadline,
                   fontSize: 0.07 * width,
                   color: Colors.black,

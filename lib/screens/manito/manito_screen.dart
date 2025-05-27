@@ -190,7 +190,7 @@ class _ManitoScreenState extends State<ManitoScreen>
                     ),
                     Spacer(),
                     TimerWidget(
-                      targetDateTimeString: missionPropose.acceptDeadline,
+                      targetDateTime: missionPropose.acceptDeadline,
                       fontSize: 0.07 * width,
                       onTimerComplete:
                           () => _controller.fetchMissionProposeList(),
@@ -243,7 +243,7 @@ class _ManitoScreenState extends State<ManitoScreen>
                     Icon(Icons.timer_outlined),
                     SizedBox(width: 0.02 * width),
                     TimerWidget(
-                      targetDateTimeString: missionAccept.deadline,
+                      targetDateTime: missionAccept.deadline,
                       fontSize: 0.07 * width,
                       onTimerComplete:
                           () => _controller.fetchMissionAcceptList(),

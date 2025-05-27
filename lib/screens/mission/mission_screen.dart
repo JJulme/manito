@@ -249,7 +249,7 @@ class _MissionScreenState extends State<MissionScreen>
                       ),
                       Spacer(),
                       TimerWidget(
-                        targetDateTimeString: myMission.acceptDeadline!,
+                        targetDateTime: myMission.acceptDeadline!,
                         fontSize: 0.05 * width,
                         onTimerComplete: () => _controller.fetchMyMissions(),
                       ),
@@ -276,7 +276,7 @@ class _MissionScreenState extends State<MissionScreen>
                                 0.15 * width,
                               ),
                               Text(
-                                friendProfile.nickname!,
+                                friendProfile.nickname,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ],
@@ -341,7 +341,7 @@ class _MissionScreenState extends State<MissionScreen>
                       ),
                       Spacer(),
                       TimerWidget(
-                        targetDateTimeString: acceptMission.deadline,
+                        targetDateTime: acceptMission.deadline,
                         fontSize: 0.054 * width,
                         onTimerComplete: () => _controller.fetchMyMissions(),
                       ),
@@ -369,7 +369,7 @@ class _MissionScreenState extends State<MissionScreen>
                                 0.14 * width,
                               ),
                               Text(
-                                friendProfile.nickname!,
+                                friendProfile.nickname,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ],

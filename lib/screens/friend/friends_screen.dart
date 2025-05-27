@@ -242,7 +242,7 @@ class FriendsScreen extends StatelessWidget {
                         children: [
                           // 친구 이름
                           Text(
-                            friendProfile.nickname!,
+                            friendProfile.nickname,
                             style: Get.textTheme.bodyMedium,
                             overflow: TextOverflow.ellipsis,
                           ),

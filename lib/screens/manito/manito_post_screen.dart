@@ -56,7 +56,7 @@ class ManitoPostScreen extends StatelessWidget {
               Text('미션 기록하기'),
               SizedBox(width: 0.02 * width),
               TimerWidget(
-                targetDateTimeString: _controller.missionAccept.deadline,
+                targetDateTime: _controller.missionAccept.deadline,
                 fontSize: 0.065 * width,
               ),
             ],

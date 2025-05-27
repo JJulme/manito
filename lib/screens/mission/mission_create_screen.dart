@@ -186,7 +186,7 @@ class _MissionCreateScreenState extends State<MissionCreateScreen> {
                       ),
                     ],
                   ),
-                  Text(friendProfile.nickname!),
+                  Text(friendProfile.nickname),
                 ],
               ),
             );
@@ -223,7 +223,7 @@ class _MissionCreateScreenState extends State<MissionCreateScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        friendProfile.nickname!,
+                        friendProfile.nickname,
                         style: Get.textTheme.bodyMedium,
                       ),
                       Text(

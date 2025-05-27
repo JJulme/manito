@@ -7,6 +7,7 @@ import 'package:manito/models/comment.dart';
 import 'package:manito/models/post.dart';
 import 'package:manito/widgets/post/image_slider.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class PostDetailScreen extends StatelessWidget {
   PostDetailScreen({super.key});
@@ -261,7 +262,7 @@ class _CommentList extends StatelessWidget {
                               ),
                               SizedBox(width: 0.02 * width), // 간격
                               Text(
-                                comment.createdAt,
+                                timeago.format(comment.createdAt, locale: 'ko'),
                                 style: Get.textTheme.labelSmall,
                               ),
                             ],

@@ -29,7 +29,7 @@ class FriendsDetailScreen extends StatelessWidget {
           onPressed: () => Get.back(),
         ),
         // 친구 이름 제목
-        title: Text(_controller.friendProfile.nickname!),
+        title: Text(_controller.friendProfile.nickname),
         actions: [
           Padding(
             padding: EdgeInsets.only(right: 0.02 * width),

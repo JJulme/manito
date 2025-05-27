@@ -131,8 +131,8 @@ class PostItem extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Text(
-          post.createdAt != null
-              ? timeago.format(post.createdAt, locale: 'ko')
+          post.completeAt != null
+              ? timeago.format(post.completeAt, locale: 'ko')
               : 'No Date',
           style: Get.textTheme.labelMedium,
         ),

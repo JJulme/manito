@@ -39,11 +39,11 @@ class FriendsController extends GetxController {
       final data =
           await _supabase
               .from('profiles')
-              .select()
+              .select('id, email, nickname, status_message, profile_image_url')
               .eq('id', _supabase.auth.currentUser!.id)
               .single();
       userProfile.value = UserProfile.fromJson(data);
-      // 최신 이미지를 가져오기 위해서 캐쉬 비우기
+      // 최신 프로필 이미지를 가져오기 위해서 캐쉬 비우기
       await CachedNetworkImage.evictFromCache(
         userProfile.value!.profileImageUrl!,
       );
@@ -100,7 +100,12 @@ class FriendsController extends GetxController {
       else {
         FriendProfile? friendProfile = friendList.firstWhere(
           (friend) => friend.id == friendId,
-          orElse: () => FriendProfile(nickname: '(알수없음)', profileImageUrl: ''),
+          orElse:
+              () => FriendProfile(
+                id: '',
+                nickname: '(알수없음)',
+                profileImageUrl: '',
+              ),
         );
         return friendProfile;
       }
@@ -199,7 +204,7 @@ class FriendRequestController extends GetxController {
       final data = await _supabase
           .from('friend_requests')
           .select('''
-            profiles!friend_requests_sender_id_fkey(id, nickname, status_message, profile_image_url)''')
+            profiles!friend_requests_sender_id_fkey(id, email, nickname, status_message, profile_image_url)''')
           .eq('receiver_id', userId)
           .order('created_at');
       requestUserList.value =
@@ -267,7 +272,7 @@ class BlacklistController extends GetxController {
       final data = await _supabase
           .from('blacklist')
           .select('''
-            profiles!blacklist_black_user_id_fkey(id, nickname, profile_image_url)''')
+            profiles!blacklist_black_user_id_fkey(id, email, nickname, status_message, profile_image_url)''')
           .eq('user_id', userId)
           .order('created_at');
       blackList.value =
@@ -340,7 +345,10 @@ class ModifyController extends GetxController {
           fileToUpload,
           fileOptions: FileOptions(cacheControl: '3600', upsert: true),
         );
-        updateData['profile_image_url'] = baseUrl + fullPath;
+        // 캐쉬 무효화를 위해서 쿼리파라미터(타임스탬프) 추가
+        final String timestamp =
+            DateTime.now().millisecondsSinceEpoch.toString();
+        updateData['profile_image_url'] = '$baseUrl$fullPath?t=$timestamp';
       }
       // 프로필 이미지 설정 안하는 경우
       else if (selectedImage.value == null && profileImageUrl.value.isEmpty) {
@@ -451,7 +459,7 @@ class FriendsDetailCrontroller extends GetxController {
   /// 친구 차단
   Future<void> blockFriend() async {
     String userId = _supabase.auth.currentUser!.id;
-    String friendId = friendProfile.id!;
+    String friendId = friendProfile.id;
     try {
       await _supabase.rpc(
         'block_friend',

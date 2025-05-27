@@ -7,7 +7,6 @@ import 'package:manito/custom_icons.dart';
 import 'package:manito/models/post.dart';
 import 'package:manito/models/user_profile.dart';
 import 'package:manito/widgets/common/custom_badge.dart';
-import 'package:manito/widgets/post/comment_sheet.dart';
 import 'package:manito/widgets/post/image_slider.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
 
@@ -18,16 +17,16 @@ class PostDetailScreen extends StatelessWidget {
   final FriendsController friendsController = Get.find<FriendsController>();
   final BadgeController _badgeController = Get.find<BadgeController>();
 
-  /// 댓글창 열기
-  void _showCommentSheet(double width, String missionId) {
-    _badgeController.resetBadgeCount(missionId);
-    // 댓글 바텀 시트
-    Get.bottomSheet(
-      enableDrag: true,
-      isScrollControlled: true,
-      CommentSheet(width: width, missionId: missionId),
-    );
-  }
+  // /// 댓글창 열기
+  // void _showCommentSheet(double width, String missionId) {
+  //   _badgeController.resetBadgeCount(missionId);
+  //   // 댓글 바텀 시트
+  //   Get.bottomSheet(
+  //     enableDrag: true,
+  //     isScrollControlled: true,
+  //     CommentSheet(width: width, missionId: missionId),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -131,8 +130,7 @@ class PostDetailScreen extends StatelessWidget {
                         children: [
                           IconButton(
                             padding: EdgeInsets.all(0),
-                            onPressed:
-                                () => _showCommentSheet(width, detailPost.id!),
+                            onPressed: () {},
                             icon: customBadgeIcon(
                               _badgeController.badgeComment[detailPost.id] ??
                                   0.obs,

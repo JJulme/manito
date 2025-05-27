@@ -100,7 +100,7 @@ class MissionProposeController extends GetxController {
               .select('''
               mission_id,
               random_contents,
-              missions:mission_id(status, accept_deadline, deadline_type, deadline)
+              missions:mission_id(accept_deadline, deadline_type, deadline)
               ''')
               .eq('id', missionProposeId)
               .single();
@@ -183,7 +183,7 @@ class ManitoPostController extends GetxController {
           await _supabase
               .from('missions')
               .select('description, image_url_list')
-              .eq('id', missionAccept.missionId)
+              .eq('id', missionAccept.id)
               .eq('manito_id', _supabase.auth.currentUser!.id)
               .single();
 
@@ -227,7 +227,7 @@ class ManitoPostController extends GetxController {
       const String baseUrl =
           'https://rkfdbtdicxarrctsvmif.supabase.co/storage/v1/object/public/';
       final Map<String, dynamic> upsertData = {
-        'id': missionAccept.missionId,
+        'id': missionAccept.id,
         'manito_id': _supabase.auth.currentUser!.id,
         'description': descController.text,
       };
@@ -244,7 +244,7 @@ class ManitoPostController extends GetxController {
           File? fileToUpload = await compressImageFileUnified(fileImage);
 
           String fileName =
-              '${missionAccept.missionId}_post_${DateTime.now().millisecondsSinceEpoch}.png';
+              '${missionAccept.id}_post_${DateTime.now().millisecondsSinceEpoch}.png';
           final String fullPath = await postImageBucket.upload(
             fileName,
             fileToUpload,
@@ -264,7 +264,7 @@ class ManitoPostController extends GetxController {
       }
 
       // 게시물 저장
-      await postTable.update(upsertData).eq('id', missionAccept.missionId);
+      await postTable.update(upsertData).eq('id', missionAccept.id);
       // 저장 상태 변경
       isPosting.value = true;
       // customSnackbar(title: '저장 성공', message: '미션종료 버튼을 누르면 친구에게 알림이 갑니다.');
@@ -334,7 +334,7 @@ class ManitoPostController extends GetxController {
       await _supabase.rpc(
         'mission_status_guess',
         params: {
-          'p_mission_id': missionAccept.missionId,
+          'p_mission_id': missionAccept.id,
           'p_creator_id': missionAccept.creatorId,
         },
       );
@@ -370,7 +370,10 @@ class AutoReplyController extends GetxController {
     final String userId = _supabase.auth.currentUser!.id;
     try {
       // final userId = await SecureStorage.getUserId();
-      final data = await _supabase.from('auto_reply').select().eq('id', userId);
+      final data = await _supabase
+          .from('auto_reply')
+          .select('reply, reply_image_url')
+          .eq('id', userId);
       autoReply.value = AutoReply.fromJson(data);
       replyController.text = autoReply.value!.reply;
     } catch (e) {

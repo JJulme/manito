@@ -20,9 +20,6 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
   /// 이메일 입력 폼키
   final _formKey = GlobalKey<FormState>();
 
-  /// 이메일 입력 컨트롤러
-  // TextEditingController emailController = TextEditingController();
-
   /// 이메일 검증
   String? _emailVaildator(String? email) {
     return (GetUtils.isEmail(email ?? '') ? null : '이메일을 입력해주세요.');
