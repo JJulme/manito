@@ -93,3 +93,4 @@ coverage/
 
 # Exclude specific files if needed
 # example: !lib/main.dart
+android/app/google-services.json

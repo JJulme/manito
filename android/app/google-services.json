@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:289973286785:android:b5adcb3346a045c5155a80",
+        "mobilesdk_app_id": "1:289973286785:android:4b27d44cce732d5b155a80",
         "android_client_info": {
-          "package_name": "com.example.manito"
+          "package_name": "com.jjulme.manito"
         }
       },
       "oauth_client": [],
@@ -26,9 +26,9 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:289973286785:android:4b27d44cce732d5b155a80",
+        "mobilesdk_app_id": "1:289973286785:android:0a0114d51b303297155a80",
         "android_client_info": {
-          "package_name": "com.jjulme.manito"
+          "package_name": "com.jjulme.manito.android"
         }
       },
       "oauth_client": [],

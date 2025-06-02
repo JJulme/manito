@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDXLLaPy04Uj24Sqd5_DFr4uOyNUS7jQ8o',
-    appId: '1:289973286785:android:4b27d44cce732d5b155a80',
+    appId: '1:289973286785:android:0a0114d51b303297155a80',
     messagingSenderId: '289973286785',
     projectId: 'manito-e305a',
     storageBucket: 'manito-e305a.firebasestorage.app',
