@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -24,6 +23,7 @@ class AuthController extends GetxController {
       // authScreenLaunchMode: LaunchMode.inAppBrowserView,
       authScreenLaunchMode: LaunchMode.inAppWebView,
       // authScreenLaunchMode: LaunchMode.platformDefault,
+      scopes: "profile_nickname,account_email",
     );
 
     supabase.auth.onAuthStateChange.listen((data) async {

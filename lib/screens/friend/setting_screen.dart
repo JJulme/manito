@@ -99,7 +99,9 @@ class SettingScreen extends StatelessWidget {
                   kDefaultDialog(
                     '계정 삭제',
                     '계정을 삭제하면 복구 할 수 없습니다.',
-                    onYesPressed: () => _authController.deleteUser(),
+                    onYesPressed: () async {
+                      await _authController.deleteUser();
+                    },
                   );
                 },
               ),

@@ -28,7 +28,6 @@ dependencies:
   smooth_page_indicator: ^1.2.1
   supabase_flutter: ^2.8.4
   timeago: ^3.2.2
-  kakao_flutter_sdk_user: ^1.9.7+3
   flutter_image_compress: ^2.4.0
   path: ^1.9.1
   path_provider: ^2.1.5

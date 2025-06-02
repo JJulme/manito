@@ -105,6 +105,14 @@ class MissionProposeController extends GetxController {
               .eq('id', missionProposeId)
               .single();
       missionPropose.value = MissionPropose.fromJson(data);
+    } on PostgrestException catch (e) {
+      if (e.code == 'PGRST116') {
+        Get.back(result: true); // 새로고침 명령
+        customSnackbar(title: '늦었음', message: '존재하지 않는 제안입니다.');
+      } else {
+        debugPrint('fetchMissionPropose Postgrest Error: $e');
+        customSnackbar(title: '오류', message: '알 수 없는 오류: $e');
+      }
     } catch (e) {
       debugPrint('fetchMissionPropose Error: $e');
     } finally {
@@ -141,6 +149,13 @@ class MissionProposeController extends GetxController {
       );
       Get.back(result: true);
       return '미션을 수락 했습니다.';
+    } on PostgrestException catch (e) {
+      Get.back(result: true);
+      if (e.code == 'P0001') {
+        return '이미 수락된 미션입니다.';
+      } else {
+        return '이미 삭제된 미션입니다.';
+      }
     } catch (e) {
       // 화면을 나가고 제안 새로고침 필요함
       Get.back(result: true);
