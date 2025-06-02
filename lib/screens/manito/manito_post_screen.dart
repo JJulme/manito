@@ -1,4 +1,3 @@
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manito/constants.dart';
@@ -10,7 +9,6 @@ import 'package:manito/widgets/mission/timer.dart';
 import 'package:manito/widgets/post/image_slider.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class ManitoPostScreen extends StatelessWidget {
   ManitoPostScreen({super.key});
@@ -99,6 +97,7 @@ class ManitoPostScreen extends StatelessWidget {
                                 ImageSlider(
                                   images: selectedImages,
                                   width: width,
+                                  boxFit: BoxFit.contain,
                                 ),
                                 SizedBox(height: 0.01 * width),
                               ],
@@ -282,54 +281,6 @@ class ManitoPostScreen extends StatelessWidget {
                   image is AssetEntity
                       ? () => _controller.deleteSelectedImage(index)
                       : () => _controller.deletePostImage(index),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// 이미지 슬라이더
-  Stack imageSlider(List<dynamic> images, double width) {
-    return Stack(
-      children: [
-        CarouselSlider.builder(
-          itemCount: images.length,
-          itemBuilder: (context, index, realIndex) {
-            final image = images[index];
-            return Container(
-              width: Get.width,
-              height: Get.width,
-              margin: EdgeInsets.all(0.01 * width),
-              child:
-                  image is AssetEntity
-                      ? AssetEntityImage(image, fit: BoxFit.cover)
-                      : Image(image: image, fit: BoxFit.cover),
-            );
-          },
-          options: CarouselOptions(
-            enableInfiniteScroll: false,
-            viewportFraction: 1,
-            height: Get.width,
-            onPageChanged: (index, reason) {
-              _controller.activeIndex.value = index;
-            },
-          ),
-        ),
-        Positioned(
-          bottom: 0.02 * width,
-          child: Container(
-            width: Get.width,
-            alignment: Alignment.bottomCenter,
-            child: AnimatedSmoothIndicator(
-              activeIndex: _controller.activeIndex.value,
-              count: images.length,
-              effect: JumpingDotEffect(
-                dotWidth: 0.02 * width,
-                dotHeight: 0.02 * width,
-                activeDotColor: Colors.white,
-                dotColor: Colors.white.withAlpha((0.5 * 255).round()),
-              ),
             ),
           ),
         ),
