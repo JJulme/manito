@@ -108,6 +108,7 @@ class PostDetailScreen extends StatelessWidget {
   }
 }
 
+/// 마니또의 미션 내용
 class _PostHeader extends StatelessWidget {
   const _PostHeader({
     required this.width,
@@ -160,6 +161,7 @@ class _PostHeader extends StatelessWidget {
   }
 }
 
+/// 미션 추측 내용
 class _GuessSection extends StatelessWidget {
   const _GuessSection({
     required this.width,
@@ -206,6 +208,7 @@ class _GuessSection extends StatelessWidget {
   }
 }
 
+/// 댓글창
 class _CommentList extends StatelessWidget {
   const _CommentList({
     required this.width,
@@ -220,7 +223,12 @@ class _CommentList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return comments.isEmpty
-        ? const Center(child: Text('댓글이 없습니다.'))
+        ? Container(
+          height: 0.2 * width,
+          alignment: Alignment.center,
+          padding: EdgeInsets.only(bottom: 0.05 * width),
+          child: Text('댓글이 없습니다.'),
+        )
         : Align(
           alignment: Alignment.topCenter,
           child: ListView.builder(
@@ -307,7 +315,7 @@ class _MessageBar extends StatelessWidget {
               minLines: 1,
               maxLines: 3,
               maxLength: 99,
-              autofocus: true,
+              // autofocus: true,
               keyboardType: TextInputType.multiline,
               decoration: InputDecoration(
                 hintText: '메시지 입력',
