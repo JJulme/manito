@@ -51,7 +51,6 @@ class ManitoController extends GetxController {
   Future<void> fetchMissionAcceptList() async {
     // isLoading.value = true;
     try {
-      // missions:mission_posts_id_fkey(creator_id, deadline, deadline_type)
       final List<dynamic> data = await _supabase
           .from('missions')
           .select('''id, 

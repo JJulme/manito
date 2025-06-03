@@ -89,6 +89,7 @@ class PostDetailScreen extends StatelessWidget {
                               );
                             }
                           }),
+                          SizedBox(height: 0.05 * width),
                         ],
                       ),
                     );
@@ -226,7 +227,6 @@ class _CommentList extends StatelessWidget {
         ? Container(
           height: 0.2 * width,
           alignment: Alignment.center,
-          padding: EdgeInsets.only(bottom: 0.05 * width),
           child: Text('댓글이 없습니다.'),
         )
         : Align(

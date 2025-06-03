@@ -48,6 +48,11 @@ class _ManitoScreenState extends State<ManitoScreen>
     }
   }
 
+  /// 자동응답 페이지 이동
+  void _toAutoReplyScreen() {
+    Get.to(() => AutoReplyScreen());
+  }
+
   /// 미션 제안 상세 페이지 이동
   Future<void> _toMissionProposeScreen(String missionId, creatorProfile) async {
     final result = await Get.to(
@@ -88,7 +93,7 @@ class _ManitoScreenState extends State<ManitoScreen>
             padding: EdgeInsets.only(right: 0.02 * width),
             child: IconButton(
               icon: Icon(Icons.reply_rounded, size: 0.07 * width),
-              onPressed: () => Get.to(() => AutoReplyScreen()),
+              onPressed: _toAutoReplyScreen,
             ),
           ),
         ],
@@ -129,7 +134,15 @@ class _ManitoScreenState extends State<ManitoScreen>
                     : SizedBox.shrink(),
 
                 // 수락 가능 목록
-                _missionProposeList(width),
+                // _missionProposeList(width),
+                _MissionProposeList(
+                  toMissionProposeScreen: _toMissionProposeScreen,
+                  fetchMissionProposeList:
+                      _controller.fetchMissionProposeList(),
+                  friendsController: _friendsController,
+                  width: width,
+                  missionProposeList: _controller.missionProposeList,
+                ),
                 // 진행중 목록
                 _missionAcceptList(width),
               ],
@@ -291,5 +304,77 @@ class _ManitoScreenState extends State<ManitoScreen>
         );
       }
     });
+  }
+}
+
+class _MissionProposeList extends StatelessWidget {
+  const _MissionProposeList({
+    required this.width,
+    required this.toMissionProposeScreen,
+    required this.fetchMissionProposeList,
+    required this.friendsController,
+    required this.missionProposeList,
+  });
+  final double width;
+  final Future<void> Function(String missionId, dynamic creatorProfile)
+  toMissionProposeScreen;
+  final Future<void> fetchMissionProposeList;
+  final FriendsController friendsController;
+  final RxList<MissionProposeList> missionProposeList;
+
+  @override
+  Widget build(BuildContext context) {
+    return missionProposeList.isEmpty
+        ? SizedBox.shrink()
+        : ListView.builder(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          itemCount: missionProposeList.length,
+          itemBuilder: (context, index) {
+            final missionPropose = missionProposeList[index];
+            final creatorProfile = friendsController.searchFriendProfile(
+              missionPropose.creatorId,
+            );
+            return GestureDetector(
+              onTap:
+                  () =>
+                      toMissionProposeScreen(missionPropose.id, creatorProfile),
+              child: Container(
+                height: 0.22 * width,
+                padding: EdgeInsets.symmetric(
+                  vertical: 0.03 * width,
+                  horizontal: 0.03 * width,
+                ),
+                margin: EdgeInsets.only(
+                  left: 0.03 * width,
+                  right: 0.03 * width,
+                  bottom: 0.03 * width,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(0.02 * width),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.warning_rounded, color: Colors.red),
+                    Text(' 미션 도착 ', style: Get.textTheme.titleMedium),
+                    Tooltip(
+                      showDuration: Duration(days: 1),
+                      triggerMode: TooltipTriggerMode.tap,
+                      message: '모든 미션은 선착순 1명',
+                      child: Icon(Icons.help_outline_rounded, color: kGrey),
+                    ),
+                    Spacer(),
+                    TimerWidget(
+                      targetDateTime: missionPropose.acceptDeadline,
+                      fontSize: 0.07 * width,
+                      onTimerComplete: () => fetchMissionProposeList,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
   }
 }
