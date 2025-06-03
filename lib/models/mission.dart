@@ -82,7 +82,7 @@ class MyMission {
 /// 미션 ID, 랜덤 미션 리스트, 미션 상태, 수락 기한, 미션 기한
 /// 그리고 미션 기한 유형과 같은 필수 정보를 포함합니다.
 class MissionPropose {
-  /// 미션의 고유 식별자 (ID).
+  /// 미션제안과 연결된 미션의 고유 식별자 (ID).
   /// 이 필드는 필수입니다.
   final String missionId;
 

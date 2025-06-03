@@ -37,6 +37,7 @@ class ManitoController extends GetxController {
           .from('mission_propose')
           .select('id, missions:mission_id(creator_id, accept_deadline)')
           .eq('friend_id', _supabase.auth.currentUser!.id);
+      print(data);
 
       missionProposeList.value =
           data.map((e) => MissionProposeList.fromJson(e)).toList();
