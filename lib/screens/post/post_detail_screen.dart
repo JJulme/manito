@@ -327,7 +327,10 @@ class _MessageBar extends StatelessWidget {
           ),
           SizedBox(width: 0.02 * width),
           ElevatedButton.icon(
-            label: Icon(CustomIcons.send, size: 0.05 * width),
+            label: Padding(
+              padding: EdgeInsets.only(top: 0.01 * width),
+              child: Icon(CustomIcons.send, size: 0.05 * width),
+            ),
             style: ElevatedButton.styleFrom(
               shape: CircleBorder(),
               padding: EdgeInsets.zero,
