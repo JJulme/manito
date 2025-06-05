@@ -52,6 +52,7 @@ void handleForegroundMessage(RemoteMessage message) async {
   }
   // 생성자가 추측을 완료
   else if (message.data['type'] == 'update_mission_complete') {
+    await manitoController.fetchMissionGuessList();
     await postController.fetchPosts();
     badgeController.badgeMap['mission_complete']!.value++;
     badgeController.updateBadgePostCount();

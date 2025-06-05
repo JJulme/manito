@@ -237,6 +237,20 @@ class MissionAccept {
   }
 }
 
+/// 마니또가 미션을 완료, 생성자가 추측을 미완료한 내용을 불러오는 모델
+///
+/// 생성자의 id만 가져옵니다.
+/// ???가 추측중입니다 로 보여짐
+class MissionGuess {
+  final String creatorId;
+
+  MissionGuess({required this.creatorId});
+
+  factory MissionGuess.fromJson(Map<String, dynamic> json) {
+    return MissionGuess(creatorId: json['creator_id'] as String);
+  }
+}
+
 /// 미션하고 작성했던 내용을 불러오는 모델
 ///
 /// 마니또가 미션과 관련하여 임시저장 했던 콘텐츠를 나타냅니다.

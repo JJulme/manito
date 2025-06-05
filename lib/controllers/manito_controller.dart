@@ -19,6 +19,7 @@ class ManitoController extends GetxController {
   var isLoading = false.obs;
   var missionProposeList = <MissionProposeList>[].obs; // 수락가능 미션
   var missionAcceptList = <MissionAccept>[].obs; // 진행중 미션
+  var missionGuessList = <MissionGuess>[].obs; // 추측중 미션
 
   @override
   void onInit() async {
@@ -26,6 +27,7 @@ class ManitoController extends GetxController {
     isLoading.value = true;
     await fetchMissionProposeList();
     await fetchMissionAcceptList();
+    await fetchMissionGuessList();
     isLoading.value = false;
   }
 
@@ -50,7 +52,6 @@ class ManitoController extends GetxController {
 
   // 내가 수락한 미션 목록 가져오기
   Future<void> fetchMissionAcceptList() async {
-    // isLoading.value = true;
     try {
       final List<dynamic> data = await _supabase
           .from('missions')
@@ -67,6 +68,24 @@ class ManitoController extends GetxController {
           data.map((e) => MissionAccept.fromJson(e)).toList();
     } catch (e) {
       debugPrint('fetchMissionAcceptList Error: $e');
+    }
+  }
+
+  //
+  Future<void> fetchMissionGuessList() async {
+    try {
+      final List<dynamic> data = await _supabase
+          .from('missions')
+          .select('''
+              creator_id
+              ''')
+          .eq('manito_id', _supabase.auth.currentUser!.id)
+          .eq('status', '추측중');
+      missionGuessList.value =
+          data.map((e) => MissionGuess.fromJson(e)).toList();
+      print('missionGuessList $missionGuessList======================');
+    } catch (e) {
+      debugPrint('fetchMissionGuessList Error: $e');
     } finally {
       // isLoading.value = false;
     }
@@ -130,7 +149,6 @@ class MissionProposeController extends GetxController {
           'p_deadline': missionPropose.value!.deadlineType,
         },
       );
-      debugPrint('미션 추가 완료');
     } catch (e) {
       debugPrint('addRandomMissionContent Error: $e');
     }

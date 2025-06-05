@@ -12,6 +12,7 @@ import 'package:manito/widgets/admob/banner_ad_widget.dart';
 import 'package:manito/widgets/mission/custom_slide.dart';
 import 'package:manito/widgets/mission/profile_mission.dart';
 import 'package:manito/widgets/mission/timer.dart';
+import 'package:manito/widgets/profile/profile_image_view.dart';
 
 class ManitoScreen extends StatefulWidget {
   const ManitoScreen({super.key});
@@ -67,6 +68,7 @@ class _ManitoScreenState extends State<ManitoScreen>
       await Future.wait([
         _controller.fetchMissionProposeList(),
         _controller.fetchMissionAcceptList(),
+        _controller.fetchMissionGuessList(),
       ]);
     } finally {
       _controller.isLoading.value = false;
@@ -100,6 +102,7 @@ class _ManitoScreenState extends State<ManitoScreen>
     );
     if (result == true) {
       await _controller.fetchMissionAcceptList();
+      await _controller.fetchMissionGuessList();
     }
   }
 
@@ -142,11 +145,19 @@ class _ManitoScreenState extends State<ManitoScreen>
           _buildBannerAd(),
           SizedBox(height: _verticalSpacing * Get.width),
           _buildEmptyStateIfNeeded(),
+
           // 미션 제안 리스트
           _buildMissionList(
             missions: _controller.missionProposeList,
             itemBuilder: _buildMissionProposeItem,
           ),
+
+          // 미션 추측 리스트
+          _buildMissionList(
+            missions: _controller.missionGuessList,
+            itemBuilder: _buildMissionGuessItem,
+          ),
+
           // 미션 수락 리스트
           _buildMissionList(
             missions: _controller.missionAcceptList,
@@ -187,7 +198,7 @@ class _ManitoScreenState extends State<ManitoScreen>
   // 미션 제안과 수행중인 미션을 리스트로 만들어줌
   Widget _buildMissionList<T>({
     required List<T> missions,
-    required Widget Function(T mission, int index) itemBuilder,
+    required Widget Function(T mission) itemBuilder,
   }) {
     return Obx(() {
       if (missions.isEmpty) return const SizedBox.shrink();
@@ -196,16 +207,13 @@ class _ManitoScreenState extends State<ManitoScreen>
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: missions.length,
-        itemBuilder: (context, index) => itemBuilder(missions[index], index),
+        itemBuilder: (context, index) => itemBuilder(missions[index]),
       );
     });
   }
 
   // 미션 제안 아이템
-  Widget _buildMissionProposeItem(
-    MissionProposeList missionPropose,
-    int index,
-  ) {
+  Widget _buildMissionProposeItem(MissionProposeList missionPropose) {
     final width = Get.width;
     final creatorProfile = _friendsController.searchFriendProfile(
       missionPropose.creatorId,
@@ -246,8 +254,41 @@ class _ManitoScreenState extends State<ManitoScreen>
     );
   }
 
-  //
-  Widget _buildMissionAcceptItem(MissionAccept missionAccept, int index) {
+  // 미션 추측 아이템
+  Widget _buildMissionGuessItem(MissionGuess missionGuess) {
+    final width = Get.width;
+    final creatorProfile = _friendsController.searchFriendProfile(
+      missionGuess.creatorId,
+    );
+    return Container(
+      height: _missionItemHeight * width,
+      padding: EdgeInsets.all(_horizontalPadding * width),
+      margin: EdgeInsets.only(
+        left: _horizontalPadding * width,
+        right: _horizontalPadding * width,
+        bottom: _verticalSpacing * width,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(_borderRadius * width),
+      ),
+      child: Row(
+        children: [
+          profileImageOrDefault(creatorProfile.profileImageUrl, 0.14 * width),
+          SizedBox(width: _borderRadius * width),
+          Expanded(
+            child: Text(
+              "${creatorProfile.nickname} 마니또 추측중",
+              style: Get.textTheme.titleMedium,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 미션 수락 아이템
+  Widget _buildMissionAcceptItem(MissionAccept missionAccept) {
     final width = Get.width;
     final creatorProfile = _friendsController.searchFriendProfile(
       missionAccept.creatorId,
