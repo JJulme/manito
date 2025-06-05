@@ -21,7 +21,6 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    print("==========스플래쉬 스크린==========");
     _redirect();
   }
 
