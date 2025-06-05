@@ -201,7 +201,7 @@ class SettingScreen extends StatelessWidget {
   }) {
     final width = Get.width;
 
-    return Container(
+    return SizedBox(
       height: _itemHeight * width,
       child: Material(
         color: Colors.transparent,
