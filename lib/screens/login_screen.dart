@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
+import 'package:introduction_screen/introduction_screen.dart';
 import 'package:manito/controllers/auth_controller.dart';
 import 'package:manito/screens/kakao_login_webview.dart';
 
@@ -10,68 +11,92 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 화면 크기에 비례한 수
     double width = Get.width;
-    // final isTablet = MediaQuery.of(context).size.shortestSide > 600;
     return Scaffold(
       body: SafeArea(
-        // 중앙에 배치
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // 앱 대표 이미지
-              Image.asset(
-                'assets/images/manito_dog.png',
-                width: 0.6 * width,
-                height: 0.6 * width,
+        child: IntroductionScreen(
+          pages: [
+            // 화면 1
+            PageViewModel(
+              title: '미션을 만들고\n나만의 마니또를 만들어 보세요!',
+              body: '',
+              image: Image.asset(
+                'assets/images/manito_dog_phone.png',
+                width: 0.7 * width,
+                height: 0.7 * width,
               ),
-              SizedBox(height: 0.01 * width),
-              // 문구
-              Container(
-                height: 0.2 * width,
-                width: width,
-                padding: EdgeInsets.symmetric(horizontal: 0.05 * width),
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    '지금 친구들과\n마니또를 즐겨보세요!',
-                    style: Get.textTheme.displaySmall,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+              decoration: getPageDecoration(),
+            ),
+            // 화면 2
+            PageViewModel(
+              title: '나를 도와준 마니또가\n누구인지 추측해 보세요!',
+              body: '',
+              image: Image.asset(
+                'assets/images/manito_dog_thinking.png',
+                width: 0.7 * width,
+                height: 0.7 * width,
               ),
-              SizedBox(height: 0.04 * width),
-              // 카카오 로그인 버튼
-              AuthButton(
+              decoration: getPageDecoration(),
+            ),
+            // 화면 3
+            PageViewModel(
+              title: '마니또가 되어서\n친구를 몰래 도와주세요!',
+              body: '',
+              image: Image.asset(
+                'assets/images/manito_dog_sunglass.png',
+                width: 0.7 * width,
+                height: 0.7 * width,
+              ),
+              decoration: getPageDecoration(),
+            ),
+            // 화면 4
+            PageViewModel(
+              title: '친구를 어떻게\n도와주었는지 남겨보세요!',
+              body: '',
+              image: Image.asset(
+                'assets/images/manito_dog_selfie.png',
+                width: 0.7 * width,
+                height: 0.7 * width,
+              ),
+              decoration: getPageDecoration(),
+            ),
+            // 화면 5
+            PageViewModel(
+              title: '일상에서 친구들과\n마니또를 즐겨보세요!',
+              bodyWidget: AuthButton(
                 imagePath: 'assets/images/kakao_login_large_wide.png',
                 onTap: () async {
                   await CookieManager.instance().deleteAllCookies();
                   Get.to(() => KakaoLoginWebview());
                 },
               ),
-              // AuthButton(
-              //   imagePath: 'assets/images/kakao_login_large_wide.png',
-              //   onTap: () async {
-              //     await CookieManager.instance().deleteAllCookies();
-              //     await authController.loginWithKakao();
-              //   },
-              // ),
-              // SizedBox(height: isTablet ? 0.03 * width : 0.05 * width),
+              image: Image.asset(
+                'assets/images/manito_dog.png',
+                width: 0.7 * width,
+                height: 0.7 * width,
+              ),
 
-              // // 애플 로그인
-              // if (GetPlatform.isIOS)
-              //   AuthButton(
-              //     imagePath: 'assets/images/apple_login_large_wide.png',
-              //     onTap: () async {
-              //       await authController.signInWithApple();
-              //     },
-              //   ),
-            ],
-          ),
+              decoration: getPageDecoration(),
+            ),
+          ],
+          next: Icon(Icons.arrow_forward_ios_rounded),
+          back: Icon(Icons.arrow_back_ios_rounded),
+          showBackButton: true,
+          showDoneButton: false,
         ),
       ),
+    );
+  }
+
+  PageDecoration getPageDecoration() {
+    double width = Get.width;
+    return PageDecoration(
+      titleTextStyle: TextStyle(
+        fontSize: 0.065 * width,
+        fontWeight: FontWeight.w600,
+      ),
+      imagePadding: EdgeInsets.zero,
+      bodyPadding: EdgeInsets.only(top: 0.06 * width),
     );
   }
 }
