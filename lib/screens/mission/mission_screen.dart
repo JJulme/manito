@@ -147,10 +147,7 @@ class _MissionScreenState extends State<MissionScreen>
             onPressed: _toMissionCreateScreen,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.add, size: 0.07 * width, color: Colors.black),
-                Text(' 미션 만들기', style: Get.textTheme.bodyLarge),
-              ],
+              children: [Icon(Icons.add, size: 0.07 * width), Text(' 미션 만들기')],
             ),
           ),
         )

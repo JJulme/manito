@@ -5,6 +5,8 @@ import 'package:get/get.dart';
 
 const kOffBlack = Color(0xFF303030);
 const kGrey = Color(0xFF808080);
+const kDarkWalnut = Color(0xFF342D21);
+const kCocoaCream = Color(0xFFF6EBDC);
 // const kLeadBlack = Color(0xFF212121);
 // const kRaisinBlack = Color(0xFF222222);
 // const kTinGrey = Color(0xFF909090);
@@ -23,10 +25,7 @@ const kFireOpal = Color(0xFFEB5757);
 const kSunsetPeach = Color(0xFFD97757);
 const kSunsetPeachLight = Color(0xFFFFBFA0); // primaryColorLight
 const kSunsetPeachDark = Color(0xFFB65C4B); // primaryColorDark
-const kDarkWalnut = Color(0xFF56423C);
-const kCocoaCream = Color(0xFFbda69F);
 const kFreshOlive = Color(0xFF66A051);
-
 const kRed = Color.fromARGB(255, 255, 172, 95);
 const kYellow = Color.fromARGB(255, 255, 225, 0);
 const kGreen = Color.fromARGB(255, 90, 255, 95);

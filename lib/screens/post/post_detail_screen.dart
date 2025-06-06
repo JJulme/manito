@@ -318,7 +318,7 @@ class _MessageBar extends StatelessWidget {
               // autofocus: true,
               keyboardType: TextInputType.multiline,
               decoration: InputDecoration(
-                hintText: '메시지 입력',
+                hintText: '댓글 입력',
                 hintStyle: Get.textTheme.labelLarge,
                 counterText: '',
                 contentPadding: EdgeInsets.all(0.02 * width),

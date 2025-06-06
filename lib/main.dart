@@ -50,7 +50,7 @@ class _ManitoState extends State<Manito> {
       // primaryColor: kSunsetPeach,
       // primaryColorLight: kSunsetPeachLight,
       // primaryColorDark: kSunsetPeachDark,
-      colorScheme: ColorScheme.fromSeed(seedColor: Colors.amber),
+      colorScheme: ColorScheme.fromSeed(seedColor: kDarkWalnut),
       // 앱바 설정
       appBarTheme: AppBarTheme(
         color: Colors.white,
@@ -106,9 +106,12 @@ class _ManitoState extends State<Manito> {
         style: ElevatedButton.styleFrom(
           foregroundColor: Colors.black,
           backgroundColor: Colors.yellowAccent[700],
+          // foregroundColor: kDarkWalnut,
+          // backgroundColor: kCocoaCream,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(0.02 * width),
           ),
+          textStyle: TextStyle(color: kCocoaCream, fontSize: 0.05 * width),
         ),
       ),
       // 테두리 버튼 설정

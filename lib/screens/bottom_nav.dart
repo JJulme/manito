@@ -59,7 +59,7 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
       // 토큰 설정
       await FirebaseMessaging.instance.getAPNSToken();
       final fcmToken = await FirebaseMessaging.instance.getToken();
-      debugPrint('fcm token: $fcmToken');
+      debugPrint('FCM Token: $fcmToken');
 
       // FCM 토큰이 null이 아닐 경우, 서버에 토큰 저장
       if (fcmToken != null) {

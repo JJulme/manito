@@ -82,7 +82,6 @@ class ManitoController extends GetxController {
           .eq('status', '추측중');
       missionGuessList.value =
           data.map((e) => MissionGuess.fromJson(e)).toList();
-      print('missionGuessList $missionGuessList======================');
     } catch (e) {
       debugPrint('fetchMissionGuessList Error: $e');
     } finally {

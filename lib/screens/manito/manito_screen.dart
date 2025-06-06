@@ -144,6 +144,7 @@ class _ManitoScreenState extends State<ManitoScreen>
         children: [
           _buildBannerAd(),
           SizedBox(height: _verticalSpacing * Get.width),
+
           _buildEmptyStateIfNeeded(),
 
           // 미션 제안 리스트
@@ -185,7 +186,8 @@ class _ManitoScreenState extends State<ManitoScreen>
   // 받은 미션, 수락 미션이 없을 경우 처리
   Widget _buildEmptyStateIfNeeded() {
     return _controller.missionProposeList.isEmpty &&
-            _controller.missionAcceptList.isEmpty
+            _controller.missionAcceptList.isEmpty &&
+            _controller.missionGuessList.isEmpty
         ? Container(
           height: 0.5 * Get.height,
           width: double.infinity,
