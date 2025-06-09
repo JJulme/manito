@@ -78,6 +78,8 @@ class FriendProfile {
   /// 'profiles' 객체 내의 'profile_image_url' 필드와 맵핑됩니다. `null`일 수 있습니다.
   final String? profileImageUrl;
 
+  int progressMissions;
+
   /// 새로운 [FriendProfile] 인스턴스를 생성합니다.
   ///
   /// [id]와 [nickname]은 필수 매개변수입니다.
@@ -87,6 +89,7 @@ class FriendProfile {
     required this.nickname,
     this.statusMessage,
     this.profileImageUrl,
+    this.progressMissions = 0,
   });
 
   /// JSON [Map]으로부터 [FriendProfile] 인스턴스를 생성하는 팩토리 생성자.
@@ -113,6 +116,7 @@ class FriendProfile {
       nickname: isFriendNicknameValid ? rawFriendNickname! : actualNickname,
       statusMessage: profileJson['status_message'] as String?,
       profileImageUrl: profileJson['profile_image_url'] as String?,
+      progressMissions: 0,
     );
   }
 }

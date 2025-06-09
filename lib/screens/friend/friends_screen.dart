@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:manito/constants.dart';
 import 'package:manito/controllers/badge_controller.dart';
 import 'package:manito/controllers/friends_controller.dart';
+import 'package:manito/custom_icons.dart';
 import 'package:manito/screens/friend/friends_blacklist_screen.dart';
 import 'package:manito/screens/friend/friends_detail_screen.dart';
 import 'package:manito/screens/friend/friends_request_screen.dart';
@@ -256,6 +257,26 @@ class FriendsScreen extends StatelessWidget {
                           ),
                         ],
                       ),
+                    ),
+                    Stack(
+                      children: [
+                        Icon(
+                          CustomIcons.star,
+                          size: 0.08 * width,
+                          color: Colors.yellow[700],
+                        ),
+                        Positioned(
+                          left: 0.031 * width,
+                          top: 0.01 * width,
+                          child: Text(
+                            friendProfile.progressMissions.toString(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 0.045 * width,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

@@ -233,24 +233,24 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
           BottomNavigationBarItem(
             icon: customBadgeIcon(
               _badgeController.badgePostCount,
-              child: Transform.translate(
-                offset: Offset(-0.003 * width, 0),
-                child: Icon(
-                  CustomIcons.star,
-                  key: _postIconKey,
-                  size: 0.065 * width,
-                ),
+              child: Icon(
+                CustomIcons.flag_filled,
+                key: _postIconKey,
+                size: 0.075 * width,
               ),
             ),
             label: '기록',
           ),
           BottomNavigationBarItem(
-            icon: customBadgeIcon(
-              _badgeController.badgeMissionCount,
-              child: Icon(
-                CustomIcons.flag_filled,
-                key: _missionIconKey,
-                size: 0.075 * width,
+            icon: Transform.translate(
+              offset: Offset(-0.003 * width, 0),
+              child: customBadgeIcon(
+                _badgeController.badgeMissionCount,
+                child: Icon(
+                  CustomIcons.star,
+                  key: _missionIconKey,
+                  size: 0.065 * width,
+                ),
               ),
             ),
             label: '보낸미션',

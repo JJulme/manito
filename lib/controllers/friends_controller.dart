@@ -78,6 +78,35 @@ class FriendsController extends GetxController {
 
       // 유저 정보 모델 변환
       friendList.value = data.map((e) => FriendProfile.fromJson(e)).toList();
+
+      // 친구의 미션 현황 만들기
+      // 친구가 있을 경우
+      if (friendList.isNotEmpty) {
+        // 친구 id 목록 만들기
+        final Map<String, FriendProfile> friendMap = {
+          for (var friend in friendList) friend.id: friend,
+        };
+        // 친구들의 진행중인 미션 가져오기
+        final missionData = await _supabase
+            .from('missions')
+            .select('creator_id')
+            .neq('status', '완료')
+            .inFilter('creator_id', friendMap.keys.map((id) => id).toList());
+        // 친구들의 진행중인 미션 카운트
+        Map<String, int> creatorIdCounts = {};
+        for (var item in missionData) {
+          final String creatorId = item['creator_id'];
+          creatorIdCounts[creatorId] = (creatorIdCounts[creatorId] ?? 0) + 1;
+        }
+        // 친구가 진행중인 미션 개수 업데이트
+        creatorIdCounts.forEach((creatorId, count) {
+          final friend = friendMap[creatorId];
+          if (friend != null) {
+            friend.progressMissions = count;
+          }
+        });
+      }
+
       // 캐시 비우기
       for (var friend in friendList) {
         await CachedNetworkImage.evictFromCache(friend.profileImageUrl!);
