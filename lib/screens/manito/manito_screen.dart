@@ -121,7 +121,7 @@ class _ManitoScreenState extends State<ManitoScreen>
     return AppBar(
       centerTitle: false,
       titleSpacing: _iconSize * width,
-      title: Text('마니또 미션', style: Get.textTheme.headlineLarge),
+      title: Text('받은 미션', style: Get.textTheme.headlineLarge),
       actions: [
         Padding(
           padding: EdgeInsets.only(right: _borderRadius * width),

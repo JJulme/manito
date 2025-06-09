@@ -49,7 +49,7 @@ class _PostScreenState extends State<PostScreen> with WidgetsBindingObserver {
       appBar: AppBar(
         centerTitle: false,
         titleSpacing: 0.07 * width,
-        title: Text('게시물', style: Get.textTheme.headlineLarge),
+        title: Text('기록', style: Get.textTheme.headlineLarge),
         actions: [
           Padding(
             padding: EdgeInsets.only(right: 0.02 * width),

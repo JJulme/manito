@@ -79,7 +79,7 @@ class _MissionScreenState extends State<MissionScreen>
       appBar: AppBar(
         centerTitle: false,
         titleSpacing: 0.07 * width,
-        title: Text('나의 미션', style: Get.textTheme.headlineLarge),
+        title: Text('보낸 미션', style: Get.textTheme.headlineLarge),
         actions: [
           Padding(
             padding: EdgeInsets.only(right: 0.02 * width),

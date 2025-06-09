@@ -65,8 +65,9 @@ class _ManitoState extends State<Manito> {
         unselectedItemColor: Colors.black26,
         backgroundColor: Colors.white,
         // 라벨 숨기기
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        selectedLabelStyle: TextStyle(fontSize: 0.03 * width),
         // 움직임 효과 제거
         type: BottomNavigationBarType.fixed,
       ),
