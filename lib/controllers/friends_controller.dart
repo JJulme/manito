@@ -74,7 +74,7 @@ class FriendsController extends GetxController {
             )
           ''')
           .eq('user_id', _supabase.auth.currentUser!.id)
-          .order('profiles(nickname)', ascending: true);
+          .order('profiles(nickname)', ascending: false);
 
       // 유저 정보 모델 변환
       friendList.value = data.map((e) => FriendProfile.fromJson(e)).toList();
