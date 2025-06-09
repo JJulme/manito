@@ -114,15 +114,15 @@ class FriendsDetailScreen extends StatelessWidget {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('${_controller.manitoPostCount}'),
-                                  Text('마니또'),
+                                  Text('${_controller.creatorPostCount}'),
+                                  Text('보낸 미션'),
                                 ],
                               ),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('${_controller.creatorPostCount}'),
-                                  Text('만든 미션'),
+                                  Text('${_controller.manitoPostCount}'),
+                                  Text('받은 미션'),
                                 ],
                               ),
                             ],
