@@ -46,6 +46,11 @@ class CustomIcons {
     fontFamily: _kFontFam,
     fontPackage: _kFontPkg,
   );
+  static const IconData flag_filled = IconData(
+    0xe808,
+    fontFamily: _kFontFam,
+    fontPackage: _kFontPkg,
+  );
   static const IconData star = IconData(
     0xf005,
     fontFamily: _kFontFam,
