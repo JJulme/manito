@@ -20,9 +20,9 @@ import 'package:manito/widgets/profile/profile_image_view.dart';
 class FriendsScreen extends StatelessWidget {
   FriendsScreen({super.key});
   final FriendsController _controller = Get.find<FriendsController>();
-  final BadgeController _badgeContorller = Get.find<BadgeController>();
+  final BadgeController _badgeController = Get.find<BadgeController>();
 
-  /// 프로필 수정 화면 이동
+  // 프로필 수정 화면 이동
   void _toProfileModifyScreen() async {
     // _controller.initModifyProfile();
     final result = await Get.to(
@@ -40,118 +40,122 @@ class FriendsScreen extends StatelessWidget {
     }
   }
 
+  // 친구 상세 화면 이동
+  void _toFriendDetail(dynamic friendProfile) {
+    Get.to(() => FriendsDetailScreen(), arguments: friendProfile);
+  }
+
   @override
   Widget build(BuildContext context) {
-    double width = Get.width;
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: false,
-        titleSpacing: 0.07 * width,
-        title: Text('친구', style: Get.textTheme.headlineLarge),
-        actions: [
-          PopupMenuButton(
-            icon: customBadgeIcon(
-              _badgeContorller.badgeMap['friend_request']!,
-              child: Icon(Icons.person_add_alt_1_rounded, size: 0.07 * width),
-            ),
-            position: PopupMenuPosition.under,
-            offset: Offset(width, 0),
-            onSelected: (screen) {
-              Get.to(() => screen);
-            },
-            itemBuilder:
-                (context) => [
-                  // 친구 찾기
-                  PopupMenuItem(
-                    value: FriendsSearchScreen(),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.person_add_alt_1_rounded),
-                        SizedBox(width: 0.02 * width),
-                        Text('친구 찾기', style: Get.textTheme.bodyMedium),
-                      ],
-                    ),
-                  ),
-                  // 친구 요청
-                  PopupMenuItem(
-                    value: FriendsRequestScreen(),
-                    onTap:
-                        () =>
-                            _badgeContorller.resetBadgeCount('friend_request'),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        customBadgeIcon(
-                          _badgeContorller.badgeMap['friend_request']!,
-                          child: Icon(Icons.supervisor_account_rounded),
-                        ),
-                        SizedBox(width: 0.02 * width),
-                        Text('친구 요청', style: Get.textTheme.bodyMedium),
-                      ],
-                    ),
-                  ),
-                  // 차단 목록
-                  PopupMenuItem(
-                    value: FriendsBlacklistScreen(),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.no_accounts_rounded),
-                        SizedBox(width: 0.02 * width),
-                        Text('차단 목록', style: Get.textTheme.bodyMedium),
-                      ],
-                    ),
-                  ),
-                ],
-          ),
+      appBar: _buildAppBar(),
+      body: SafeArea(child: Obx(() => _buildBody())),
+    );
+  }
 
-          // 설정 버튼
-          Padding(
-            padding: EdgeInsets.only(right: 0.02 * width),
-            child: IconButton(
-              icon: Icon(Icons.settings_rounded, size: 0.07 * width),
-              onPressed: () => Get.to(() => SettingScreen()),
-            ),
+  // 앱바
+  PreferredSizeWidget _buildAppBar() {
+    final width = Get.width;
+    return AppBar(
+      centerTitle: false,
+      titleSpacing: width * 0.07,
+      title: Text('친구', style: Get.textTheme.headlineLarge),
+      actions: [
+        PopupMenuButton<Widget>(
+          icon: customBadgeIcon(
+            _badgeController.badgeMap['friend_request']!,
+            child: Icon(Icons.person_add_alt_1_rounded, size: width * 0.07),
           ),
+          position: PopupMenuPosition.under,
+          offset: Offset(width, 0),
+          onSelected: (screen) => Get.to(() => screen),
+          itemBuilder:
+              (context) => [
+                _buildPopupMenuItem(
+                  value: FriendsSearchScreen(),
+                  icon: Icons.person_add_alt_1_rounded,
+                  text: '친구 찾기',
+                  width: width,
+                ),
+                _buildPopupMenuItem(
+                  value: FriendsRequestScreen(),
+                  icon: Icons.supervisor_account_rounded,
+                  text: '친구 요청',
+                  width: width,
+                  onTap:
+                      () => _badgeController.resetBadgeCount('friend_request'),
+                  showBadge: true,
+                ),
+                _buildPopupMenuItem(
+                  value: FriendsBlacklistScreen(),
+                  icon: Icons.no_accounts_rounded,
+                  text: '차단 목록',
+                  width: width,
+                ),
+              ],
+        ),
+        Padding(
+          padding: EdgeInsets.only(right: width * 0.02),
+          child: IconButton(
+            icon: Icon(Icons.settings_rounded, size: width * 0.07),
+            onPressed: () => Get.to(() => SettingScreen()),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 팝업 메뉴 공통 아이템 위젯
+  PopupMenuItem<Widget> _buildPopupMenuItem({
+    required Widget value,
+    required IconData icon,
+    required String text,
+    required double width,
+    VoidCallback? onTap,
+    bool showBadge = false,
+  }) {
+    return PopupMenuItem<Widget>(
+      value: value,
+      onTap: onTap,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          showBadge
+              ? customBadgeIcon(
+                _badgeController.badgeMap['friend_request']!,
+                child: Icon(icon),
+              )
+              : Icon(icon),
+          SizedBox(width: width * 0.02),
+          Text(text, style: Get.textTheme.bodyMedium),
         ],
-      ),
-      body: SafeArea(
-        child: Obx(() {
-          if (_controller.isLoading.value) {
-            return Center(child: CircularProgressIndicator());
-          } else {
-            return SingleChildScrollView(
-              child: Column(
-                children: [
-                  // 내 프로필
-                  myProfile(width),
-                  SizedBox(height: 0.03 * width),
-                  // 광고
-                  BannerAdWidget(
-                    width: Get.width - 0.06 * width,
-                    borderRadius: 0.02 * width,
-                    androidAdId: dotenv.env['BANNER_FRIENDS_ANDROID']!,
-                    iosAdId: dotenv.env['BANNER_FRIENDS_IOS']!,
-                  ),
-                  SizedBox(height: 0.03 * width),
-                  // 친구 목록
-                  friendsList(width),
-                  SizedBox(height: 0.03 * width),
-                ],
-              ),
-            );
-          }
-        }),
       ),
     );
   }
 
-  /// 내 프로필
-  Padding myProfile(double width) {
+  // 바디
+  Widget _buildBody() {
+    if (_controller.isLoading.value) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    final width = Get.width;
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          _buildMyProfile(width),
+          SizedBox(height: width * 0.03),
+          _buildBannerAd(width),
+          SizedBox(height: width * 0.03),
+          _buildFriendsList(width),
+          SizedBox(height: width * 0.03),
+        ],
+      ),
+    );
+  }
+
+  // 내 프로필
+  Widget _buildMyProfile(double width) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 0.03 * width),
       child: Row(
@@ -203,88 +207,93 @@ class FriendsScreen extends StatelessWidget {
     );
   }
 
-  /// 친구 목록
-  Obx friendsList(double width) {
+  // 광고
+  Widget _buildBannerAd(double width) {
+    return BannerAdWidget(
+      width: Get.width - (width * 0.06),
+      borderRadius: width * 0.02,
+      androidAdId: dotenv.env['BANNER_FRIENDS_ANDROID']!,
+      iosAdId: dotenv.env['BANNER_FRIENDS_IOS']!,
+    );
+  }
+
+  // 친구 목록
+  Widget _buildFriendsList(double width) {
     return Obx(() {
       if (_controller.friendList.isEmpty) {
         return Center(
           child: Text('친구를 추가해 보세요', style: Get.textTheme.bodyMedium),
         );
-      } else {
-        return ListView.builder(
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          itemCount: _controller.friendList.length,
-          itemBuilder: (context, index) {
-            final friendProfile = _controller.friendList[index];
-            return InkWell(
-              onTap: () {
-                Get.to(() => FriendsDetailScreen(), arguments: friendProfile);
-              },
-              child: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 0.03 * width,
-                  vertical: 0.02 * width,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    // 프로필 이미지
-                    profileImageOrDefault(
-                      friendProfile.profileImageUrl!,
-                      0.15 * width,
-                    ),
-                    SizedBox(width: 0.035 * width),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // 친구 이름
-                          Text(
-                            friendProfile.nickname,
-                            style: Get.textTheme.bodyMedium,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          // 친구 상태 메시지
-                          Text(
-                            friendProfile.statusMessage!,
-                            style: Get.textTheme.labelMedium,
-                            maxLines: 2,
-                            softWrap: true,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                    Stack(
-                      children: [
-                        Icon(
-                          CustomIcons.star,
-                          size: 0.08 * width,
-                          color: Colors.yellow[700],
-                        ),
-                        Positioned(
-                          left: 0.031 * width,
-                          top: 0.01 * width,
-                          child: Text(
-                            friendProfile.progressMissions.toString(),
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 0.045 * width,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
       }
+
+      return ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: _controller.friendList.length,
+        itemBuilder:
+            (context, index) =>
+                _buildFriendItem(_controller.friendList[index], width),
+      );
     });
+  }
+
+  // 친구 항목
+  Widget _buildFriendItem(dynamic friendProfile, double width) {
+    return InkWell(
+      onTap: () => _toFriendDetail(friendProfile),
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: width * 0.03,
+          vertical: width * 0.02,
+        ),
+        child: Row(
+          children: [
+            profileImageOrDefault(friendProfile.profileImageUrl!, width * 0.15),
+            SizedBox(width: width * 0.035),
+            Expanded(child: _buildFriendInfo(friendProfile)),
+            _buildMissionBadge(friendProfile, width),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 친구 프로필 사진, 이름, 상태메시지
+  Widget _buildFriendInfo(dynamic friendProfile) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          friendProfile.nickname,
+          style: Get.textTheme.bodyMedium,
+          overflow: TextOverflow.ellipsis,
+        ),
+        Text(
+          friendProfile.statusMessage!,
+          style: Get.textTheme.labelMedium,
+          maxLines: 2,
+          softWrap: true,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+
+  // 진행중인 미션 개수 아이콘
+  Widget _buildMissionBadge(dynamic friendProfile, double width) {
+    return Stack(
+      children: [
+        Icon(CustomIcons.star, size: width * 0.08, color: Colors.yellow[700]),
+        Positioned(
+          left: width * 0.031,
+          top: width * 0.01,
+          child: Text(
+            friendProfile.progressMissions.toString(),
+            style: TextStyle(color: Colors.white, fontSize: width * 0.045),
+          ),
+        ),
+      ],
+    );
   }
 }

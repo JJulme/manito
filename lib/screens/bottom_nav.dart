@@ -55,11 +55,11 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
     width = Get.width;
     WidgetsBinding.instance.addObserver(this); // 등록
     _handleFCMToken();
-    _initTutorial();
-    if (mounted) {
-      tutorialCoachMark.show(context: context);
-    }
-    // _checkAndShowTutorial();
+    // _initTutorial();
+    // if (mounted) {
+    //   tutorialCoachMark.show(context: context);
+    // }
+    _checkAndShowTutorial();
   }
 
   @override
@@ -162,7 +162,6 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
           });
         }
       },
-      onFinish: () => print("튜토리얼 완료"),
     );
   }
 
