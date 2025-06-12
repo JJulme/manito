@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -55,6 +56,12 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
     width = Get.width;
     WidgetsBinding.instance.addObserver(this); // 등록
     _handleFCMToken();
+  }
+
+  // 튜토리얼 초기화를 위해 생성
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     // _initTutorial();
     // if (mounted) {
     //   tutorialCoachMark.show(context: context);
@@ -68,6 +75,7 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  // 앱 백그라운드일 이후 뱃지 데이터 가져오기
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
@@ -138,13 +146,10 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
   void _initTutorial() {
     tutorialCoachMark = TutorialCoachMark(
       targets: [
-        _createTarget(_friendIconKey, '친구를 관리 할 수 있는 화면 입니다'),
-        _createTarget(_postIconKey, '완료된 미션 기록을 확인할 수 있습니다'),
-        _createTarget(
-          _missionIconKey,
-          '친구들에게 미션을 만들어서 보냅니다\n친구중에 한명이 당신의 마니또가 됩니다',
-        ),
-        _createTarget(_manitoIconKey, '친구들이 당신에게 보낸 미션을 확인하고 수행할 수 있습니다'),
+        _createTarget(_friendIconKey, context.tr('bottom_nav.tutorial1')),
+        _createTarget(_postIconKey, context.tr('bottom_nav.tutorial2')),
+        _createTarget(_missionIconKey, context.tr('bottom_nav.tutorial3')),
+        _createTarget(_manitoIconKey, context.tr('bottom_nav.tutorial4')),
       ],
       colorShadow: Colors.black,
       opacityShadow: 0.2,
@@ -227,7 +232,7 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
                 size: 0.055 * width,
               ),
             ),
-            label: '친구',
+            label: context.tr('bottom_nav.friends'),
           ),
           BottomNavigationBarItem(
             icon: customBadgeIcon(
@@ -238,7 +243,7 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
                 size: 0.075 * width,
               ),
             ),
-            label: '기록',
+            label: context.tr('bottom_nav.history'),
           ),
           BottomNavigationBarItem(
             icon: Transform.translate(
@@ -252,7 +257,7 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
                 ),
               ),
             ),
-            label: '보낸미션',
+            label: context.tr('bottom_nav.sent_missions'),
           ),
           BottomNavigationBarItem(
             icon: customBadgeIcon(
@@ -266,7 +271,7 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
                 ),
               ),
             ),
-            label: '받은미션',
+            label: context.tr('bottom_nav.received_missions'),
           ),
         ],
       ),

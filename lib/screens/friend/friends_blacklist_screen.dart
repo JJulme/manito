@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manito/constants.dart';
@@ -13,84 +14,137 @@ class FriendsBlacklistScreen extends StatefulWidget {
 }
 
 class _FriendsBlacklistScreenState extends State<FriendsBlacklistScreen> {
-  // final FriendsController _controller = Get.find<FriendsController>();
   final BlacklistController _controller = Get.put(BlacklistController());
+  // Constants for responsive design
+  static const double _titleSpacingRatio = 0.02;
+  static const double _horizontalPaddingRatio = 0.04;
+  static const double _verticalPaddingRatio = 0.02;
+  static const double _profileImageRatio = 0.2;
+  static const double _spacingRatio = 0.04;
+
+  // Dialog Methods
+  void _showUnblockDialog(dynamic userProfile) {
+    kDefaultDialog(
+      context.tr("friends_blacklist_screen.dialog_title"),
+      context.tr("friends_blacklist_screen.dialog_message"),
+      onYesPressed: () => _unblackUser(userProfile.id),
+    );
+  }
 
   Future<void> _unblackUser(String blackUserId) async {
     String result = await _controller.unblackUser(blackUserId);
     _controller.fetchBlacklist();
     Get.back();
-    customSnackbar(title: '알림', message: result);
+    if (!mounted) return;
+    customSnackbar(
+      title: context.tr('friends_blacklist_screen.snack_title'),
+      message: context.tr('friends_blacklist_screen.$result'),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     double width = Get.width;
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: false,
-        titleSpacing: 0.02 * width,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => Get.back(),
-        ),
-        title: Text('차단 목록', style: Get.textTheme.headlineMedium),
+      appBar: _buildAppBar(width),
+      body: SafeArea(child: _buildBody()),
+    );
+  }
+
+  // 앱바
+  PreferredSizeWidget _buildAppBar(double width) {
+    return AppBar(
+      centerTitle: false,
+      titleSpacing: _titleSpacingRatio * width,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_ios_new_rounded),
+        onPressed: () => Get.back(),
       ),
-      body: SafeArea(
-        child: Obx(() {
-          if (_controller.blacklistLoading.value) {
-            return Center(child: CircularProgressIndicator());
-          } else if (_controller.blackList.isEmpty) {
-            return Center(child: Text('차단된 사용자가 없습니다.'));
-          } else {
-            return ListView.builder(
-              itemCount: _controller.blackList.length,
-              itemBuilder: (context, index) {
-                final userProfile = _controller.blackList[index];
-                return Column(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 0.04 * width,
-                        vertical: 0.02 * width,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          profileImageOrDefault(
-                            userProfile.profileImageUrl!,
-                            0.2 * width,
-                          ),
-                          SizedBox(width: 0.04 * width),
-                          Text(
-                            userProfile.nickname,
-                            style: Get.textTheme.bodyMedium,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Spacer(),
-                          // 차단 해체
-                          OutlinedButton(
-                            child: Text('차단 해제'),
-                            onPressed: () {
-                              kDefaultDialog(
-                                '차단 해제',
-                                '차단을 해제하면 당신을 검색할 수 있습니다.',
-                                onYesPressed:
-                                    () => _unblackUser(userProfile.id),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                );
-              },
-            );
-          }
-        }),
+      title:
+          Text(
+            'friends_blacklist_screen.title',
+            style: Get.textTheme.headlineMedium,
+          ).tr(),
+    );
+  }
+
+  // 바디
+  Widget _buildBody() {
+    return Obx(() {
+      if (_controller.blacklistLoading.value) {
+        return const Center(child: CircularProgressIndicator());
+      }
+
+      if (_controller.blackList.isEmpty) {
+        return Center(
+          child:
+              Text(
+                'friends_blacklist_screen.empty_blacklist',
+                style: Get.textTheme.bodyMedium,
+              ).tr(),
+        );
+      }
+
+      return _buildBlacklistView();
+    });
+  }
+
+  // 차단 목록 리스트
+  Widget _buildBlacklistView() {
+    return ListView.builder(
+      itemCount: _controller.blackList.length,
+      itemBuilder: (context, index) {
+        final userProfile = _controller.blackList[index];
+        return _buildBlacklistItem(userProfile);
+      },
+    );
+  }
+
+  // 차단 유저 아이템
+  Widget _buildBlacklistItem(dynamic userProfile) {
+    final width = Get.width;
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: _horizontalPaddingRatio * width,
+        vertical: _verticalPaddingRatio * width,
       ),
+      child: Row(
+        children: [
+          _buildProfileImage(userProfile, width),
+          SizedBox(width: _spacingRatio * width),
+          _buildUserName(userProfile),
+          const Spacer(),
+          _buildUnblockButton(userProfile),
+        ],
+      ),
+    );
+  }
+
+  // 차단 유저 프로필
+  Widget _buildProfileImage(dynamic userProfile, double width) {
+    return profileImageOrDefault(
+      userProfile.profileImageUrl ?? '',
+      _profileImageRatio * width,
+    );
+  }
+
+  // 차단 유저 이름
+  Widget _buildUserName(dynamic userProfile) {
+    return Expanded(
+      child: Text(
+        userProfile.nickname ?? '',
+        style: Get.textTheme.bodyMedium,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
+
+  // 차단 해제 버튼
+  Widget _buildUnblockButton(dynamic userProfile) {
+    return OutlinedButton(
+      onPressed: () => _showUnblockDialog(userProfile),
+      child: Text("friends_blacklist_screen.unblack_btn").tr(),
     );
   }
 }

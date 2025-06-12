@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -68,23 +69,23 @@ class SettingScreen extends StatelessWidget {
           children: [
             _buildSettingItem(
               icon: Icons.refresh,
-              title: '친구목록 새로고침',
+              title: context.tr('setting_screen.friends_refresh'),
               onTap: _refreshFriendsList,
             ),
             _buildSettingItem(
               icon: Icons.logout_outlined,
-              title: '로그아웃',
+              title: context.tr('setting_screen.logout'),
               onTap: _showLogoutDialog,
             ),
             _buildSettingItem(
               icon: Icons.mail_outline_rounded,
-              title: '문의하기',
+              title: context.tr('setting_screen.contact'),
               subtitle: _contactEmail,
               onTap: _copyEmailToClipboard,
             ),
             _buildSettingItem(
               icon: Icons.disabled_by_default_rounded,
-              title: '계정 삭제',
+              title: context.tr('setting_screen.delete_account'),
               onTap: _showDeleteAccountDialog,
             ),
           ],
@@ -188,7 +189,8 @@ class SettingScreen extends StatelessWidget {
         icon: const Icon(Icons.arrow_back_ios_new_rounded),
         onPressed: () => Get.back(),
       ),
-      title: Text('설정', style: Get.textTheme.headlineLarge),
+      title:
+          Text('setting_screen.title', style: Get.textTheme.headlineLarge).tr(),
     );
   }
 

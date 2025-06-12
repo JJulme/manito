@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:manito/controllers/auth_controller.dart';
 import 'package:manito/screens/kakao_login_webview.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
@@ -18,7 +19,7 @@ class LoginScreen extends StatelessWidget {
           pages: [
             // 화면 1
             PageViewModel(
-              title: '미션을 만들고\n나만의 마니또를 만들어 보세요!',
+              title: context.tr('login_screen.page1'),
               body: '',
               image: Image.asset(
                 'assets/images/manito_dog_phone.png',
@@ -29,7 +30,7 @@ class LoginScreen extends StatelessWidget {
             ),
             // 화면 2
             PageViewModel(
-              title: '나를 도와준 마니또가\n누구인지 추측해 보세요!',
+              title: context.tr('login_screen.page2'),
               body: '',
               image: Image.asset(
                 'assets/images/manito_dog_thinking.png',
@@ -40,7 +41,7 @@ class LoginScreen extends StatelessWidget {
             ),
             // 화면 3
             PageViewModel(
-              title: '마니또가 되어서\n친구를 몰래 도와주세요!',
+              title: context.tr('login_screen.page3'),
               body: '',
               image: Image.asset(
                 'assets/images/manito_dog_sunglass.png',
@@ -51,7 +52,7 @@ class LoginScreen extends StatelessWidget {
             ),
             // 화면 4
             PageViewModel(
-              title: '친구를 어떻게\n도와주었는지 남겨보세요!',
+              title: context.tr('login_screen.page4'),
               body: '',
               image: Image.asset(
                 'assets/images/manito_dog_selfie.png',
@@ -62,9 +63,9 @@ class LoginScreen extends StatelessWidget {
             ),
             // 화면 5
             PageViewModel(
-              title: '일상에서 친구들과\n마니또를 즐겨보세요!',
+              title: context.tr('login_screen.page5'),
               bodyWidget: AuthButton(
-                imagePath: 'assets/images/kakao_login_large_wide.png',
+                imagePath: context.tr('login_screen.kakao_btn'),
                 onTap: () async {
                   await CookieManager.instance().deleteAllCookies();
                   Get.to(() => KakaoLoginWebview());

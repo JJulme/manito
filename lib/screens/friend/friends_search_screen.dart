@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -14,33 +15,54 @@ class FriendsSearchScreen extends StatefulWidget {
 
 class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
   final FriendSearchController _controller = Get.put(FriendSearchController());
-
   final FriendsController _friendsController = Get.find<FriendsController>();
-
-  /// 이메일 입력 폼키
+  // 이메일 입력 폼키
   final _formKey = GlobalKey<FormState>();
+  // Constants for responsive design
+  static const double _horizontalPadding = 0.05;
+  static const double _containerPadding = 0.04;
+  static const double _iconSizeRatio = 0.06;
+  static const double _borderRadiusRatio = 0.02;
+  static const double _profileImageRatio = 0.3;
+  static const double _spacingRatio = 0.03;
 
-  /// 이메일 검증
+  // 이메일 검증
   String? _emailVaildator(String? email) {
-    return (GetUtils.isEmail(email ?? '') ? null : '이메일을 입력해주세요.');
+    return (GetUtils.isEmail(email ?? '')
+        ? null
+        : context.tr('friends_search_screen.vaildator'));
   }
 
-  /// 입력된 값 한번에 지워주기
+  // 입력된 값 한번에 지워주기
   void _clearText() {
     _controller.emailController.clear();
   }
 
-  /// 검색버튼 동작 함수
+  // 검색버튼 동작 함수
   Future<void> _searchEmail() async {
     if (_formKey.currentState!.validate()) {
       await _controller.searchEmail();
     }
   }
 
-  /// 친구 신청
+  // 내 이메일 복사 완료 스넥바
+  void _copyEmailToClipboard(String email) {
+    Clipboard.setData(ClipboardData(text: email));
+    customSnackbar(
+      title: context.tr("friends_search_screen.snack_title"),
+      message: context.tr("friends_search_screen.copy_message"),
+    );
+  }
+
+  // 친구 신청
   Future<void> _friendRequest() async {
     final result = await _controller.sendFriendRequest();
-    customSnackbar(title: '알림', message: result);
+    // 마운틴된 상태 확인
+    if (!mounted) return;
+    customSnackbar(
+      title: context.tr("friends_search_screen.snack_title"),
+      message: context.tr("friends_search_screen.$result"),
+    );
   }
 
   @override
@@ -49,132 +71,140 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        appBar: AppBar(
-          centerTitle: false,
-          titleSpacing: 0.02 * width,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios_new_rounded),
-            onPressed: () => Get.back(),
-          ),
-          title: Text('친구 찾기', style: Get.textTheme.headlineMedium),
-        ),
+        appBar: _buildAppBar(width),
         body: SafeArea(
           child: Column(
             children: [
-              // 이메일 검색 텍스트 폼 필드
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 0.05 * width),
-                child: Form(
-                  key: _formKey,
-                  child: TextFormField(
-                    controller: _controller.emailController,
-                    validator: _emailVaildator,
-                    keyboardType: TextInputType.emailAddress,
-                    textInputAction: TextInputAction.search,
-                    decoration: InputDecoration(
-                      labelStyle: Get.textTheme.bodyLarge,
-                      hintText: '친구의 이메일을 입력하세요.',
-                      hintStyle: Get.textTheme.bodySmall,
-                      prefixIcon: Icon(
-                        Icons.search_rounded,
-                        size: 0.06 * width,
-                      ),
-                      suffixIcon: IconButton(
-                        padding: EdgeInsets.all(0),
-                        icon: Icon(Icons.cancel_rounded, size: 0.06 * width),
-                        onPressed: _clearText,
-                      ),
-                    ),
-                    onFieldSubmitted: (_) => _searchEmail(),
-                  ),
-                ),
-              ),
-              SizedBox(height: 0.03 * width),
-              // 내 이메일, 검색
-              Obx(() {
-                final profile = _controller.searchProfile.value;
-                // 검색 전 화면
-                if (profile == null) {
-                  return Column(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      // 내 이메일
-                      Container(
-                        padding: EdgeInsets.all(0.04 * width),
-                        margin: EdgeInsets.symmetric(horizontal: 0.05 * width),
-                        decoration: BoxDecoration(
-                          color: Colors.black12,
-                          borderRadius: BorderRadius.circular(0.02 * width),
-                        ),
-                        // 내 이메일
-                        child: GestureDetector(
-                          onTap:
-                              () => Clipboard.setData(
-                                ClipboardData(
-                                  text:
-                                      _friendsController
-                                          .userProfile
-                                          .value!
-                                          .email,
-                                ),
-                              ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('내 이메일', style: Get.textTheme.bodySmall),
-                              Text(
-                                _friendsController.userProfile.value!.email,
-                                style: Get.textTheme.bodySmall,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                }
-                // 검색 후 화면
-                else {
-                  return Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 0.05 * width),
-                    child: Container(
-                      // height: 0.35 * di,
-                      width: double.infinity,
-                      alignment: Alignment.center,
-                      padding: EdgeInsets.all(0.06 * width),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(0.02 * width),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          profileImageOrDefault(
-                            profile.profileImageUrl!,
-                            0.3 * width,
-                          ),
-                          SizedBox(height: 0.03 * width),
-                          Text(
-                            profile.nickname,
-                            style: Get.textTheme.bodyMedium,
-                          ),
-                          SizedBox(height: 0.02 * width),
-                          ElevatedButton(
-                            child: Text(
-                              '친구 신청',
-                              style: Get.textTheme.bodySmall,
-                            ),
-                            onPressed: () => _friendRequest(),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-              }),
+              _buildSearchForm(width),
+              SizedBox(height: width * _spacingRatio),
+              _buildSearchResult(width),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  // 앱바
+  PreferredSizeWidget _buildAppBar(double width) {
+    return AppBar(
+      centerTitle: false,
+      titleSpacing: width * 0.02,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_ios_new_rounded),
+        onPressed: () => Get.back(),
+      ),
+      title:
+          Text(
+            'friends_search_screen.title',
+            style: Get.textTheme.headlineMedium,
+          ).tr(),
+    );
+  }
+
+  // 검색창
+  Widget _buildSearchForm(double width) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: _horizontalPadding * width),
+      child: Form(
+        key: _formKey,
+        child: TextFormField(
+          controller: _controller.emailController,
+          validator: _emailVaildator,
+          keyboardType: TextInputType.emailAddress,
+          textInputAction: TextInputAction.search,
+          onFieldSubmitted: (_) => _searchEmail(),
+          decoration: InputDecoration(
+            labelStyle: Get.textTheme.bodyLarge,
+            hintText: context.tr("friends_search_screen.hint"),
+            hintStyle: Get.textTheme.bodySmall,
+            prefixIcon: Icon(
+              Icons.search_rounded,
+              size: _iconSizeRatio * width,
+            ),
+            suffixIcon: IconButton(
+              padding: EdgeInsets.zero,
+              icon: Icon(Icons.cancel_rounded, size: _iconSizeRatio * width),
+              onPressed: _clearText,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // 검색결과
+  Widget _buildSearchResult(double width) {
+    return Obx(() {
+      final profile = _controller.searchProfile.value;
+
+      return profile == null
+          ? _buildMyEmailSection(width)
+          : _buildProfileSection(profile, width);
+    });
+  }
+
+  // 내 이메일
+  Widget _buildMyEmailSection(double width) {
+    final userEmail = _friendsController.userProfile.value?.email ?? '';
+    return Column(
+      children: [
+        Container(
+          padding: EdgeInsets.all(_containerPadding * width),
+          margin: EdgeInsets.symmetric(horizontal: _horizontalPadding * width),
+          decoration: BoxDecoration(
+            color: Colors.black12,
+            borderRadius: BorderRadius.circular(_borderRadiusRatio * width),
+          ),
+          child: GestureDetector(
+            onTap: () => _copyEmailToClipboard(userEmail),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'friends_search_screen.my_email',
+                  style: Get.textTheme.bodySmall,
+                ).tr(),
+                Text(userEmail, style: Get.textTheme.bodySmall),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 검색된 결과
+  Widget _buildProfileSection(dynamic profile, double width) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: _horizontalPadding * width),
+      child: Container(
+        width: double.infinity,
+        alignment: Alignment.center,
+        padding: EdgeInsets.all(_containerPadding * 1.5 * width),
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(_borderRadiusRatio * width),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            profileImageOrDefault(
+              profile.profileImageUrl ?? '',
+              _profileImageRatio * width,
+            ),
+            SizedBox(height: _spacingRatio * width),
+            Text(profile.nickname ?? '', style: Get.textTheme.bodyMedium),
+            SizedBox(height: _borderRadiusRatio * width),
+            ElevatedButton(
+              onPressed: _friendRequest,
+              child:
+                  Text(
+                    "friends_search_screen.request_btn",
+                    style: Get.textTheme.bodySmall,
+                  ).tr(),
+            ),
+          ],
         ),
       ),
     );

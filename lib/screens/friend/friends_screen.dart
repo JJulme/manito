@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
@@ -59,7 +60,8 @@ class FriendsScreen extends StatelessWidget {
     return AppBar(
       centerTitle: false,
       titleSpacing: width * 0.07,
-      title: Text('친구', style: Get.textTheme.headlineLarge),
+      title:
+          Text('friends_screen.title', style: Get.textTheme.headlineLarge).tr(),
       actions: [
         PopupMenuButton<Widget>(
           icon: customBadgeIcon(
@@ -74,13 +76,13 @@ class FriendsScreen extends StatelessWidget {
                 _buildPopupMenuItem(
                   value: FriendsSearchScreen(),
                   icon: Icons.person_add_alt_1_rounded,
-                  text: '친구 찾기',
+                  text: context.tr('friends_screen.search'),
                   width: width,
                 ),
                 _buildPopupMenuItem(
                   value: FriendsRequestScreen(),
                   icon: Icons.supervisor_account_rounded,
-                  text: '친구 요청',
+                  text: context.tr('friends_screen.request'),
                   width: width,
                   onTap:
                       () => _badgeController.resetBadgeCount('friend_request'),
@@ -89,7 +91,7 @@ class FriendsScreen extends StatelessWidget {
                 _buildPopupMenuItem(
                   value: FriendsBlacklistScreen(),
                   icon: Icons.no_accounts_rounded,
-                  text: '차단 목록',
+                  text: context.tr('friends_screen.block'),
                   width: width,
                 ),
               ],
@@ -222,7 +224,11 @@ class FriendsScreen extends StatelessWidget {
     return Obx(() {
       if (_controller.friendList.isEmpty) {
         return Center(
-          child: Text('친구를 추가해 보세요', style: Get.textTheme.bodyMedium),
+          child:
+              Text(
+                'friends_screen.empty_friends',
+                style: Get.textTheme.bodyMedium,
+              ).tr(),
         );
       }
 

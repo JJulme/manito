@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
@@ -20,6 +21,8 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   // Admob 설정
   MobileAds.instance.initialize();
+  // 다국어 패키지 초기화
+  await EasyLocalization.ensureInitialized();
   // .env 변수 가져오기
   await dotenv.load(fileName: '.env');
   // supabase 연결
@@ -29,7 +32,13 @@ void main() async {
   );
   // 한국어 설정
   timeago.setLocaleMessages('ko', timeago.KoMessages());
-  runApp(const Manito());
+  runApp(
+    EasyLocalization(
+      supportedLocales: const [Locale('ko', 'KR')],
+      path: 'assets/translations',
+      child: const Manito(),
+    ),
+  );
 }
 
 class Manito extends StatefulWidget {
@@ -213,6 +222,11 @@ class _ManitoState extends State<Manito> {
 
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
+      // 다국어 설정
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
+      // 테마 설정
       theme: themeData,
       home: SplashScreen(),
     );

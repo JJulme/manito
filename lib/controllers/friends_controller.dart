@@ -255,10 +255,10 @@ class FriendRequestController extends GetxController {
         params: {'req_sender_id': senderId, 'req_receiver_id': userId},
       );
       fetchFriendRequest();
-      return '친구 신청을 수락 했습니다.';
+      return 'request_accept';
     } catch (e) {
       debugPrint('acceptFriendRequest Error: $e');
-      return '친구 신청 수락에 실패 했습니다.';
+      return 'request_accept_error';
     }
   }
 
@@ -272,10 +272,10 @@ class FriendRequestController extends GetxController {
         params: {'req_sender_id': senderId, 'req_receiver_id': userId},
       );
       fetchFriendRequest();
-      return '친구 신청을 거절 했습니다.';
+      return 'request_reject';
     } catch (e) {
       debugPrint('acceptFriendRequest Error: $e');
-      return '친구 신청 거절에 실패 했습니다.';
+      return 'request_reject_error';
     }
   }
 }
@@ -321,10 +321,10 @@ class BlacklistController extends GetxController {
         'user_id': userId,
         'black_user_id': blackUserId,
       });
-      return '차단을 해제 했습니다.';
+      return 'unblack_success';
     } catch (e) {
       debugPrint('unblackUser Error: $e');
-      return '차단 해제에 실패 했습니다.';
+      return 'unblack_error';
     }
   }
 }

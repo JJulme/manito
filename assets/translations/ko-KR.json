@@ -1,0 +1,66 @@
+{
+  "login_screen": {
+    "page1": "미션을 만들고\n나만의 마니또를 만들어 보세요!",
+    "page2": "나를 도와준 마니또가\n누구인지 추측해 보세요!",
+    "page3": "마니또가 되어서\n친구를 몰래 도와주세요!",
+    "page4": "친구를 어떻게\n도와주었는지 남겨보세요!",
+    "page5": "일상에서 친구들과\n마니또를 즐겨보세요!",
+    "kakao_btn": "assets/images/kakao_login_large_wide_ko.png"
+  },
+  "bottom_nav": {
+    "tutorial1": "친구를 관리 할 수 있는 화면 입니다",
+    "tutorial2": "완료된 미션 기록을 확인할 수 있습니다",
+    "tutorial3": "친구들에게 미션을 만들어서 보냅니다\n친구중에 한명이 당신의 마니또가 됩니다",
+    "tutorial4": "친구들이 당신에게 보낸 미션을 확인하고 수행할 수 있습니다",
+    "friends": "친구",
+    "history": "기록",
+    "sent_missions": "보낸미션",
+    "received_missions": "받은미션"
+  },
+  "friends_screen": {
+    "title": "친구",
+    "search": "친구 찾기",
+    "request": "친구 요청",
+    "block": "차단 목록",
+    "empty_friends": "친구를 추가해 보세요"
+  },
+  "setting_screen": {
+    "title": "설정",
+    "friends_refresh": "친구목록 새로고침",
+    "logout": "로그아웃",
+    "contact": "문의하기",
+    "delete_account": "계정 삭제"
+  },
+  "friends_search_screen": {
+    "title": "친구 찾기",
+    "hint": "친구의 이메일을 입력하세요.",
+    "vaildator": "이메일을 입력해주세요.",
+    "my_email": "내 이메일",
+    "request_btn": "친구 신청",
+    "snack_title": "알림",
+    "copy_message": "복사되었습니다.",
+    "request_self": "본인에게 친구 신청을 할 수 없습니다.",
+    "already_friends": "이미 친구인 상태입니다.",
+    "request_already_sent": "이미 친구 신청을 보냈습니다.",
+    "request_sent": "친구 신청을 보냈습니다."
+  },
+  "friends_request_screen": {
+    "title": "친구 요청 목록",
+    "empty_request": "친구 요청이 없습니다.",
+    "snack_title": "알림",
+    "request_accept": "친구 신청을 수락했습니다.",
+    "request_accept_error": "친구 신청 수락에 실패했습니다.",
+    "request_reject": "친구 신청을 거절했습니다.",
+    "request_reject_error": "친구 신청 거절에 실패했습니다."
+  },
+  "friends_blacklist_screen": {
+    "title": "차단 목록",
+    "empty_blacklist": "차단된 사용자가 없습니다.",
+    "snack_title": "알림",
+    "unblack_success": "차단을 해제 했습니다.",
+    "unblack_error": "차단 해제에 실패했습니다.",
+    "unblack_btn": "차단 해제",
+    "dialog_title": "차단 해제",
+    "dialog_message": "차단을 해제하면 당신을 검색할 수 있습니다."
+  }
+}
