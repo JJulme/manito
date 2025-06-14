@@ -389,13 +389,13 @@ class ModifyController extends GetxController {
           .update(updateData)
           .eq('id', _supabase.auth.currentUser!.id);
       Get.back(result: true);
-      return '프로필 수정 성공';
+      return 'modify_success';
     } on StorageException catch (e) {
       debugPrint('updateProfile StorageException Error: $e');
-      return '저장 오류: $e';
+      return 'modify_storage_exception';
     } catch (e) {
       debugPrint('updateProfile Error: $e');
-      return '알 수 없는 오류: $e';
+      return 'modify_error';
     } finally {
       isLoading.value = false;
     }
@@ -470,7 +470,7 @@ class ModifyController extends GetxController {
 }
 
 /// 친구 상세화면 컨트롤러
-class FriendsDetailCrontroller extends GetxController {
+class FriendsDetailController extends GetxController {
   final _supabase = Supabase.instance.client;
   var isLoading = false.obs;
   var manitoPostCount = 0.obs;
@@ -597,7 +597,7 @@ class FriendsModifyController extends GetxController {
           .eq('user_id', _supabase.auth.currentUser!.id);
 
       Get.back(result: true);
-      return '이름 수정 성공';
+      return 'modify_success';
     } catch (e) {
       debugPrint('updateFriendName Error: $e');
       return '저장 오류: $e';

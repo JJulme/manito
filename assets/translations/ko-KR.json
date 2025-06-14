@@ -34,7 +34,7 @@
   "friends_search_screen": {
     "title": "친구 찾기",
     "hint": "친구의 이메일을 입력하세요.",
-    "vaildator": "이메일을 입력해주세요.",
+    "validator": "이메일을 입력해주세요.",
     "my_email": "내 이메일",
     "request_btn": "친구 신청",
     "snack_title": "알림",
@@ -62,5 +62,30 @@
     "unblack_btn": "차단 해제",
     "dialog_title": "차단 해제",
     "dialog_message": "차단을 해제하면 당신을 검색할 수 있습니다."
+  },
+  "modify_screen": {
+    "title": "프로필 수정",
+    "name": "이름",
+    "status_message": "소개",
+    "validator": "이름을 입력해주세요.",
+    "snack_title": "알림",
+    "modify_storage_exception": "프로필 정보 저장 오류",
+    "modify_error": "알 수 없는 오류로 프로필 수정에 실패 했습니다."
+  },
+  "friends_detail_screen": {
+    "modify_name": "이름 수정",
+    "block": "친구 차단",
+    "dialog_title": "친구 차단",
+    "dialog_message": "친구를 차단하시겠습니까?",
+    "sent_missions": "보낸 미션",
+    "received_missions": "받은 미션",
+    "history": "님과 마니또",
+    "empty_history": "친구와의 마니또 기록이 없습니다."
+  },
+  "friends_modify_screen": {
+    "title": "친구 이름 수정",
+    "name": "이름",
+    "friend_set_name": "친구가 설정한 이름",
+    "validator": "이름을 입력해주세요."
   }
 }

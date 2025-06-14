@@ -27,10 +27,10 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
   static const double _spacingRatio = 0.03;
 
   // 이메일 검증
-  String? _emailVaildator(String? email) {
+  String? _emailValidator(String? email) {
     return (GetUtils.isEmail(email ?? '')
         ? null
-        : context.tr('friends_search_screen.vaildator'));
+        : context.tr('friends_search_screen.validator'));
   }
 
   // 입력된 값 한번에 지워주기
@@ -110,7 +110,7 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
         key: _formKey,
         child: TextFormField(
           controller: _controller.emailController,
-          validator: _emailVaildator,
+          validator: _emailValidator,
           keyboardType: TextInputType.emailAddress,
           textInputAction: TextInputAction.search,
           onFieldSubmitted: (_) => _searchEmail(),
