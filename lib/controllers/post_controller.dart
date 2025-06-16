@@ -19,31 +19,6 @@ class PostController extends GetxController {
     isLoading.value = false;
   }
 
-  // /// 추측이 완료 안된 게시물 가져오기 - 수정 필요
-  // Future<void> fetchIncompletePost() async {
-  //   inCompletePostList.clear();
-  //   try {
-  //     // final List<dynamic> data = await _supabase.rpc(
-  //     //   'fetch_incomplete_missions',
-  //     //   params: {'user_id': _supabase.auth.currentUser!.id},
-  //     // );
-  //     final List<dynamic> data = await _supabase
-  //         .from('missions')
-  //         .select('id, creator_id')
-  //         .eq('manito_id', _supabase.auth.currentUser!.id)
-  //         .isFilter('guess', null)
-  //         .order('created_at', ascending: false);
-  //     print(data);
-  //     if (data.isNotEmpty) {
-  //       for (var mission in data) {
-  //         inCompletePostList.add(mission['creator_id']);
-  //       }
-  //     }
-  //   } catch (e) {
-  //     debugPrint('fetchIncompletePost Error: $e');
-  //   }
-  // }
-
   /// 포스트들을 가져오는 함수
   Future<void> fetchPosts() async {
     // isLoading.value = true;

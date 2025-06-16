@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manito/constants.dart';
@@ -15,251 +16,395 @@ class MissionCreateScreen extends StatefulWidget {
 
 class _MissionCreateScreenState extends State<MissionCreateScreen> {
   // 컨트롤러 사용
-  final MissionCreateController _controller = Get.put(
-    MissionCreateController(),
-  );
-  final FriendsController _friendsController = Get.find<FriendsController>();
+  late final MissionCreateController _controller;
+  late final FriendsController _friendsController;
   // 토글버튼
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = Get.put(MissionCreateController());
+    _friendsController = Get.find<FriendsController>();
+  }
 
   /// 미션 생성 다이얼로그
   void _showMissionCreationDialog() {
     if (_controller.selectedFriends.length < 2) {
-      customSnackbar(title: '알림', message: '최소 2명 이상의 친구를 선택해 주세요.');
+      customSnackbar(
+        title: context.tr("mission_create_screen.snack_title"),
+        message: context.tr("mission_create_screen.snack_message"),
+      );
     } else {
       kDefaultDialog(
-        '미션 생성',
-        '미션을 생성하고 취소/수정 할 수 없습니다.',
+        context.tr("mission_create_screen.dialog_title"),
+        context.tr("mission_create_screen.dialog_message"),
         onYesPressed: () async {
           String result = await _controller.createMission(_selectedIndex);
-          customSnackbar(title: '알림', message: result);
+          if (result == "create_mission_error") {
+            if (!mounted) return;
+            customSnackbar(
+              title: context.tr("mission_create_screen.error_snack_title"),
+              message: context.tr("mission_create_screen.error_snack_message"),
+            );
+          }
         },
       );
     }
   }
 
+  // 본체
   @override
   Widget build(BuildContext context) {
     double width = Get.width;
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: false,
-        titleSpacing: 0.02 * width,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => Get.back(),
-        ),
-        title: Text('미션 만들기', style: Get.textTheme.headlineMedium),
-        actions: [
-          Padding(
-            padding: EdgeInsets.only(right: 0.02 * width),
-            child: TextButton(
-              child: Text('확인', style: Get.textTheme.bodyMedium),
-              onPressed: () => _showMissionCreationDialog(),
-            ),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 기간 텍스트
-              _buildPeriodSection(width),
-              Divider(),
-              // 친구 선택/목록
-              _buildFriendsSection(width),
-            ],
-          ),
-        ),
-      ),
-    );
+    return Scaffold(appBar: _buildAppBar(width), body: _buildBody(width));
   }
 
-  // 기간 선택 섹션
-  Widget _buildPeriodSection(double width) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 기간 텍스트
+  // 앱바
+  AppBar _buildAppBar(double screenWidth) {
+    return AppBar(
+      centerTitle: false,
+      titleSpacing: screenWidth * 0.02,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_ios_new_rounded),
+        onPressed: Get.back,
+      ),
+      title:
+          Text(
+            "mission_create_screen.title",
+            style: Get.textTheme.headlineMedium,
+          ).tr(),
+      actions: [
         Padding(
-          padding: EdgeInsets.all(0.05 * width),
-          child: Text('기간', style: Get.textTheme.titleLarge),
-        ),
-        // 기간 선택 토글 버튼
-        Container(
-          width: double.infinity,
-          alignment: Alignment.center,
-          child: ToggleButtons(
-            fillColor: Colors.yellowAccent[300],
-            selectedColor: Colors.yellowAccent[900],
-            selectedBorderColor: Colors.yellowAccent[900],
-            borderRadius: BorderRadius.circular(0.01 * width),
-            constraints: BoxConstraints(
-              minHeight: 0.25 * width,
-              minWidth: (Get.width - 0.1 * width) / 2,
-            ),
-            isSelected: List.generate(2, (index) => index == _selectedIndex),
-            onPressed: (index) {
-              setState(() {
-                _selectedIndex = index;
-              });
-            },
-            children: [
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [Text('1 Day'), Text('하루')],
-              ),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [Text('1 Week'), Text('한주')],
-              ),
-            ],
+          padding: EdgeInsets.only(right: screenWidth * 0.02),
+          child: TextButton(
+            onPressed: _showMissionCreationDialog,
+            child:
+                Text(
+                  "mission_create_screen.done",
+                  style: Get.textTheme.bodyMedium,
+                ).tr(),
           ),
         ),
       ],
     );
   }
 
-  // 친구 선택 섹션
-  Widget _buildFriendsSection(double width) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 친구 텍스트
-        Padding(
-          padding: EdgeInsets.fromLTRB(
-            0.05 * width,
-            0,
-            0.05 * width,
-            0.05 * width,
-          ),
-          child: Text('친구', style: Get.textTheme.titleLarge),
-        ),
-        // 친구 선택/목록
-        Column(
-          mainAxisSize: MainAxisSize.min,
+  // 바디
+  Widget _buildBody(double screenWidth) {
+    return SafeArea(
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSelectedFriendsList(width),
-            _buildAllFriendsList(width),
+            _buildPeriodSection(screenWidth),
+            Divider(),
+            _buildFriendsSection(screenWidth),
           ],
         ),
+      ),
+    );
+  }
+
+  // 기간 선택
+  Widget _buildPeriodSection(double screenWidth) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionTitle(
+          title: context.tr("mission_create_screen.period_section_title"),
+          width: screenWidth,
+        ),
+        _PeriodToggleButtons(
+          selectedIndex: _selectedIndex,
+          onPeriodChanged: (index) => setState(() => _selectedIndex = index),
+          screenWidth: screenWidth,
+        ),
       ],
     );
   }
 
-  // 선택된 친구 목록
-  Widget _buildSelectedFriendsList(double width) {
+  // 친구 선택
+  Widget _buildFriendsSection(double screenWidth) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionTitle(
+          title: context.tr("mission_create_screen.friends_section_title"),
+          width: screenWidth,
+        ),
+        _SelectedFriendsList(controller: _controller, screenWidth: screenWidth),
+        _AllFriendsList(
+          controller: _controller,
+          friendsController: _friendsController,
+          screenWidth: screenWidth,
+        ),
+      ],
+    );
+  }
+}
+
+// 타이틀 위젯
+class _SectionTitle extends StatelessWidget {
+  final String title;
+  final double width;
+  const _SectionTitle({required this.title, required this.width});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(width * 0.05),
+      child: Text(title, style: Get.textTheme.titleLarge),
+    );
+  }
+}
+
+// 토글 버튼
+class _PeriodToggleButtons extends StatelessWidget {
+  final int selectedIndex;
+  final ValueChanged<int> onPeriodChanged;
+  final double screenWidth;
+
+  const _PeriodToggleButtons({
+    required this.selectedIndex,
+    required this.onPeriodChanged,
+    required this.screenWidth,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      height: 0.25 * width,
+      width: double.infinity,
+      alignment: Alignment.center,
+      child: ToggleButtons(
+        fillColor: Colors.yellowAccent[300],
+        selectedColor: Colors.yellowAccent[900],
+        selectedBorderColor: Colors.yellowAccent[900],
+        borderRadius: BorderRadius.circular(screenWidth * 0.01),
+        constraints: BoxConstraints(
+          minHeight: screenWidth * 0.25,
+          minWidth: (screenWidth - screenWidth * 0.1) / 2,
+        ),
+        isSelected: [selectedIndex == 0, selectedIndex == 1],
+        onPressed: onPeriodChanged,
+        children: [
+          Text(
+            "mission_create_screen.toggle_btn_day",
+            textAlign: TextAlign.center,
+          ).tr(),
+          Text(
+            "mission_create_screen.toggle_btn_week",
+            textAlign: TextAlign.center,
+          ).tr(),
+        ],
+      ),
+    );
+  }
+}
+
+// 선택한 친구 리스트
+class _SelectedFriendsList extends StatelessWidget {
+  final MissionCreateController controller;
+  final double screenWidth;
+
+  const _SelectedFriendsList({
+    required this.controller,
+    required this.screenWidth,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: screenWidth * 0.25,
       alignment: Alignment.centerLeft,
       child: Obx(() {
-        if (_controller.selectedFriends.isEmpty) {
-          return Center(child: Text('친구를 선택해 주세요'));
+        if (controller.selectedFriends.isEmpty) {
+          return Center(
+            child: Text("mission_create_screen.empty_select_friends").tr(),
+          );
         }
 
         return ListView.separated(
           scrollDirection: Axis.horizontal,
-          separatorBuilder: (_, __) => SizedBox(width: 0),
-          itemCount: _controller.selectedFriends.length,
+          separatorBuilder: (_, __) => const SizedBox.shrink(),
+          itemCount: controller.selectedFriends.length,
           itemBuilder: (context, index) {
-            final friendProfile = _controller.selectedFriends[index];
-            return GestureDetector(
-              onTap: () => _controller.toggleSelection(friendProfile),
-              child: Column(
-                children: [
-                  Stack(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 0.03 * width),
-                        child: profileImageOrDefault(
-                          friendProfile.profileImageUrl!,
-                          0.16 * width,
-                        ),
-                      ),
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: Icon(Icons.remove_circle_rounded, color: kGrey),
-                      ),
-                    ],
-                  ),
-                  Text(friendProfile.nickname),
-                ],
-              ),
+            final friend = controller.selectedFriends[index];
+            return _SelectedFriendItem(
+              friend: friend,
+              onTap: () => controller.toggleSelection(friend),
+              screenWidth: screenWidth,
             );
           },
         );
       }),
     );
   }
+}
 
-  // 전체 친구 목록
-  Widget _buildAllFriendsList(double width) {
+// 선택한 친구 아이템
+class _SelectedFriendItem extends StatelessWidget {
+  final dynamic friend; // Replace with proper type
+  final VoidCallback onTap;
+  final double screenWidth;
+
+  const _SelectedFriendItem({
+    required this.friend,
+    required this.onTap,
+    required this.screenWidth,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Stack(
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.03),
+                child: profileImageOrDefault(
+                  friend.profileImageUrl!,
+                  screenWidth * 0.16,
+                ),
+              ),
+              const Positioned(
+                top: 0,
+                right: 0,
+                child: Icon(Icons.remove_circle_rounded, color: kGrey),
+              ),
+            ],
+          ),
+          Text(friend.nickname),
+        ],
+      ),
+    );
+  }
+}
+
+// 전체 친구 리스트
+class _AllFriendsList extends StatelessWidget {
+  final MissionCreateController controller;
+  final FriendsController friendsController;
+  final double screenWidth;
+
+  const _AllFriendsList({
+    required this.controller,
+    required this.friendsController,
+    required this.screenWidth,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return ListView.builder(
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      itemCount: _friendsController.friendList.length,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: friendsController.friendList.length,
       itemBuilder: (context, index) {
-        final friendProfile = _friendsController.friendList[index];
-
-        return Obx(() {
-          return ListTile(
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: 0.05 * width,
-              vertical: 0.01 * width,
-            ),
-            title: Row(
-              children: [
-                profileImageOrDefault(
-                  friendProfile.profileImageUrl,
-                  0.16 * width,
-                ),
-                SizedBox(width: 0.02 * width),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        friendProfile.nickname,
-                        style: Get.textTheme.bodyMedium,
-                      ),
-                      Text(
-                        friendProfile.statusMessage!,
-                        style: Get.textTheme.labelMedium,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            visualDensity: const VisualDensity(vertical: 4),
-            trailing: Transform.scale(
-              scale: 0.0028 * width,
-              child: Checkbox(
-                checkColor: Colors.black,
-                fillColor: WidgetStateProperty.resolveWith<Color>((
-                  Set<WidgetState> states,
-                ) {
-                  if (states.contains(WidgetState.selected)) {
-                    return Colors.yellowAccent[700]!;
-                  }
-                  return Colors.white;
-                }),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                value: _controller.isSelected(friendProfile),
-                onChanged: (_) => _controller.toggleSelection(friendProfile),
-              ),
-            ),
-            onTap: () => _controller.toggleSelection(friendProfile),
-          );
-        });
+        final friend = friendsController.friendList[index];
+        return _FriendListItem(
+          friend: friend,
+          controller: controller,
+          screenWidth: screenWidth,
+        );
       },
+    );
+  }
+}
+
+// 친구 리스트 아이템
+class _FriendListItem extends StatelessWidget {
+  final dynamic friend; // Replace with proper type
+  final MissionCreateController controller;
+  final double screenWidth;
+
+  const _FriendListItem({
+    required this.friend,
+    required this.controller,
+    required this.screenWidth,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      return ListTile(
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: screenWidth * 0.05,
+          vertical: screenWidth * 0.01,
+        ),
+        title: _FriendInfo(friend: friend, screenWidth: screenWidth),
+        visualDensity: const VisualDensity(vertical: 4),
+        trailing: _FriendCheckbox(
+          isSelected: controller.isSelected(friend),
+          onChanged: (_) => controller.toggleSelection(friend),
+          screenWidth: screenWidth,
+        ),
+        onTap: () => controller.toggleSelection(friend),
+      );
+    });
+  }
+}
+
+// 친구 프로필 이미지, 이름, 상태메시지
+class _FriendInfo extends StatelessWidget {
+  final dynamic friend; // Replace with proper type
+  final double screenWidth;
+
+  const _FriendInfo({required this.friend, required this.screenWidth});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        profileImageOrDefault(friend.profileImageUrl, screenWidth * 0.16),
+        SizedBox(width: screenWidth * 0.02),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(friend.nickname, style: Get.textTheme.bodyMedium),
+              Text(
+                friend.statusMessage ?? '',
+                style: Get.textTheme.labelMedium,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// 체크박스
+class _FriendCheckbox extends StatelessWidget {
+  final bool isSelected;
+  final ValueChanged<bool?> onChanged;
+  final double screenWidth;
+
+  const _FriendCheckbox({
+    required this.isSelected,
+    required this.onChanged,
+    required this.screenWidth,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform.scale(
+      scale: screenWidth * 0.0028,
+      child: Checkbox(
+        checkColor: Colors.black,
+        fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+          if (states.contains(WidgetState.selected)) {
+            return Colors.yellowAccent[700]!;
+          }
+          return Colors.white;
+        }),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        value: isSelected,
+        onChanged: onChanged,
+      ),
     );
   }
 }

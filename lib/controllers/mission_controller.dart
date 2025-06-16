@@ -97,7 +97,7 @@ class MissionCreateController extends GetxController {
       return result;
     } catch (e) {
       debugPrint('createMission Error: $e');
-      return '오류: $e';
+      return 'create_mission_error';
     } finally {
       isLoading.value = false;
     }
@@ -131,10 +131,10 @@ class MissionGuessController extends GetxController {
         },
       );
       Get.back(result: true);
-      return '마니또가 누구인지 확인해보세요!';
+      return 'guess_update_success';
     } catch (e) {
       debugPrint('updateMissionGuess Error: $e');
-      return '실패';
+      return 'guess_updage_error';
     } finally {
       updateLoading.value = false;
     }

@@ -132,7 +132,7 @@ class FriendsController extends GetxController {
           orElse:
               () => FriendProfile(
                 id: '',
-                nickname: '(알수없음)',
+                nickname: 'unknown',
                 profileImageUrl: '',
               ),
         );
@@ -492,7 +492,7 @@ class FriendsDetailController extends GetxController {
     try {
       await _supabase.rpc(
         'block_friend',
-        params: {'user_id': userId, 'friend_id': friendId},
+        params: {'p_user_id': userId, 'p_friend_id': friendId},
       );
       Get.back();
     } catch (e) {

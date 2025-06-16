@@ -87,5 +87,47 @@
     "name": "이름",
     "friend_set_name": "친구가 설정한 이름",
     "validator": "이름을 입력해주세요."
+  },
+  "post_screen": {
+    "title": "기록",
+    "exchange_missions_with_friends": "친구들과 미션을 주고 받아보세요!"
+  },
+  "post_detail_screen": {
+    "no_comment": "댓글이 없습니다.",
+    "write_comment": "댓글 입력"
+  },
+  "mission_screen": {
+    "title": "보낸 미션",
+    "create_mission_btn": " 미션 만들기",
+    "completed_mission_received": "완료된 미션 도착!",
+    "pending_mission_tooltip": "남은 시간까지 수락한 친구가 없다면 자동으로 삭제됩니다.",
+    "accept_mission_tooltip": "마니또가 미션을 진행중 입니다."
+  },
+  "mission_create_screen": {
+    "title": "미션 만들기",
+    "done": "확인",
+    "period_section_title": "기간",
+    "toggle_btn_day": "1 Day\n하루",
+    "toggle_btn_week": "1 Week\n한주",
+    "friends_section_title": "친구",
+    "empty_select_friends": "친구를 선택해 주세요",
+    "snack_title": "친구 부족",
+    "snack_message": "최소 2명 이상의 친구를 선택해 주세요.",
+    "dialog_title": "미션 생성",
+    "dialog_message": "미션을 생성하고 취소/수정 할 수 없습니다.",
+    "error_snack_title": "미션 생성 실패",
+    "error_snack_message": "알수 없는 오류로 미션 생성에 실패 했습니다."
+  },
+  "mission_guess_screen": {
+    "title": "마니또 추리하기",
+    "period_of_time": "동안",
+    "until": "까지",
+    "hint_text": "나를 도와준 마니또가 누구일지 작성해주세요.",
+    "bottom_btn": "마니또 확인하기",
+    "text_short_snack_title": "알림",
+    "text_short_snack_message": "최소 5글자 이상 작성해주세요.",
+    "result_snack_title": "알림",
+    "guess_update_success": "마니또가 누구인지 확인해보세요!",
+    "guess_updage_error": "마니또를 확인하기에 오류가 발생했습니다."
   }
 }

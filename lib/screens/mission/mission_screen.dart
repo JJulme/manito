@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
@@ -21,12 +22,38 @@ class MissionScreen extends StatefulWidget {
 
 class _MissionScreenState extends State<MissionScreen>
     with WidgetsBindingObserver {
-  final MissionController _controller = Get.find<MissionController>();
-  final BadgeController _badgeController = Get.find<BadgeController>();
+  static const int _maxMissions = 3;
+
+  // Constants for responsive design
+  static const double _horizontalPadding = 0.03;
+  static const double _verticalPadding = 0.016;
+  static const double _containerSpacing = 0.03;
+  static const double _iconSize = 0.07;
+  static const double _refreshIconSize = 0.07;
+  static const double _borderRadius = 0.02;
+  static const double _titleSpacing = 0.07;
+  static const double _buttonHeight = 0.15;
+  static const double _friendsListHeight = 0.22;
+  static const double _pendingProfileSize = 0.15;
+  static const double _acceptProfileSize = 0.14;
+  static const double _itemSpacing = 0.02;
+  static const double _smallSpacing = 0.01;
+  static const double _timerFontSize = 0.054;
+
+  late final MissionController _controller;
+  late final BadgeController _badgeController;
+
+  int get _totalActiveMissions =>
+      _controller.pendingMyMissions.length +
+      _controller.acceptMyMissions.length;
+
+  bool get _canCreateMission => _totalActiveMissions < _maxMissions;
 
   @override
   void initState() {
     super.initState();
+    _controller = Get.find<MissionController>();
+    _badgeController = Get.find<BadgeController>();
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -44,7 +71,7 @@ class _MissionScreenState extends State<MissionScreen>
     }
   }
 
-  /// 미션 생성 화면 이동
+  // 미션 생성 화면 이동
   Future<void> _toMissionCreateScreen() async {
     // 미션 생성 개수 제한
     if (_controller.pendingMyMissions.length +
@@ -59,7 +86,7 @@ class _MissionScreenState extends State<MissionScreen>
     }
   }
 
-  /// 미션 추측 화면 이동
+  // 미션 추측 화면 이동
   Future<void> _toMissionGuessScreen(MyMission myMission) async {
     bool result = await Get.to(
       () => MissionGuessScreen(),
@@ -72,315 +99,334 @@ class _MissionScreenState extends State<MissionScreen>
     }
   }
 
+  // 본체
   @override
   Widget build(BuildContext context) {
     double width = Get.width;
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: false,
-        titleSpacing: 0.07 * width,
-        title: Text('보낸 미션', style: Get.textTheme.headlineLarge),
-        actions: [
-          Padding(
-            padding: EdgeInsets.only(right: 0.02 * width),
-            child: IconButton(
-              icon: Icon(Icons.refresh, size: 0.07 * width),
-              onPressed: () {
-                _controller.fetchMyMissions();
-              },
-            ),
-          ),
-        ],
-      ),
+      appBar: _buildAppBar(width),
       body: SafeArea(
         child: Obx(() {
           if (_controller.isLoading.value) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                // 생성 버튼 - 생성 미션의 개수가 3개 미만이면 생김
-                _buildCreateMissionButton(width),
-                // 광고
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 0.03 * width),
-                  child: BannerAdWidget(
-                    borderRadius: 0.02 * width,
-                    width: Get.width - 0.06 * width,
-                    androidAdId: dotenv.env['BANNER_MISSION_ANDROID']!,
-                    iosAdId: dotenv.env['BANNER_MISSION_IOS']!,
-                  ),
-                ),
-                SizedBox(height: 0.03 * width),
-                // 완료 미션 목록
-                _completeMyMissions(width),
-
-                // 대기중 미션 목록
-                _pendingMyMissions(width),
-
-                // 진행중 미션 목록
-                _acceptMyMissions(width),
-              ],
-            ),
-          );
+          return _buildMissionList(width);
         }),
       ),
     );
   }
 
-  /// 생성 버튼
-  Widget _buildCreateMissionButton(double width) {
-    final totalMissions =
-        _controller.pendingMyMissions.length +
-        _controller.acceptMyMissions.length;
-    return totalMissions < 3
-        ? Container(
-          width: width - 0.06 * width,
-          height: (width - 0.06 * width) * 0.15,
-          margin: EdgeInsets.only(
-            left: 0.03 * width,
-            right: 0.03 * width,
-            bottom: 0.03 * width,
+  // 앱바
+  AppBar _buildAppBar(double screenWidth) {
+    return AppBar(
+      centerTitle: false,
+      titleSpacing: screenWidth * _titleSpacing,
+      title:
+          Text("mission_screen.title", style: Get.textTheme.headlineLarge).tr(),
+      actions: [
+        Padding(
+          padding: EdgeInsets.only(right: screenWidth * _itemSpacing),
+          child: IconButton(
+            icon: Icon(Icons.refresh, size: screenWidth * _refreshIconSize),
+            onPressed: _controller.fetchMyMissions,
           ),
-          child: ElevatedButton(
-            onPressed: _toMissionCreateScreen,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [Icon(Icons.add, size: 0.07 * width), Text(' 미션 만들기')],
-            ),
-          ),
-        )
-        : const SizedBox.shrink();
+        ),
+      ],
+    );
   }
 
-  /// 완료된 내 미션
-  Obx _completeMyMissions(double width) {
+  // 바디
+  Widget _buildMissionList(double screenWidth) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          _buildCreateMissionButton(screenWidth),
+          _buildBannerAd(screenWidth),
+          SizedBox(height: screenWidth * _containerSpacing),
+          _buildCompleteMissions(screenWidth),
+          _buildPendingMissions(screenWidth),
+          _buildAcceptMissions(screenWidth),
+        ],
+      ),
+    );
+  }
+
+  // 미션 생성 버튼
+  Widget _buildCreateMissionButton(double screenWidth) {
+    if (!_canCreateMission) return const SizedBox.shrink();
+
+    final buttonWidth = screenWidth - (_horizontalPadding * 2) * screenWidth;
+    return Container(
+      width: buttonWidth,
+      height: buttonWidth * _buttonHeight,
+      margin: EdgeInsets.only(
+        left: screenWidth * _horizontalPadding,
+        right: screenWidth * _horizontalPadding,
+        bottom: screenWidth * _containerSpacing,
+      ),
+      child: ElevatedButton(
+        onPressed: _toMissionCreateScreen,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.add, size: screenWidth * _iconSize),
+            Text("mission_screen.create_mission_btn").tr(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 광고
+  Widget _buildBannerAd(double screenWidth) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: screenWidth * _horizontalPadding,
+      ),
+      child: BannerAdWidget(
+        borderRadius: screenWidth * _borderRadius,
+        width: screenWidth - (_horizontalPadding * 2) * screenWidth,
+        androidAdId: dotenv.env['BANNER_MISSION_ANDROID']!,
+        iosAdId: dotenv.env['BANNER_MISSION_IOS']!,
+      ),
+    );
+  }
+
+  // 완료된 미션 리스트
+  Widget _buildCompleteMissions(double width) {
     return Obx(() {
       if (_controller.completeMyMissions.isEmpty) {
-        return SizedBox.shrink();
-      } else {
-        return ListView.builder(
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          itemCount: _controller.completeMyMissions.length,
-          itemBuilder: (context, index) {
-            final myMission = _controller.completeMyMissions[index];
-            return GestureDetector(
-              child: Container(
-                height: (width - 0.06 * width) * 0.15,
-                padding: EdgeInsets.symmetric(
-                  vertical: 0.016 * width,
-                  horizontal: 0.03 * width,
-                ),
-                margin: EdgeInsets.only(
-                  left: 0.03 * width,
-                  right: 0.03 * width,
-                  bottom: 0.03 * width,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(0.02 * width),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.check_circle_sharp, color: Colors.green),
-                    SizedBox(width: 0.02 * width),
-                    Text('완료된 미션 도착!', style: Get.textTheme.titleMedium),
-                  ],
-                ),
-              ),
-              onTap: () async {
-                await _toMissionGuessScreen(myMission);
-              },
-            );
-          },
-        );
+        return const SizedBox.shrink();
       }
+
+      return _buildMissionListView(
+        missions: _controller.completeMyMissions,
+        width: width,
+        itemBuilder:
+            (mission, index) => _buildCompleteMissionItem(mission, width),
+      );
     });
   }
 
-  /// 수락 대기중 내 미션
-  Obx _pendingMyMissions(double width) {
-    return Obx(() {
-      if (_controller.pendingMyMissions.isEmpty) {
-        return SizedBox.shrink();
-      } else {
-        return ListView.builder(
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          itemCount: _controller.pendingMyMissions.length,
-          itemBuilder: (context, index) {
-            final myMission = _controller.pendingMyMissions[index];
-            return Container(
-              padding: EdgeInsets.symmetric(
-                vertical: 0.016 * width,
-                horizontal: 0.03 * width,
-              ),
-              margin: EdgeInsets.only(
-                left: 0.03 * width,
-                right: 0.03 * width,
-                bottom: 0.03 * width,
-              ),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(0.02 * width),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Icon(Icons.error_sharp, color: Colors.amber),
-                      SizedBox(width: 0.02 * width),
-
-                      Text(myMission.status, style: Get.textTheme.titleMedium),
-                      SizedBox(width: 0.01 * width),
-                      Text('(${myMission.deadlineType}) '),
-                      Tooltip(
-                        showDuration: Duration(days: 1),
-                        triggerMode: TooltipTriggerMode.tap,
-                        message: '남은 시간까지 수락한 친구가 없다면 자동으로 삭제됩니다.',
-                        child: Icon(Icons.help_outline_rounded, color: kGrey),
-                      ),
-                      Spacer(),
-                      TimerWidget(
-                        targetDateTime: myMission.acceptDeadline!,
-                        fontSize: 0.05 * width,
-                        onTimerComplete: () => _controller.fetchMyMissions(),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 0.02 * width),
-                  // 친구 목록
-                  SizedBox(
-                    height: 0.22 * width,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      separatorBuilder:
-                          (context, index) => SizedBox(width: 0.02 * width),
-                      itemCount: myMission.friendsProfile.length,
-                      itemBuilder: (context, index) {
-                        final friendProfile = myMission.friendsProfile[index];
-                        return SizedBox(
-                          width: 0.15 * width,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              profileImageOrDefault(
-                                friendProfile.profileImageUrl,
-                                0.15 * width,
-                              ),
-                              Text(
-                                friendProfile.nickname,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      }
-    });
-  }
-
-  /// 진행중 내 미션
-  Obx _acceptMyMissions(double width) {
+  // 수락된 미션 리스트
+  Widget _buildAcceptMissions(double width) {
     return Obx(() {
       if (_controller.acceptMyMissions.isEmpty) {
-        return SizedBox.shrink();
-      } else {
-        return ListView.builder(
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          itemCount: _controller.acceptMyMissions.length,
-          itemBuilder: (context, index) {
-            final acceptMission = _controller.acceptMyMissions[index];
-            return Container(
-              padding: EdgeInsets.symmetric(
-                vertical: 0.016 * width,
-                horizontal: 0.03 * width,
-              ),
-              margin: EdgeInsets.only(
-                left: 0.03 * width,
-                right: 0.03 * width,
-                bottom: 0.03 * width,
-              ),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(0.02 * width),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Icon(Icons.run_circle_sharp, color: Colors.deepOrange),
-                      SizedBox(width: 0.02 * width),
-                      Text(
-                        acceptMission.status,
-                        style: Get.textTheme.titleMedium,
-                      ),
-                      SizedBox(width: 0.01 * width),
-                      Text('(${acceptMission.deadlineType}) '),
-                      Tooltip(
-                        showDuration: Duration(days: 1),
-                        triggerMode: TooltipTriggerMode.tap,
-                        message: '마니또가 미션을 진행중 입니다.',
-                        child: Icon(Icons.help_outline_rounded, color: kGrey),
-                      ),
-                      Spacer(),
-                      TimerWidget(
-                        targetDateTime: acceptMission.deadline,
-                        fontSize: 0.054 * width,
-                        onTimerComplete: () => _controller.fetchMyMissions(),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 0.02 * width),
-                  // 친구 목록
-                  SizedBox(
-                    height: 0.22 * width,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      separatorBuilder:
-                          (context, index) => SizedBox(width: 0.02 * width),
-                      itemCount: acceptMission.friendsProfile.length,
-                      itemBuilder: (context, index) {
-                        final friendProfile =
-                            acceptMission.friendsProfile[index];
-                        return SizedBox(
-                          width: 0.14 * width,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              profileImageOrDefault(
-                                friendProfile.profileImageUrl!,
-                                0.14 * width,
-                              ),
-                              Text(
-                                friendProfile.nickname,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
+        return const SizedBox.shrink();
       }
+
+      return _buildMissionListView(
+        missions: _controller.acceptMyMissions,
+        width: width,
+        itemBuilder:
+            (mission, index) => _buildAcceptMissionItem(mission, width),
+      );
     });
+  }
+
+  // 대기중 미션 리스트
+  Widget _buildPendingMissions(double width) {
+    return Obx(() {
+      if (_controller.pendingMyMissions.isEmpty) {
+        return const SizedBox.shrink();
+      }
+
+      return _buildMissionListView(
+        missions: _controller.pendingMyMissions,
+        width: width,
+        itemBuilder:
+            (mission, index) => _buildPendingMissionItem(mission, width),
+      );
+    });
+  }
+
+  // 리스트로 만들어주는 함수
+  Widget _buildMissionListView<T>({
+    required List<T> missions,
+    required double width,
+    required Widget Function(T mission, int index) itemBuilder,
+  }) {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: missions.length,
+      itemBuilder: (context, index) => itemBuilder(missions[index], index),
+    );
+  }
+
+  // 완료된 미션 아이템
+  Widget _buildCompleteMissionItem(MyMission mission, double screenWidth) {
+    return GestureDetector(
+      onTap: () => _toMissionGuessScreen(mission),
+      child: _buildMissionContainer(
+        screenWidth: screenWidth,
+        child: Row(
+          children: [
+            const Icon(Icons.check_circle_sharp, color: Colors.green),
+            SizedBox(width: screenWidth * _itemSpacing),
+            Text(
+              "mission_screen.completed_mission_received",
+              style: Get.textTheme.titleMedium,
+            ).tr(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 대기중 미션 아이템
+  Widget _buildPendingMissionItem(MyMission mission, double screenWidth) {
+    return _buildMissionContainer(
+      screenWidth: screenWidth,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildMissionHeader(
+            icon: const Icon(Icons.error_sharp, color: Colors.amber),
+            status: mission.status,
+            deadlineType: mission.deadlineType,
+            targetDateTime: mission.acceptDeadline!,
+            tooltipMessage: context.tr(
+              "mission_screen.pending_mission_tooltip",
+            ),
+            screenWidth: screenWidth,
+          ),
+          SizedBox(height: screenWidth * _itemSpacing),
+          _buildFriendsList(
+            mission.friendsProfile,
+            screenWidth,
+            _pendingProfileSize,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 수락된 미션 아이템
+  Widget _buildAcceptMissionItem(MyMission mission, double screenWidth) {
+    return _buildMissionContainer(
+      screenWidth: screenWidth,
+      child: Column(
+        children: [
+          _buildMissionHeader(
+            icon: const Icon(Icons.run_circle_sharp, color: Colors.deepOrange),
+            status: mission.status,
+            deadlineType: mission.deadlineType,
+            targetDateTime: mission.deadline,
+            tooltipMessage: context.tr("mission_screen.accept_mission_tooltip"),
+            screenWidth: screenWidth,
+          ),
+          SizedBox(height: screenWidth * _itemSpacing),
+          _buildFriendsList(
+            mission.friendsProfile,
+            screenWidth,
+            _acceptProfileSize,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 미션 컨테이너
+  Widget _buildMissionContainer({
+    required double screenWidth,
+    required Widget child,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        vertical: screenWidth * _verticalPadding,
+        horizontal: screenWidth * _horizontalPadding,
+      ),
+      margin: EdgeInsets.only(
+        left: screenWidth * _horizontalPadding,
+        right: screenWidth * _horizontalPadding,
+        bottom: screenWidth * _containerSpacing,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(screenWidth * _borderRadius),
+      ),
+      child: child,
+    );
+  }
+
+  // 미션 헤더 Row
+  Widget _buildMissionHeader({
+    required Widget icon,
+    required String status,
+    required String deadlineType,
+    required DateTime targetDateTime,
+    required String tooltipMessage,
+    required double screenWidth,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        icon,
+        SizedBox(width: screenWidth * _itemSpacing),
+        Text(status, style: Get.textTheme.titleMedium),
+        SizedBox(width: screenWidth * _smallSpacing),
+        Text('($deadlineType) '),
+        _buildTooltip(tooltipMessage),
+        const Spacer(),
+        TimerWidget(
+          targetDateTime: targetDateTime,
+          fontSize: screenWidth * _timerFontSize,
+          onTimerComplete: _controller.fetchMyMissions,
+        ),
+      ],
+    );
+  }
+
+  // 툴팁
+  Widget _buildTooltip(String message) {
+    return Tooltip(
+      showDuration: const Duration(days: 1),
+      triggerMode: TooltipTriggerMode.tap,
+      message: message,
+      child: const Icon(Icons.help_outline_rounded, color: kGrey),
+    );
+  }
+
+  // 친구 리스트
+  Widget _buildFriendsList(
+    List<dynamic> friendsProfile,
+    double screenWidth,
+    double profileSizeRatio,
+  ) {
+    return SizedBox(
+      height: screenWidth * _friendsListHeight,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        separatorBuilder:
+            (context, index) => SizedBox(width: screenWidth * _itemSpacing),
+        itemCount: friendsProfile.length,
+        itemBuilder: (context, index) {
+          final friend = friendsProfile[index];
+          return _buildFriendProfile(friend, screenWidth, profileSizeRatio);
+        },
+      ),
+    );
+  }
+
+  // 친구 프로필
+  Widget _buildFriendProfile(
+    dynamic friend,
+    double screenWidth,
+    double profileSizeRatio,
+  ) {
+    return SizedBox(
+      width: screenWidth * profileSizeRatio,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          profileImageOrDefault(
+            friend.profileImageUrl,
+            screenWidth * profileSizeRatio,
+          ),
+          Text(friend.nickname, overflow: TextOverflow.ellipsis),
+        ],
+      ),
+    );
   }
 }
