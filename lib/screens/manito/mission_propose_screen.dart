@@ -1,6 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:manito/constants.dart';
 import 'package:manito/controllers/manito_controller.dart';
 import 'package:manito/widgets/admob/rewarded_ad_manager.dart';
@@ -82,16 +82,16 @@ class _MissionProposeScreenState extends State<MissionProposeScreen> {
   }
 
   // 앱바 위젯
-  PreferredSizeWidget _buildAppBar(double width) {
+  AppBar _buildAppBar(double width) {
     return AppBar(
       centerTitle: false,
       titleSpacing: 0.07 * width,
       automaticallyImplyLeading: false,
       title: Text(
-        '${_controller.creatorProfile.nickname} 님 몰래 도움을 주세요!',
+        "mission_propose_screen.title",
         style: Get.textTheme.headlineMedium,
         overflow: TextOverflow.ellipsis,
-      ),
+      ).tr(namedArgs: {"nickname": _controller.creatorProfile.nickname}),
       actions: [
         Padding(
           padding: EdgeInsets.only(right: 0.02 * width),
@@ -140,8 +140,7 @@ class _MissionProposeScreenState extends State<MissionProposeScreen> {
           _buildMissionList(width, missionPropose),
 
           // 광고 버튼 (조건부 표시)
-          if (GetPlatform.isAndroid && missionPropose.randomContents.length < 3)
-            _buildAdButton(width),
+          if (missionPropose.randomContents.length < 3) _buildAdButton(width),
         ],
       ),
     );
@@ -157,7 +156,10 @@ class _MissionProposeScreenState extends State<MissionProposeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('${profile.nickname} 에게', style: Get.textTheme.titleMedium),
+          Text(
+            "mission_propose_screen.for_friend",
+            style: Get.textTheme.titleMedium,
+          ).tr(namedArgs: {"nickname": profile.nickname}),
           Text(
             '${mission.deadlineType} 내에  (${formatter.format(mission.deadline)})',
             style: Get.textTheme.titleMedium,

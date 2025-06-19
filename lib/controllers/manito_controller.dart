@@ -461,13 +461,13 @@ class AutoReplyController extends GetxController {
       await autoReplyTable.upsert(updateData).eq('id', userId);
 
       Get.back(result: true);
-      return '자동 응답 수정 성공';
+      return 'auto_reply_modify_success';
     } on StorageException catch (e) {
       debugPrint('updateAutoReply StorageException Error: $e');
-      return '저장 오류: $e';
+      return 'auto_reply_modify_storage_error';
     } catch (e) {
       debugPrint('updateAutoReply Error: $e');
-      return '알 수 없는 오류: $e';
+      return 'auto_reply_modify_error';
     } finally {
       updateLoading.value = false;
     }

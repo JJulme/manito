@@ -1,10 +1,24 @@
 import 'dart:io';
-import 'package:flutter/rendering.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class RewardedAdManager {
+  // 생성자 - 테스트 여부만 받음
+  RewardedAdManager({bool useTestAds = kDebugMode}) : _useTestAds = useTestAds;
+
   RewardedAd? _rewardedAd; // 로드된 리워드 광고 객체를 저장하는 변수 (nullable)
   bool _isRewardedAdReady = false; // 리워드 광고가 준비되었는지 여부를 나타내는 변수
+  final bool _useTestAds;
+
+  // 테스트 광고 단위 ID
+  static const String _testAndroidAdUnitId =
+      'ca-app-pub-3940256099942544/5224354917';
+  static const String _testIosAdUnitId =
+      'ca-app-pub-3940256099942544/1712485313';
+  // 실제 광고 단위 ID - 여기에 실제 광고 ID를 입력하세요
+  final String _realAndroidAdUnitId = dotenv.env["REWARD_ANDROID"]!;
+  final String _realIosAdUnitId = dotenv.env["REWARD_IOS"]!;
 
   // 리워드 광고 준비 상태를 외부에서 읽을 수 있도록 제공하는 getter
   bool get isRewardedAdReady => _isRewardedAdReady;
@@ -12,11 +26,14 @@ class RewardedAdManager {
   // 로드된 리워드 광고 객체를 외부에서 읽을 수 있도록 제공하는 getter (nullable)
   RewardedAd? get rewardedAd => _rewardedAd;
 
-  // 플랫폼에 따른 광고 단위 ID (테스트 ID)
-  final adUnitId =
-      Platform.isAndroid
-          ? 'ca-app-pub-3940256099942544/5224354917' // Android 테스트 광고 단위 ID
-          : 'ca-app-pub-3940256099942544/1712485313'; // iOS 테스트 광고 단위 ID
+  // 현재 사용 중인 광고 단위 ID를 반환하는 getter
+  String get adUnitId {
+    if (_useTestAds) {
+      return Platform.isAndroid ? _testAndroidAdUnitId : _testIosAdUnitId;
+    } else {
+      return Platform.isAndroid ? _realAndroidAdUnitId : _realIosAdUnitId;
+    }
+  }
 
   // 리워드 광고 로드 함수
   void loadRewardedAd(VoidCallback onAdLoaded) {

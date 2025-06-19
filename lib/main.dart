@@ -30,11 +30,12 @@ void main() async {
     url: dotenv.env['SUPABASE_URL']!,
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
-  // 한국어 설정
+  // 언어 설정
   timeago.setLocaleMessages('ko', timeago.KoMessages());
+  timeago.setLocaleMessages('en', timeago.EnMessages());
   runApp(
     EasyLocalization(
-      supportedLocales: const [Locale('ko', 'KR')],
+      supportedLocales: const [Locale('ko', 'KR'), Locale('en', 'US')],
       path: 'assets/translations',
       child: const Manito(),
     ),
@@ -221,11 +222,12 @@ class _ManitoState extends State<Manito> {
     );
 
     return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
       // 다국어 설정
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,
+      // 디버깅 배너 숨기기
+      debugShowCheckedModeBanner: false,
       // 테마 설정
       theme: themeData,
       home: SplashScreen(),

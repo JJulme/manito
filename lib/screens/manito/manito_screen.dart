@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
@@ -37,7 +38,8 @@ class _ManitoScreenState extends State<ManitoScreen>
   @override
   void initState() {
     super.initState();
-    _initializeControllers();
+    _controller = Get.find<ManitoController>();
+    _friendsController = Get.find<FriendsController>();
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -45,12 +47,6 @@ class _ManitoScreenState extends State<ManitoScreen>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
-  }
-
-  // 컨트롤러 가져오는 모음 - initState()
-  void _initializeControllers() {
-    _controller = Get.find<ManitoController>();
-    _friendsController = Get.find<FriendsController>();
   }
 
   @override
@@ -116,12 +112,13 @@ class _ManitoScreenState extends State<ManitoScreen>
   }
 
   // 앱바
-  PreferredSizeWidget _buildAppBar() {
+  AppBar _buildAppBar() {
     final width = Get.width;
     return AppBar(
       centerTitle: false,
       titleSpacing: _iconSize * width,
-      title: Text('받은 미션', style: Get.textTheme.headlineLarge),
+      title:
+          Text("manito_screen.title", style: Get.textTheme.headlineLarge).tr(),
       actions: [
         Padding(
           padding: EdgeInsets.only(right: _borderRadius * width),
@@ -192,7 +189,11 @@ class _ManitoScreenState extends State<ManitoScreen>
           height: 0.5 * Get.height,
           width: double.infinity,
           alignment: Alignment.center,
-          child: Text('진행중인 미션이 없습니다.', style: Get.textTheme.bodySmall),
+          child:
+              Text(
+                "manito_screen.empty_mission",
+                style: Get.textTheme.bodySmall,
+              ).tr(),
         )
         : const SizedBox.shrink();
   }
@@ -237,11 +238,14 @@ class _ManitoScreenState extends State<ManitoScreen>
         child: Row(
           children: [
             const Icon(Icons.warning_rounded, color: Colors.red),
-            Text(' 미션 도착 ', style: Get.textTheme.titleMedium),
+            Text(
+              "manito_screen.propose",
+              style: Get.textTheme.titleMedium,
+            ).tr(),
             Tooltip(
               showDuration: const Duration(days: 1),
               triggerMode: TooltipTriggerMode.tap,
-              message: '모든 미션은 선착순 1명',
+              message: context.tr("manito_screen.propose_tooltip"),
               child: const Icon(Icons.help_outline_rounded, color: kGrey),
             ),
             const Spacer(),
@@ -280,7 +284,7 @@ class _ManitoScreenState extends State<ManitoScreen>
           SizedBox(width: _borderRadius * width),
           Expanded(
             child: Text(
-              "${creatorProfile.nickname} 마니또 추측중",
+              "${creatorProfile.nickname} ${context.tr("manito_screen.guessing_manito")}",
               style: Get.textTheme.titleMedium,
             ),
           ),
@@ -319,7 +323,10 @@ class _ManitoScreenState extends State<ManitoScreen>
       child: Row(
         children: [
           Icon(Icons.run_circle_sharp, color: Colors.amber[900]),
-          Text(' 진행중 미션', style: Get.textTheme.titleMedium),
+          Text(
+            "manito_screen.progressing_mission",
+            style: Get.textTheme.titleMedium,
+          ).tr(),
           const Spacer(),
           const Icon(Icons.timer_outlined),
           SizedBox(width: _borderRadius * width),
@@ -358,7 +365,10 @@ class _ManitoScreenState extends State<ManitoScreen>
           ProfileAndMission(
             creatorProfileUrl: creatorProfile.profileImageUrl!,
             size: 0.14 * width,
-            creatorNickname: '${creatorProfile.nickname} 에게',
+            creatorNickname: context.tr(
+              "manito_screen.for_friend",
+              namedArgs: {"nickname": creatorProfile.nickname},
+            ),
             content: missionAccept.content,
           ),
           IconButton(

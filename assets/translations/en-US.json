@@ -1,0 +1,156 @@
+{
+  "login_screen": {
+    "page1": "Create missions\nand your own Manito!",
+    "page2": "Guess who your Manito\nwas that helped you!",
+    "page3": "Become a Manito and\nsecretly help your friends!",
+    "page4": "Leave a record of\nhow you helped your friend!",
+    "page5": "Enjoy Manito with your friends\nin your daily life!",
+    "kakao_btn": "assets/images/kakao_login_large_wide_en.png"
+  },
+  "bottom_nav": {
+    "tutorial1": "This screen allows you to manage friends.",
+    "tutorial2": "You can check your completed mission records.",
+    "tutorial3": "Create and send missions to your friends.\nOne of your friends will become your Manito.",
+    "tutorial4": "You can check and perform missions sent to you by friends.",
+    "friends": "Friends",
+    "history": "History",
+    "sent_missions": "Outbox",
+    "received_missions": "To-Do"
+  },
+  "friends_screen": {
+    "title": "Friends",
+    "search": "Find Friends",
+    "request": "Friend Requests",
+    "block": "Blocked List",
+    "empty_friends": "Add some friends!"
+  },
+  "setting_screen": {
+    "title": "Settings",
+    "friends_refresh": "Refresh Friends List",
+    "logout": "Logout",
+    "language": "Language Settings",
+    "contact": "Contact Us",
+    "delete_account": "Delete Account"
+  },
+  "friends_search_screen": {
+    "title": "Find Friends",
+    "hint": "Enter your friend's email.",
+    "validator": "Please enter an email.",
+    "my_email": "My Email",
+    "request_btn": "Send Request",
+    "snack_title": "Notification",
+    "copy_message": "Copied.",
+    "request_self": "You cannot send a friend request to yourself.",
+    "already_friends": "You are already friends.",
+    "request_already_sent": "Friend request already sent.",
+    "request_sent": "Friend request sent."
+  },
+  "friends_request_screen": {
+    "title": "Friend Requests",
+    "empty_request": "No pending friend requests.",
+    "snack_title": "Notification",
+    "request_accept": "Friend request accepted.",
+    "request_accept_error": "Failed to accept friend request.",
+    "request_reject": "Friend request rejected.",
+    "request_reject_error": "Failed to reject friend request."
+  },
+  "friends_blacklist_screen": {
+    "title": "Blocked List",
+    "empty_blacklist": "No blocked users.",
+    "snack_title": "Notification",
+    "unblock_success": "User unblocked.",
+    "unblock_error": "Failed to unblock user.",
+    "unblock_btn": "Unblock",
+    "dialog_title": "Unblock User",
+    "dialog_message": "Do you want to unblock this user? They will be able to search for you again."
+  },
+  "modify_screen": {
+    "title": "Edit Profile",
+    "name": "Name",
+    "status_message": "Status Message",
+    "validator": "Please enter a name.",
+    "snack_title": "Notification",
+    "modify_storage_exception": "Error saving profile information.",
+    "modify_error": "Failed to update profile due to an unknown error."
+  },
+  "friends_detail_screen": {
+    "modify_name": "Edit Friend's Name",
+    "block": "Block Friend",
+    "dialog_title": "Block Friend",
+    "dialog_message": "Are you sure you want to block this friend?",
+    "sent_missions": "Outbox",
+    "received_missions": "To-Do",
+    "history": "Manito with {name}",
+    "empty_history": "No Manito history with this friend."
+  },
+  "friends_modify_screen": {
+    "title": "Edit Friend's Name",
+    "name": "Name",
+    "friend_set_name": "Friend's Set Name",
+    "validator": "Please enter a name."
+  },
+  "post_screen": {
+    "title": "History",
+    "exchange_missions_with_friends": "Exchange missions with your friends!"
+  },
+  "post_detail_screen": {
+    "no_comment": "No comments yet.",
+    "write_comment": "Write a comment"
+  },
+  "mission_screen": {
+    "title": "Outbox Missions",
+    "create_mission_btn": "Create Mission",
+    "completed_mission_received": "Completed Mission Arrived!",
+    "pending_mission_tooltip": "If no one accepts within the remaining time, the mission will be automatically deleted.",
+    "accept_mission_tooltip": "Your Manito is currently performing this mission."
+  },
+  "mission_create_screen": {
+    "title": "Create Mission",
+    "done": "Confirm",
+    "period_section_title": "Duration",
+    "toggle_btn_day": "1 Day",
+    "toggle_btn_week": "1 Week",
+    "friends_section_title": "Friends",
+    "empty_select_friends": "Please select friends",
+    "snack_title": "Not Enough Friends",
+    "snack_message": "Please select at least 2 friends.",
+    "dialog_title": "Create Mission",
+    "dialog_message": "Once a mission is created, it cannot be canceled or modified.",
+    "error_snack_title": "Mission Creation Failed",
+    "error_snack_message": "Failed to create mission due to an unknown error."
+  },
+  "mission_guess_screen": {
+    "title": "Guess Your Manito",
+    "period_of_time": "for",
+    "until": "until",
+    "hint_text": "Write down who you think your Manito might be.",
+    "bottom_btn": "Reveal Manito",
+    "text_short_snack_title": "Notification",
+    "text_short_snack_message": "Please write at least 5 characters.",
+    "result_snack_title": "Notification",
+    "guess_update_success": "Check who your Manito is!",
+    "guess_update_error": "An error occurred while revealing your Manito."
+  },
+  "manito_screen": {
+    "title": "To-Do Missions",
+    "empty_mission": "No missions in progress.",
+    "propose": "Mission Arrived ",
+    "propose_tooltip": "All missions are first come, first served (1 person).",
+    "guessing_manito": "Guessing Manito",
+    "progressing_mission": "Mission in Progress",
+    "for_friend": "To {nickname}"
+  },
+  "auto_reply_screen": {
+    "title": "Auto-Reply Settings",
+    "hint": "This message is automatically sent to your friend if you cannot post.",
+    "snack_title": "Effort Required",
+    "snack_message": "Please write at least 5 characters.",
+    "snack_title_error": "Save Error",
+    "auto_reply_modify_error": "An unknown error occurred.",
+    "auto_reply_modify_storage_error": "An error occurred while saving."
+  },
+  "mission_propose_screen": {
+    "title": "Secretly help {nickname}",
+    "for_friend": "To {nickname}"
+  }
+}
