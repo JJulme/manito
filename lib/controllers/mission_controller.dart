@@ -88,7 +88,7 @@ class MissionCreateController extends GetxController {
         params: {
           'creator_id': _supabase.auth.currentUser!.id,
           'friend_ids': friendsIds,
-          'deadline_type': selectedIndex == 0 ? '하루' : '한주',
+          'deadline_type': selectedIndex == 0 ? 'day' : 'week',
         },
       );
 

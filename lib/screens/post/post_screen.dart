@@ -35,6 +35,9 @@ class _PostScreenState extends State<PostScreen> with WidgetsBindingObserver {
     _controller = Get.find<PostController>();
     _friendsController = Get.find<FriendsController>();
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      _controller.fetchPosts();
+    });
   }
 
   @override
@@ -53,9 +56,7 @@ class _PostScreenState extends State<PostScreen> with WidgetsBindingObserver {
 
   // 새로고침
   Future<void> _refreshPosts() async {
-    _controller.isLoading.value = true;
     await _controller.fetchPosts();
-    _controller.isLoading.value = false;
   }
 
   // 본체

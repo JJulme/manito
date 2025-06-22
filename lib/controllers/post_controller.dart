@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:manito/models/comment.dart';
@@ -10,33 +11,46 @@ class PostController extends GetxController {
   var inCompletePostList = [].obs;
   var postList = <Post>[].obs; // 게시물 목록
 
-  @override
-  void onInit() async {
-    super.onInit();
-    isLoading.value = true;
-    await fetchPosts();
-    // await fetchIncompletePost();
-    isLoading.value = false;
-  }
-
   /// 포스트들을 가져오는 함수
   Future<void> fetchPosts() async {
-    // isLoading.value = true;
+    isLoading.value = true;
     String userId = _supabase.auth.currentUser!.id;
+    final String currentLanguageCode =
+        EasyLocalization.of(Get.context!)!.locale.languageCode;
     try {
       final data = await _supabase
           .from('missions')
-          .select(
-            'id, manito_id, creator_id, deadline_type, content, complete_at',
-          )
+          .select('''id, 
+            manito_id, 
+            creator_id, 
+            deadline_type, 
+            mission_content:content($currentLanguageCode), 
+            complete_at
+            ''')
           .or('creator_id.eq.$userId, manito_id.eq.$userId')
           .not('guess', 'is', null)
           .order('complete_at', ascending: false);
-      postList.value = data.map((post) => Post.fromJson(post)).toList();
+
+      // content 빼오기
+      List<Map<String, dynamic>> transformedData = [];
+      for (var mission in data) {
+        Map<String, dynamic> newMission = Map.from(mission);
+        if (newMission['mission_content'] is Map<String, dynamic>) {
+          Map<String, dynamic> contentMap = newMission['mission_content'];
+          if (contentMap.isNotEmpty) {
+            newMission['content'] = contentMap.values.first;
+          } else {
+            newMission['content'] = null;
+          }
+        }
+        transformedData.add(newMission);
+      }
+      postList.value =
+          transformedData.map((post) => Post.fromJson(post)).toList();
     } catch (e) {
       debugPrint('fetchPosts Error: $e');
     } finally {
-      // isLoading.value = false;
+      isLoading.value = false;
     }
   }
 }

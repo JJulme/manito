@@ -94,6 +94,8 @@
     "exchange_missions_with_friends": "친구들과 미션을 주고 받아보세요!"
   },
   "post_detail_screen": {
+    "day": "하루",
+    "week": "한주",
     "no_comment": "댓글이 없습니다.",
     "write_comment": "댓글 입력"
   },
@@ -152,5 +154,9 @@
   "mission_propose_screen": {
     "title": "{nickname} 님 몰래 도움을 주세요!",
     "for_friend": "{nickname} 에게"
+  },
+  "post_item": {
+    "day": "하루",
+    "week": "한주"
   }
 }

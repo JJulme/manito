@@ -63,8 +63,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         if (_controller.isLoading.value) {
           return const SizedBox.shrink();
         }
+        // 기간 번역
+        final String transPeriod = context.tr(
+          "post_detail_screen.${_controller.post.deadlineType}",
+        );
         return Text(
-          '${_controller.post.deadlineType} / ${_controller.post.content}',
+          '$transPeriod / ${_controller.post.content}',
           style: Get.textTheme.headlineSmall,
         );
       }),

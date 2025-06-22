@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -505,26 +506,50 @@ class FriendsDetailController extends GetxController {
   Future<void> fetchPosts() async {
     isLoading.value = true;
     String userId = _supabase.auth.currentUser!.id;
+    final String currentLanguageCode =
+        EasyLocalization.of(Get.context!)!.locale.languageCode;
     try {
-      final originData = await _supabase
+      final data = await _supabase
           .from('missions')
-          .select(
-            'id, manito_id, creator_id, deadline_type, content, complete_at',
-          )
+          .select('''id,
+             manito_id, 
+             creator_id, 
+             deadline_type, 
+             mission_content:content($currentLanguageCode),
+             complete_at''')
           .or(
-            'manito_id.eq.${friendProfile.id},creator_id.eq.${friendProfile.id}',
+            'and(manito_id.eq.${friendProfile.id},creator_id.eq.$userId),'
+            'and(manito_id.eq.$userId,creator_id.eq.${friendProfile.id})',
           )
+          .eq('status', '완료')
           .order('complete_at', ascending: true);
+
+      print(data);
+
+      // content 빼오기
+      List<Map<String, dynamic>> transformedData = [];
+      for (var mission in data) {
+        Map<String, dynamic> newMission = Map.from(mission);
+        if (newMission['mission_content'] is Map<String, dynamic>) {
+          Map<String, dynamic> contentMap = newMission['mission_content'];
+          if (contentMap.isNotEmpty) {
+            newMission['content'] = contentMap.values.first;
+          } else {
+            newMission['content'] = null;
+          }
+        }
+        transformedData.add(newMission);
+      }
       final manitoPost =
-          originData
+          transformedData
               .where((post) => post['manito_id'] == friendProfile.id)
               .toList();
       final creatorPost =
-          originData
+          transformedData
               .where((post) => post['creator_id'] == friendProfile.id)
               .toList();
       final relatedPost =
-          originData
+          transformedData
               .where(
                 (post) =>
                     post['manito_id'] == userId || post['creator_id'] == userId,

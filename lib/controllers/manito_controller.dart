@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
@@ -21,16 +22,6 @@ class ManitoController extends GetxController {
   var missionAcceptList = <MissionAccept>[].obs; // 진행중 미션
   var missionGuessList = <MissionGuess>[].obs; // 추측중 미션
 
-  @override
-  void onInit() async {
-    super.onInit();
-    isLoading.value = true;
-    await fetchMissionProposeList();
-    await fetchMissionAcceptList();
-    await fetchMissionGuessList();
-    isLoading.value = false;
-  }
-
   /// 나에게 온 미션 제의 목록 가져오는 함수
   Future<void> fetchMissionProposeList() async {
     // isLoading.value = true;
@@ -50,21 +41,36 @@ class ManitoController extends GetxController {
   }
 
   // 내가 수락한 미션 목록 가져오기
-  Future<void> fetchMissionAcceptList() async {
+  Future<void> fetchMissionAcceptList(BuildContext context) async {
     try {
       final List<dynamic> data = await _supabase
           .from('missions')
           .select('''id, 
               creator_id, 
-              content, 
+              mission_content:content(${context.locale.languageCode}), 
               status, 
               deadline, 
               deadline_type
               ''')
           .eq('manito_id', _supabase.auth.currentUser!.id)
           .eq('status', '진행중');
+
+      // content 빼오기
+      List<Map<String, dynamic>> transformedData = [];
+      for (var mission in data) {
+        Map<String, dynamic> newMission = Map.from(mission);
+        if (newMission['mission_content'] is Map<String, dynamic>) {
+          Map<String, dynamic> contentMap = newMission['mission_content'];
+          if (contentMap.isNotEmpty) {
+            newMission['content'] = contentMap.values.first;
+          } else {
+            newMission['content'] = null;
+          }
+        }
+        transformedData.add(newMission);
+      }
       missionAcceptList.value =
-          data.map((e) => MissionAccept.fromJson(e)).toList();
+          transformedData.map((e) => MissionAccept.fromJson(e)).toList();
     } catch (e) {
       debugPrint('fetchMissionAcceptList Error: $e');
     }
@@ -97,20 +103,22 @@ class MissionProposeController extends GetxController {
   late String missionProposeId;
   late var creatorProfile;
   var missionPropose = Rx<MissionPropose?>(null);
-  Rx<String?> selectedContent = Rx<String?>(null);
+  Rx<String?> selectedContentId = Rx<String?>(null);
 
   @override
   void onInit() async {
     super.onInit();
     missionProposeId = Get.arguments[0];
     creatorProfile = Get.arguments[1];
-    await fetchMissionPropose();
   }
 
   /// 미션 제의 정보 가져옴
   Future<void> fetchMissionPropose() async {
     isLoading.value = true;
+    final String currentLanguageCode =
+        EasyLocalization.of(Get.context!)!.locale.languageCode;
     try {
+      // 미션 제안 테이블에서 데이터 가져오기
       final Map<String, dynamic> data =
           await _supabase
               .from('mission_propose')
@@ -121,6 +129,26 @@ class MissionProposeController extends GetxController {
               ''')
               .eq('id', missionProposeId)
               .single();
+      // uuid 문자열 리스트
+      final List<String> uuidList =
+          (data["random_contents"] as List).map((e) => e.toString()).toList();
+
+      // 언어 설정에 맞게 미션 내용 가져오기
+      final contents = await _supabase.rpc(
+        "fetch_mission_contents_from_uuids",
+        params: {'uuid_array': uuidList, "locale_code": currentLanguageCode},
+      );
+      // 가져온 데이터를 Map으로 변경
+      List<MissionContent> contentListMap = [];
+      if (data["random_contents"].length == contents.length) {
+        for (int i = 0; i < contents.length; i++) {
+          final String uuid = data["random_contents"][i].toString();
+          final String content = contents[i]["content_text"].toString();
+          contentListMap.add(MissionContent(id: uuid, content: content));
+        }
+      }
+      data["random_contents"] = contentListMap;
+
       missionPropose.value = MissionPropose.fromJson(data);
     } on PostgrestException catch (e) {
       if (e.code == 'PGRST116') {
@@ -140,27 +168,28 @@ class MissionProposeController extends GetxController {
   /// 미션 선택지 추가
   Future<void> addRandomMissionContent() async {
     try {
-      await _supabase.rpc(
+      final data = await _supabase.rpc(
         'add_random_mission_content',
         params: {
           'p_mission_propose_id': missionProposeId,
           'p_deadline': missionPropose.value!.deadlineType,
         },
       );
+      debugPrint('addRandomMissionContent: $data');
     } catch (e) {
       debugPrint('addRandomMissionContent Error: $e');
     }
   }
 
   /// 미션 선택 후 미션 수락
-  Future<String> acceptMissionPropose(String content) async {
+  Future<String> acceptMissionPropose(String contentId) async {
     try {
       await _supabase.rpc(
         'accept_mission',
         params: {
           'p_id': missionPropose.value!.missionId,
           'p_manito_id': _supabase.auth.currentUser!.id,
-          'p_content': content,
+          'p_content': contentId,
         },
       );
       Get.back(result: true);
@@ -168,8 +197,10 @@ class MissionProposeController extends GetxController {
     } on PostgrestException catch (e) {
       Get.back(result: true);
       if (e.code == 'P0001') {
+        debugPrint('acceptMissionPropose Error: $e');
         return '이미 수락된 미션입니다.';
       } else {
+        debugPrint('acceptMissionPropose Error: $e');
         return '이미 삭제된 미션입니다.';
       }
     } catch (e) {

@@ -152,5 +152,9 @@
   "mission_propose_screen": {
     "title": "Secretly help {nickname}",
     "for_friend": "To {nickname}"
+  },
+  "post_item": {
+    "day": "day",
+    "week": "week"
   }
 }

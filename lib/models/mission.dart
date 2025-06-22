@@ -88,7 +88,7 @@ class MissionPropose {
 
   /// 포함된 랜덤 미션 콘텐츠 문자열 리스트.
   /// (예: 미션 설명의 대체 텍스트, 힌트 등). 이 필드는 필수입니다.
-  final List<String> randomContents;
+  final List<MissionContent> randomContents;
 
   /// 미션 수락 마감 기한.
   /// 이 필드는 필수입니다.
@@ -124,7 +124,7 @@ class MissionPropose {
     final missions = json['missions'] as Map<String, dynamic>;
     return MissionPropose(
       missionId: json['mission_id'] as String,
-      randomContents: List<String>.from(json['random_contents']),
+      randomContents: json['random_contents'],
       acceptDeadline: DateTime.parse(missions['accept_deadline'] as String),
       deadline: DateTime.parse(missions['deadline'] as String),
       deadlineType: missions['deadline_type'] as String,
@@ -295,6 +295,20 @@ class MissionPost {
     return MissionPost(
       description: json['description'] as String,
       imageUrlList: imageUrlList,
+    );
+  }
+}
+
+class MissionContent {
+  final String id;
+  final String content;
+
+  MissionContent({required this.id, required this.content});
+
+  factory MissionContent.fromJson(Map<String, dynamic> json) {
+    return MissionContent(
+      id: json['id'] as String,
+      content: json['content'] as String,
     );
   }
 }

@@ -41,6 +41,14 @@ class _ManitoScreenState extends State<ManitoScreen>
     _controller = Get.find<ManitoController>();
     _friendsController = Get.find<FriendsController>();
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      _controller.isLoading.value = true;
+      await _controller.fetchMissionProposeList();
+      if (!mounted) return;
+      await _controller.fetchMissionAcceptList(context);
+      await _controller.fetchMissionGuessList();
+      _controller.isLoading.value = false;
+    });
   }
 
   @override
@@ -63,7 +71,7 @@ class _ManitoScreenState extends State<ManitoScreen>
     try {
       await Future.wait([
         _controller.fetchMissionProposeList(),
-        _controller.fetchMissionAcceptList(),
+        _controller.fetchMissionAcceptList(context),
         _controller.fetchMissionGuessList(),
       ]);
     } finally {
@@ -97,7 +105,8 @@ class _ManitoScreenState extends State<ManitoScreen>
       arguments: [mission, creatorProfile],
     );
     if (result == true) {
-      await _controller.fetchMissionAcceptList();
+      if (!mounted) return;
+      await _controller.fetchMissionAcceptList(context);
       await _controller.fetchMissionGuessList();
     }
   }
@@ -333,7 +342,7 @@ class _ManitoScreenState extends State<ManitoScreen>
           TimerWidget(
             targetDateTime: missionAccept.deadline,
             fontSize: _iconSize * width,
-            onTimerComplete: () => _controller.fetchMissionAcceptList(),
+            onTimerComplete: () => _controller.fetchMissionAcceptList(context),
           ),
         ],
       ),

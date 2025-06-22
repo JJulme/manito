@@ -27,7 +27,7 @@ class ManitoPostScreen extends StatelessWidget {
   }
 
   /// 친구에게 게시물 보내는 함수
-  void _completePost() async {
+  void _completePost(BuildContext context) async {
     kDefaultDialog(
       '미션 완료',
       '미션을 종료하고 친구에게 알립니다.',
@@ -197,7 +197,7 @@ class ManitoPostScreen extends StatelessWidget {
                           }
                           // 상태에 따라 적절한 함수 호출
                           _controller.isPosting.value
-                              ? _completePost()
+                              ? _completePost(context)
                               : _controller.updatePost();
                         },
                 child:

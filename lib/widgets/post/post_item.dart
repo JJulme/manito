@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manito/controllers/badge_controller.dart';
@@ -8,7 +9,7 @@ import 'package:manito/widgets/profile/profile_image_view.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class PostItem extends StatelessWidget {
-  final dynamic post;
+  final Post post;
   final dynamic manitoProfile;
   final dynamic creatorProfile;
   final double width;
@@ -55,7 +56,7 @@ class PostItem extends StatelessWidget {
       // onTap: () => _toPostDetailScreen(post, manitoProfile, creatorProfile),
       onTap: () {
         _toPostDetailScreen(post, manitoProfile, creatorProfile);
-        _badgeController.resetBadgeCount(post.id);
+        _badgeController.resetBadgeCount(post.id!);
       },
 
       child: Padding(
@@ -74,7 +75,7 @@ class PostItem extends StatelessWidget {
             SizedBox(width: 0.04 * width),
 
             // Mission Details
-            Expanded(child: _buildMissionDetails(post)),
+            Expanded(child: _buildMissionDetails(context, post)),
 
             // Timestamp and Badge
             _buildTimestampAndBadge(post, _badgeController, width),
@@ -101,7 +102,7 @@ class PostItem extends StatelessWidget {
     );
   }
 
-  Widget _buildMissionDetails(dynamic post) {
+  Widget _buildMissionDetails(BuildContext context, Post post) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -111,19 +112,19 @@ class PostItem extends StatelessWidget {
             Icon(Icons.event, size: 0.05 * width),
             SizedBox(width: 0.01 * width),
             Text(
-              post.deadlineType ?? 'No Type',
+              'post_item.${post.deadlineType!}',
               style: Get.textTheme.bodySmall,
-            ),
+            ).tr(),
           ],
         ),
         SizedBox(height: 0.02 * width),
-        Text(post.content ?? 'No Content', style: Get.textTheme.bodySmall),
+        Text(post.content!, style: Get.textTheme.bodySmall),
       ],
     );
   }
 
   Widget _buildTimestampAndBadge(
-    dynamic post,
+    Post post,
     BadgeController badgeController,
     double width,
   ) {
@@ -132,7 +133,7 @@ class PostItem extends StatelessWidget {
       children: [
         Text(
           post.completeAt != null
-              ? timeago.format(post.completeAt, locale: 'ko')
+              ? timeago.format(post.completeAt!, locale: 'ko')
               : 'No Date',
           style: Get.textTheme.labelMedium,
         ),

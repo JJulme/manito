@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manito/constants.dart';
 import 'package:manito/controllers/manito_controller.dart';
+import 'package:manito/models/mission.dart';
 import 'package:manito/widgets/admob/rewarded_ad_manager.dart';
 import 'package:manito/widgets/common/custom_snackbar.dart';
 import 'package:manito/widgets/mission/timer.dart';
@@ -16,15 +17,18 @@ class MissionProposeScreen extends StatefulWidget {
 }
 
 class _MissionProposeScreenState extends State<MissionProposeScreen> {
-  final MissionProposeController _controller = Get.put(
-    MissionProposeController(),
-  );
+  late MissionProposeController _controller;
   final _rewardedAdManager = RewardedAdManager();
 
   @override
   void initState() {
     super.initState();
-    _rewardedAdManager.loadRewardedAd(() => debugPrint('광고 로드 완료'));
+    _controller = Get.put(MissionProposeController());
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _controller.fetchMissionPropose();
+      _rewardedAdManager.loadRewardedAd(() => debugPrint('광고 로드 완료'));
+    });
   }
 
   @override
@@ -48,7 +52,7 @@ class _MissionProposeScreenState extends State<MissionProposeScreen> {
 
   // 미션 수락 다이얼로그 표시
   void _showAcceptMissionDialog() {
-    if (_controller.selectedContent.value == null) {
+    if (_controller.selectedContentId.value == null) {
       customSnackbar(title: '알림', message: '미션을 선택해주세요.');
       return;
     }
@@ -57,7 +61,7 @@ class _MissionProposeScreenState extends State<MissionProposeScreen> {
       '미션을 수락하고 취소 할 수 없습니다.',
       onYesPressed: () async {
         String result = await _controller.acceptMissionPropose(
-          _controller.selectedContent.value!,
+          _controller.selectedContentId.value!,
         );
         customSnackbar(title: '알림', message: result);
       },
@@ -176,18 +180,20 @@ class _MissionProposeScreenState extends State<MissionProposeScreen> {
       physics: const NeverScrollableScrollPhysics(),
       itemCount: missionPropose.randomContents.length,
       itemBuilder: (context, index) {
-        final content = missionPropose.randomContents[index];
-        return Obx(() => _buildMissionItem(width, content));
+        final MissionContent missionContent =
+            missionPropose.randomContents[index];
+        return Obx(() => _buildMissionItem(width, missionContent));
       },
     );
   }
 
   // 개별 미션 아이템 위젯
-  Widget _buildMissionItem(double width, String content) {
-    final isSelected = _controller.selectedContent.value == content;
+  Widget _buildMissionItem(double width, MissionContent missionContent) {
+    final isSelected = _controller.selectedContentId.value == missionContent.id;
 
     return GestureDetector(
-      onTap: () => _controller.selectedContent.value = content,
+      onTap: () => _controller.selectedContentId.value = missionContent.id,
+
       child: Container(
         height: 0.15 * width,
         margin: EdgeInsets.symmetric(
@@ -212,7 +218,7 @@ class _MissionProposeScreenState extends State<MissionProposeScreen> {
             ),
             SizedBox(width: 0.03 * width),
             Text(
-              content,
+              missionContent.content,
               style: TextStyle(
                 fontSize: 0.05 * width,
                 color: isSelected ? Colors.green : Colors.black87,
