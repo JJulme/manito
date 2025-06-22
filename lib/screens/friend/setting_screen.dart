@@ -150,12 +150,12 @@ class SettingScreen extends StatelessWidget {
               title: context.tr('setting_screen.logout'),
               onTap: _showLogoutDialog,
             ),
-            // 언어 변경
-            _buildSettingItem(
-              icon: Icons.language_rounded,
-              title: context.tr('setting_screen.language'),
-              onTap: () => _showLanguageSelectionDialog(context),
-            ),
+            // // 언어 변경
+            // _buildSettingItem(
+            //   icon: Icons.language_rounded,
+            //   title: context.tr('setting_screen.language'),
+            //   onTap: () => _showLanguageSelectionDialog(context),
+            // ),
             // 문의하기
             _buildSettingItem(
               icon: Icons.mail_outline_rounded,

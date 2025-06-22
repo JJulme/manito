@@ -524,8 +524,6 @@ class FriendsDetailController extends GetxController {
           .eq('status', '완료')
           .order('complete_at', ascending: true);
 
-      print(data);
-
       // content 빼오기
       List<Map<String, dynamic>> transformedData = [];
       for (var mission in data) {
