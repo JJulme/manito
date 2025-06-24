@@ -22,17 +22,6 @@ class FriendsController extends GetxController {
   var friendList = <FriendProfile>[].obs; // 친구 목록
   var isLoading = false.obs; // 친구 화면 로딩
 
-  // var friendProfile = Rx<UserProfile?>(null); // 검색된 사용자
-
-  // @override
-  // void onInit() async {
-  //   super.onInit();
-  //   isLoading.value = true;
-  //   await getProfile(); // 내 프로필 정보 가져오기
-  //   await fetchFriendList(); // 친구 목록 가져오기
-  //   isLoading.value = false;
-  // }
-
   /// 프로필 가져오기
   Future<void> getProfile() async {
     // isLoading.value = true;
@@ -79,6 +68,8 @@ class FriendsController extends GetxController {
 
       // 유저 정보 모델 변환
       friendList.value = data.map((e) => FriendProfile.fromJson(e)).toList();
+      // 이름 순으로 정렬
+      friendList.sort((a, b) => a.nickname.compareTo(b.nickname));
 
       // 친구의 미션 현황 만들기
       // 친구가 있을 경우
