@@ -104,7 +104,9 @@
     "create_mission_btn": " 미션 만들기",
     "completed_mission_received": "완료된 미션 도착!",
     "pending_mission_tooltip": "남은 시간까지 수락한 친구가 없다면 자동으로 삭제됩니다.",
-    "accept_mission_tooltip": "마니또가 미션을 진행중 입니다."
+    "accept_mission_tooltip": "마니또가 미션을 진행중 입니다.",
+    "day": "하루",
+    "week": "한주"
   },
   "mission_create_screen": {
     "title": "미션 만들기",

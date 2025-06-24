@@ -366,7 +366,7 @@ class _MissionScreenState extends State<MissionScreen>
         SizedBox(width: screenWidth * _itemSpacing),
         Text(status, style: Get.textTheme.titleMedium),
         SizedBox(width: screenWidth * _smallSpacing),
-        Text('($deadlineType) '),
+        Text('(${context.tr("mission_screen.$deadlineType")}) '),
         _buildTooltip(tooltipMessage),
         const Spacer(),
         TimerWidget(
