@@ -1,0 +1,1 @@
+iOS는 Localizable.strings 파일을 사용하여 문자열 리소스를 관리
