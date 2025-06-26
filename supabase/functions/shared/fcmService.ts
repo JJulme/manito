@@ -27,27 +27,15 @@ export async function sendFCMNotification(
       body: JSON.stringify({
         message: {
           token: token,
-          notification: {
-            title: notification.title,
-            body: notification.body,
-          },
+          // notification: {
+          //   title: notification.title,
+          //   body: notification.body,
+          // },
           data: notification.data,
           // 안드로이드 설정
-          android: {
-            notification: {
-              icon: "ic_notification",
-              image: "ic_notification_large",
-            },
-          },
+          android: notification.android,
           // iOS 설정 추가
-          apns: {
-            payload: {
-              aps: {
-                // "content-available": 1, // 백그라운드 처리를 위한 중요 설정
-                "mutable-content": 1,
-              },
-            },
-          },
+          apns: notification.apns,
         },
       }),
     },

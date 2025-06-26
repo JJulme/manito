@@ -43,11 +43,13 @@ class MissionController extends GetxController {
       }
 
       pendingMyMissions.value =
-          allMissions.where((mission) => mission.status == '대기중').toList();
+          allMissions.where((mission) => mission.status == 'pending').toList();
       acceptMyMissions.value =
-          allMissions.where((mission) => mission.status == '진행중').toList();
+          allMissions
+              .where((mission) => mission.status == 'progressing')
+              .toList();
       completeMyMissions.value =
-          allMissions.where((mission) => mission.status == '추측중').toList();
+          allMissions.where((mission) => mission.status == 'guessing').toList();
     } catch (e) {
       debugPrint('fetchMyMissions Error: $e');
     } finally {

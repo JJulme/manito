@@ -229,9 +229,9 @@ class _FriendsDetailScreenState extends State<FriendsDetailScreen> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: Get.width * 0.04),
           child: Text(
-            '${friendProfile.nickname} ${context.tr("friends_detail_screen.history")}',
+            "friends_detail_screen.history",
             style: Get.textTheme.titleMedium,
-          ),
+          ).tr(namedArgs: {"nickname": friendProfile.nickname}),
         ),
         SizedBox(height: Get.width * 0.02),
         Obx(() => _buildPostList()),

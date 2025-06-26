@@ -1,0 +1,17 @@
+<resources>
+    <!-- 친구 신청 -->
+    <string name="FRIEND_REQUEST_TITLE">New Friend Request</string>
+    <string name="FRIEND_REQUEST_BODY">%s sent you a friend request.</string>
+    <!-- 미션 제안 -->
+    <string name="MISSION_PROPOSE_TITLE">New Mission!</string>
+    <string name="MISSION_PROPOSE_BODY">Time limit to accept!</string>
+    <!-- 마니또가 미션 수락 -->
+    <string name="UPDATE_MISSION_PROGRESS_TITLE">Mission Accepted!</string>
+    <string name="UPDATE_MISSION_PROGRESS_BODY">Guess your Manito.</string>
+    <!-- 마니또가 미션 종료 -->
+    <string name="UPDATE_MISSION_GUESS_TITLE">Mission Completed!</string>
+    <string name="UPDATE_MISSION_GUESS_BODY">Time to guess your Manito!</string>
+    <!-- 생성자가 추측 완료 -->
+    <string name="UPDATE_MISSION_COMPLETE_TITLE">Mission Ended!</string>
+    <string name="UPDATE_MISSION_COMPLETE_BODY">Your friend has made a guess!</string>
+</resources>

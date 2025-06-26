@@ -1,7 +1,176 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-
+    "FRIEND_REQUEST_BODY" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ sent you a friend request."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 님이 친구 요청을 보냈습니다."
+          }
+        }
+      }
+    },
+    "FRIEND_REQUEST_TITLE" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Friend Request"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새로운 친구 요청"
+          }
+        }
+      }
+    },
+    "MISSION_PROPOSE_BODY" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time limit to accept!"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "제한 시간안에 수락하세요."
+          }
+        }
+      }
+    },
+    "MISSION_PROPOSE_TITLE" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Mission!"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "미션 도착!"
+          }
+        }
+      }
+    },
+    "UPDATE_MISSION_COMPLETE_BODY" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your friend has made a guess! "
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "친구가 추리한 내용을 확인해보세요."
+          }
+        }
+      }
+    },
+    "UPDATE_MISSION_COMPLETE_TITLE" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mission Ended!"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "미션 종료!"
+          }
+        }
+      }
+    },
+    "UPDATE_MISSION_GUESS_BODY" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time to guess your Manito!"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마니또를 추측 해보세요."
+          }
+        }
+      }
+    },
+    "UPDATE_MISSION_GUESS_TITLE" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mission Completed!"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마니또 미션 완료!"
+          }
+        }
+      }
+    },
+    "UPDATE_MISSION_PROGRESS_BODY" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guess your Manito."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마니또를 추측 해보세요."
+          }
+        }
+      }
+    },
+    "UPDATE_MISSION_PROGRESS_TITLE" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mission Accepted!"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마니또 미션 수락!"
+          }
+        }
+      }
+    }
   },
   "version" : "1.0"
 }

@@ -1,0 +1,17 @@
+<resources>
+    <!-- 친구 신청 -->
+    <string name="FRIEND_REQUEST_TITLE">새로운 친구 요청</string>
+    <string name="FRIEND_REQUEST_BODY">%s님이 친구 요청을 보냈습니다.</string>
+    <!-- 미션 제안 -->
+    <string name="MISSION_PROPOSE_TITLE">미션 도착!</string>
+    <string name="MISSION_PROPOSE_BODY">제한 시간안에 수락하세요.</string>
+    <!-- 마니또가 미션 수락 -->
+    <string name="UPDATE_MISSION_PROGRESS_TITLE">마니또 미션 수락!</string>
+    <string name="UPDATE_MISSION_PROGRESS_BODY">마니또를 추측 해보세요.</string>
+    <!-- 마니또가 미션 종료 -->
+    <string name="UPDATE_MISSION_GUESS_TITLE">마니또 미션 완료!</string>
+    <string name="UPDATE_MISSION_GUESS_BODY">마니또를 추측 해보세요.</string>
+    <!-- 생성자가 추측 완료 -->
+    <string name="UPDATE_MISSION_COMPLETE_TITLE">미션 종료!</string>
+    <string name="UPDATE_MISSION_COMPLETE_BODY">친구가 추리한 내용을 확인해보세요.</string>
+</resources>

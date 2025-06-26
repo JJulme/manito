@@ -6,7 +6,7 @@ import 'package:manito/constants.dart';
 import 'package:manito/controllers/auth_controller.dart';
 import 'package:manito/controllers/friends_controller.dart';
 import 'package:manito/widgets/common/custom_snackbar.dart';
-import 'package:timeago/timeago.dart' as timeago;
+import 'package:restart_app/restart_app.dart';
 
 class SettingScreen extends StatelessWidget {
   SettingScreen({super.key});
@@ -51,9 +51,9 @@ class SettingScreen extends StatelessWidget {
       builder: (BuildContext dialogContext) {
         // 다이얼로그 빌더의 context
         return AlertDialog(
-          title: Text('언어 선택'), // 다이얼로그 제목도 다국어 처리
+          title: Text("setting_screen.dialog_title").tr(),
           content: Column(
-            mainAxisSize: MainAxisSize.min, // 내용의 높이를 최소화
+            mainAxisSize: MainAxisSize.min,
             children:
                 context.supportedLocales.map((locale) {
                   // 지원되는 각 언어(Locale)에 대해 RadioListTile 생성
@@ -69,9 +69,18 @@ class SettingScreen extends StatelessWidget {
                         await context.setLocale(
                           Locale(locale.languageCode, locale.countryCode),
                         );
-                        timeago.setDefaultLocale(locale.languageCode);
                         // 변경된 언어를 서버에 전송하는 로직이 있다면 여기서 호출
                         // await _apiService.sendLanguageToServer(newValue, locale.countryCode);
+                        // 앱 재부팅
+                        if (!context.mounted) return;
+                        Restart.restartApp(
+                          notificationTitle: context.tr(
+                            "setting_screen.restart_title",
+                          ),
+                          notificationBody: context.tr(
+                            "setting_screen.restart_body",
+                          ),
+                        );
 
                         // 다이얼로그 닫기
                         if (dialogContext.mounted) {
@@ -91,7 +100,8 @@ class SettingScreen extends StatelessWidget {
                   Navigator.of(dialogContext).pop(); // 다이얼로그 닫기
                 }
               },
-              child: Text('취소'), // '취소' 텍스트도 다국어 처리
+              child:
+                  Text("setting_screen.dialog_cancel").tr(), // '취소' 텍스트도 다국어 처리
             ),
           ],
         );
@@ -150,12 +160,12 @@ class SettingScreen extends StatelessWidget {
               title: context.tr('setting_screen.logout'),
               onTap: _showLogoutDialog,
             ),
-            // // 언어 변경
-            // _buildSettingItem(
-            //   icon: Icons.language_rounded,
-            //   title: context.tr('setting_screen.language'),
-            //   onTap: () => _showLanguageSelectionDialog(context),
-            // ),
+            // 언어 변경
+            _buildSettingItem(
+              icon: Icons.language_rounded,
+              title: context.tr('setting_screen.language'),
+              onTap: () => _showLanguageSelectionDialog(context),
+            ),
             // 문의하기
             _buildSettingItem(
               icon: Icons.mail_outline_rounded,

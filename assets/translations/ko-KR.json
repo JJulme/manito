@@ -30,7 +30,11 @@
     "logout": "로그아웃",
     "language": "언어 설정",
     "contact": "문의하기",
-    "delete_account": "계정 삭제"
+    "delete_account": "계정 삭제",
+    "dialog_title": "언어 선택",
+    "dialog_cancel": "취소",
+    "restart_title": "앱 재부팅",
+    "restart_body": "여기를 눌러 앱을 재부팅하세요."
   },
   "friends_search_screen": {
     "title": "친구 찾기",
@@ -80,7 +84,7 @@
     "dialog_message": "친구를 차단하시겠습니까?",
     "sent_missions": "보낸 미션",
     "received_missions": "받은 미션",
-    "history": "님과 마니또",
+    "history": "{nickname} 님과 마니또",
     "empty_history": "친구와의 마니또 기록이 없습니다."
   },
   "friends_modify_screen": {

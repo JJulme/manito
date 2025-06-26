@@ -33,38 +33,116 @@ export async function handleMissionsUpdate(
     if (status === "진행중" && description === null) {
       fcmToken = await getFCMToken(supabase, creator_id);
 
+      // notificationPayload = {
+      //   title: "마니또 미션 수락!",
+      //   body: `마니또를 추측 해보세요.`,
+      //   data: {
+      //     type: "update_mission_progress",
+      //     click_action: "FLUTTER_NOTIFICATION_CLICK",
+      //     mission_id: id,
+      //   },
+      // };
+
       notificationPayload = {
-        title: "마니또 미션 수락!",
-        body: `마니또를 추측 해보세요.`,
         data: {
           type: "update_mission_progress",
           click_action: "FLUTTER_NOTIFICATION_CLICK",
           mission_id: id,
         },
+        android: {
+          notification: {
+            title_loc_key: "UPDATE_MISSION_PROGRESS_TITLE",
+            body_loc_key: "UPDATE_MISSION_PROGRESS_BODY",
+            icon: "ic_notification",
+            image: "ic_notification_large",
+          },
+        },
+        apns: {
+          payload: {
+            aps: {
+              alert: {
+                "title-loc-key": "UPDATE_MISSION_PROGRESS_TITLE",
+                "loc-key": "UPDATE_MISSION_PROGRESS_BODY",
+              },
+            },
+          },
+        },
       };
     } // 미션 작성 완료
     else if (status === "추측중") {
       fcmToken = await getFCMToken(supabase, creator_id);
+      // notificationPayload = {
+      //   title: "마니또 미션 완료!",
+      //   body: `마니또를 추측 해보세요.`,
+      //   data: {
+      //     type: "update_mission_guess",
+      //     click_action: "FLUTTER_NOTIFICATION_CLICK",
+      //     mission_id: id,
+      //   },
+      // };
+
       notificationPayload = {
-        title: "마니또 미션 완료!",
-        body: `마니또를 추측 해보세요.`,
         data: {
           type: "update_mission_guess",
           click_action: "FLUTTER_NOTIFICATION_CLICK",
           mission_id: id,
+        },
+        android: {
+          notification: {
+            title_loc_key: "UPDATE_MISSION_GUESS_TITLE",
+            body_loc_key: "UPDATE_MISSION_GUESS_BODY",
+            icon: "ic_notification",
+            image: "ic_notification_large",
+          },
+        },
+        apns: {
+          payload: {
+            aps: {
+              alert: {
+                "title-loc-key": "UPDATE_MISSION_GUESS_TITLE",
+                "loc-key": "UPDATE_MISSION_GUESS_BODY",
+              },
+            },
+          },
         },
       };
     } // 미션 종료
     else if (status === "완료") {
       fcmToken = await getFCMToken(supabase, manito_id);
 
+      // notificationPayload = {
+      //   title: "미션 종료!",
+      //   body: `친구가 추리한 내용을 확인해보세요.`,
+      //   data: {
+      //     type: "update_mission_complete",
+      //     click_action: "FLUTTER_NOTIFICATION_CLICK",
+      //     mission_id: id,
+      //   },
+      // };
+
       notificationPayload = {
-        title: "미션 종료!",
-        body: `친구가 추리한 내용을 확인해보세요.`,
         data: {
           type: "update_mission_complete",
           click_action: "FLUTTER_NOTIFICATION_CLICK",
           mission_id: id,
+        },
+        android: {
+          notification: {
+            title_loc_key: "UPDATE_MISSION_COMPLETE_TITLE",
+            body_loc_key: "UPDATE_MISSION_COMPLETE_BODY",
+            icon: "ic_notification",
+            image: "ic_notification_large",
+          },
+        },
+        apns: {
+          payload: {
+            aps: {
+              alert: {
+                "title-loc-key": "UPDATE_MISSION_COMPLETE_TITLE",
+                "loc-key": "UPDATE_MISSION_COMPLETE_BODY",
+              },
+            },
+          },
         },
       };
     } // 미션 작성 업데이트 예외
