@@ -27,10 +27,10 @@ export async function sendFCMNotification(
       body: JSON.stringify({
         message: {
           token: token,
-          // notification: {
-          //   title: notification.title,
-          //   body: notification.body,
-          // },
+          notification: {
+            title: notification.title,
+            body: notification.body,
+          },
           data: notification.data,
           // 안드로이드 설정
           android: notification.android,

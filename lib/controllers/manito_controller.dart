@@ -53,7 +53,7 @@ class ManitoController extends GetxController {
               deadline_type
               ''')
           .eq('manito_id', _supabase.auth.currentUser!.id)
-          .eq('status', '진행중');
+          .eq('status', 'progressing');
 
       // content 빼오기
       List<Map<String, dynamic>> transformedData = [];
@@ -85,7 +85,7 @@ class ManitoController extends GetxController {
               creator_id
               ''')
           .eq('manito_id', _supabase.auth.currentUser!.id)
-          .eq('status', '추측중');
+          .eq('status', 'guessing');
       missionGuessList.value =
           data.map((e) => MissionGuess.fromJson(e)).toList();
     } catch (e) {

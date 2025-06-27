@@ -30,7 +30,7 @@ export async function handleMissionsUpdate(
 
   try {
     // 미션 수락
-    if (status === "진행중" && description === null) {
+    if (status === "progressing" && description === null) {
       fcmToken = await getFCMToken(supabase, creator_id);
 
       // notificationPayload = {
@@ -69,7 +69,7 @@ export async function handleMissionsUpdate(
         },
       };
     } // 미션 작성 완료
-    else if (status === "추측중") {
+    else if (status === "guessing") {
       fcmToken = await getFCMToken(supabase, creator_id);
       // notificationPayload = {
       //   title: "마니또 미션 완료!",
@@ -107,7 +107,7 @@ export async function handleMissionsUpdate(
         },
       };
     } // 미션 종료
-    else if (status === "완료") {
+    else if (status === "complete") {
       fcmToken = await getFCMToken(supabase, manito_id);
 
       // notificationPayload = {

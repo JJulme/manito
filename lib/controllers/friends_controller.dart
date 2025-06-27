@@ -82,7 +82,7 @@ class FriendsController extends GetxController {
         final missionData = await _supabase
             .from('missions')
             .select('creator_id')
-            .neq('status', '완료')
+            .neq('status', 'complete')
             .inFilter('creator_id', friendMap.keys.map((id) => id).toList());
         // 친구들의 진행중인 미션 카운트
         Map<String, int> creatorIdCounts = {};
@@ -512,7 +512,7 @@ class FriendsDetailController extends GetxController {
             'and(manito_id.eq.${friendProfile.id},creator_id.eq.$userId),'
             'and(manito_id.eq.$userId,creator_id.eq.${friendProfile.id})',
           )
-          .eq('status', '완료')
+          .eq('status', 'complete')
           .order('complete_at', ascending: true);
 
       // content 빼오기

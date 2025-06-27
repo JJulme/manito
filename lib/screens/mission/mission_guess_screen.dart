@@ -117,6 +117,9 @@ class MissionGuessScreen extends StatelessWidget {
 
   // 미션 기한
   Widget _buildDeadlineSection(BuildContext context, double screenWidth) {
+    final String deadlineType = context.tr(
+      "mission_guess_screen.${_controller.completeMission.deadlineType}",
+    );
     final String deadline = DateFormat(
       'yyyy-MM-dd HH:mm',
     ).format(_controller.completeMission.deadline);
@@ -126,7 +129,7 @@ class MissionGuessScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${_controller.completeMission.deadlineType} ${context.tr("mission_guess_screen.period_of_time")}',
+            '$deadlineType ${context.tr("mission_guess_screen.period_of_time")}',
             style: Get.textTheme.bodyLarge,
           ),
           Text(

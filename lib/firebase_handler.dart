@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 import 'package:manito/controllers/badge_controller.dart';
@@ -13,42 +14,42 @@ void handleForegroundMessage(RemoteMessage message) async {
   final MissionController missionController = Get.find<MissionController>();
   final BadgeController badgeController = Get.find<BadgeController>();
 
+  void showLocalizedSnackbar(String keySuffix, {List<String>? args}) {
+    final String titleKey = "firebase_handler.${keySuffix}_title";
+    final String bodyKey = "firebase_handler.${keySuffix}_body";
+    String snackTitle = Get.context!.tr(titleKey);
+    String snackMessage = Get.context!.tr(
+      bodyKey,
+      args: args,
+    ); // args를 GetX tr()에 전달
+
+    customSnackbar(title: snackTitle, message: snackMessage);
+  }
+
   // 친구 신청
   if (message.data['type'] == 'friend_request') {
     badgeController.badgeMap['friend_request']!.value++;
-    customSnackbar(
-      title: message.notification!.title!,
-      message: message.notification!.body!,
-    );
+    showLocalizedSnackbar("friend_request");
   }
   // 미션 제의
   else if (message.data['type'] == 'mission_propose') {
     await manitoController.fetchMissionProposeList();
     badgeController.badgeMap['mission_propose']!.value++;
-    customSnackbar(
-      title: message.notification!.title!,
-      message: message.notification!.body!,
-    );
+    showLocalizedSnackbar("mission_propose");
   }
   // 마니또가 미션을 수락
   else if (message.data['type'] == 'update_mission_progress') {
     await missionController.fetchMyMissions();
     badgeController.badgeMap['mission_accept']!.value++;
     badgeController.updateBadgeMissionCount();
-    customSnackbar(
-      title: message.notification!.title!,
-      message: message.notification!.body!,
-    );
+    showLocalizedSnackbar("mission_accept");
   }
   // 마니또가 미션을 완료
   else if (message.data['type'] == 'update_mission_guess') {
     await missionController.fetchMyMissions();
     badgeController.badgeMap['mission_guess']!.value++;
     badgeController.updateBadgeMissionCount();
-    customSnackbar(
-      title: message.notification!.title!,
-      message: message.notification!.body!,
-    );
+    showLocalizedSnackbar("mission_guess");
   }
   // 생성자가 추측을 완료
   else if (message.data['type'] == 'update_mission_complete') {
@@ -56,10 +57,7 @@ void handleForegroundMessage(RemoteMessage message) async {
     await postController.fetchPosts();
     badgeController.badgeMap['mission_complete']!.value++;
     badgeController.updateBadgePostCount();
-    customSnackbar(
-      title: message.notification!.title!,
-      message: message.notification!.body!,
-    );
+    showLocalizedSnackbar("mission_complete");
   }
   // 새로운 댓글
   else if (message.data['type'] == 'insert_comment') {

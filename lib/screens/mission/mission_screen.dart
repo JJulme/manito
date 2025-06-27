@@ -364,7 +364,7 @@ class _MissionScreenState extends State<MissionScreen>
       children: [
         icon,
         SizedBox(width: screenWidth * _itemSpacing),
-        Text(status, style: Get.textTheme.titleMedium),
+        Text("mission_screen.$status", style: Get.textTheme.titleMedium).tr(),
         SizedBox(width: screenWidth * _smallSpacing),
         Text('(${context.tr("mission_screen.$deadlineType")}) '),
         _buildTooltip(tooltipMessage),

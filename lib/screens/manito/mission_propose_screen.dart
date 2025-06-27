@@ -153,6 +153,9 @@ class _MissionProposeScreenState extends State<MissionProposeScreen> {
   // 미션 설명 위젯
   Widget _buildMissionDescription(double width, profile, dynamic mission) {
     final DateFormat formatter = DateFormat('yy-MM-dd HH:mm');
+    final String deadlineType = context.tr(
+      "mission_propose_screen.${mission.deadlineType}",
+    );
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 0.05 * width),
@@ -165,7 +168,7 @@ class _MissionProposeScreenState extends State<MissionProposeScreen> {
             style: Get.textTheme.titleMedium,
           ).tr(namedArgs: {"nickname": profile.nickname}),
           Text(
-            '${mission.deadlineType} 내에  (${formatter.format(mission.deadline)})',
+            '$deadlineType 내에  (${formatter.format(mission.deadline)})',
             style: Get.textTheme.titleMedium,
           ),
         ],
