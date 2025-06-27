@@ -194,21 +194,21 @@ class MissionProposeController extends GetxController {
         },
       );
       Get.back(result: true);
-      return '미션을 수락 했습니다.';
+      return 'accept_success';
     } on PostgrestException catch (e) {
       Get.back(result: true);
       if (e.code == 'P0001') {
         debugPrint('acceptMissionPropose Error: $e');
-        return '이미 수락된 미션입니다.';
+        return e.code!;
       } else {
         debugPrint('acceptMissionPropose Error: $e');
-        return '이미 삭제된 미션입니다.';
+        return 'accept_fail';
       }
     } catch (e) {
       // 화면을 나가고 제안 새로고침 필요함
       Get.back(result: true);
       debugPrint('acceptMissionPropose Error: $e');
-      return '이미 삭제된 미션입니다.';
+      return 'accept_fail';
     }
   }
 }
@@ -330,7 +330,6 @@ class ManitoPostController extends GetxController {
       await postTable.update(upsertData).eq('id', missionAccept.id);
       // 저장 상태 변경
       isPosting.value = true;
-      // customSnackbar(title: '저장 성공', message: '미션종료 버튼을 누르면 친구에게 알림이 갑니다.');
       return true;
     } catch (e) {
       debugPrint('updatePost Error: $e');

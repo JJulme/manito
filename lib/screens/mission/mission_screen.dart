@@ -77,7 +77,10 @@ class _MissionScreenState extends State<MissionScreen>
     if (_controller.pendingMyMissions.length +
             _controller.acceptMyMissions.length >
         2) {
-      customSnackbar(title: '알림', message: '미션은 최대 3개 만들 수 있습니다.');
+      customSnackbar(
+        title: context.tr("mission_screen.max_snack_title"),
+        message: context.tr("mission_screen.max_snack_message"),
+      );
     } else {
       final result = await Get.to(() => MissionCreateScreen());
       if (result == true) {

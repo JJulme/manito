@@ -50,7 +50,7 @@ class _FriendsRequestScreenState extends State<FriendsRequestScreen> {
     _controller.fetchFriendRequest();
     if (!mounted) return;
     customSnackbar(
-      title: '알림',
+      title: context.tr('friends_request_screen.snack_title'),
       message: context.tr('friends_request_screen.$result'),
     );
   }

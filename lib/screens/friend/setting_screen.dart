@@ -6,6 +6,7 @@ import 'package:manito/constants.dart';
 import 'package:manito/controllers/auth_controller.dart';
 import 'package:manito/controllers/friends_controller.dart';
 import 'package:manito/widgets/common/custom_snackbar.dart';
+import 'package:path/path.dart';
 import 'package:restart_app/restart_app.dart';
 
 class SettingScreen extends StatelessWidget {
@@ -35,8 +36,8 @@ class SettingScreen extends StatelessWidget {
   // 로그아웃
   void _showLogoutDialog() {
     kDefaultDialog(
-      '로그아웃',
-      '로그아웃 하시겠습니까?',
+      Get.context!.tr("setting_screen.logout_dialog_title"),
+      Get.context!.tr("setting_screen.logout_dialog_message"),
       onYesPressed: () => _authController.logout(),
     );
   }
@@ -126,15 +127,21 @@ class SettingScreen extends StatelessWidget {
     Clipboard.setData(const ClipboardData(text: _contactEmail));
 
     if (GetPlatform.isIOS) {
-      customSnackbar(title: '복사 완료', message: '이메일 주소가 복사 되었습니다.');
+      final String snackTitle = Get.context!.tr(
+        "setting_screen.copy_snack_title",
+      );
+      final String snackMessage = Get.context!.tr(
+        "setting_screen.copy_snack_message",
+      );
+      customSnackbar(title: snackTitle, message: snackMessage);
     }
   }
 
   // 계정 삭제
   void _showDeleteAccountDialog() {
     kDefaultDialog(
-      '계정 삭제',
-      '계정을 삭제하면 복구 할 수 없습니다.',
+      Get.context!.tr("setting_screen.delete_account_dialog_title"),
+      Get.context!.tr("setting_screen.delete_account_dialog_message"),
       onYesPressed: () async {
         await _authController.deleteUser();
       },

@@ -52,13 +52,10 @@ class _FriendsDetailScreenState extends State<FriendsDetailScreen> {
         final bool result = await _controller.blockFriend();
         if (!result) {
           if (!mounted) return;
-          final String snackTitle = context.tr(
-            "friends_detail_screen.snack_title",
+          customSnackbar(
+            title: context.tr("friends_detail_screen.snack_title"),
+            message: context.tr("friends_detail_screen.snack_message"),
           );
-          final String snackMessage = context.tr(
-            "friends_detail_screen.snack_message",
-          );
-          customSnackbar(title: snackTitle, message: snackMessage);
         }
         _friendsController.fetchFriendList();
       },

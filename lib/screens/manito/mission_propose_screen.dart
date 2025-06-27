@@ -59,24 +59,34 @@ class _MissionProposeScreenState extends State<MissionProposeScreen> {
         await _controller.fetchMissionPropose();
       });
     } else {
-      customSnackbar(title: '오류', message: '광고가 준비되지 않았습니다.\n잠시 후 다시 시도해주세요.');
+      customSnackbar(
+        title: context.tr("mission_propose_screen.ad_snack_title"),
+        message: context.tr("mission_propose_screen.ad_snack_message"),
+      );
     }
   }
 
   // 미션 수락 다이얼로그 표시
   void _showAcceptMissionDialog() {
     if (_controller.selectedContentId.value == null) {
-      customSnackbar(title: '알림', message: '미션을 선택해주세요.');
+      customSnackbar(
+        title: context.tr("mission_propose_screen.select_snack_title"),
+        message: context.tr("mission_propose_screen.select_snack_message"),
+      );
       return;
     }
     kDefaultDialog(
-      '미션 수락',
-      '미션을 수락하고 취소 할 수 없습니다.',
+      context.tr("mission_propose_screen.dialog_title"),
+      context.tr("mission_propose_screen.dialog_message"),
       onYesPressed: () async {
         String result = await _controller.acceptMissionPropose(
           _controller.selectedContentId.value!,
         );
-        customSnackbar(title: '알림', message: result);
+        if (!mounted) return;
+        customSnackbar(
+          title: context.tr("mission_propose_screen.snack_title"),
+          message: context.tr("mission_propose_screen.$result"),
+        );
       },
     );
   }

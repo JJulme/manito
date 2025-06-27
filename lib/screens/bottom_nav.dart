@@ -92,7 +92,11 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
       NotificationSettings settings = await FirebaseMessaging.instance
           .requestPermission(alert: true, badge: true, sound: true);
       if (settings.authorizationStatus == AuthorizationStatus.denied) {
-        customSnackbar(title: '알림 권한', message: '알림을 받으려면 설정에서 알림을 활성화해야 합니다.');
+        if (!mounted) return;
+        customSnackbar(
+          title: context.tr("bottom_nav.fcm_snack_title"),
+          message: context.tr("bottom_nav.fcm_snack_message"),
+        );
       }
 
       // 토큰 설정
@@ -115,7 +119,11 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
       FirebaseMessaging.onMessage.listen(handleForegroundMessage);
     } catch (e) {
       debugPrint('_handleFCMToken Error: $e');
-      customSnackbar(title: '오류', message: 'FCM 토큰 오류');
+      if (!mounted) return;
+      customSnackbar(
+        title: context.tr("bottom_nav.token_error_snack_title"),
+        message: context.tr("bottom_nav.token_error_snack_message"),
+      );
     }
   }
 

@@ -42,12 +42,16 @@ class _ManitoPostScreenState extends State<ManitoPostScreen> {
   // 친구에게 게시물 보내는 함수
   void _completePost() async {
     kDefaultDialog(
-      '미션 완료',
-      '미션을 종료하고 친구에게 알립니다.',
+      context.tr("manito_post_screen.dialog_title"),
+      context.tr("manito_post_screen.dialog_message"),
       onYesPressed: () async {
         String result = await _controller.completePost();
         await _postController.fetchPosts();
-        customSnackbar(title: '알림', message: result);
+        if (!mounted) return;
+        customSnackbar(
+          title: context.tr("manito_post_screen.snack_title"),
+          message: context.tr("manito_post_screen.$result"),
+        );
       },
     );
   }
@@ -56,7 +60,10 @@ class _ManitoPostScreenState extends State<ManitoPostScreen> {
   Future<void> _handlePostAction() async {
     // 작성 문구 짧을 때
     if (_controller.descController.text.length < 5) {
-      customSnackbar(title: '정성부족', message: '5글자 이상 작성해 주세요.');
+      customSnackbar(
+        title: context.tr("manito_post_screen.text_short_snack_title"),
+        message: context.tr("manito_post_screen.text_short_snack_message"),
+      );
       return;
     }
 
@@ -68,13 +75,11 @@ class _ManitoPostScreenState extends State<ManitoPostScreen> {
     else {
       final bool result = await _controller.updatePost();
       if (!result) {
-        final String snackTitle = context.tr(
-          "manito_post_screen.error_snack_title",
+        if (!mounted) return;
+        customSnackbar(
+          title: context.tr("manito_post_screen.error_snack_title"),
+          message: context.tr("manito_post_screen.error_snack_message"),
         );
-        final String snackMessage = context.tr(
-          "manito_post_screen.error_snack_message",
-        );
-        customSnackbar(title: snackTitle, message: snackMessage);
       }
     }
   }

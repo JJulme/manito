@@ -44,13 +44,10 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
       final bool result = await _controller.searchEmail();
       if (!result) {
         if (!mounted) return;
-        final String snackTitle = context.tr(
-          "friends_search_screen.snack_title",
+        customSnackbar(
+          title: context.tr("friends_search_screen.snack_title"),
+          message: context.tr("friends_search_screen.no_result_message"),
         );
-        final String snackMessage = context.tr(
-          "friends_search_screen.no_result_message",
-        );
-        customSnackbar(title: snackTitle, message: snackMessage);
       }
     }
   }

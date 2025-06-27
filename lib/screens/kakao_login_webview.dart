@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
@@ -67,15 +68,23 @@ class _KakaoLoginWebviewState extends State<KakaoLoginWebview> {
                           Get.offAll(() => SplashScreen());
                         } catch (e) {
                           customSnackbar(
-                            title: '로그인 오류',
-                            message: '인증 처리에 오류가 발생했습니다.',
+                            title: context.tr(
+                              "kakao_login_webview.error_snack_title",
+                            ),
+                            message: context.tr(
+                              "kakao_login_webview.error_snack_message",
+                            ),
                           );
                           debugPrint('인증 처리에 오류가 발생했습니다. $e');
                         }
                       } else {
                         customSnackbar(
-                          title: '로그인 실패',
-                          message: '인증 코드를 받지 못했습니다.',
+                          title: context.tr(
+                            "kakao_login_webview.failed_snack_title",
+                          ),
+                          message: context.tr(
+                            "kakao_login_webview.failed_snack_message",
+                          ),
                         );
                         debugPrint('인증 코드를 받지 못했습니다.');
                       }

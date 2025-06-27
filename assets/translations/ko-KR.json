@@ -15,7 +15,11 @@
     "friends": "친구",
     "history": "기록",
     "sent_missions": "보낸미션",
-    "received_missions": "받은미션"
+    "received_missions": "받은미션",
+    "fcm_snack_title": "알림 권한",
+    "fcm_snack_message": "알림을 받으려면 설정에서 알림을 활성화해야 합니다.",
+    "token_error_snack_title": "토큰 오류",
+    "token_error_snack_message": "알 수 없는 오류가 발생 했습니다."
   },
   "friends_screen": {
     "title": "친구",
@@ -28,9 +32,15 @@
     "title": "설정",
     "friends_refresh": "친구목록 새로고침",
     "logout": "로그아웃",
+    "logout_dialog_title": "로그아웃",
+    "logout_dialog_message": "로그아웃 하시겠습니까?",
     "language": "언어 설정",
     "contact": "문의하기",
+    "copy_snack_title": "복사 완료",
+    "copy_snack_message": "이메일 주소가 복사 되었습니다.",
     "delete_account": "계정 삭제",
+    "delete_account_dialog_title": "계정 삭제",
+    "delete_account_dialog_message": "계정을 삭제하면 복구 할 수 없습니다.",
     "dialog_title": "언어 선택",
     "dialog_cancel": "취소",
     "restart_title": "앱 재부팅",
@@ -109,6 +119,8 @@
   "mission_screen": {
     "title": "보낸 미션",
     "create_mission_btn": " 미션 만들기",
+    "max_snack_title": "미션 과다",
+    "max_snack_message": "미션은 최대 3개 만들 수 있습니다.",
     "completed_mission_received": "완료된 미션 도착!",
     "pending_mission_tooltip": "남은 시간까지 수락한 친구가 없다면 자동으로 삭제됩니다.",
     "accept_mission_tooltip": "마니또가 미션을 진행중 입니다.",
@@ -169,12 +181,29 @@
     "for_friend": "{nickname} 에게",
     "day": "하루",
     "week": "한주",
+    "dialog_title": "미션 수락",
+    "dialog_message": "미션을 수락하고 취소 할 수 없습니다.",
+    "snack_title": "알림",
+    "accept_success": "미션을 수락 했습니다.",
+    "P0001": "이미 수락된 미션입니다.",
+    "accept_fail": "이미 삭제된 미션입니다.",
     "late_snack_title": "늦었음",
     "late_snack_message": "존재하지 않는 제안입니다.",
     "error_snack_title": "오류",
-    "error_snack_message": "알 수 없는 오류가 발생했습니다."
+    "error_snack_message": "알 수 없는 오류가 발생했습니다.",
+    "ad_snack_title": "광고 준비중",
+    "ad_snack_message": "광고가 준비되지 않았습니다.\n잠시 후 다시 시도해주세요.",
+    "select_snack_title": "미션 선택",
+    "select_snack_message": "미션을 선택해주세요."
   },
   "manito_post_screen": {
+    "dialog_title": "미션 완료",
+    "dialog_message": "미션을 종료하고 친구에게 알립니다.",
+    "snack_title": "알림",
+    "post_success": "친구에게 게시물 전송을 완료 했습니다.",
+    "post_failed": "알 수 없는 오류로 게시물 전송에 실패 했습니다.",
+    "text_short_snack_title": "정성 부족",
+    "text_short_snack_message": "5글자 이상 작성해 주세요.",
     "error_snack_title": "저장 오류",
     "error_snack_message": "알 수 없는 오류로 저장에 실패 했습니다."
   },
@@ -193,5 +222,11 @@
     "mission_guess_body": "누가 나의 마니또였는지 확인 해보세요.",
     "mission_complete_title": "미션 종료!",
     "mission_complete_body": "친구가 추리한 내용을 확인해보세요."
+  },
+  "kakao_login_webview": {
+    "error_snack_title": "로그인 오류",
+    "error_snack_message": "인증 처리에 오류가 발생했습니다.",
+    "failed_snack_title": "로그인 실패",
+    "failed_snack_message": "인증 코드를 받지 못했습니다."
   }
 }
