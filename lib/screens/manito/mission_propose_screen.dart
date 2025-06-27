@@ -26,7 +26,20 @@ class _MissionProposeScreenState extends State<MissionProposeScreen> {
     _controller = Get.put(MissionProposeController());
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _controller.fetchMissionPropose();
+      final String result = await _controller.fetchMissionPropose();
+      if (!mounted) return;
+      final String snackTitle;
+      final String snackMessage;
+      if (result == 'success') {
+        return;
+      } else if (result == 'PGRST116') {
+        snackTitle = context.tr("mission_propose_screen.late_snack_title");
+        snackMessage = context.tr("mission_propose_screen.late_snack_message");
+      } else {
+        snackTitle = context.tr("mission_propose_screen.error_snack_title");
+        snackMessage = context.tr("mission_propose_screen.error_snack_message");
+      }
+      customSnackbar(title: snackTitle, message: snackMessage);
       _rewardedAdManager.loadRewardedAd(() => debugPrint('광고 로드 완료'));
     });
   }

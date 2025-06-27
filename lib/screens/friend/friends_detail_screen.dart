@@ -8,6 +8,7 @@ import 'package:manito/models/post.dart';
 import 'package:manito/models/user_profile.dart';
 import 'package:manito/screens/friend/friends_modify_screen.dart';
 import 'package:manito/widgets/admob/banner_ad_widget.dart';
+import 'package:manito/widgets/common/custom_snackbar.dart';
 import 'package:manito/widgets/post/post_item.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
 
@@ -48,7 +49,17 @@ class _FriendsDetailScreenState extends State<FriendsDetailScreen> {
       context.tr("friends_detail_screen.dialog_title"),
       context.tr("friends_detail_screen.dialog_message"),
       onYesPressed: () async {
-        await _controller.blockFriend();
+        final bool result = await _controller.blockFriend();
+        if (!result) {
+          if (!mounted) return;
+          final String snackTitle = context.tr(
+            "friends_detail_screen.snack_title",
+          );
+          final String snackMessage = context.tr(
+            "friends_detail_screen.snack_message",
+          );
+          customSnackbar(title: snackTitle, message: snackMessage);
+        }
         _friendsController.fetchFriendList();
       },
     );

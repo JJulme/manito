@@ -169,7 +169,7 @@ class FriendSearchController extends GetxController {
 
   // 친구 검색 화면
   /// 이메일 검색 - 검색 DB 함수 만들어야 함
-  Future<void> searchEmail() async {
+  Future<bool> searchEmail() async {
     isLoading.value = true;
     try {
       var result =
@@ -179,10 +179,11 @@ class FriendSearchController extends GetxController {
               .eq('email', emailController.text)
               .single();
       searchProfile.value = UserProfile.fromJson(result);
+      return true;
     } catch (e) {
       searchProfile.value = null;
-      customSnackbar(title: '알림', message: '검색 결과가 없습니다.');
       debugPrint('searchEmail Error: $e');
+      return false;
     } finally {
       isLoading.value = false;
     }
@@ -478,7 +479,7 @@ class FriendsDetailController extends GetxController {
   }
 
   /// 친구 차단
-  Future<void> blockFriend() async {
+  Future<bool> blockFriend() async {
     String userId = _supabase.auth.currentUser!.id;
     String friendId = friendProfile.id;
     try {
@@ -487,9 +488,10 @@ class FriendsDetailController extends GetxController {
         params: {'p_user_id': userId, 'p_friend_id': friendId},
       );
       Get.back();
+      return true;
     } catch (e) {
-      customSnackbar(title: '오류', message: '$e');
       debugPrint('blockFriend Error: $e');
+      return false;
     }
   }
 

@@ -41,7 +41,17 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
   // 검색버튼 동작 함수
   Future<void> _searchEmail() async {
     if (_formKey.currentState!.validate()) {
-      await _controller.searchEmail();
+      final bool result = await _controller.searchEmail();
+      if (!result) {
+        if (!mounted) return;
+        final String snackTitle = context.tr(
+          "friends_search_screen.snack_title",
+        );
+        final String snackMessage = context.tr(
+          "friends_search_screen.no_result_message",
+        );
+        customSnackbar(title: snackTitle, message: snackMessage);
+      }
     }
   }
 

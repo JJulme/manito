@@ -113,7 +113,7 @@ class MissionProposeController extends GetxController {
   }
 
   /// 미션 제의 정보 가져옴
-  Future<void> fetchMissionPropose() async {
+  Future<String> fetchMissionPropose() async {
     isLoading.value = true;
     final String currentLanguageCode =
         EasyLocalization.of(Get.context!)!.locale.languageCode;
@@ -150,16 +150,17 @@ class MissionProposeController extends GetxController {
       data["random_contents"] = contentListMap;
 
       missionPropose.value = MissionPropose.fromJson(data);
+      return 'success';
     } on PostgrestException catch (e) {
       if (e.code == 'PGRST116') {
         Get.back(result: true); // 새로고침 명령
-        customSnackbar(title: '늦었음', message: '존재하지 않는 제안입니다.');
       } else {
         debugPrint('fetchMissionPropose Postgrest Error: $e');
-        customSnackbar(title: '오류', message: '알 수 없는 오류: $e');
       }
+      return e.code!;
     } catch (e) {
       debugPrint('fetchMissionPropose Error: $e');
+      return e.hashCode.toString();
     } finally {
       isLoading.value = false;
     }
@@ -281,7 +282,7 @@ class ManitoPostController extends GetxController {
   }
 
   /// 게시물 저장
-  Future<void> updatePost() async {
+  Future<bool> updatePost() async {
     updateLoading.value = true;
     try {
       final postTable = _supabase.from('missions');
@@ -330,9 +331,11 @@ class ManitoPostController extends GetxController {
       // 저장 상태 변경
       isPosting.value = true;
       // customSnackbar(title: '저장 성공', message: '미션종료 버튼을 누르면 친구에게 알림이 갑니다.');
+      return true;
     } catch (e) {
       customSnackbar(title: '오류', message: '$e');
       debugPrint('updatePost Error: $e');
+      return false;
     } finally {
       updateLoading.value = false;
     }
