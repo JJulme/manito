@@ -333,7 +333,6 @@ class ManitoPostController extends GetxController {
       // customSnackbar(title: '저장 성공', message: '미션종료 버튼을 누르면 친구에게 알림이 갑니다.');
       return true;
     } catch (e) {
-      customSnackbar(title: '오류', message: '$e');
       debugPrint('updatePost Error: $e');
       return false;
     } finally {
