@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:manito/screens/login_screen.dart';
 import 'package:manito/screens/splash_screen.dart';
 import 'package:manito/widgets/common/custom_snackbar.dart';
@@ -21,9 +22,12 @@ class AuthController extends GetxController {
       redirectTo: 'kakao1a36ff49b64f62a81bd117e504fe332b://oauth',
       // authScreenLaunchMode: LaunchMode.externalApplication,
       // authScreenLaunchMode: LaunchMode.inAppBrowserView,
-      authScreenLaunchMode: LaunchMode.inAppWebView,
+      authScreenLaunchMode:
+          GetPlatform.isAndroid
+              ? LaunchMode.inAppBrowserView
+              : LaunchMode.inAppWebView,
       // authScreenLaunchMode: LaunchMode.platformDefault,
-      scopes: "profile_nickname,account_email",
+      scopes: 'profile_nickname,account_email',
     );
 
     supabase.auth.onAuthStateChange.listen((data) async {
@@ -36,6 +40,48 @@ class AuthController extends GetxController {
         debugPrint('Login failed');
       }
     });
+  }
+
+  /// Google 로그인 처리
+  Future<void> loginWithGoogle() async {
+    try {
+      final String webClientId = dotenv.env["GOOGLE_OAUTH_WEB"]!;
+      final String iosClientId = dotenv.env["GOOGLE_OAUTH_IOS"]!;
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        clientId: iosClientId,
+        serverClientId: webClientId,
+        scopes: ['email'],
+      );
+      final googleUser = await googleSignIn.signIn();
+      // 사용자 로그인 취소
+      if (googleUser == null) {
+        debugPrint('사용자 로그인 취소');
+        return;
+      }
+
+      final googleAuth = await googleUser.authentication;
+      final accessToken = googleAuth.accessToken;
+      final idToken = googleAuth.idToken;
+
+      // 엑세스 토큰 없음
+      if (accessToken == null) {
+        throw 'No Access Token found.';
+      }
+      // 아이디 토큰 없음
+      if (idToken == null) {
+        throw 'No ID Token found.';
+      }
+
+      // supabase 로그인
+      await supabase.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: idToken,
+        accessToken: accessToken,
+      );
+      Get.offAll(() => SplashScreen());
+    } catch (e) {
+      debugPrint('loginWithGoogle Error: $e');
+    }
   }
 
   // Future<void> loginWithKakao() async {

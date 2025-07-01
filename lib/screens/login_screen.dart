@@ -64,12 +64,26 @@ class LoginScreen extends StatelessWidget {
             // 화면 5
             PageViewModel(
               title: context.tr('login_screen.page5'),
-              bodyWidget: AuthButton(
-                imagePath: context.tr('login_screen.kakao_btn'),
-                onTap: () async {
-                  await CookieManager.instance().deleteAllCookies();
-                  Get.to(() => KakaoLoginWebview());
-                },
+              bodyWidget: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  AuthButton(
+                    imagePath: 'assets/images/round_google.png',
+                    onTap: () async {
+                      await CookieManager.instance().deleteAllCookies();
+                      await authController.loginWithGoogle();
+                    },
+                  ),
+                  SizedBox(width: width * 0.1),
+                  AuthButton(
+                    imagePath: 'assets/images/round_kakao.png',
+                    onTap: () async {
+                      await CookieManager.instance().deleteAllCookies();
+                      Get.to(() => KakaoLoginWebview());
+                      // await authController.loginWithKakao();
+                    },
+                  ),
+                ],
               ),
               image: Image.asset(
                 'assets/images/manito_dog.png',
@@ -110,8 +124,9 @@ class AuthButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 0.05 * width),
+    return SizedBox(
+      height: width * 0.15,
+      width: width * 0.15,
       child: InkWell(
         onTap: onTap,
         child: Image.asset(imagePath, fit: BoxFit.cover),
