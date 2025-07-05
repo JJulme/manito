@@ -374,7 +374,11 @@ class _CommentList extends StatelessWidget {
         Text(userProfile?.nickname ?? '알 수 없음', style: Get.textTheme.bodySmall),
         SizedBox(width: _smallSpacing * width),
         Text(
-          timeago.format(comment.createdAt, locale: 'ko'),
+          timeago.format(
+            comment.createdAt,
+            locale:
+                Get.context!.locale.languageCode == 'ko' ? 'ko' : 'en_short',
+          ),
           style: Get.textTheme.labelSmall,
         ),
       ],

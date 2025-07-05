@@ -31,8 +31,8 @@ void main() async {
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
   // 언어 설정
-  timeago.setLocaleMessages('ko', timeago.KoMessages());
-  timeago.setLocaleMessages('en', timeago.EnMessages());
+  // timeago.setLocaleMessages('ko', timeago.KoMessages());
+  // timeago.setLocaleMessages('en_short', timeago.EnMessages());
   runApp(
     EasyLocalization(
       supportedLocales: const [Locale('ko', 'KR'), Locale('en', 'US')],

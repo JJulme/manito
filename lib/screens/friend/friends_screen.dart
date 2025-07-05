@@ -55,7 +55,7 @@ class FriendsScreen extends StatelessWidget {
   }
 
   // 앱바
-  PreferredSizeWidget _buildAppBar() {
+  AppBar _buildAppBar() {
     final width = Get.width;
     return AppBar(
       centerTitle: false,
@@ -201,7 +201,11 @@ class FriendsScreen extends StatelessWidget {
                 ),
               ),
               onPressed: _toProfileModifyScreen,
-              child: Text('수정', style: Get.textTheme.labelSmall),
+              child:
+                  Text(
+                    "friends_screen.edit",
+                    style: Get.textTheme.labelSmall,
+                  ).tr(),
             ),
           ),
         ],

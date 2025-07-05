@@ -6,6 +6,7 @@ import 'package:manito/models/post.dart';
 import 'package:manito/screens/post/post_detail_screen.dart';
 import 'package:manito/widgets/common/custom_badge.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
+import 'package:path/path.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class PostItem extends StatelessWidget {
@@ -133,7 +134,13 @@ class PostItem extends StatelessWidget {
       children: [
         Text(
           post.completeAt != null
-              ? timeago.format(post.completeAt!, locale: 'ko')
+              ? timeago.format(
+                post.completeAt!,
+                locale:
+                    Get.context!.locale.languageCode == 'ko'
+                        ? 'ko'
+                        : 'en_short',
+              )
               : 'No Date',
           style: Get.textTheme.labelMedium,
         ),
