@@ -32,7 +32,7 @@ class _MissionScreenState extends State<MissionScreen>
   static const double _refreshIconSize = 0.07;
   static const double _borderRadius = 0.02;
   static const double _titleSpacing = 0.07;
-  static const double _buttonHeight = 0.15;
+  static const double _buttonHeight = 0.14;
   static const double _friendsListHeight = 0.22;
   static const double _pendingProfileSize = 0.15;
   static const double _acceptProfileSize = 0.14;
@@ -158,14 +158,16 @@ class _MissionScreenState extends State<MissionScreen>
   Widget _buildCreateMissionButton(double screenWidth) {
     if (!_canCreateMission) return const SizedBox.shrink();
 
-    final buttonWidth = screenWidth - (_horizontalPadding * 2) * screenWidth;
     return Container(
-      width: buttonWidth,
-      height: buttonWidth * _buttonHeight,
+      width: double.maxFinite,
+      height: screenWidth * _buttonHeight,
       margin: EdgeInsets.only(
-        left: screenWidth * _horizontalPadding,
-        right: screenWidth * _horizontalPadding,
+        // left: screenWidth * _horizontalPadding,
+        // right: screenWidth * _horizontalPadding,
         bottom: screenWidth * _containerSpacing,
+      ),
+      padding: EdgeInsets.symmetric(
+        horizontal: screenWidth * _horizontalPadding,
       ),
       child: ElevatedButton(
         onPressed: _toMissionCreateScreen,
@@ -263,15 +265,18 @@ class _MissionScreenState extends State<MissionScreen>
       onTap: () => _toMissionGuessScreen(mission),
       child: _buildMissionContainer(
         screenWidth: screenWidth,
-        child: Row(
-          children: [
-            const Icon(Icons.check_circle_sharp, color: Colors.green),
-            SizedBox(width: screenWidth * _itemSpacing),
-            Text(
-              "mission_screen.completed_mission_received",
-              style: Get.textTheme.titleMedium,
-            ).tr(),
-          ],
+        child: SizedBox(
+          height: screenWidth * 0.11,
+          child: Row(
+            children: [
+              const Icon(Icons.check_circle_sharp, color: Colors.green),
+              SizedBox(width: screenWidth * _itemSpacing),
+              Text(
+                "mission_screen.completed_mission_received",
+                style: Get.textTheme.titleMedium,
+              ).tr(),
+            ],
+          ),
         ),
       ),
     );

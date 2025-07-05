@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -159,7 +160,11 @@ class _MissionProposeScreenState extends State<MissionProposeScreen> {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 0.05 * width),
             alignment: Alignment.centerLeft,
-            child: Text('미션 선택', style: Get.textTheme.titleMedium),
+            child:
+                Text(
+                  "mission_propose_screen.select_mission",
+                  style: Get.textTheme.titleMedium,
+                ).tr(),
           ),
           SizedBox(height: 0.03 * width),
 
@@ -191,7 +196,7 @@ class _MissionProposeScreenState extends State<MissionProposeScreen> {
             style: Get.textTheme.titleMedium,
           ).tr(namedArgs: {"nickname": profile.nickname}),
           Text(
-            '$deadlineType 내에  (${formatter.format(mission.deadline)})',
+            '${context.tr(deadlineType)} (${formatter.format(mission.deadline)})',
             style: Get.textTheme.titleMedium,
           ),
         ],
@@ -243,11 +248,16 @@ class _MissionProposeScreenState extends State<MissionProposeScreen> {
               color: isSelected ? Colors.green : Colors.white70,
             ),
             SizedBox(width: 0.03 * width),
-            Text(
-              missionContent.content,
-              style: TextStyle(
-                fontSize: 0.05 * width,
-                color: isSelected ? Colors.green : Colors.black87,
+            Expanded(
+              child: AutoSizeText(
+                missionContent.content,
+                minFontSize: 10,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 0.05 * width,
+                  color: isSelected ? Colors.green : Colors.black87,
+                ),
               ),
             ),
           ],
@@ -271,7 +281,10 @@ class _MissionProposeScreenState extends State<MissionProposeScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.movie_creation_outlined, size: 0.07 * width),
-            Text(' 광고보고 +1', style: TextStyle(fontSize: 0.05 * width)),
+            Text(
+              "mission_propose_screen.watch_ad",
+              style: TextStyle(fontSize: 0.05 * width),
+            ).tr(),
           ],
         ),
       ),

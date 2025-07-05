@@ -15,7 +15,11 @@
     "friends": "Friends",
     "history": "History",
     "sent_missions": "Outbox",
-    "received_missions": "To-Do"
+    "received_missions": "To-Do",
+    "fcm_snack_title": "Notification Permission",
+    "fcm_snack_message": "To receive notifications, you need to enable them in settings.",
+    "token_error_snack_title": "Token Error",
+    "token_error_snack_message": "An unknown error occurred."
   },
   "friends_screen": {
     "title": "Friends",
@@ -28,9 +32,15 @@
     "title": "Settings",
     "friends_refresh": "Refresh Friends List",
     "logout": "Logout",
+    "logout_dialog_title": "Logout",
+    "logout_dialog_message": "Are you sure you want to log out?",
     "language": "Language Settings",
     "contact": "Contact Us",
+    "copy_snack_title": "Copied",
+    "copy_snack_message": "Email address copied.",
     "delete_account": "Delete Account",
+    "delete_account_dialog_title": "Delete Account",
+    "delete_account_dialog_message": "Once you delete your account, it cannot be recovered.",
     "dialog_title": "Select Language",
     "dialog_cancel": "Cancel",
     "restart_title": "Restart App",
@@ -44,6 +54,7 @@
     "request_btn": "Send Request",
     "snack_title": "Notification",
     "copy_message": "Copied to clipboard.",
+    "no_result_message": "No results found.",
     "request_self": "You cannot send a friend request to yourself.",
     "already_friends": "You are already friends.",
     "request_already_sent": "Friend request already sent.",
@@ -82,6 +93,8 @@
     "block": "Block Friend",
     "dialog_title": "Block Friend",
     "dialog_message": "Are you sure you want to block this friend?",
+    "snack_title": "Error",
+    "snack_message": "Failed to block friend due to an unknown error.",
     "sent_missions": "Outbox",
     "received_missions": "To-Do",
     "history": "Manito with {nickname}",
@@ -106,9 +119,13 @@
   "mission_screen": {
     "title": "Outbox Missions",
     "create_mission_btn": " Create Mission",
+    "max_snack_title": "Too Many Missions",
+    "max_snack_message": "You can create a maximum of 3 missions.",
     "completed_mission_received": "Completed Mission Arrived!",
     "pending_mission_tooltip": "If no friend accepts within the remaining time, it will be automatically deleted.",
     "accept_mission_tooltip": "Your Manito is processing the mission.",
+    "pending": "Pending",
+    "progressing": "In Progress",
     "day": "Day",
     "week": "Week"
   },
@@ -129,6 +146,8 @@
   },
   "mission_guess_screen": {
     "title": "Guess Your Manito",
+    "day": "Day",
+    "week": "Week",
     "period_of_time": "for",
     "until": "until",
     "hint_text": "Please write who you think your Manito is.",
@@ -145,7 +164,7 @@
     "propose": " Mission Arrived ",
     "propose_tooltip": "All missions are first-come, first-served (1 person only)",
     "guessing_manito": "Guessing Manito",
-    "progressing_mission": " Ongoing Mission",
+    "progressing_mission": " Ongoing",
     "for_friend": " for {nickname}"
   },
   "auto_reply_screen": {
@@ -159,10 +178,64 @@
   },
   "mission_propose_screen": {
     "title": "Secretly help {nickname}!",
-    "for_friend": " for {nickname}"
+    "for_friend": " for {nickname}",
+    "day": "In a day",
+    "week": "In a Week",
+    "select_mission": "Select Mission",
+    "watch_ad": " Watch Ad +1",
+    "dialog_title": "Accept Mission",
+    "dialog_message": "Once you accept a mission, it cannot be canceled.",
+    "snack_title": "Notification",
+    "accept_success": "Mission accepted.",
+    "P0001": "Mission already accepted.",
+    "accept_fail": "Mission already deleted.",
+    "late_snack_title": "Too Late",
+    "late_snack_message": "The proposal does not exist.",
+    "error_snack_title": "Error",
+    "error_snack_message": "An unknown error occurred.",
+    "ad_snack_title": "Ad Not Ready",
+    "ad_snack_message": "The ad is not ready.\nPlease try again shortly.",
+    "select_snack_title": "Select Mission",
+    "select_snack_message": "Please select a mission."
+  },
+  "manito_post_screen": {
+    "dialog_title": "Mission Complete",
+    "dialog_message": "End the mission and notify your friend.",
+    "snack_title": "Notification",
+    "post_success": "Post sent to friend successfully.",
+    "post_failed": "Failed to send post due to an unknown error.",
+    "text_short_snack_title": "Insufficient Detail",
+    "text_short_snack_message": "Please write at least 5 characters.",
+    "error_snack_title": "Save Error",
+    "error_snack_message": "Failed to save due to an unknown error."
   },
   "post_item": {
     "day": "Day",
     "week": "Week"
+  },
+  "firebase_handler": {
+    "friend_request_title": "Friend Request",
+    "friend_request_body": "A new friend request has arrived.",
+    "mission_propose_title": "Mission Arrived!",
+    "mission_propose_body": "Accept within the time limit.",
+    "mission_accept_title": "Manito Mission Accepted!",
+    "mission_accept_body": "Guess your Manito.",
+    "mission_guess_title": "Manito Mission Complete!",
+    "mission_guess_body": "Check who your Manito was.",
+    "mission_complete_title": "Mission Ended!",
+    "mission_complete_body": "Check what your friend guessed."
+  },
+  "kakao_login_webview": {
+    "error_snack_title": "Login Error",
+    "error_snack_message": "An error occurred during authentication processing.",
+    "failed_snack_title": "Login Failed",
+    "failed_snack_message": "Failed to receive authentication code."
+  },
+  "timer": {
+    "day": "D "
+  },
+  "album_screen": {
+    "select": "Select",
+    "selected": " Selected"
   }
 }

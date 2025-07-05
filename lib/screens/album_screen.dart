@@ -1,6 +1,8 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manito/widgets/common/custom_snackbar.dart';
+import 'package:path/path.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 
@@ -27,9 +29,12 @@ class AlbumScreen extends GetResponsiveView<AlbumController> {
                       : () => Get.back(result: controller.selectedImageList),
               child:
                   (controller.selectedImages.isEmpty)
-                      ? Text('선택', style: Get.textTheme.labelLarge)
+                      ? Text(
+                        "album_screen.select",
+                        style: Get.textTheme.labelLarge,
+                      ).tr()
                       : Text(
-                        '${controller.selectedImages.length} 선택',
+                        '${controller.selectedImages.length}${Get.context!.tr("album_screen.selected")}',
                         style: Get.textTheme.bodySmall,
                       ),
             );

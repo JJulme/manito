@@ -26,7 +26,7 @@ class AutoReply {
   factory AutoReply.fromJson(List<dynamic> json) {
     // 비어 있다면
     if (json.isEmpty) {
-      return AutoReply(reply: '미션을 성공 못해서 미안해요..ㅠㅠ', replyImageUrl: '');
+      return AutoReply(reply: 'Sorry Sorry.. :(', replyImageUrl: '');
     }
     // 들어있다면
     else {

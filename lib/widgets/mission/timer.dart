@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
@@ -47,13 +48,9 @@ class TimerWidget extends StatelessWidget {
           ),
           if (textList.length > 1) // 일 수가 0보다 클 때만 "일" 표시
             Text(
-              '일 ',
-              style: TextStyle(
-                fontFamily: 'Digital',
-                fontSize: fontSize * 0.83,
-                color: color,
-              ),
-            ),
+              "timer.day",
+              style: TextStyle(fontSize: fontSize * 0.83, color: color),
+            ).tr(),
           if (textList.length > 1) // 일 수가 0보다 클 때만 시간 표시
             Text(
               textList[1],

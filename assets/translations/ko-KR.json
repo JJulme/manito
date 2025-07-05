@@ -179,8 +179,10 @@
   "mission_propose_screen": {
     "title": "{nickname} 님 몰래 도움을 주세요!",
     "for_friend": "{nickname} 에게",
-    "day": "하루",
-    "week": "한주",
+    "day": "하루 내에",
+    "week": "한주 내에",
+    "select_mission": "미션 선택",
+    "watch_ad": " 광고보고 +1",
     "dialog_title": "미션 수락",
     "dialog_message": "미션을 수락하고 취소 할 수 없습니다.",
     "snack_title": "알림",
@@ -228,5 +230,12 @@
     "error_snack_message": "인증 처리에 오류가 발생했습니다.",
     "failed_snack_title": "로그인 실패",
     "failed_snack_message": "인증 코드를 받지 못했습니다."
+  },
+  "timer": {
+    "day": "일 "
+  },
+  "album_screen": {
+    "select": "선택",
+    "selected": " 선택"
   }
 }
