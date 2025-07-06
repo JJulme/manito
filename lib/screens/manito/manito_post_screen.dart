@@ -107,7 +107,7 @@ class _ManitoPostScreenState extends State<ManitoPostScreen> {
       automaticallyImplyLeading: false,
       title: Row(
         children: [
-          Text('미션 기록하기'),
+          Text("manito_post_screen.title").tr(),
           SizedBox(width: screenWidth * 0.02),
           TimerWidget(
             targetDateTime: _controller.missionAccept.deadline,
@@ -161,10 +161,19 @@ class _ManitoPostScreenState extends State<ManitoPostScreen> {
 
   // 설명 입력 텍스트 필드
   Widget _buildDescriptionSection(screenWidth) {
+    final String toFriend = context.tr(
+      "manito_post_screen.to_friend",
+      namedArgs: {"nickname": _controller.creatorProfile.nickname},
+    );
+
+    final String todoMission = context.tr("manito_post_screen.todo_mission");
+    // final String hintText =
+    //     '[${_controller.creatorProfile.nickname}] 에게\n'
+    //     '[${_controller.missionAccept.content}]\n'
+    //     '미션을 어떻게 수행 했는지 작성 해주세요.';
+
     final String hintText =
-        '[${_controller.creatorProfile.nickname}] 에게\n'
-        '[${_controller.missionAccept.content}]\n'
-        '미션을 어떻게 수행 했는지 작성 해주세요.';
+        '$toFriend\n[${_controller.missionAccept.content}]\n$todoMission';
     return Padding(
       padding: EdgeInsets.fromLTRB(
         screenWidth * 0.02,
@@ -427,7 +436,9 @@ class _ActionButton extends StatelessWidget {
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
               )
               : Text(
-                isPosting ? '미션 종료' : '임시저장',
+                isPosting
+                    ? context.tr("manito_post_screen.btn_complete_mission")
+                    : context.tr("manito_post_screen.btn_safe_draft"),
                 style: Get.textTheme.titleLarge,
               ),
     );

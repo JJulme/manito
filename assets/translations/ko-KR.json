@@ -147,8 +147,8 @@
   },
   "mission_guess_screen": {
     "title": "마니또 추리하기",
-    "day": "하루",
-    "week": "한주",
+    "day": "하루 동안",
+    "week": "한주 동안",
     "period_of_time": "동안",
     "until": "까지",
     "hint_text": "나를 도와준 마니또가 누구일지 작성해주세요.",
@@ -197,7 +197,8 @@
     "ad_snack_title": "광고 준비중",
     "ad_snack_message": "광고가 준비되지 않았습니다.\n잠시 후 다시 시도해주세요.",
     "select_snack_title": "미션 선택",
-    "select_snack_message": "미션을 선택해주세요."
+    "select_snack_message": "미션을 선택해주세요.",
+    "accept_btn": "수락하기 "
   },
   "manito_post_screen": {
     "dialog_title": "미션 완료",
@@ -208,7 +209,12 @@
     "text_short_snack_title": "정성 부족",
     "text_short_snack_message": "5글자 이상 작성해 주세요.",
     "error_snack_title": "저장 오류",
-    "error_snack_message": "알 수 없는 오류로 저장에 실패 했습니다."
+    "error_snack_message": "알 수 없는 오류로 저장에 실패 했습니다.",
+    "title": "미션 기록하기",
+    "to_friend": "[{nickname}] 에게",
+    "todo_mission": "미션을 어떻게 수행 했는지 작성 해주세요.",
+    "btn_safe_draft": "임시저장",
+    "btn_complete_mission": "미션종료"
   },
   "post_item": {
     "day": "하루",

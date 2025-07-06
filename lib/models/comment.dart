@@ -45,7 +45,7 @@ class Comment {
       missionId: json['mission_id'] as String,
       userId: json['user_id'] as String,
       comment: json['comment'] as String,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: DateTime.parse(json['created_at'] as String).toLocal(),
     );
   }
 }

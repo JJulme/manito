@@ -307,7 +307,10 @@ class _MissionProposeScreenState extends State<MissionProposeScreen> {
             return Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('수락하기 ', style: Get.textTheme.titleLarge),
+                Text(
+                  "mission_propose_screen.accept_btn",
+                  style: Get.textTheme.titleLarge,
+                ).tr(),
                 TimerWidget(
                   targetDateTime:
                       _controller.missionPropose.value!.acceptDeadline,

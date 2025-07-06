@@ -128,10 +128,7 @@ class MissionGuessScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '$deadlineType ${context.tr("mission_guess_screen.period_of_time")}',
-            style: Get.textTheme.bodyLarge,
-          ),
+          Text(deadlineType, style: Get.textTheme.bodyLarge).tr(),
           Text(
             '$deadline ${context.tr("mission_guess_screen.until")}',
             style: Get.textTheme.bodyLarge,

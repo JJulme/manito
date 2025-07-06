@@ -30,6 +30,7 @@ class PostController extends GetxController {
           .or('creator_id.eq.$userId, manito_id.eq.$userId')
           .not('guess', 'is', null)
           .order('complete_at', ascending: false);
+      print(data);
 
       // content 빼오기
       List<Map<String, dynamic>> transformedData = [];

@@ -31,7 +31,7 @@ void main() async {
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
   // 언어 설정
-  // timeago.setLocaleMessages('ko', timeago.KoMessages());
+  timeago.setLocaleMessages('ko', timeago.KoMessages());
   // timeago.setLocaleMessages('en_short', timeago.EnMessages());
   runApp(
     EasyLocalization(
@@ -57,9 +57,6 @@ class _ManitoState extends State<Manito> {
     var themeData = ThemeData(
       useMaterial3: true,
       primarySwatch: Colors.amber,
-      // primaryColor: kSunsetPeach,
-      // primaryColorLight: kSunsetPeachLight,
-      // primaryColorDark: kSunsetPeachDark,
       colorScheme: ColorScheme.fromSeed(seedColor: kDarkWalnut),
       // 앱바 설정
       appBarTheme: AppBarTheme(
@@ -116,7 +113,7 @@ class _ManitoState extends State<Manito> {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           foregroundColor: Colors.black,
-          backgroundColor: Colors.yellowAccent[700],
+          backgroundColor: kYellow,
           // foregroundColor: kDarkWalnut,
           // backgroundColor: kCocoaCream,
           shape: RoundedRectangleBorder(

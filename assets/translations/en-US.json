@@ -147,8 +147,8 @@
   },
   "mission_guess_screen": {
     "title": "Guess Your Manito",
-    "day": "Day",
-    "week": "Week",
+    "day": "For a day",
+    "week": "For a week",
     "period_of_time": "for",
     "until": "until",
     "hint_text": "Please write who you think your Manito is.",
@@ -197,7 +197,8 @@
     "ad_snack_title": "Ad Not Ready",
     "ad_snack_message": "The ad is not ready.\nPlease try again shortly.",
     "select_snack_title": "Select Mission",
-    "select_snack_message": "Please select a mission."
+    "select_snack_message": "Please select a mission.",
+    "accept_btn": "Accept "
   },
   "manito_post_screen": {
     "dialog_title": "Mission Complete",
@@ -208,7 +209,12 @@
     "text_short_snack_title": "Insufficient Detail",
     "text_short_snack_message": "Please write at least 5 characters.",
     "error_snack_title": "Save Error",
-    "error_snack_message": "Failed to save due to an unknown error."
+    "error_snack_message": "Failed to save due to an unknown error.",
+    "title": "Record Mission",
+    "to_friend": "To [{nickname}]",
+    "todo_mission": "Please write how you completed the mission.",
+    "btn_safe_draft": "Save Draft",
+    "btn_complete_mission": "Complete Mission"
   },
   "post_item": {
     "day": "Day",

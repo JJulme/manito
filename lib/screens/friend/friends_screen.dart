@@ -294,7 +294,7 @@ class FriendsScreen extends StatelessWidget {
   Widget _buildMissionBadge(dynamic friendProfile, double width) {
     return Stack(
       children: [
-        Icon(CustomIcons.star, size: width * 0.08, color: Colors.yellow[700]),
+        Icon(CustomIcons.star, size: width * 0.08, color: kYellow),
         Positioned(
           left: width * 0.031,
           top: width * 0.01,

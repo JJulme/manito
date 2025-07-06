@@ -69,9 +69,9 @@ class MyMission {
       deadlineType: json['deadline_type'] as String,
       acceptDeadline:
           json['accept_deadline'] != null
-              ? DateTime.parse(json['accept_deadline'] as String)
+              ? DateTime.parse(json['accept_deadline'] as String).toLocal()
               : null,
-      deadline: DateTime.parse(json['deadline'] as String),
+      deadline: DateTime.parse(json['deadline'] as String).toLocal(),
     );
   }
 }
@@ -125,8 +125,9 @@ class MissionPropose {
     return MissionPropose(
       missionId: json['mission_id'] as String,
       randomContents: json['random_contents'],
-      acceptDeadline: DateTime.parse(missions['accept_deadline'] as String),
-      deadline: DateTime.parse(missions['deadline'] as String),
+      acceptDeadline:
+          DateTime.parse(missions['accept_deadline'] as String).toLocal(),
+      deadline: DateTime.parse(missions['deadline'] as String).toLocal(),
       deadlineType: missions['deadline_type'] as String,
     );
   }
@@ -172,7 +173,8 @@ class MissionProposeList {
     return MissionProposeList(
       id: json['id'] as String,
       creatorId: missions['creator_id'] as String,
-      acceptDeadline: DateTime.parse(missions['accept_deadline'] as String),
+      acceptDeadline:
+          DateTime.parse(missions['accept_deadline'] as String).toLocal(),
     );
   }
 }
@@ -231,7 +233,7 @@ class MissionAccept {
       creatorId: json['creator_id'] as String,
       content: json['content'] as String,
       status: json['status'] as String,
-      deadline: DateTime.parse(json['deadline'] as String),
+      deadline: DateTime.parse(json['deadline'] as String).toLocal(),
       deadlineType: json['deadline_type'] as String,
     );
   }

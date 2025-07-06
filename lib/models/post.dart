@@ -74,11 +74,11 @@ class Post {
               : null,
       createdAt:
           json['created_at'] != null
-              ? DateTime.parse(json['created_at'])
+              ? DateTime.parse(json['created_at']).toLocal()
               : null,
       completeAt:
           json['complete_at'] != null
-              ? DateTime.parse(json['complete_at'])
+              ? DateTime.parse(json['complete_at']).toLocal()
               : null,
       creatorId: json['creator_id'] ?? '',
       deadlineType: json['deadline_type'] ?? '',
