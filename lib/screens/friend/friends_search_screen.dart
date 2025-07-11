@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -93,7 +94,7 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
   }
 
   // 앱바
-  PreferredSizeWidget _buildAppBar(double width) {
+  AppBar _buildAppBar(double width) {
     return AppBar(
       centerTitle: false,
       titleSpacing: width * 0.02,
@@ -168,11 +169,17 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'friends_search_screen.my_email',
-                  style: Get.textTheme.bodySmall,
-                ).tr(),
-                Text(userEmail, style: Get.textTheme.bodySmall),
+                Icon(Icons.mail_outline_rounded),
+                Expanded(
+                  child: AutoSizeText(
+                    userEmail,
+                    style: Get.textTheme.bodySmall,
+                    minFontSize: 7,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.right,
+                  ),
+                ),
               ],
             ),
           ),

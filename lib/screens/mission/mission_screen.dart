@@ -5,8 +5,10 @@ import 'package:get/get.dart';
 import 'package:manito/constants.dart';
 import 'package:manito/controllers/badge_controller.dart';
 import 'package:manito/controllers/mission_controller.dart';
+import 'package:manito/custom_icons.dart';
 import 'package:manito/models/mission.dart';
 import 'package:manito/screens/mission/mission_create_screen.dart';
+import 'package:manito/screens/mission/mission_create_screen_new.dart';
 import 'package:manito/screens/mission/mission_guess_screen.dart';
 import 'package:manito/widgets/admob/banner_ad_widget.dart';
 import 'package:manito/widgets/common/custom_snackbar.dart';
@@ -28,7 +30,7 @@ class _MissionScreenState extends State<MissionScreen>
   static const double _horizontalPadding = 0.03;
   static const double _verticalPadding = 0.016;
   static const double _containerSpacing = 0.03;
-  static const double _iconSize = 0.07;
+  static const double _iconSize = 0.06;
   static const double _refreshIconSize = 0.07;
   static const double _borderRadius = 0.02;
   static const double _titleSpacing = 0.07;
@@ -170,11 +172,13 @@ class _MissionScreenState extends State<MissionScreen>
         horizontal: screenWidth * _horizontalPadding,
       ),
       child: ElevatedButton(
+        onLongPress: () => Get.to(() => MissionCreateScreenNew()),
         onPressed: _toMissionCreateScreen,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.add, size: screenWidth * _iconSize),
+            Icon(CustomIcons.star_add2, size: screenWidth * _iconSize),
+            SizedBox(width: screenWidth * 0.03),
             Text("mission_screen.create_mission_btn").tr(),
           ],
         ),

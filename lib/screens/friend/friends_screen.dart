@@ -5,12 +5,13 @@ import 'package:get/get.dart';
 import 'package:manito/constants.dart';
 import 'package:manito/controllers/badge_controller.dart';
 import 'package:manito/controllers/friends_controller.dart';
+import 'package:manito/controllers/mission_controller.dart';
 import 'package:manito/custom_icons.dart';
 import 'package:manito/screens/friend/friends_blacklist_screen.dart';
 import 'package:manito/screens/friend/friends_detail_screen.dart';
 import 'package:manito/screens/friend/friends_request_screen.dart';
 import 'package:manito/screens/friend/friends_search_screen.dart';
-import 'package:manito/screens/friend/modify_screen.dart';
+import 'package:manito/screens/friend/profile_screen.dart';
 import 'package:manito/screens/friend/setting_screen.dart';
 import 'package:manito/widgets/admob/banner_ad_widget.dart';
 import 'package:manito/widgets/common/custom_badge.dart';
@@ -21,24 +22,12 @@ import 'package:manito/widgets/profile/profile_image_view.dart';
 class FriendsScreen extends StatelessWidget {
   FriendsScreen({super.key});
   final FriendsController _controller = Get.find<FriendsController>();
+  final MissionController _missionController = Get.find<MissionController>();
   final BadgeController _badgeController = Get.find<BadgeController>();
 
-  // 프로필 수정 화면 이동
-  void _toProfileModifyScreen() async {
-    // _controller.initModifyProfile();
-    final result = await Get.to(
-      () => ModifyScreen(),
-      arguments: [
-        _controller.userProfile.value?.profileImageUrl,
-        _controller.userProfile.value?.nickname,
-        _controller.userProfile.value?.statusMessage,
-      ],
-    );
-    if (result == true) {
-      _controller.isLoading.value = true;
-      await _controller.getProfile();
-      _controller.isLoading.value = false;
-    }
+  // 프로필 화면 이동
+  void _toProfileScreen() {
+    Get.to(() => ProfileScreen());
   }
 
   // 친구 상세 화면 이동
@@ -158,57 +147,47 @@ class FriendsScreen extends StatelessWidget {
 
   // 내 프로필
   Widget _buildMyProfile(double width) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 0.03 * width),
-      child: Row(
-        children: [
-          // 프로필 이미지
-          profileImageOrDefault(
-            _controller.userProfile.value!.profileImageUrl,
-            0.15 * width,
-          ),
-          SizedBox(width: 0.03 * width),
-          // 이름, 상태 메시지
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _controller.userProfile.value!.nickname,
-                  style: Get.textTheme.bodyMedium,
-                ),
-                Text(
-                  _controller.userProfile.value!.statusMessage,
-                  maxLines: 2,
-                  softWrap: true,
-                  overflow: TextOverflow.ellipsis,
-                  style: Get.textTheme.labelMedium,
-                ),
-              ],
+    return InkWell(
+      onTap: _toProfileScreen,
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: 0.03 * width,
+          vertical: width * 0.02,
+        ),
+        child: Row(
+          children: [
+            // 프로필 이미지
+            profileImageOrDefault(
+              _controller.userProfile.value!.profileImageUrl,
+              0.15 * width,
             ),
-          ),
-          SizedBox(width: 0.02 * width),
-          // 프로필 수정 버튼
-          SizedBox(
-            height: 0.08 * width,
-            width: 0.12 * width,
-            child: OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                padding: EdgeInsets.all(0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(100),
-                  side: BorderSide(color: kGrey),
-                ),
-              ),
-              onPressed: _toProfileModifyScreen,
-              child:
+            SizedBox(width: 0.03 * width),
+            // 이름, 상태 메시지
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
-                    "friends_screen.edit",
-                    style: Get.textTheme.labelSmall,
-                  ).tr(),
+                    _controller.userProfile.value!.nickname,
+                    style: Get.textTheme.bodyMedium,
+                  ),
+                  Text(
+                    _controller.userProfile.value!.statusMessage,
+                    maxLines: 2,
+                    softWrap: true,
+                    overflow: TextOverflow.ellipsis,
+                    style: Get.textTheme.labelMedium,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+            SizedBox(width: 0.02 * width),
+            _buildMissionBadge(
+              _missionController.allMissions.length.toString(),
+              width,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -261,7 +240,10 @@ class FriendsScreen extends StatelessWidget {
             profileImageOrDefault(friendProfile.profileImageUrl!, width * 0.15),
             SizedBox(width: width * 0.035),
             Expanded(child: _buildFriendInfo(friendProfile)),
-            _buildMissionBadge(friendProfile, width),
+            _buildMissionBadge(
+              friendProfile.progressMissions.toString(),
+              width,
+            ),
           ],
         ),
       ),
@@ -291,15 +273,18 @@ class FriendsScreen extends StatelessWidget {
   }
 
   // 진행중인 미션 개수 아이콘
-  Widget _buildMissionBadge(dynamic friendProfile, double width) {
+  Widget _buildMissionBadge(String count, double width) {
     return Stack(
+      alignment: AlignmentDirectional.center,
       children: [
-        Icon(CustomIcons.star, size: width * 0.08, color: kYellow),
+        Icon(
+          CustomIcons.star,
+          size: width * 0.08,
+          color: count == '0' ? Colors.grey[400] : kYellow,
+        ),
         Positioned(
-          left: width * 0.031,
-          top: width * 0.01,
           child: Text(
-            friendProfile.progressMissions.toString(),
+            count,
             style: TextStyle(color: Colors.white, fontSize: width * 0.045),
           ),
         ),

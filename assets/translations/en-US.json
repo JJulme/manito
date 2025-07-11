@@ -51,7 +51,6 @@
     "title": "Find Friends",
     "hint": "Enter your friend's email.",
     "validator": "Please enter an email.",
-    "my_email": "My Email",
     "request_btn": "Send Request",
     "snack_title": "Notification",
     "copy_message": "Copied to clipboard.",
@@ -79,6 +78,11 @@
     "unblack_btn": "Unblock",
     "dialog_title": "Unblock User",
     "dialog_message": "Unblocking this user will allow them to search for you."
+  },
+  "profile_screen": {
+    "title": "My profile",
+    "sent_missions": "Outbox",
+    "received_missions": "To-Do"
   },
   "modify_screen": {
     "title": "Edit Profile",

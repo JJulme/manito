@@ -6,18 +6,8 @@ class CustomIcons {
   static const _kFontFam = 'CustomIcons';
   static const String? _kFontPkg = null;
 
-  static const IconData mission_bang = IconData(
+  static const IconData star_add2 = IconData(
     0xe800,
-    fontFamily: _kFontFam,
-    fontPackage: _kFontPkg,
-  );
-  static const IconData mission_check = IconData(
-    0xe801,
-    fontFamily: _kFontFam,
-    fontPackage: _kFontPkg,
-  );
-  static const IconData mission_question = IconData(
-    0xe802,
     fontFamily: _kFontFam,
     fontPackage: _kFontPkg,
   );
@@ -26,7 +16,7 @@ class CustomIcons {
     fontFamily: _kFontFam,
     fontPackage: _kFontPkg,
   );
-  static const IconData comment = IconData(
+  static const IconData star_add = IconData(
     0xe804,
     fontFamily: _kFontFam,
     fontPackage: _kFontPkg,
@@ -36,13 +26,8 @@ class CustomIcons {
     fontFamily: _kFontFam,
     fontPackage: _kFontPkg,
   );
-  static const IconData comment_inv_alt2 = IconData(
+  static const IconData star = IconData(
     0xe806,
-    fontFamily: _kFontFam,
-    fontPackage: _kFontPkg,
-  );
-  static const IconData comment_alt2 = IconData(
-    0xe807,
     fontFamily: _kFontFam,
     fontPackage: _kFontPkg,
   );
@@ -51,18 +36,8 @@ class CustomIcons {
     fontFamily: _kFontFam,
     fontPackage: _kFontPkg,
   );
-  static const IconData star = IconData(
-    0xf005,
-    fontFamily: _kFontFam,
-    fontPackage: _kFontPkg,
-  );
   static const IconData user = IconData(
     0xf007,
-    fontFamily: _kFontFam,
-    fontPackage: _kFontPkg,
-  );
-  static const IconData comment_empty = IconData(
-    0xf0e5,
     fontFamily: _kFontFam,
     fontPackage: _kFontPkg,
   );

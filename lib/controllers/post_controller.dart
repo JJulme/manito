@@ -54,6 +54,18 @@ class PostController extends GetxController {
       isLoading.value = false;
     }
   }
+
+  /// 사용자의 미션 생성자 수 반환
+  int get creatorPostCount {
+    String userId = _supabase.auth.currentUser!.id;
+    return postList.where((post) => post.creatorId == userId).length;
+  }
+
+  /// 사용자의 미션 마니또 수 반환
+  int get manitoPostCount {
+    String userId = _supabase.auth.currentUser!.id;
+    return postList.where((post) => post.manitoId == userId).length;
+  }
 }
 
 class PostDetailController extends GetxController {

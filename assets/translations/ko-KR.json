@@ -51,7 +51,6 @@
     "title": "친구 찾기",
     "hint": "친구의 이메일을 입력하세요.",
     "validator": "이메일을 입력해주세요.",
-    "my_email": "내 이메일",
     "request_btn": "친구 신청",
     "snack_title": "알림",
     "copy_message": "복사되었습니다.",
@@ -79,6 +78,11 @@
     "unblack_btn": "차단 해제",
     "dialog_title": "차단 해제",
     "dialog_message": "차단을 해제하면 당신을 검색할 수 있습니다."
+  },
+  "profile_screen": {
+    "title": "내 프로필",
+    "sent_missions": "보낸 미션",
+    "received_missions": "받은 미션"
   },
   "modify_screen": {
     "title": "프로필 수정",

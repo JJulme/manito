@@ -64,23 +64,34 @@ class LoginScreen extends StatelessWidget {
             // 화면 5
             PageViewModel(
               title: context.tr('login_screen.page5'),
-              bodyWidget: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              bodyWidget: Column(
                 children: [
+                  // 구글 로그인 버튼
                   AuthButton(
-                    imagePath: 'assets/images/round_google.png',
+                    imagePath: 'assets/images/btn_google.png',
                     onTap: () async {
                       await CookieManager.instance().deleteAllCookies();
                       await authController.loginWithGoogle();
                     },
                   ),
-                  SizedBox(width: width * 0.1),
+                  SizedBox(height: width * 0.03),
+                  // 카카오 로그인 버튼
                   AuthButton(
-                    imagePath: 'assets/images/round_kakao.png',
+                    imagePath: 'assets/images/btn_kakao.png',
                     onTap: () async {
                       await CookieManager.instance().deleteAllCookies();
                       Get.to(() => KakaoLoginWebview());
                       // await authController.loginWithKakao();
+                    },
+                  ),
+                  SizedBox(height: width * 0.03),
+
+                  // 애플 로그인 버튼
+                  AuthButton(
+                    imagePath: 'assets/images/apple_login_large_wide.png',
+                    onTap: () async {
+                      await CookieManager.instance().deleteAllCookies();
+                      await authController.loginInWithApple();
                     },
                   ),
                 ],
@@ -90,7 +101,6 @@ class LoginScreen extends StatelessWidget {
                 width: 0.7 * width,
                 height: 0.7 * width,
               ),
-
               decoration: getPageDecoration(),
             ),
           ],
@@ -110,8 +120,9 @@ class LoginScreen extends StatelessWidget {
         fontSize: 0.065 * width,
         fontWeight: FontWeight.w600,
       ),
+      imageAlignment: Alignment.center,
       imagePadding: EdgeInsets.zero,
-      bodyPadding: EdgeInsets.only(top: 0.06 * width),
+      bodyPadding: EdgeInsets.zero,
     );
   }
 }
@@ -126,7 +137,6 @@ class AuthButton extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
     return SizedBox(
       height: width * 0.15,
-      width: width * 0.15,
       child: InkWell(
         onTap: onTap,
         child: Image.asset(imagePath, fit: BoxFit.cover),

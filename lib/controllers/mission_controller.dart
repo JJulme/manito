@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class MissionController extends GetxController {
   final _supabase = Supabase.instance.client;
   var isLoading = false.obs;
+  var allMissions = <MyMission>[].obs; // 전체 미션 개수 - friends_screen
   var pendingMyMissions = <MyMission>[].obs; // 내가 만든 대기중 미션
   var acceptMyMissions = <MyMission>[].obs; // 내가 만든 진행중 미션
   var completeMyMissions = <MyMission>[].obs; // 미개봉 종료 미션
@@ -33,7 +34,8 @@ class MissionController extends GetxController {
           .eq('creator_id', userId)
           .isFilter('guess', null);
 
-      List<MyMission> allMissions = [];
+      // 새로고침 리스트 초기화
+      allMissions.clear();
       // 각 미션 반복문으로 친구들 id를 통해 프로필 넣어줌
       for (var mission in missionsData) {
         List<FriendProfile> friendProfiles = friendsController

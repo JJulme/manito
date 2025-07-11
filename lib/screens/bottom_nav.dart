@@ -254,15 +254,12 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
             label: context.tr('bottom_nav.history'),
           ),
           BottomNavigationBarItem(
-            icon: Transform.translate(
-              offset: Offset(-0.003 * width, 0),
-              child: customBadgeIcon(
-                _badgeController.badgeMissionCount,
-                child: Icon(
-                  CustomIcons.star,
-                  key: _missionIconKey,
-                  size: 0.065 * width,
-                ),
+            icon: customBadgeIcon(
+              _badgeController.badgeMissionCount,
+              child: Icon(
+                CustomIcons.star,
+                key: _missionIconKey,
+                size: 0.065 * width,
               ),
             ),
             label: context.tr('bottom_nav.sent_missions'),

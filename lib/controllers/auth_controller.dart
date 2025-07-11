@@ -50,7 +50,7 @@ class AuthController extends GetxController {
       final GoogleSignIn googleSignIn = GoogleSignIn(
         clientId: iosClientId,
         serverClientId: webClientId,
-        scopes: ['email'],
+        scopes: const <String>['email'],
       );
       final googleUser = await googleSignIn.signIn();
       // 사용자 로그인 취소
@@ -105,7 +105,7 @@ class AuthController extends GetxController {
   // }
 
   /// Apple 로그인 처리
-  Future<AuthResponse?> signInWithApple() async {
+  Future<AuthResponse?> loginInWithApple() async {
     try {
       final rawNonce = supabase.auth.generateRawNonce();
       final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();

@@ -321,6 +321,12 @@ class BlacklistController extends GetxController {
   }
 }
 
+/// 프로필 화면 컨트롤러
+class ProfileController extends GetxController {
+  final _supabase = Supabase.instance.client;
+  var isLoading = false.obs;
+}
+
 /// 프로필 수정 컨트롤러
 class ModifyController extends GetxController {
   final _supabase = Supabase.instance.client;
