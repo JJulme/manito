@@ -68,32 +68,34 @@ class LoginScreen extends StatelessWidget {
                 children: [
                   // 구글 로그인 버튼
                   AuthButton(
-                    imagePath: 'assets/images/btn_google.png',
+                    imagePath: 'assets/images/long_google2.png',
                     onTap: () async {
                       await CookieManager.instance().deleteAllCookies();
                       await authController.loginWithGoogle();
                     },
                   ),
-                  SizedBox(height: width * 0.03),
+                  SizedBox(height: width * 0.04),
                   // 카카오 로그인 버튼
                   AuthButton(
-                    imagePath: 'assets/images/btn_kakao.png',
+                    imagePath: 'assets/images/long_kakao2.png',
                     onTap: () async {
                       await CookieManager.instance().deleteAllCookies();
                       Get.to(() => KakaoLoginWebview());
                       // await authController.loginWithKakao();
                     },
                   ),
-                  SizedBox(height: width * 0.03),
+                  SizedBox(height: width * 0.04),
 
                   // 애플 로그인 버튼
-                  AuthButton(
-                    imagePath: 'assets/images/apple_login_large_wide.png',
-                    onTap: () async {
-                      await CookieManager.instance().deleteAllCookies();
-                      await authController.loginInWithApple();
-                    },
-                  ),
+                  GetPlatform.isIOS
+                      ? AuthButton(
+                        imagePath: 'assets/images/long_apple2.png',
+                        onTap: () async {
+                          await CookieManager.instance().deleteAllCookies();
+                          await authController.loginInWithApple();
+                        },
+                      )
+                      : SizedBox.shrink(),
                 ],
               ),
               image: Image.asset(
@@ -120,6 +122,7 @@ class LoginScreen extends StatelessWidget {
         fontSize: 0.065 * width,
         fontWeight: FontWeight.w600,
       ),
+      bodyAlignment: Alignment.topCenter,
       imageAlignment: Alignment.center,
       imagePadding: EdgeInsets.zero,
       bodyPadding: EdgeInsets.zero,
@@ -136,7 +139,7 @@ class AuthButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     return SizedBox(
-      height: width * 0.15,
+      height: width * 0.125,
       child: InkWell(
         onTap: onTap,
         child: Image.asset(imagePath, fit: BoxFit.cover),

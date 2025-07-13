@@ -172,7 +172,7 @@ class _MissionScreenState extends State<MissionScreen>
         horizontal: screenWidth * _horizontalPadding,
       ),
       child: ElevatedButton(
-        onLongPress: () => Get.to(() => MissionCreateScreenNew()),
+        // onLongPress: () => Get.to(() => MissionCreateScreenNew()),
         onPressed: _toMissionCreateScreen,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
