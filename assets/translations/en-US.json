@@ -98,6 +98,7 @@
     "block": "Block Friend",
     "dialog_title": "Block Friend",
     "dialog_message": "Are you sure you want to block this friend?",
+    "report": "Report",
     "snack_title": "Error",
     "snack_message": "Failed to block friend due to an unknown error.",
     "sent_missions": "Outbox",

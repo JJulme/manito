@@ -9,6 +9,7 @@ import 'package:manito/models/user_profile.dart';
 import 'package:manito/screens/friend/friends_modify_screen.dart';
 import 'package:manito/widgets/admob/banner_ad_widget.dart';
 import 'package:manito/widgets/common/custom_snackbar.dart';
+import 'package:manito/widgets/common/report_bottomsheet.dart';
 import 'package:manito/widgets/post/post_item.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
 
@@ -62,6 +63,19 @@ class _FriendsDetailScreenState extends State<FriendsDetailScreen> {
     );
   }
 
+  // 친구 신고 바텀 시트
+  void _handleReportFriend() async {
+    final ReportType? result = await showModalBottomSheet(
+      context: context,
+      builder: (BuildContext bc) {
+        return ReportBottomsheet();
+      },
+    );
+    if (result != null) {
+      reportDialog(context, result);
+    }
+  }
+
   // 본체
   @override
   Widget build(BuildContext context) {
@@ -102,6 +116,7 @@ class _FriendsDetailScreenState extends State<FriendsDetailScreen> {
             (context) => [
               _buildEditNameMenuItem(),
               _buildBlockFriendMenuItem(),
+              _buildReportMenuItem(),
             ],
       ),
     );
@@ -125,6 +140,17 @@ class _FriendsDetailScreenState extends State<FriendsDetailScreen> {
       child: _buildMenuItemContent(
         icon: Icons.no_accounts_rounded,
         text: context.tr("friends_detail_screen.block"),
+      ),
+    );
+  }
+
+  // 신고 버튼
+  PopupMenuItem _buildReportMenuItem() {
+    return PopupMenuItem(
+      onTap: _handleReportFriend,
+      child: _buildMenuItemContent(
+        icon: Icons.report_problem_rounded,
+        text: context.tr("friends_detail_screen.report"),
       ),
     );
   }

@@ -98,6 +98,7 @@
     "block": "친구 차단",
     "dialog_title": "친구 차단",
     "dialog_message": "친구를 차단하시겠습니까?",
+    "report": "신고하기",
     "snack_title": "오류",
     "snack_message": "알 수 없는 오류로 친구 차단에 실패 했습니다.",
     "sent_missions": "보낸 미션",
