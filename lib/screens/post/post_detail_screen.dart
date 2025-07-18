@@ -6,6 +6,7 @@ import 'package:manito/controllers/post_controller.dart';
 import 'package:manito/custom_icons.dart';
 import 'package:manito/models/comment.dart';
 import 'package:manito/models/post.dart';
+import 'package:manito/widgets/common/report_bottomsheet.dart';
 import 'package:manito/widgets/post/image_slider.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -36,6 +37,23 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     if (_controller.commentController.text.trim().isNotEmpty) {
       _controller.insertComment();
       _controller.commentController.clear();
+    }
+  }
+
+  // 친구 신고 바텀 시트
+  void _handleReportFriend() async {
+    final String? result = await showModalBottomSheet(
+      context: context,
+      builder: (BuildContext bc) {
+        return ReportBottomsheet(
+          userId: _friendsController.userProfile.value!.id,
+          reportIdType: 'post',
+          postId: _controller.post.id,
+        );
+      },
+    );
+    if (result != null) {
+      reportDialog(result);
     }
   }
 
@@ -72,6 +90,42 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           style: Get.textTheme.headlineSmall,
         );
       }),
+      actions: [_buildPopupMenu()],
+    );
+  }
+
+  // 팝업 메뉴
+  Widget _buildPopupMenu() {
+    return Padding(
+      padding: EdgeInsets.only(right: Get.width * 0.02),
+      child: PopupMenuButton(
+        position: PopupMenuPosition.under,
+        itemBuilder: (context) => [_buildReportMenuItem()],
+      ),
+    );
+  }
+
+  // 신고 버튼
+  PopupMenuItem _buildReportMenuItem() {
+    return PopupMenuItem(
+      onTap: _handleReportFriend,
+      child: _buildMenuItemContent(
+        icon: Icons.report_problem_rounded,
+        text: context.tr("friends_detail_screen.report"),
+      ),
+    );
+  }
+
+  // 팝업 버튼 아이템
+  Widget _buildMenuItemContent({required IconData icon, required String text}) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(icon),
+        SizedBox(width: Get.width * 0.02),
+        Text(text, style: Get.textTheme.bodyMedium),
+      ],
     );
   }
 

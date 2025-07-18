@@ -65,14 +65,17 @@ class _FriendsDetailScreenState extends State<FriendsDetailScreen> {
 
   // 친구 신고 바텀 시트
   void _handleReportFriend() async {
-    final ReportType? result = await showModalBottomSheet(
+    final String? result = await showModalBottomSheet(
       context: context,
       builder: (BuildContext bc) {
-        return ReportBottomsheet();
+        return ReportBottomsheet(
+          userId: _controller.friendProfile.id,
+          reportIdType: 'user',
+        );
       },
     );
     if (result != null) {
-      reportDialog(context, result);
+      reportDialog(result);
     }
   }
 
