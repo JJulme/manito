@@ -145,6 +145,7 @@ class _ManitoPostScreenState extends State<ManitoPostScreen> {
                     onSelectImages: _selectImages,
                   ),
                   _buildDescriptionSection(screenWidth),
+                  _buildWarningMessage(screenWidth),
                 ],
               ),
             ),
@@ -190,6 +191,23 @@ class _ManitoPostScreenState extends State<ManitoPostScreen> {
         onChanged: (_) => _controller.isPosting.value = false,
         decoration: InputDecoration(counterText: '', hintText: hintText),
       ),
+    );
+  }
+
+  // 경고 문구
+  Widget _buildWarningMessage(screenWidth) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        screenWidth * 0.03,
+        0,
+        screenWidth * 0.03,
+        screenWidth * 0.02,
+      ),
+      child:
+          Text(
+            "manito_post_screen.warning_message",
+            style: Get.textTheme.labelMedium,
+          ).tr(),
     );
   }
 
@@ -281,7 +299,11 @@ class _ImageSection extends StatelessWidget {
           margin: EdgeInsets.all(width * 0.02),
           color: Colors.grey[200],
           alignment: Alignment.center,
-          child: Text('선택된 사진이 없습니다.', style: Get.textTheme.bodyMedium),
+          child:
+              Text(
+                'manito_post_screen.no_image',
+                style: Get.textTheme.bodyMedium,
+              ).tr(),
         ),
       ],
     );

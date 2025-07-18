@@ -111,7 +111,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       onTap: _handleReportFriend,
       child: _buildMenuItemContent(
         icon: Icons.report_problem_rounded,
-        text: context.tr("friends_detail_screen.report"),
+        text: context.tr("post_detail_screen.report"),
       ),
     );
   }

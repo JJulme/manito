@@ -1,7 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manito/constants.dart';
 import 'package:manito/controllers/report_controller.dart';
+import 'package:path/path.dart';
 
 enum ReportType {
   violence, // 폭력성
@@ -85,16 +87,19 @@ class _ReportBottomsheetState extends State<ReportBottomsheet> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("신고 사유를 선택해주세요", style: Get.textTheme.bodySmall),
             Text(
-              "신고 사유에 맞지 않는 신고일 경우,\n해당 신고는 처리되지 않습니다.",
+              "report_bottomsheet.bottom_sheet_title",
+              style: Get.textTheme.bodySmall,
+            ).tr(),
+            Text(
+              "report_bottomsheet.bottom_sheet_body",
               style: Get.textTheme.labelLarge,
               textAlign: TextAlign.center,
-            ),
+            ).tr(),
             SizedBox(height: width * 0.04),
             // 폭력성
             RadioListTile<ReportType>(
-              title: Text("폭력성"),
+              title: Text("report_bottomsheet.violence").tr(),
               value: ReportType.violence,
               groupValue: _selectedReportType,
               onChanged: (value) {
@@ -105,7 +110,7 @@ class _ReportBottomsheetState extends State<ReportBottomsheet> {
             ),
             // 음란물
             RadioListTile<ReportType>(
-              title: Text("음란물"),
+              title: Text("report_bottomsheet.pornography").tr(),
               value: ReportType.pornography,
               groupValue: _selectedReportType,
               onChanged: (value) {
@@ -116,7 +121,7 @@ class _ReportBottomsheetState extends State<ReportBottomsheet> {
             ),
             // 기타
             RadioListTile<ReportType>(
-              title: Text("기타"),
+              title: Text("report_bottomsheet.other").tr(),
               value: ReportType.other,
               groupValue: _selectedReportType,
               onChanged: (value) {
@@ -137,7 +142,7 @@ class _ReportBottomsheetState extends State<ReportBottomsheet> {
                           // 신고 내용 전송
                           await _handleReportButton(_selectedReportType!);
                         },
-                child: Text("신고하기"),
+                child: Text("report_bottomsheet.report_button").tr(),
               ),
             ),
           ],
@@ -151,18 +156,18 @@ class _ReportBottomsheetState extends State<ReportBottomsheet> {
 Future<void> reportDialog(String result) async {
   if (result == 'success') {
     return kDefaultDialog(
-      "신고가 접수되었습니다.",
-      "신고가 정상적으로 접수되었습니다. 검토까지는 최대 24시간이 소요될 수 있습니다.",
+      Get.context!.tr("report_bottomsheet.dialog_title_success"),
+      Get.context!.tr("report_bottomsheet.dialog_message_success"),
     );
   } else if (result == 'duplicate') {
     return kDefaultDialog(
-      "중복 신고",
-      "이미 동일한 내용으로 신고하셨습니다. 현재 검토 대기 중이므로 추가 신고는 불가합니다.",
+      Get.context!.tr("report_bottomsheet.dialog_title_duplicate"),
+      Get.context!.tr("report_bottomsheet.dialog_message_duplicate"),
     );
   } else {
     return kDefaultDialog(
-      "신고 실패",
-      "알 수 없는 오류로 인해 신고 처리에 실패했습니다.\n잠시 후 다시 시도해 주시거나,\n문제가 지속될 경우 고객센터로 문의 바랍니다.",
+      Get.context!.tr("report_bottomsheet.dialog_title_fail"),
+      Get.context!.tr("report_bottomsheet.dialog_message_fail"),
     );
   }
 }
