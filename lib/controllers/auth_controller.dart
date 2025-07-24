@@ -105,7 +105,7 @@ class AuthController extends GetxController {
   // }
 
   /// Apple 로그인 처리
-  Future<AuthResponse?> loginInWithApple() async {
+  Future<AuthResponse?> loginWithApple() async {
     try {
       final rawNonce = supabase.auth.generateRawNonce();
       final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
@@ -143,6 +143,29 @@ class AuthController extends GetxController {
       debugPrint('signInWithApple Error: $e');
     }
     return null;
+  }
+
+  /// Apple 로그인 처리 - 안드로이드
+  Future<void> loginWithApple2() async {
+    // Apple OAuth 로그인 시도
+    await supabase.auth.signInWithOAuth(
+      OAuthProvider.apple,
+      redirectTo: 'https://rkfdbtdicxarrctsvmif.supabase.co/auth/v1/callback',
+      // authScreenLaunchMode: LaunchMode.externalApplication,
+      // authScreenLaunchMode: LaunchMode.inAppBrowserView,
+      authScreenLaunchMode: LaunchMode.inAppWebView,
+    );
+
+    supabase.auth.onAuthStateChange.listen((data) async {
+      final AuthChangeEvent event = data.event;
+      // 성공적으로 로그인이 완료된 경우
+      if (event == AuthChangeEvent.signedIn) {
+        debugPrint('Logged in with Apple');
+        Get.offAll(() => SplashScreen());
+      } else {
+        debugPrint('Login failed');
+      }
+    });
   }
 
   // 로그아웃 처리

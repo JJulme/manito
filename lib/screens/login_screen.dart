@@ -1,5 +1,6 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:manito/controllers/auth_controller.dart';
@@ -70,7 +71,6 @@ class LoginScreen extends StatelessWidget {
                   AuthButton(
                     imagePath: 'assets/images/long_google2.png',
                     onTap: () async {
-                      await CookieManager.instance().deleteAllCookies();
                       await authController.loginWithGoogle();
                     },
                   ),
@@ -79,7 +79,6 @@ class LoginScreen extends StatelessWidget {
                   AuthButton(
                     imagePath: 'assets/images/long_kakao2.png',
                     onTap: () async {
-                      await CookieManager.instance().deleteAllCookies();
                       Get.to(() => KakaoLoginWebview());
                       // await authController.loginWithKakao();
                     },
@@ -87,12 +86,11 @@ class LoginScreen extends StatelessWidget {
                   SizedBox(height: width * 0.04),
 
                   // 애플 로그인 버튼
-                  GetPlatform.isIOS
+                  Platform.isIOS
                       ? AuthButton(
                         imagePath: 'assets/images/long_apple2.png',
                         onTap: () async {
-                          await CookieManager.instance().deleteAllCookies();
-                          await authController.loginInWithApple();
+                          await authController.loginWithApple();
                         },
                       )
                       : SizedBox.shrink(),
