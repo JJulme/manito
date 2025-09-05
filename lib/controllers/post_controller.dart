@@ -23,21 +23,20 @@ class PostController extends GetxController {
           .select('''id, 
             manito_id, 
             creator_id, 
-            deadline_type, 
-            mission_content:content($currentLanguageCode), 
+            content_type, 
+            content_library:content($currentLanguageCode), 
             complete_at
             ''')
           .or('creator_id.eq.$userId, manito_id.eq.$userId')
           .not('guess', 'is', null)
           .order('complete_at', ascending: false);
-      print(data);
 
       // content 빼오기
       List<Map<String, dynamic>> transformedData = [];
       for (var mission in data) {
         Map<String, dynamic> newMission = Map.from(mission);
-        if (newMission['mission_content'] is Map<String, dynamic>) {
-          Map<String, dynamic> contentMap = newMission['mission_content'];
+        if (newMission['content_library'] is Map<String, dynamic>) {
+          Map<String, dynamic> contentMap = newMission['content_library'];
           if (contentMap.isNotEmpty) {
             newMission['content'] = contentMap.values.first;
           } else {
@@ -108,7 +107,7 @@ class PostDetailController extends GetxController {
       detailPost.value = detailPost.value?.copyWith(
         id: post.id,
         completeAt: post.completeAt,
-        deadlineType: post.deadlineType,
+        contentType: post.contentType,
         content: post.content,
       );
     } catch (e) {

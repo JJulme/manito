@@ -118,8 +118,9 @@
   },
   "post_detail_screen": {
     "report": "Report",
-    "day": "Day",
-    "week": "Week",
+    "daily": "Daily",
+    "school": "School",
+    "work": "Work",
     "no_comment": "No comments.",
     "write_comment": "Write a comment"
   },
@@ -185,9 +186,10 @@
   },
   "mission_propose_screen": {
     "title": "Secretly help {nickname}!",
-    "for_friend": " for {nickname}",
-    "day": "In a day",
-    "week": "In a Week",
+    "for_friend": " For {nickname}",
+    "daily": "Daily Mission",
+    "school": "School Mission",
+    "work": "Work Mission",
     "select_mission": "Select Mission",
     "watch_ad": " Watch Ad +1",
     "dialog_title": "Accept Mission",
@@ -225,8 +227,9 @@
     "btn_complete_mission": "Complete Mission"
   },
   "post_item": {
-    "day": "Day",
-    "week": "Week"
+    "daily": "Daily",
+    "school": "School",
+    "work": "Work"
   },
   "firebase_handler": {
     "friend_request_title": "Friend Request",

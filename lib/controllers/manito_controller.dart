@@ -46,10 +46,10 @@ class ManitoController extends GetxController {
           .from('missions')
           .select('''id, 
               creator_id, 
-              mission_content:content(${context.locale.languageCode}), 
+              content_library:content(${context.locale.languageCode}), 
               status, 
               deadline, 
-              deadline_type
+              content_type
               ''')
           .eq('manito_id', _supabase.auth.currentUser!.id)
           .eq('status', 'progressing');
@@ -58,8 +58,8 @@ class ManitoController extends GetxController {
       List<Map<String, dynamic>> transformedData = [];
       for (var mission in data) {
         Map<String, dynamic> newMission = Map.from(mission);
-        if (newMission['mission_content'] is Map<String, dynamic>) {
-          Map<String, dynamic> contentMap = newMission['mission_content'];
+        if (newMission['content_library'] is Map<String, dynamic>) {
+          Map<String, dynamic> contentMap = newMission['content_library'];
           if (contentMap.isNotEmpty) {
             newMission['content'] = contentMap.values.first;
           } else {
@@ -124,26 +124,25 @@ class MissionProposeController extends GetxController {
               .select('''
               mission_id,
               random_contents,
-              missions:mission_id(accept_deadline, deadline_type, deadline)
+              missions:mission_id(accept_deadline, content_type, deadline)
               ''')
               .eq('id', missionProposeId)
               .single();
-      // uuid 문자열 리스트
-      final List<String> uuidList =
+      // text id 문자열 리스트
+      final List<String> textIdList =
           (data["random_contents"] as List).map((e) => e.toString()).toList();
-
       // 언어 설정에 맞게 미션 내용 가져오기
       final contents = await _supabase.rpc(
-        "fetch_mission_contents_from_uuids",
-        params: {'uuid_array': uuidList, "locale_code": currentLanguageCode},
+        "fetch_mission_contents_from_ids",
+        params: {'id_array': textIdList, "locale_code": currentLanguageCode},
       );
       // 가져온 데이터를 Map으로 변경
       List<MissionContent> contentListMap = [];
       if (data["random_contents"].length == contents.length) {
         for (int i = 0; i < contents.length; i++) {
-          final String uuid = data["random_contents"][i].toString();
+          final String textId = data["random_contents"][i].toString();
           final String content = contents[i]["content_text"].toString();
-          contentListMap.add(MissionContent(id: uuid, content: content));
+          contentListMap.add(MissionContent(id: textId, content: content));
         }
       }
       data["random_contents"] = contentListMap;
@@ -172,7 +171,7 @@ class MissionProposeController extends GetxController {
         'add_random_mission_content',
         params: {
           'p_mission_propose_id': missionProposeId,
-          'p_deadline': missionPropose.value!.deadlineType,
+          'p_deadline': missionPropose.value!.contentType,
         },
       );
       debugPrint('addRandomMissionContent: $data');

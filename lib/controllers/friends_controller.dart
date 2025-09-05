@@ -512,7 +512,7 @@ class FriendsDetailController extends GetxController {
           .select('''id,
              manito_id, 
              creator_id, 
-             deadline_type, 
+             content_type, 
              mission_content:content($currentLanguageCode),
              complete_at''')
           .or(

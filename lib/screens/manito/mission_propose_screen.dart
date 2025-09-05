@@ -182,7 +182,7 @@ class _MissionProposeScreenState extends State<MissionProposeScreen> {
   Widget _buildMissionDescription(double width, profile, dynamic mission) {
     final DateFormat formatter = DateFormat('yy-MM-dd HH:mm');
     final String deadlineType = context.tr(
-      "mission_propose_screen.${mission.deadlineType}",
+      "mission_propose_screen.${mission.contentType}",
     );
     return Container(
       width: double.infinity,

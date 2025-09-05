@@ -29,7 +29,7 @@ class MissionController extends GetxController {
       final List<dynamic> missionsData = await _supabase
           .from('missions')
           .select(
-            'id, friend_ids, status, deadline_type, deadline, accept_deadline',
+            'id, friend_ids, status, content_type, deadline, accept_deadline',
           )
           .eq('creator_id', userId)
           .isFilter('guess', null);
@@ -66,6 +66,7 @@ class MissionCreateController extends GetxController {
   var isLoading = false.obs;
   // 선택된 친구 ID 목록
   var selectedFriends = <FriendProfile>[].obs;
+  var confirmedFriends = <FriendProfile>[].obs;
 
   /// 체크 상태 토글 함수
   void toggleSelection(FriendProfile friendProfile) {
@@ -81,18 +82,41 @@ class MissionCreateController extends GetxController {
     return selectedFriends.contains(friendProfile);
   }
 
+  /// 선택했던 친구 동기화
+  void updateSelectedFriends() {
+    selectedFriends.value = confirmedFriends.toList();
+  }
+
+  /// 선택한 친구 확정하기
+  void confirmSelection() {
+    confirmedFriends.value = selectedFriends.toList();
+  }
+
   /// 미션 생성 - 친구의 순서를 랜덤으로 보내게 되는데 필요 없는 기능일 수 있음
-  Future<String> createMission(int selectedIndex) async {
+  Future<String> createMission(int selectedType, int selectedPeriod) async {
     isLoading.value = true;
     final List<String?> friendsIds =
-        selectedFriends.map((friend) => friend.id).toList();
+        confirmedFriends.map((friend) => friend.id).toList();
+    String contentType = 'daily';
+    switch (selectedType) {
+      case 0:
+        contentType = 'daily';
+        break;
+      case 1:
+        contentType = 'school';
+        break;
+      case 2:
+        contentType = 'work';
+        break;
+    }
     try {
       final String result = await _supabase.rpc(
         'create_mission',
         params: {
           'creator_id': _supabase.auth.currentUser!.id,
           'friend_ids': friendsIds,
-          'deadline_type': selectedIndex == 0 ? 'day' : 'week',
+          'content_type': contentType,
+          'deadline_type': selectedPeriod == 0 ? 'day' : 'week',
         },
       );
 

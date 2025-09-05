@@ -22,7 +22,7 @@ class ChatScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            '${_controller.post.deadlineType} / ${_controller.post.content!}',
+            '${_controller.post.contentType} / ${_controller.post.content!}',
             style: Get.textTheme.headlineSmall,
           ),
         ),

@@ -32,7 +32,7 @@ class Post {
   final String? creatorId;
 
   /// 마니또 미션의 마감 기한 유형 ('하루', '한주').
-  final String? deadlineType;
+  final String? contentType;
 
   /// 마니또 사용자의 구체적인 미션 내용.
   /// 마니또 사용자가 랜덤으로 제시된 미션중에 선택한 내용입니다.
@@ -54,7 +54,7 @@ class Post {
     this.createdAt,
     this.completeAt,
     this.creatorId,
-    this.deadlineType,
+    this.contentType,
     this.content,
     this.guess,
   });
@@ -81,7 +81,7 @@ class Post {
               ? DateTime.parse(json['complete_at']).toLocal()
               : null,
       creatorId: json['creator_id'] ?? '',
-      deadlineType: json['deadline_type'] ?? '',
+      contentType: json['content_type'] ?? '',
       content: json['content'] ?? '',
       guess: json['guess'] ?? '',
     );
@@ -98,7 +98,7 @@ class Post {
     List<String?>? imageUrlList,
     String? manitoId,
     String? creatorId,
-    String? deadlineType,
+    String? contentType,
     String? content,
     String? guess,
   }) {
@@ -110,7 +110,7 @@ class Post {
       createdAt: createdAt ?? this.createdAt,
       completeAt: completeAt ?? this.completeAt,
       creatorId: creatorId ?? this.creatorId,
-      deadlineType: deadlineType ?? this.deadlineType,
+      contentType: contentType ?? this.contentType,
       content: content ?? this.content,
       guess: guess ?? this.guess,
     );

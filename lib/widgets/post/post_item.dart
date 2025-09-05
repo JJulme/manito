@@ -6,7 +6,6 @@ import 'package:manito/models/post.dart';
 import 'package:manito/screens/post/post_detail_screen.dart';
 import 'package:manito/widgets/common/custom_badge.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
-import 'package:path/path.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class PostItem extends StatelessWidget {
@@ -113,7 +112,7 @@ class PostItem extends StatelessWidget {
             Icon(Icons.event, size: 0.05 * width),
             SizedBox(width: 0.01 * width),
             Text(
-              'post_item.${post.deadlineType!}',
+              'post_item.${post.contentType!}',
               style: Get.textTheme.bodySmall,
             ).tr(),
           ],

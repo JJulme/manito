@@ -8,7 +8,6 @@ import 'package:manito/controllers/mission_controller.dart';
 import 'package:manito/custom_icons.dart';
 import 'package:manito/models/mission.dart';
 import 'package:manito/screens/mission/mission_create_screen.dart';
-import 'package:manito/screens/mission/mission_create_screen_new.dart';
 import 'package:manito/screens/mission/mission_guess_screen.dart';
 import 'package:manito/widgets/admob/banner_ad_widget.dart';
 import 'package:manito/widgets/common/custom_snackbar.dart';
@@ -172,7 +171,6 @@ class _MissionScreenState extends State<MissionScreen>
         horizontal: screenWidth * _horizontalPadding,
       ),
       child: ElevatedButton(
-        onLongPress: () => Get.to(() => MissionCreateScreenNew()),
         onPressed: _toMissionCreateScreen,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -296,7 +294,7 @@ class _MissionScreenState extends State<MissionScreen>
           _buildMissionHeader(
             icon: const Icon(Icons.error_sharp, color: Colors.amber),
             status: mission.status,
-            deadlineType: mission.deadlineType,
+            contentType: mission.contentType,
             targetDateTime: mission.acceptDeadline!,
             tooltipMessage: context.tr(
               "mission_screen.pending_mission_tooltip",
@@ -323,7 +321,7 @@ class _MissionScreenState extends State<MissionScreen>
           _buildMissionHeader(
             icon: const Icon(Icons.run_circle_sharp, color: Colors.deepOrange),
             status: mission.status,
-            deadlineType: mission.deadlineType,
+            contentType: mission.contentType,
             targetDateTime: mission.deadline,
             tooltipMessage: context.tr("mission_screen.accept_mission_tooltip"),
             screenWidth: screenWidth,
@@ -366,7 +364,7 @@ class _MissionScreenState extends State<MissionScreen>
   Widget _buildMissionHeader({
     required Widget icon,
     required String status,
-    required String deadlineType,
+    required String contentType,
     required DateTime targetDateTime,
     required String tooltipMessage,
     required double screenWidth,
@@ -378,7 +376,7 @@ class _MissionScreenState extends State<MissionScreen>
         SizedBox(width: screenWidth * _itemSpacing),
         Text("mission_screen.$status", style: Get.textTheme.titleMedium).tr(),
         SizedBox(width: screenWidth * _smallSpacing),
-        Text('(${context.tr("mission_screen.$deadlineType")}) '),
+        Text('(${context.tr("mission_screen.$contentType")}) '),
         _buildTooltip(tooltipMessage),
         const Spacer(),
         TimerWidget(

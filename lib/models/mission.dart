@@ -23,10 +23,10 @@ class MyMission {
   /// 이 필드는 필수입니다.
   final String status;
 
-  /// 미션의 마감 기한 유형.
-  /// 하루, 한주.
+  /// 미션의 유형.
+  /// 일상, 학교, 직장.
   /// 이 필드는 필수입니다.
-  final String deadlineType;
+  final String contentType;
 
   /// 미션 수락 마감 기한.
   /// 사용자가 미션을 수락해야 하는 최종 시간을 나타냅니다.
@@ -47,7 +47,7 @@ class MyMission {
     required this.id,
     required this.friendsProfile,
     required this.status,
-    required this.deadlineType,
+    required this.contentType,
     this.acceptDeadline,
     required this.deadline,
   });
@@ -66,7 +66,7 @@ class MyMission {
       id: json['id'] as String,
       friendsProfile: friendProfiles,
       status: json['status'] as String,
-      deadlineType: json['deadline_type'] as String,
+      contentType: json['content_type'] as String,
       acceptDeadline:
           json['accept_deadline'] != null
               ? DateTime.parse(json['accept_deadline'] as String).toLocal()
@@ -100,7 +100,7 @@ class MissionPropose {
 
   /// 미션의 마감 기한 유형. (하루, 한주)
   /// 이 필드는 필수입니다.
-  final String deadlineType;
+  final String contentType;
 
   /// 새로운 [MissionPropose] 인스턴스를 생성합니다.
   ///
@@ -110,7 +110,7 @@ class MissionPropose {
     required this.randomContents,
     required this.acceptDeadline,
     required this.deadline,
-    required this.deadlineType,
+    required this.contentType,
   });
 
   /// JSON [Map]으로부터 [MissionPropose] 인스턴스를 생성하는 팩토리 생성자.
@@ -128,7 +128,7 @@ class MissionPropose {
       acceptDeadline:
           DateTime.parse(missions['accept_deadline'] as String).toLocal(),
       deadline: DateTime.parse(missions['deadline'] as String).toLocal(),
-      deadlineType: missions['deadline_type'] as String,
+      contentType: missions['content_type'] as String,
     );
   }
 }
@@ -208,7 +208,7 @@ class MissionAccept {
 
   /// 미션의 마감 기한 유형.
   /// (예: 하루, 한주). 이 필드는 필수입니다.
-  final String deadlineType;
+  final String contentType;
 
   /// 새로운 [MissionAccept] 인스턴스를 생성합니다.
   ///
@@ -219,7 +219,7 @@ class MissionAccept {
     required this.content,
     required this.status,
     required this.deadline,
-    required this.deadlineType,
+    required this.contentType,
   });
 
   /// JSON [Map]으로부터 [MissionAccept] 인스턴스를 생성하는 팩토리 생성자.
@@ -234,7 +234,7 @@ class MissionAccept {
       content: json['content'] as String,
       status: json['status'] as String,
       deadline: DateTime.parse(json['deadline'] as String).toLocal(),
-      deadlineType: json['deadline_type'] as String,
+      contentType: json['content_type'] as String,
     );
   }
 }

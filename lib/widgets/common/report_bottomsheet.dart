@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:manito/constants.dart';
 import 'package:manito/controllers/report_controller.dart';
-import 'package:path/path.dart';
 
 enum ReportType {
   violence, // 폭력성

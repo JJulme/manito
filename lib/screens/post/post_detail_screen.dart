@@ -83,7 +83,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         }
         // 기간 번역
         final String transPeriod = context.tr(
-          "post_detail_screen.${_controller.post.deadlineType}",
+          "post_detail_screen.${_controller.post.contentType}",
         );
         return Text(
           '$transPeriod / ${_controller.post.content}',

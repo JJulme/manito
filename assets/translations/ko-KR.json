@@ -118,8 +118,9 @@
   },
   "post_detail_screen": {
     "report": "신고하기",
-    "day": "하루",
-    "week": "한주",
+    "daily": "일상",
+    "school": "학교",
+    "work": "직장",
     "no_comment": "댓글이 없습니다.",
     "write_comment": "댓글 입력"
   },
@@ -133,8 +134,9 @@
     "accept_mission_tooltip": "마니또가 미션을 진행중 입니다.",
     "pending": "대기중",
     "progressing": "진행중",
-    "day": "하루",
-    "week": "한주"
+    "daily": "일상",
+    "school": "학교",
+    "work": "직장"
   },
   "mission_create_screen": {
     "title": "미션 만들기",
@@ -186,8 +188,9 @@
   "mission_propose_screen": {
     "title": "{nickname} 님 몰래 도움을 주세요!",
     "for_friend": "{nickname} 에게",
-    "day": "하루 내에",
-    "week": "한주 내에",
+    "daily": "일상 미션",
+    "school": "학교 미션",
+    "work": "직장 미션",
     "select_mission": "미션 선택",
     "watch_ad": " 광고보고 +1",
     "dialog_title": "미션 수락",
@@ -225,8 +228,9 @@
     "btn_complete_mission": "미션종료"
   },
   "post_item": {
-    "day": "하루",
-    "week": "한주"
+    "daily": "일상",
+    "school": "학교",
+    "work": "직장"
   },
   "firebase_handler": {
     "friend_request_title": "친구요청",
