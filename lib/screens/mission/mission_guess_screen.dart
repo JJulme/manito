@@ -5,6 +5,7 @@ import 'package:manito/controllers/mission_controller.dart';
 import 'package:manito/controllers/post_controller.dart';
 import 'package:manito/models/user_profile.dart';
 import 'package:manito/widgets/common/custom_snackbar.dart';
+import 'package:manito/widgets/common/custom_toast.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
 
 class MissionGuessScreen extends StatelessWidget {
@@ -23,9 +24,8 @@ class MissionGuessScreen extends StatelessWidget {
     if (_controller.updateLoading.value) {
       return;
     } else if (_controller.descController.text.length < 5) {
-      customSnackbar(
-        title: context.tr("mission_guess_screen.text_short_snack_title"),
-        message: context.tr("mission_guess_screen.text_short_snack_message"),
+      customToast(
+        msg: context.tr("mission_guess_screen.text_short_snack_message"),
       );
     } else {
       String result = await _controller.updateMissionGuess();

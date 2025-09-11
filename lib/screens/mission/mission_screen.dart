@@ -11,6 +11,7 @@ import 'package:manito/screens/mission/mission_create_screen.dart';
 import 'package:manito/screens/mission/mission_guess_screen.dart';
 import 'package:manito/widgets/admob/banner_ad_widget.dart';
 import 'package:manito/widgets/common/custom_snackbar.dart';
+import 'package:manito/widgets/common/custom_toast.dart';
 import 'package:manito/widgets/mission/timer.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
 
@@ -78,10 +79,7 @@ class _MissionScreenState extends State<MissionScreen>
     if (_controller.pendingMyMissions.length +
             _controller.acceptMyMissions.length >
         2) {
-      customSnackbar(
-        title: context.tr("mission_screen.max_snack_title"),
-        message: context.tr("mission_screen.max_snack_message"),
-      );
+      customToast(msg: context.tr("mission_screen.max_snack_message"));
     } else {
       final result = await Get.to(() => MissionCreateScreen());
       if (result == true) {

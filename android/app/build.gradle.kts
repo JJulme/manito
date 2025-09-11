@@ -18,6 +18,9 @@ dependencies {
   // When using the BoM, don't specify versions in Firebase dependencies
   implementation("com.google.firebase:firebase-analytics")
 
+  // 로컬 노티 설정
+  coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+
   // Add the dependencies for any other desired Firebase products
   // https://firebase.google.com/docs/android/setup#available-libraries
 }
@@ -36,6 +39,9 @@ android {
     ndkVersion = "27.0.12077973"
 
     compileOptions {
+        // 로컬 노티 설정
+        isCoreLibraryDesugaringEnabled = true
+
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -56,6 +62,8 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // 로컬 노티 설정
+        multiDexEnabled = true
     }
 
     signingConfigs {

@@ -285,6 +285,7 @@ class FriendsScreen extends StatelessWidget {
         Positioned(
           child: Text(
             count,
+            textAlign: TextAlign.center,
             style: TextStyle(color: Colors.white, fontSize: width * 0.045),
           ),
         ),

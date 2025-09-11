@@ -6,6 +6,7 @@ import 'package:manito/constants.dart';
 import 'package:manito/controllers/auth_controller.dart';
 import 'package:manito/controllers/friends_controller.dart';
 import 'package:manito/widgets/common/custom_snackbar.dart';
+import 'package:manito/widgets/common/custom_toast.dart';
 import 'package:restart_app/restart_app.dart';
 
 class SettingScreen extends StatelessWidget {
@@ -126,13 +127,7 @@ class SettingScreen extends StatelessWidget {
     Clipboard.setData(const ClipboardData(text: _contactEmail));
 
     if (GetPlatform.isIOS) {
-      final String snackTitle = Get.context!.tr(
-        "setting_screen.copy_snack_title",
-      );
-      final String snackMessage = Get.context!.tr(
-        "setting_screen.copy_snack_message",
-      );
-      customSnackbar(title: snackTitle, message: snackMessage);
+      customToast(msg: Get.context!.tr("setting_screen.copy_snack_message"));
     }
   }
 

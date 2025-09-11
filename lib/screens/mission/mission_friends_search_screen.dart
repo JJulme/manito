@@ -6,6 +6,7 @@ import 'package:manito/controllers/friends_controller.dart';
 import 'package:manito/controllers/mission_controller.dart';
 import 'package:manito/models/user_profile.dart';
 import 'package:manito/widgets/common/custom_snackbar.dart';
+import 'package:manito/widgets/common/custom_toast.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
 
 class MissionFriendsSearchScreen extends StatefulWidget {
@@ -44,7 +45,7 @@ class _MissionFriendsSearchState extends State<MissionFriendsSearchScreen> {
   // 친구 2명 이상 선택 완료 버튼
   void _onDone() {
     if (_controller.selectedFriends.length < 2) {
-      customSnackbar(title: "친구 부족", message: "2명 이상의 친구를 선택해 주세요.");
+      customToast(msg: '2명 이상의 친구를 선택해 주세요.');
     } else {
       _controller.confirmSelection();
       Get.back();

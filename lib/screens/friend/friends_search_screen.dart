@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:manito/controllers/friends_controller.dart';
 import 'package:manito/widgets/common/custom_snackbar.dart';
+import 'package:manito/widgets/common/custom_toast.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
 
 class FriendsSearchScreen extends StatefulWidget {
@@ -45,10 +46,7 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
       final bool result = await _controller.searchEmail();
       if (!result) {
         if (!mounted) return;
-        customSnackbar(
-          title: context.tr("friends_search_screen.snack_title"),
-          message: context.tr("friends_search_screen.no_result_message"),
-        );
+        customToast(msg: context.tr("friends_search_screen.no_result_message"));
       }
     }
   }
@@ -56,10 +54,7 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
   // 내 이메일 복사 완료 스넥바
   void _copyEmailToClipboard(String email) {
     Clipboard.setData(ClipboardData(text: email));
-    customSnackbar(
-      title: context.tr("friends_search_screen.snack_title"),
-      message: context.tr("friends_search_screen.copy_message"),
-    );
+    customToast(msg: context.tr("friends_search_screen.copy_message"));
   }
 
   // 친구 신청
@@ -67,10 +62,7 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
     final result = await _controller.sendFriendRequest();
     // 마운틴된 상태 확인
     if (!mounted) return;
-    customSnackbar(
-      title: context.tr("friends_search_screen.snack_title"),
-      message: context.tr("friends_search_screen.$result"),
-    );
+    customToast(msg: context.tr("friends_search_screen.$result"));
   }
 
   @override

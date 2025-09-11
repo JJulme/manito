@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:manito/constants.dart';
 import 'package:manito/controllers/manito_controller.dart';
 import 'package:manito/widgets/common/custom_snackbar.dart';
+import 'package:manito/widgets/common/custom_toast.dart';
 
 class AutoReplyScreen extends StatefulWidget {
   const AutoReplyScreen({super.key});
@@ -32,10 +33,7 @@ class _AutoReplyScreenState extends State<AutoReplyScreen> {
     } else {
       return () async {
         if (_controller.replyController.text.length < 5) {
-          customSnackbar(
-            title: context.tr("auto_reply_screen.snack_title"),
-            message: context.tr("auto_reply_screen.snack_message"),
-          );
+          customToast(msg: context.tr("auto_reply_screen.snack_message"));
         } else {
           String result = await _controller.updateAutoReply(
             _controller.replyController.text,

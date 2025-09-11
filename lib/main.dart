@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,9 @@ import 'package:manito/screens/splash_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:manito/firebase_options.dart';
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 void main() async {
   // 웹바인딩 설정
@@ -33,6 +37,16 @@ void main() async {
   // 언어 설정
   timeago.setLocaleMessages('ko', timeago.KoMessages());
   // timeago.setLocaleMessages('en_short', timeago.EnMessages());
+  // 로컬 노티 설정
+  const AndroidInitializationSettings androidInitializationSettings =
+      AndroidInitializationSettings('ic_notification');
+  const DarwinInitializationSettings darwinInitializationSettings =
+      DarwinInitializationSettings();
+  const InitializationSettings initializationSettings = InitializationSettings(
+    android: androidInitializationSettings,
+    iOS: darwinInitializationSettings,
+  );
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   runApp(
     EasyLocalization(
       supportedLocales: const [Locale('ko', 'KR'), Locale('en', 'US')],

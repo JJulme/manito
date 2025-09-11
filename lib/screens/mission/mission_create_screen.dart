@@ -6,6 +6,7 @@ import 'package:manito/controllers/mission_controller.dart';
 import 'package:manito/models/user_profile.dart';
 import 'package:manito/screens/mission/mission_friends_search_screen.dart';
 import 'package:manito/widgets/common/custom_snackbar.dart';
+import 'package:manito/widgets/common/custom_toast.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
 
 class MissionCreateScreen extends StatefulWidget {
@@ -30,10 +31,7 @@ class _MissionCreateScreenState extends State<MissionCreateScreen> {
 
   void _showMissionCreationDialog() {
     if (_controller.confirmedFriends.length < 2) {
-      customSnackbar(
-        title: context.tr("mission_create_screen.snack_title"),
-        message: context.tr("mission_create_screen.snack_message"),
-      );
+      customToast(msg: context.tr("mission_create_screen.snack_message"));
     } else {
       kDefaultDialog(
         context.tr("mission_create_screen.dialog_title"),
