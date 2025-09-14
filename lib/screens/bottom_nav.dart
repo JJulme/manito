@@ -31,12 +31,8 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
   /// 바텀 네비게이션 인덱스
   int _selectedIndex = 0;
 
-  final List<Widget> _screens = [
-    FriendsScreen(),
-    PostScreen(),
-    MissionScreen(),
-    ManitoScreen(),
-  ];
+  // 각 탭이 로드되었는지 추적하는 Set
+  final Set<int> _loadedTabs = {0};
 
   // 컨트롤러, 수파베이스
   final BadgeController _badgeController = Get.find<BadgeController>();
@@ -82,6 +78,49 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
     // 앱이 포커스를 받을 때
     if (state == AppLifecycleState.resumed) {
       await _badgeController.fetchExistingBadges();
+    }
+  }
+
+  // 탭 눌렀을때 동작
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+      // 해당 탭이 처음 로드되는 경우 위젯 생성
+      if (!_loadedTabs.contains(index)) {
+        _loadedTabs.add(index);
+      }
+    });
+    // 포스트 탭 클릭
+    if (index == 1) {
+      _badgeController.resetBadgeCount('mission_complete');
+    }
+    // 미션 탭 클릭
+    else if (index == 2) {
+      _badgeController.resetBadgeCount('mission_accept');
+      _badgeController.resetBadgeCount('mission_guess');
+    }
+    // 마니또 탭 클릭
+    else if (index == 3) {
+      _badgeController.resetBadgeCount('mission_propose');
+    }
+  }
+
+  // 선택된 화면 보여줌
+  Widget _getScreen(int index) {
+    if (!_loadedTabs.contains(index)) {
+      return Center(child: CircularProgressIndicator());
+    }
+    switch (index) {
+      case 0:
+        return FriendsScreen();
+      case 1:
+        return PostScreen();
+      case 2:
+        return MissionScreen();
+      case 3:
+        return ManitoScreen();
+      default:
+        return FriendsScreen();
     }
   }
 
@@ -209,27 +248,13 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     double width = Get.width;
     return Scaffold(
-      body: IndexedStack(index: _selectedIndex, children: _screens),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: [_getScreen(0), _getScreen(1), _getScreen(2), _getScreen(3)],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-          // 포스트 탭 클릭
-          if (index == 1) {
-            _badgeController.resetBadgeCount('mission_complete');
-          }
-          // 미션 탭 클릭
-          else if (index == 2) {
-            _badgeController.resetBadgeCount('mission_accept');
-            _badgeController.resetBadgeCount('mission_guess');
-          }
-          // 마니또 탭 클릭
-          else if (index == 3) {
-            _badgeController.resetBadgeCount('mission_propose');
-          }
-        },
+        onTap: _onItemTapped,
         items: [
           BottomNavigationBarItem(
             icon: customBadgeIcon(

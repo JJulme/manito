@@ -81,13 +81,27 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         if (_controller.isLoading.value) {
           return const SizedBox.shrink();
         }
-        // 기간 번역
-        final String transPeriod = context.tr(
-          "post_detail_screen.${_controller.post.contentType}",
-        );
-        return Text(
-          '$transPeriod / ${_controller.post.content}',
-          style: Get.textTheme.headlineSmall,
+        final Map<String, IconData> iconMap = {
+          'daily': (Icons.sunny),
+          'school': (Icons.menu_book_rounded),
+          'work': (Icons.work),
+        };
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              iconMap[_controller.post.contentType],
+              color: Colors.grey[800],
+            ),
+            SizedBox(width: Get.width * 0.02),
+            Expanded(
+              child: Text(
+                _controller.post.content!,
+                style: Get.textTheme.headlineSmall,
+                maxLines: 2,
+              ),
+            ),
+          ],
         );
       }),
       actions: [_buildPopupMenu()],

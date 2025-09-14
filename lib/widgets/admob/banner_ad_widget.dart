@@ -139,7 +139,6 @@ class _AdmobBannerState extends State<BannerAdWidget> {
               width: widget.width,
               height: _height,
               decoration: BoxDecoration(color: Colors.grey[200]),
-              child: const Center(child: CircularProgressIndicator()),
             );
           }
         },

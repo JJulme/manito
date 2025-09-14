@@ -10,7 +10,6 @@ import 'package:manito/models/mission.dart';
 import 'package:manito/screens/mission/mission_create_screen.dart';
 import 'package:manito/screens/mission/mission_guess_screen.dart';
 import 'package:manito/widgets/admob/banner_ad_widget.dart';
-import 'package:manito/widgets/common/custom_snackbar.dart';
 import 'package:manito/widgets/common/custom_toast.dart';
 import 'package:manito/widgets/mission/timer.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
@@ -23,7 +22,7 @@ class MissionScreen extends StatefulWidget {
 }
 
 class _MissionScreenState extends State<MissionScreen>
-    with WidgetsBindingObserver {
+    with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
   static const int _maxMissions = 3;
 
   // Constants for responsive design
@@ -55,8 +54,13 @@ class _MissionScreenState extends State<MissionScreen>
   void initState() {
     super.initState();
     _controller = Get.find<MissionController>();
+    _loadData();
     _badgeController = Get.find<BadgeController>();
     WidgetsBinding.instance.addObserver(this);
+  }
+
+  void _loadData() async {
+    await _controller.fetchMyMissions();
   }
 
   @override
@@ -72,6 +76,9 @@ class _MissionScreenState extends State<MissionScreen>
       _controller.fetchMyMissions();
     }
   }
+
+  @override
+  bool get wantKeepAlive => true;
 
   // 미션 생성 화면 이동
   Future<void> _toMissionCreateScreen() async {
@@ -104,6 +111,7 @@ class _MissionScreenState extends State<MissionScreen>
   // 본체
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     double width = Get.width;
     return Scaffold(
       appBar: _buildAppBar(width),

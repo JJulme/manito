@@ -5,7 +5,6 @@ import 'package:manito/constants.dart';
 import 'package:manito/controllers/friends_controller.dart';
 import 'package:manito/controllers/mission_controller.dart';
 import 'package:manito/models/user_profile.dart';
-import 'package:manito/widgets/common/custom_snackbar.dart';
 import 'package:manito/widgets/common/custom_toast.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
 

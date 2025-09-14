@@ -13,11 +13,11 @@ class MissionController extends GetxController {
   var acceptMyMissions = <MyMission>[].obs; // 내가 만든 진행중 미션
   var completeMyMissions = <MyMission>[].obs; // 미개봉 종료 미션
 
-  @override
-  void onInit() async {
-    super.onInit();
-    await fetchMyMissions();
-  }
+  // @override
+  // void onInit() async {
+  //   super.onInit();
+  //   await fetchMyMissions();
+  // }
 
   /// 내가 생성한 미션 리스트 가져오는 함수 - 대기, 진행중, 완료
   Future<void> fetchMyMissions() async {

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:manito/controllers/friends_controller.dart';
-import 'package:manito/widgets/common/custom_snackbar.dart';
 import 'package:manito/widgets/common/custom_toast.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
 

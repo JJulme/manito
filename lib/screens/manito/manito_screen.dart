@@ -23,7 +23,7 @@ class ManitoScreen extends StatefulWidget {
 }
 
 class _ManitoScreenState extends State<ManitoScreen>
-    with WidgetsBindingObserver {
+    with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
   // Controllers
   late final ManitoController _controller;
   late final FriendsController _friendsController;
@@ -64,6 +64,9 @@ class _ManitoScreenState extends State<ManitoScreen>
       _refreshMissionData();
     }
   }
+
+  @override
+  bool get wantKeepAlive => true;
 
   // 데이터 새로고침 - didChangeAppLifecycleState, _toMissionProposeScreen
   Future<void> _refreshMissionData() async {

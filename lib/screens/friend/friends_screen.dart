@@ -1,12 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:manito/constants.dart';
 import 'package:manito/controllers/badge_controller.dart';
 import 'package:manito/controllers/friends_controller.dart';
 import 'package:manito/controllers/mission_controller.dart';
-import 'package:manito/custom_icons.dart';
 import 'package:manito/screens/friend/friends_blacklist_screen.dart';
 import 'package:manito/screens/friend/friends_detail_screen.dart';
 import 'package:manito/screens/friend/friends_request_screen.dart';
@@ -277,9 +277,9 @@ class FriendsScreen extends StatelessWidget {
     return Stack(
       alignment: AlignmentDirectional.center,
       children: [
-        Icon(
-          CustomIcons.star,
-          size: width * 0.08,
+        SvgPicture.asset(
+          'assets/icons/star.svg',
+          width: width * 0.08,
           color: count == '0' ? Colors.grey[400] : kYellow,
         ),
         Positioned(

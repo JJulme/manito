@@ -33,6 +33,7 @@ class PostItem extends StatelessWidget {
       () => PostDetailScreen(),
       arguments: [post, manitoProfile, creatorProfile],
     );
+    _badgeController.resetBadgeCount(post.id!);
   }
 
   // /// 댓글창 열기
@@ -53,12 +54,7 @@ class PostItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      // onTap: () => _toPostDetailScreen(post, manitoProfile, creatorProfile),
-      onTap: () {
-        _toPostDetailScreen(post, manitoProfile, creatorProfile);
-        _badgeController.resetBadgeCount(post.id!);
-      },
-
+      onTap: () => _toPostDetailScreen(post, manitoProfile, creatorProfile),
       child: Padding(
         padding: EdgeInsets.symmetric(
           vertical: 0.02 * width,
@@ -66,12 +62,8 @@ class PostItem extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Manito Profile
-            _buildProfileColumn(manitoProfile, width),
-            SizedBox(width: 0.02 * width),
+            _buildProfileStack(manitoProfile, creatorProfile, width),
 
-            // Creator Profile
-            _buildProfileColumn(creatorProfile, width),
             SizedBox(width: 0.04 * width),
 
             // Mission Details
@@ -85,17 +77,19 @@ class PostItem extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileColumn(dynamic profile, double width) {
+  Widget _buildProfileStack(dynamic manito, dynamic creator, double width) {
     return SizedBox(
-      width: 0.14 * width,
-      child: Column(
+      height: width * 0.195,
+      width: width * 0.195,
+      child: Stack(
         children: [
-          profileImageOrDefault(profile?.profileImageUrl, 0.14 * width),
-          SizedBox(height: 0.01 * width),
-          Text(
-            profile?.nickname ?? 'Unknown',
-            overflow: TextOverflow.ellipsis,
-            style: Get.textTheme.bodySmall,
+          Positioned(
+            left: width * 0.065,
+            child: profileImageOrDefault(manito.profileImageUrl, width * 0.13),
+          ),
+          Positioned(
+            top: width * 0.065,
+            child: profileImageOrDefault(creator.profileImageUrl, width * 0.13),
           ),
         ],
       ),
@@ -103,22 +97,54 @@ class PostItem extends StatelessWidget {
   }
 
   Widget _buildMissionDetails(BuildContext context, Post post) {
+    final Map<String, IconData> iconMap = {
+      'daily': (Icons.sunny),
+      'school': (Icons.menu_book_rounded),
+      'work': (Icons.work),
+    };
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Icon(Icons.event, size: 0.05 * width),
-            SizedBox(width: 0.01 * width),
             Text(
-              'post_item.${post.contentType!}',
-              style: Get.textTheme.bodySmall,
-            ).tr(),
+              '${manitoProfile.nickname} & ${creatorProfile.nickname}',
+              style: Get.textTheme.bodyMedium,
+              overflow: TextOverflow.ellipsis,
+            ),
           ],
         ),
         SizedBox(height: 0.02 * width),
-        Text(post.content!, style: Get.textTheme.bodySmall),
+        Container(
+          padding: EdgeInsets.symmetric(
+            vertical: width * 0.015,
+            horizontal: width * 0.04,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.grey[300],
+            borderRadius: BorderRadius.circular(50),
+            // border: Border.all(color: Colors.black),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(
+                iconMap[post.contentType],
+                size: width * 0.05,
+                color: Colors.grey[800],
+              ),
+              SizedBox(width: width * 0.01),
+              Expanded(
+                child: Text(
+                  post.content!,
+                  style: Get.textTheme.bodySmall,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -128,28 +154,31 @@ class PostItem extends StatelessWidget {
     BadgeController badgeController,
     double width,
   ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        Text(
-          post.completeAt != null
-              ? timeago.format(
-                post.completeAt!,
-                locale:
-                    Get.context!.locale.languageCode == 'ko'
-                        ? 'ko'
-                        : 'en_short',
-              )
-              : 'No Date',
-          style: Get.textTheme.labelMedium,
-        ),
-        SizedBox(height: 0.02 * width),
-        Obx(() {
-          return customBadgeIcon(
-            badgeController.badgeComment[post.id] ?? 0.obs,
-          );
-        }),
-      ],
+    return SizedBox(
+      width: width * 0.135,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            post.completeAt != null
+                ? timeago.format(
+                  post.completeAt!,
+                  locale:
+                      Get.context!.locale.languageCode == 'ko'
+                          ? 'ko'
+                          : 'en_short',
+                )
+                : 'No Date',
+            style: Get.textTheme.labelMedium,
+          ),
+          SizedBox(height: 0.02 * width),
+          Obx(() {
+            return customBadgeIcon(
+              badgeController.badgeComment[post.id] ?? 0.obs,
+            );
+          }),
+        ],
+      ),
     );
   }
 }

@@ -7,6 +7,7 @@ import 'package:manito/controllers/post_controller.dart';
 import 'package:manito/models/post.dart';
 import 'package:manito/widgets/admob/banner_ad_widget.dart';
 import 'package:manito/widgets/post/post_item.dart';
+import 'package:manito/widgets/post/post_item.dart';
 
 class PostScreen extends StatefulWidget {
   const PostScreen({super.key});
@@ -15,7 +16,8 @@ class PostScreen extends StatefulWidget {
   State<PostScreen> createState() => _PostScreenState();
 }
 
-class _PostScreenState extends State<PostScreen> with WidgetsBindingObserver {
+class _PostScreenState extends State<PostScreen>
+    with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
   late final PostController _controller;
   late final FriendsController _friendsController;
 
@@ -53,6 +55,9 @@ class _PostScreenState extends State<PostScreen> with WidgetsBindingObserver {
       _refreshPosts();
     }
   }
+
+  @override
+  bool get wantKeepAlive => true;
 
   // 새로고침
   Future<void> _refreshPosts() async {
