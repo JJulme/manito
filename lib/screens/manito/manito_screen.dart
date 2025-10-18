@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
+import 'package:manito/arch_new/screens/friends/friends_screen.dart';
 import 'package:manito/constants.dart';
 import 'package:manito/controllers/friends_controller.dart';
 import 'package:manito/controllers/manito_controller.dart';
@@ -84,7 +85,8 @@ class _ManitoScreenState extends State<ManitoScreen>
 
   /// 자동응답 페이지 이동
   void _toAutoReplyScreen() {
-    Get.to(() => AutoReplyScreen());
+    // Get.to(() => AutoReplyScreen());
+    Get.to(() => FriendsScreen());
   }
 
   /// 미션 제안 상세 페이지 이동

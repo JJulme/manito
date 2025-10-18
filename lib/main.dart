@@ -2,18 +2,16 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:manito/arch_new/core/providers.dart';
+import 'package:manito/arch_new/core/router.dart';
 import 'package:manito/constants.dart';
-import 'package:manito/screens/splash_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:manito/firebase_options.dart';
-
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
 
 void main() async {
   // 웹바인딩 설정
@@ -48,25 +46,38 @@ void main() async {
   );
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   runApp(
-    EasyLocalization(
-      supportedLocales: const [Locale('ko', 'KR'), Locale('en', 'US')],
-      path: 'assets/translations',
-      child: const Manito(),
+    ProviderScope(
+      child: EasyLocalization(
+        supportedLocales: const [Locale('ko', 'KR'), Locale('en', 'US')],
+        path: 'assets/translations',
+        child: const Manito(),
+      ),
     ),
   );
 }
 
-class Manito extends StatefulWidget {
+class Manito extends ConsumerStatefulWidget {
   const Manito({super.key});
 
   @override
-  State<Manito> createState() => _ManitoState();
+  ConsumerState<Manito> createState() => _ManitoState();
 }
 
-class _ManitoState extends State<Manito> {
+class _ManitoState extends ConsumerState<Manito> {
+  @override
+  void initState() {
+    super.initState();
+    // 언어 코드 상태 저장
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(languageCodeProvider.notifier).state =
+          EasyLocalization.of(context)!.locale.languageCode;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
+    final goRouter = ref.watch(routerProvider);
     // 테마 설정
     var themeData = ThemeData(
       useMaterial3: true,
@@ -232,7 +243,20 @@ class _ManitoState extends State<Manito> {
       ),
     );
 
-    return GetMaterialApp(
+    //   return GetMaterialApp(
+    //     // 다국어 설정
+    //     localizationsDelegates: context.localizationDelegates,
+    //     supportedLocales: context.supportedLocales,
+    //     locale: context.locale,
+    //     // 디버깅 배너 숨기기
+    //     debugShowCheckedModeBanner: false,
+    //     // 테마 설정
+    //     theme: themeData,
+    //     home: SplashScreen(),
+    //   );
+    // }
+    return MaterialApp.router(
+      routerConfig: goRouter,
       // 다국어 설정
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
@@ -241,7 +265,6 @@ class _ManitoState extends State<Manito> {
       debugShowCheckedModeBanner: false,
       // 테마 설정
       theme: themeData,
-      home: SplashScreen(),
     );
   }
 }

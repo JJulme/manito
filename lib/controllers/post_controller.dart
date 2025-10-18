@@ -148,6 +148,7 @@ class PostDetailController extends GetxController {
   }
 }
 
+// 댓글 바텀 시트에서 사용됨
 class CommentController extends GetxController {
   // 초기값 받아오기
   final String missionId;

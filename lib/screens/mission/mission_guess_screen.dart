@@ -24,9 +24,9 @@ class MissionGuessScreen extends StatelessWidget {
     if (_controller.updateLoading.value) {
       return;
     } else if (_controller.descController.text.length < 5) {
-      customToast(
-        msg: context.tr("mission_guess_screen.text_short_snack_message"),
-      );
+      // customToast(
+      //   msg: context.tr("mission_guess_screen.text_short_snack_message"),
+      // );
     } else {
       String result = await _controller.updateMissionGuess();
       await _postController.fetchPosts();

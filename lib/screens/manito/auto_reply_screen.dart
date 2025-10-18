@@ -27,13 +27,16 @@ class _AutoReplyScreenState extends State<AutoReplyScreen> {
   }
 
   // 저장 버튼 함수
-  VoidCallback? _handleSave() {
+  VoidCallback? _handleSave(double width) {
     if (_controller.updateLoading.value) {
       return null;
     } else {
       return () async {
         if (_controller.replyController.text.length < 5) {
-          customToast(msg: context.tr("auto_reply_screen.snack_message"));
+          customToast(
+            width: width,
+            msg: context.tr("auto_reply_screen.snack_message"),
+          );
         } else {
           String result = await _controller.updateAutoReply(
             _controller.replyController.text,
@@ -89,7 +92,7 @@ class _AutoReplyScreenState extends State<AutoReplyScreen> {
                         color: Colors.green,
                         size: 0.08 * screenWidth,
                       ),
-              onPressed: _handleSave(),
+              onPressed: _handleSave(screenWidth),
             ),
           ),
         ),

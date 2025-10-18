@@ -80,7 +80,7 @@ class ManitoController extends GetxController {
     try {
       final List<dynamic> data = await _supabase
           .from('missions')
-          .select('''
+          .select('''id,
               creator_id
               ''')
           .eq('manito_id', _supabase.auth.currentUser!.id)

@@ -37,8 +37,8 @@ export async function handleMissionPropose(
   const notificationPayload: FCMPayload = {
     data: {
       type: "mission_propose",
+      mission_id: mission_id,
       click_action: "FLUTTER_NOTIFICATION_CLICK",
-      sender_id: mission_id,
     },
     android: {
       notification: {

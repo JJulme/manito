@@ -62,7 +62,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    double width = Get.width;
+    final double width = MediaQuery.of(context).size.width;
     return Scaffold(
       body: SafeArea(
         child: Center(

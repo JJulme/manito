@@ -6,7 +6,6 @@ import 'package:manito/controllers/manito_controller.dart';
 import 'package:manito/controllers/post_controller.dart';
 import 'package:manito/screens/album_screen.dart';
 import 'package:manito/widgets/common/custom_snackbar.dart';
-import 'package:manito/widgets/common/custom_toast.dart';
 import 'package:manito/widgets/mission/timer.dart';
 import 'package:manito/widgets/post/image_slider.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -61,9 +60,10 @@ class _ManitoPostScreenState extends State<ManitoPostScreen> {
   Future<void> _handlePostAction() async {
     // 작성 문구 짧을 때
     if (_controller.descController.text.length < 5) {
-      customToast(
-        msg: context.tr("manito_post_screen.text_short_snack_message"),
-      );
+      // customToast(
+      //   width: width,
+      //   msg: context.tr("manito_post_screen.text_short_snack_message"),
+      // );
       return;
     }
 

@@ -62,7 +62,9 @@ class AlbumScreen extends GetResponsiveView<AlbumController> {
 
                 return Obx(() {
                   return GestureDetector(
-                    onTap: () => controller.toggleImageSelection(imageAsset),
+                    onTap:
+                        () =>
+                            controller.toggleImageSelection(width, imageAsset),
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
@@ -176,7 +178,7 @@ class AlbumController extends GetxController {
   }
 
   // 이미지 선택 함수
-  void toggleImageSelection(AssetEntity asset) {
+  void toggleImageSelection(double width, AssetEntity asset) {
     // 이미 선택된 이미지 취소
     if (selectedImages.containsKey(asset.id)) {
       final int removedIndex = selectedImages[asset.id]!;
@@ -189,7 +191,7 @@ class AlbumController extends GetxController {
     }
     // 선택 가능 이미지 개수 제한
     else if ((selectedImages.length >= 6)) {
-      customToast(msg: '최대 6개까지 선택할 수 있습니다.');
+      customToast(width: width, msg: '최대 6개까지 선택할 수 있습니다.');
     }
     // 선택한 이미지 추가
     else {

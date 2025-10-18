@@ -44,7 +44,7 @@ class _MissionFriendsSearchState extends State<MissionFriendsSearchScreen> {
   // 친구 2명 이상 선택 완료 버튼
   void _onDone() {
     if (_controller.selectedFriends.length < 2) {
-      customToast(msg: '2명 이상의 친구를 선택해 주세요.');
+      // customToast(msg: '2명 이상의 친구를 선택해 주세요.');
     } else {
       _controller.confirmSelection();
       Get.back();

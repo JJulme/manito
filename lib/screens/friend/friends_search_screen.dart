@@ -40,28 +40,34 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
   }
 
   // 검색버튼 동작 함수
-  Future<void> _searchEmail() async {
+  Future<void> _searchEmail(double width) async {
     if (_formKey.currentState!.validate()) {
       final bool result = await _controller.searchEmail();
       if (!result) {
         if (!mounted) return;
-        customToast(msg: context.tr("friends_search_screen.no_result_message"));
+        customToast(
+          width: width,
+          msg: context.tr("friends_search_screen.no_result_message"),
+        );
       }
     }
   }
 
   // 내 이메일 복사 완료 스넥바
-  void _copyEmailToClipboard(String email) {
+  void _copyEmailToClipboard(double width, String email) {
     Clipboard.setData(ClipboardData(text: email));
-    customToast(msg: context.tr("friends_search_screen.copy_message"));
+    customToast(
+      width: width,
+      msg: context.tr("friends_search_screen.copy_message"),
+    );
   }
 
   // 친구 신청
-  Future<void> _friendRequest() async {
+  Future<void> _friendRequest(double width) async {
     final result = await _controller.sendFriendRequest();
     // 마운틴된 상태 확인
     if (!mounted) return;
-    customToast(msg: context.tr("friends_search_screen.$result"));
+    customToast(width: width, msg: context.tr("friends_search_screen.$result"));
   }
 
   @override
@@ -112,7 +118,7 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
           validator: _emailValidator,
           keyboardType: TextInputType.emailAddress,
           textInputAction: TextInputAction.search,
-          onFieldSubmitted: (_) => _searchEmail(),
+          onFieldSubmitted: (_) => _searchEmail(width),
           decoration: InputDecoration(
             labelStyle: Get.textTheme.bodyLarge,
             hintText: context.tr("friends_search_screen.hint"),
@@ -156,7 +162,7 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
             borderRadius: BorderRadius.circular(_borderRadiusRatio * width),
           ),
           child: GestureDetector(
-            onTap: () => _copyEmailToClipboard(userEmail),
+            onTap: () => _copyEmailToClipboard(width, userEmail),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -202,7 +208,7 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
             Text(profile.nickname ?? '', style: Get.textTheme.bodyMedium),
             SizedBox(height: _borderRadiusRatio * width),
             ElevatedButton(
-              onPressed: _friendRequest,
+              onPressed: () => _friendRequest(width),
               child:
                   Text(
                     "friends_search_screen.request_btn",

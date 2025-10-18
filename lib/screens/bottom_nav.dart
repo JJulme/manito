@@ -2,13 +2,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:manito/arch_new/screens/home_screen.dart';
 import 'package:manito/constants.dart';
 import 'package:manito/controllers/badge_controller.dart';
 import 'package:manito/custom_icons.dart';
 import 'package:manito/firebase_handler.dart';
 import 'package:manito/screens/friend/friends_screen.dart';
 import 'package:manito/screens/manito/manito_screen.dart';
-import 'package:manito/screens/mission/mission_screen.dart';
 import 'package:manito/screens/post/post_screen.dart';
 import 'package:manito/widgets/common/custom_badge.dart';
 import 'package:manito/widgets/common/custom_snackbar.dart';
@@ -116,7 +116,8 @@ class _BottomNavState extends State<BottomNav> with WidgetsBindingObserver {
       case 1:
         return PostScreen();
       case 2:
-        return MissionScreen();
+        // return MissionScreen();
+        return HomeScreen();
       case 3:
         return ManitoScreen();
       default:

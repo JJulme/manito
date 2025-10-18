@@ -1,18 +1,18 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:introduction_screen/introduction_screen.dart';
-import 'package:manito/controllers/auth_controller.dart';
-import 'package:manito/screens/kakao_login_webview.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:manito/arch_new/features/auth/auth_provider.dart';
 
-class LoginScreen extends StatelessWidget {
+import 'package:easy_localization/easy_localization.dart';
+import 'package:manito/arch_new/features/auth/kakao_login_webview.dart';
+
+class LoginScreen extends ConsumerWidget {
   LoginScreen({super.key});
-  final authController = Get.put(AuthController());
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     double width = Get.width;
     return Scaffold(
       body: SafeArea(
@@ -71,7 +71,7 @@ class LoginScreen extends StatelessWidget {
                   AuthButton(
                     imagePath: 'assets/images/long_google2.png',
                     onTap: () async {
-                      await authController.loginWithGoogle();
+                      ref.read(authNotifierProvider.notifier).loginWithGoogle();
                     },
                   ),
                   SizedBox(height: width * 0.04),
@@ -80,7 +80,7 @@ class LoginScreen extends StatelessWidget {
                     imagePath: 'assets/images/long_kakao2.png',
                     onTap: () async {
                       Get.to(() => KakaoLoginWebview());
-                      // await authController.loginWithKakao();
+                      // ref.read(authNotifierProvider.notifier).loginWithKakao();
                     },
                   ),
                   SizedBox(height: width * 0.04),
@@ -90,7 +90,9 @@ class LoginScreen extends StatelessWidget {
                       ? AuthButton(
                         imagePath: 'assets/images/long_apple2.png',
                         onTap: () async {
-                          await authController.loginWithApple();
+                          ref
+                              .read(authNotifierProvider.notifier)
+                              .loginWithApple();
                         },
                       )
                       : SizedBox.shrink(),

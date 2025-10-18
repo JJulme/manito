@@ -280,7 +280,10 @@ class FriendsScreen extends StatelessWidget {
         SvgPicture.asset(
           'assets/icons/star.svg',
           width: width * 0.08,
-          color: count == '0' ? Colors.grey[400] : kYellow,
+          colorFilter: ColorFilter.mode(
+            count == '0' ? Colors.grey.shade400 : kYellow,
+            BlendMode.srcIn,
+          ),
         ),
         Positioned(
           child: Text(

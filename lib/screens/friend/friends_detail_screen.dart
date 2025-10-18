@@ -2,9 +2,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
+import 'package:manito/arch_new/features/posts/post.dart';
 import 'package:manito/constants.dart';
 import 'package:manito/controllers/friends_controller.dart';
-import 'package:manito/models/post.dart';
+
 import 'package:manito/models/user_profile.dart';
 import 'package:manito/screens/friend/friends_modify_screen.dart';
 import 'package:manito/widgets/admob/banner_ad_widget.dart';
@@ -301,7 +302,7 @@ class _FriendsDetailScreenState extends State<FriendsDetailScreen> {
 
   // 마니또 기록 아이템
   Widget _buildPostItem(int index) {
-    final Post post = _controller.postList[index];
+    final Post post = Post();
     final manitoProfile = _friendsController.searchFriendProfile(
       post.manitoId!,
     );

@@ -2,11 +2,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
+import 'package:manito/arch_new/core/providers.dart';
 import 'package:manito/controllers/badge_controller.dart';
 import 'package:manito/controllers/manito_controller.dart';
 import 'package:manito/controllers/mission_controller.dart';
 import 'package:manito/controllers/post_controller.dart';
-import 'package:manito/main.dart';
 
 /// 포그라운드 메시지 처리 - 데이터 새로고침, 뱃지 기능 추가 필요
 void handleForegroundMessage(RemoteMessage message) async {
@@ -14,18 +14,6 @@ void handleForegroundMessage(RemoteMessage message) async {
   final ManitoController manitoController = Get.find<ManitoController>();
   final MissionController missionController = Get.find<MissionController>();
   final BadgeController badgeController = Get.find<BadgeController>();
-
-  // void showLocalizedSnackbar(String keySuffix, {List<String>? args}) {
-  //   final String titleKey = "firebase_handler.${keySuffix}_title";
-  //   final String bodyKey = "firebase_handler.${keySuffix}_body";
-  //   String snackTitle = Get.context!.tr(titleKey);
-  //   String snackMessage = Get.context!.tr(
-  //     bodyKey,
-  //     args: args,
-  //   ); // args를 GetX tr()에 전달
-
-  //   customSnackbar(title: snackTitle, message: snackMessage);
-  // }
 
   // 알림 ID 생성
   int generateNotificationId(String keySuffix) {
@@ -108,10 +96,6 @@ void handleForegroundMessage(RemoteMessage message) async {
     final String missionId = message.data['mission_id'];
     badgeController.addBadgeComment(missionId);
   }
-  // 새로운 채팅
-  // else if (message.data['type'] == 'insert_chat') {
-  //   final String missionId = message.data['mission_id'];
-  // }
 }
 
 // /// 백그라운드 메시지 처리 - 뱃지 기능

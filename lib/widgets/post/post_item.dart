@@ -1,9 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:manito/arch_new/features/posts/post.dart';
 import 'package:manito/controllers/badge_controller.dart';
-import 'package:manito/models/post.dart';
-import 'package:manito/screens/post/post_detail_screen.dart';
 import 'package:manito/widgets/common/custom_badge.dart';
 import 'package:manito/widgets/profile/profile_image_view.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -21,20 +20,20 @@ class PostItem extends StatelessWidget {
     required this.creatorProfile,
     required this.width,
   });
-  final BadgeController _badgeController = Get.find<BadgeController>();
+  // final BadgeController _badgeController = Get.find<BadgeController>();
 
   // 게시물 상세 보기
-  Future<void> _toPostDetailScreen(
-    Post post,
-    manitoProfile,
-    creatorProfile,
-  ) async {
-    await Get.to(
-      () => PostDetailScreen(),
-      arguments: [post, manitoProfile, creatorProfile],
-    );
-    _badgeController.resetBadgeCount(post.id!);
-  }
+  // Future<void> _toPostDetailScreen(
+  //   Post post,
+  //   manitoProfile,
+  //   creatorProfile,
+  // ) async {
+  //   await Get.to(
+  //     () => PostDetailScreen(),
+  //     arguments: [post, manitoProfile, creatorProfile],
+  //   );
+  //   _badgeController.resetBadgeCount(post.id!);
+  // }
 
   // /// 댓글창 열기
   // void _showCommentSheet(double w, String missionId) {
@@ -54,7 +53,7 @@ class PostItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => _toPostDetailScreen(post, manitoProfile, creatorProfile),
+      // onTap: () => _toPostDetailScreen(post, manitoProfile, creatorProfile),
       child: Padding(
         padding: EdgeInsets.symmetric(
           vertical: 0.02 * width,
@@ -70,7 +69,7 @@ class PostItem extends StatelessWidget {
             Expanded(child: _buildMissionDetails(context, post)),
 
             // Timestamp and Badge
-            _buildTimestampAndBadge(post, _badgeController, width),
+            // _buildTimestampAndBadge(post, _badgeController, width),
           ],
         ),
       ),
@@ -85,11 +84,17 @@ class PostItem extends StatelessWidget {
         children: [
           Positioned(
             left: width * 0.065,
-            child: profileImageOrDefault(manito.profileImageUrl, width * 0.13),
+            child: ProfileImageView(
+              size: width * 0.13,
+              profileImageUrl: manito.profileImageUrl,
+            ),
           ),
           Positioned(
             top: width * 0.065,
-            child: profileImageOrDefault(creator.profileImageUrl, width * 0.13),
+            child: ProfileImageView(
+              size: width * 0.13,
+              profileImageUrl: creator.profileImageUrl,
+            ),
           ),
         ],
       ),
@@ -138,7 +143,7 @@ class PostItem extends StatelessWidget {
               Expanded(
                 child: Text(
                   post.content!,
-                  style: Get.textTheme.bodySmall,
+                  // style: Get.textTheme.bodySmall,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),

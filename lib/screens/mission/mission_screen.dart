@@ -86,7 +86,7 @@ class _MissionScreenState extends State<MissionScreen>
     if (_controller.pendingMyMissions.length +
             _controller.acceptMyMissions.length >
         2) {
-      customToast(msg: context.tr("mission_screen.max_snack_message"));
+      // customToast(msg: context.tr("mission_screen.max_snack_message"));
     } else {
       final result = await Get.to(() => MissionCreateScreen());
       if (result == true) {

@@ -1,16 +1,144 @@
 import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+/// TimerState 클래스: 타이머의 상태를 나타내는 클래스
+class TimerState {
+  final Duration remainingTime;
+  final bool isCountdownRunning;
+  final bool isCompleted;
+
+  const TimerState({
+    required this.remainingTime,
+    required this.isCountdownRunning,
+    required this.isCompleted,
+  });
+
+  TimerState copyWith({
+    Duration? remainingTime,
+    bool? isCountdownRunning,
+    bool? isCompleted,
+  }) {
+    return TimerState(
+      remainingTime: remainingTime ?? this.remainingTime,
+      isCountdownRunning: isCountdownRunning ?? this.isCountdownRunning,
+      isCompleted: isCompleted ?? this.isCompleted,
+    );
+  }
+}
+
+/// TimerNotifier 클래스: 타이머 상태를 관리하는 StateNotifier
+class TimerNotifier extends StateNotifier<TimerState> {
+  final DateTime targetDateTime;
+  final Future<void> Function()? onTimerComplete;
+  Timer? _timer;
+  bool _callbackExecuted = false; // 콜백 실행 여부를 추적하는 단순한 플래그
+
+  TimerNotifier({required this.targetDateTime, this.onTimerComplete})
+    : super(
+        const TimerState(
+          remainingTime: Duration.zero,
+          isCountdownRunning: false,
+          isCompleted: false,
+        ),
+      ) {
+    startCountdown();
+  }
+
+  // 타이머 시작 함수
+  void startCountdown() {
+    if (state.isCountdownRunning || _callbackExecuted) return;
+
+    state = state.copyWith(isCountdownRunning: true);
+    _updateRemainingTime();
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      // 콜백이 이미 실행되었다면 타이머 중단
+      if (_callbackExecuted) {
+        timer.cancel();
+        return;
+      }
+
+      final now = DateTime.now().toUtc();
+      if (now.isAfter(targetDateTime)) {
+        // 먼저 콜백 실행 플래그를 true로 설정 (가장 우선)
+        _callbackExecuted = true;
+
+        // 타이머 정지
+        timer.cancel();
+        _timer = null;
+
+        // 상태 업데이트
+        state = state.copyWith(
+          isCountdownRunning: false,
+          remainingTime: Duration.zero,
+          isCompleted: true,
+        );
+
+        // 콜백 실행 (비동기이지만 플래그로 보호됨)
+        _executeCallback();
+      } else {
+        _updateRemainingTime();
+      }
+    });
+  }
+
+  // 콜백 실행 함수 분리
+  void _executeCallback() async {
+    if (onTimerComplete != null) {
+      try {
+        await onTimerComplete!();
+      } catch (e) {
+        // 에러 처리 (선택사항)
+        debugPrint('Timer callback error: $e');
+      }
+    }
+  }
+
+  // 남은 시간 계산 후 업데이트
+  void _updateRemainingTime() {
+    if (_callbackExecuted) return;
+
+    final now = DateTime.now().toUtc();
+    final difference = targetDateTime.difference(now);
+    final remaining = difference > Duration.zero ? difference : Duration.zero;
+
+    if (!_callbackExecuted) {
+      // 한 번 더 체크
+      state = state.copyWith(remainingTime: remaining);
+    }
+  }
+
+  // 남은 시간을 "일 시:분:초" 형식으로 반환
+  List<String> formatRemainingTime(Duration duration) {
+    int days = duration.inDays;
+    String hours = (duration.inHours % 24).toString().padLeft(2, '0');
+    String minutes = (duration.inMinutes % 60).toString().padLeft(2, '0');
+    String seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
+
+    if (days > 0) {
+      return ['$days', '$hours:$minutes:$seconds'];
+    } else {
+      return ['$hours:$minutes:$seconds'];
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _timer = null;
+    super.dispose();
+  }
+}
 
 /// TimerWidget 클래스: 카운트다운을 표시하는 위젯
-class TimerWidget extends StatelessWidget {
-  final DateTime targetDateTime; // 타이머 종료 시간
-  final double fontSize; // 글자 크기
-  final Color color; // 글자 색상
+class TimerWidget extends ConsumerStatefulWidget {
+  final DateTime targetDateTime;
+  final double fontSize;
+  final Color color;
   final Future<void> Function()? onTimerComplete;
 
-  // 생성자에서 타이머 시간, 글자 크기, 글자 색상 설정
   const TimerWidget({
     super.key,
     required this.targetDateTime,
@@ -20,130 +148,69 @@ class TimerWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    // 고유한 TimerController 생성 및 관리
-    // 각 TimerWidget마다 별도로 TimerController가 생성되며, 타이머가 시작됩니다.
-    final TimerController controller = TimerController(
-      targetDateTime,
-      onTimerComplete: onTimerComplete,
-    );
-
-    return Obx(() {
-      // 남은 시간 포맷팅
-      var textList = controller.formatRemainingTime(
-        controller.remainingTime.value,
-      );
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // '일'과 시간, 분을 표시하는 텍스트 위젯들
-          Text(
-            textList[0],
-            style: TextStyle(
-              fontFamily: 'Digital',
-              fontSize: fontSize,
-              color: color,
-            ),
-          ),
-          if (textList.length > 1) // 일 수가 0보다 클 때만 "일" 표시
-            Text(
-              "timer.day",
-              style: TextStyle(fontSize: fontSize * 0.83, color: color),
-            ).tr(),
-          if (textList.length > 1) // 일 수가 0보다 클 때만 시간 표시
-            Text(
-              textList[1],
-              style: TextStyle(
-                fontFamily: 'Digital',
-                fontSize: fontSize,
-                color: color,
-              ),
-            ),
-          // Text(
-          //   ' 남음',
-          //   style: TextStyle(
-          //     fontFamily: 'Digital',
-          //     fontSize: fontSize * 0.83,
-          //     color: color,
-          //   ),
-          // ),
-        ],
-      );
-    });
-  }
+  ConsumerState<TimerWidget> createState() => _TimerWidgetState();
 }
 
-// TimerController 클래스: 카운트다운 로직을 처리하는 컨트롤러
-class TimerController extends GetxController {
-  final DateTime targetDateTime; // 타이머 종료 시간
-  final Future<void> Function()? onTimerComplete; // 타이머 종료하면 실행하는 함수
+class _TimerWidgetState extends ConsumerState<TimerWidget> {
+  late final StateNotifierProvider<TimerNotifier, TimerState> _timerProvider;
 
-  // 생성자에서 타이머 종료 시간을 받아 초기화하고 타이머 시작
-  TimerController(this.targetDateTime, {this.onTimerComplete}) {
-    startCountdown(); // 타이머 시작
-  }
+  @override
+  void initState() {
+    super.initState();
+    // initState에서 한 번만 Provider 생성
+    _timerProvider = StateNotifierProvider<TimerNotifier, TimerState>((ref) {
+      final notifier = TimerNotifier(
+        targetDateTime: widget.targetDateTime,
+        onTimerComplete: widget.onTimerComplete,
+      );
 
-  Rx<Duration> remainingTime = Duration.zero.obs; // 남은 시간
-  Timer? _timer; // 타이머 객체
-  RxBool isCountdownRunning = false.obs; // 타이머 상태
+      ref.onDispose(() {
+        notifier.dispose();
+      });
 
-  // 타이머 시작 함수
-  void startCountdown() {
-    // 이미 타이머가 실행 중이라면 다시 시작하지 않음
-    if (isCountdownRunning.value) return;
-
-    isCountdownRunning.value = true; // 타이머 실행 중으로 설정
-    _updateRemainingTime(); // 남은 시간 초기화
-
-    // 1초마다 타이머 업데이트
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
-      final now = DateTime.now().toUtc().add(const Duration(hours: 0));
-      if (now.isAfter(targetDateTime)) {
-        // 타이머 종료 시간 지나면 타이머 멈추고 종료
-        timer.cancel();
-        isCountdownRunning.value = false;
-        remainingTime.value = Duration.zero;
-        // 타이머 종료되고 실행되는 함수
-        await onTimerComplete?.call();
-      } else {
-        _updateRemainingTime(); // 남은 시간 갱신
-      }
+      return notifier;
     });
   }
 
-  // 남은 시간 계산 후 업데이트
-  void _updateRemainingTime() {
-    final now = DateTime.now().toUtc().add(const Duration(hours: 0));
-    final difference = targetDateTime.difference(now);
-    remainingTime.value =
-        difference > Duration.zero ? difference : Duration.zero;
-  }
-
-  // 남은 시간을 "일 시:분" 형식으로 반환
-  List<String> formatRemainingTime(Duration duration) {
-    int days = duration.inDays; // 남은 일
-    String hours = (duration.inHours % 24).toString().padLeft(2, '0'); // 남은 시간
-    String minutes = (duration.inMinutes % 60).toString().padLeft(
-      2,
-      '0',
-    ); // 남은 분
-    String seconds = (duration.inSeconds % 60).toString().padLeft(
-      2,
-      '0',
-    ); // 남은 초
-
-    if (days > 0) {
-      return ['$days', '$hours:$minutes:$seconds']; // "일 시:분" 형식
-    } else {
-      return ['$hours:$minutes:$seconds']; // "시:분" 형식
-    }
-  }
-
-  // 타이머가 종료되면 타이머를 정리
   @override
-  void onClose() {
-    _timer?.cancel(); // 타이머 정리
-    super.onClose();
+  Widget build(BuildContext context) {
+    final timerState = ref.watch(_timerProvider);
+    final timerNotifier = ref.read(_timerProvider.notifier);
+
+    // 남은 시간 포맷팅
+    var textList = timerNotifier.formatRemainingTime(timerState.remainingTime);
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // '일'과 시간, 분을 표시하는 텍스트 위젯들
+        Text(
+          textList[0],
+          style: TextStyle(
+            fontFamily: 'Digital',
+            fontSize: widget.fontSize,
+            color: widget.color,
+          ),
+        ),
+        if (textList.length > 1) // 일 수가 0보다 클 때만 "일" 표시
+          Text(
+            "timer.day",
+            style: TextStyle(
+              fontSize: widget.fontSize * 0.83,
+              color: widget.color,
+            ),
+          ).tr(),
+        if (textList.length > 1) // 일 수가 0보다 클 때만 시간 표시
+          Text(
+            textList[1],
+            style: TextStyle(
+              fontFamily: 'Digital',
+              fontSize: widget.fontSize,
+              color: widget.color,
+            ),
+          ),
+      ],
+    );
   }
 }

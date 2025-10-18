@@ -31,7 +31,7 @@ class _MissionCreateScreenState extends State<MissionCreateScreen> {
 
   void _showMissionCreationDialog() {
     if (_controller.confirmedFriends.length < 2) {
-      customToast(msg: context.tr("mission_create_screen.snack_message"));
+      // customToast(msg: context.tr("mission_create_screen.snack_message"));
     } else {
       kDefaultDialog(
         context.tr("mission_create_screen.dialog_title"),

@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:manito/constants.dart';
 import 'package:manito/controllers/auth_controller.dart';
@@ -8,7 +9,7 @@ import 'package:manito/controllers/friends_controller.dart';
 import 'package:manito/widgets/common/custom_toast.dart';
 import 'package:restart_app/restart_app.dart';
 
-class SettingScreen extends StatelessWidget {
+class SettingScreen extends ConsumerWidget {
   SettingScreen({super.key});
   final _authController = Get.put(AuthController());
   final FriendsController _friendsController = Get.find<FriendsController>();
@@ -122,11 +123,14 @@ class SettingScreen extends StatelessWidget {
   }
 
   // 이메일 복사
-  void _copyEmailToClipboard() {
+  void _copyEmailToClipboard(double width) {
     Clipboard.setData(const ClipboardData(text: _contactEmail));
 
     if (GetPlatform.isIOS) {
-      customToast(msg: Get.context!.tr("setting_screen.copy_snack_message"));
+      customToast(
+        width: width,
+        msg: Get.context!.tr("setting_screen.copy_snack_message"),
+      );
     }
   }
 
@@ -142,7 +146,8 @@ class SettingScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final double width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: _buildAppBar(),
       body: SafeArea(
@@ -171,7 +176,7 @@ class SettingScreen extends StatelessWidget {
               icon: Icons.mail_outline_rounded,
               title: context.tr('setting_screen.contact'),
               subtitle: _contactEmail,
-              onTap: _copyEmailToClipboard,
+              onTap: () => _copyEmailToClipboard(width),
             ),
             // 계정 삭제
             _buildSettingItem(
