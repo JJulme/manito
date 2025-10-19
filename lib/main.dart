@@ -6,12 +6,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:manito/arch_new/core/providers.dart';
-import 'package:manito/arch_new/core/router.dart';
-import 'package:manito/constants.dart';
+import 'package:manito/core/providers.dart';
+import 'package:manito/core/router.dart';
+import 'package:manito/core/constants.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:timeago/timeago.dart' as timeago;
-import 'package:manito/firebase_options.dart';
+import 'package:manito/features/fcm/firebase_options.dart';
 
 void main() async {
   // 웹바인딩 설정

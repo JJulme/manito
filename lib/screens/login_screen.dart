@@ -1,19 +1,19 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get/get.dart';
-import 'package:introduction_screen/introduction_screen.dart';
-import 'package:manito/arch_new/features/auth/auth_provider.dart';
 
 import 'package:easy_localization/easy_localization.dart';
-import 'package:manito/arch_new/features/auth/kakao_login_webview.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:introduction_screen/introduction_screen.dart';
+import 'package:manito/features/auth/auth_provider.dart';
 
 class LoginScreen extends ConsumerWidget {
-  LoginScreen({super.key});
+  const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    double width = Get.width;
+    final double width = MediaQuery.of(context).size.width;
+    final notifier = ref.read(authNotifierProvider.notifier);
     return Scaffold(
       body: SafeArea(
         child: IntroductionScreen(
@@ -27,7 +27,7 @@ class LoginScreen extends ConsumerWidget {
                 width: 0.7 * width,
                 height: 0.7 * width,
               ),
-              decoration: getPageDecoration(),
+              decoration: getPageDecoration(width),
             ),
             // 화면 2
             PageViewModel(
@@ -38,7 +38,7 @@ class LoginScreen extends ConsumerWidget {
                 width: 0.7 * width,
                 height: 0.7 * width,
               ),
-              decoration: getPageDecoration(),
+              decoration: getPageDecoration(width),
             ),
             // 화면 3
             PageViewModel(
@@ -49,7 +49,7 @@ class LoginScreen extends ConsumerWidget {
                 width: 0.7 * width,
                 height: 0.7 * width,
               ),
-              decoration: getPageDecoration(),
+              decoration: getPageDecoration(width),
             ),
             // 화면 4
             PageViewModel(
@@ -60,7 +60,7 @@ class LoginScreen extends ConsumerWidget {
                 width: 0.7 * width,
                 height: 0.7 * width,
               ),
-              decoration: getPageDecoration(),
+              decoration: getPageDecoration(width),
             ),
             // 화면 5
             PageViewModel(
@@ -70,16 +70,14 @@ class LoginScreen extends ConsumerWidget {
                   // 구글 로그인 버튼
                   AuthButton(
                     imagePath: 'assets/images/long_google2.png',
-                    onTap: () async {
-                      ref.read(authNotifierProvider.notifier).loginWithGoogle();
-                    },
+                    onTap: () => notifier.loginWithGoogle(),
                   ),
                   SizedBox(height: width * 0.04),
                   // 카카오 로그인 버튼
                   AuthButton(
                     imagePath: 'assets/images/long_kakao2.png',
-                    onTap: () async {
-                      Get.to(() => KakaoLoginWebview());
+                    onTap: () {
+                      context.push('/kakao_login');
                       // ref.read(authNotifierProvider.notifier).loginWithKakao();
                     },
                   ),
@@ -89,11 +87,7 @@ class LoginScreen extends ConsumerWidget {
                   Platform.isIOS
                       ? AuthButton(
                         imagePath: 'assets/images/long_apple2.png',
-                        onTap: () async {
-                          ref
-                              .read(authNotifierProvider.notifier)
-                              .loginWithApple();
-                        },
+                        onTap: () => notifier.loginWithApple(),
                       )
                       : SizedBox.shrink(),
                 ],
@@ -103,7 +97,7 @@ class LoginScreen extends ConsumerWidget {
                 width: 0.7 * width,
                 height: 0.7 * width,
               ),
-              decoration: getPageDecoration(),
+              decoration: getPageDecoration(width),
             ),
           ],
           next: Icon(Icons.arrow_forward_ios_rounded),
@@ -115,8 +109,7 @@ class LoginScreen extends ConsumerWidget {
     );
   }
 
-  PageDecoration getPageDecoration() {
-    double width = Get.width;
+  PageDecoration getPageDecoration(double width) {
     return PageDecoration(
       titleTextStyle: TextStyle(
         fontSize: 0.065 * width,

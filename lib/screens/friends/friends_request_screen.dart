@@ -1,0 +1,146 @@
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:manito/features/friends/friends.dart';
+import 'package:manito/features/friends/friends_provider.dart';
+import 'package:manito/features/profiles/profile.dart';
+import 'package:manito/share/common_dialog.dart';
+import 'package:manito/share/sub_appbar.dart';
+import 'package:manito/widgets/profile_image_view.dart';
+
+class FriendsRequestScreen extends ConsumerStatefulWidget {
+  const FriendsRequestScreen({super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _FriendsRequestScreenState();
+}
+
+class _FriendsRequestScreenState extends ConsumerState<FriendsRequestScreen> {
+  // Constants for colors
+  static const Color _acceptColor = Colors.green;
+  static const Color _rejectColor = Colors.red;
+
+  Future<void> _acceptRequest(String senderId) async {
+    final result = await DialogHelper.showConfirmDialog(
+      context,
+      message: '친구 요청을 수락하시겠습니까?',
+    );
+    if (result == true) {
+      ref.read(friendRequestProvider.notifier).acceptFriendRequest(senderId);
+    }
+  }
+
+  /// 거절 함수
+  Future<void> _rejectRequest(String senderId) async {
+    final result = await DialogHelper.showConfirmDialog(
+      context,
+      message: '친구 요청을 거절하시겠습니까?',
+    );
+    if (result == true) {
+      ref.read(friendRequestProvider.notifier).rejectFriendRequest(senderId);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final double width = MediaQuery.of(context).size.width;
+    final state = ref.watch(friendRequestProvider);
+    return Scaffold(
+      appBar: SubAppbar(
+        width: width,
+        title:
+            Text(
+              'friends_request_screen.title',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ).tr(),
+      ),
+      body: _buildBody(width, state),
+    );
+  }
+
+  Widget _buildBody(double width, FriendRequestState state) {
+    if (state.isLoading) {
+      return Center(child: CircularProgressIndicator());
+    } else if (state.isLoading == false && state.requestUserList.isEmpty) {
+      return Center(
+        child:
+            Text(
+              'friends_request_screen.empty_request',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ).tr(),
+      );
+    } else {
+      return ListView.builder(
+        itemCount: state.requestUserList.length,
+        itemBuilder: (context, index) {
+          final userProfile = state.requestUserList[index];
+          return _buildRequestItem(width, userProfile);
+        },
+      );
+    }
+  }
+
+  Widget _buildRequestItem(double width, UserProfile userProfile) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        vertical: width * 0.03,
+        horizontal: width * 0.05,
+      ),
+      child: Row(
+        children: [
+          ProfileImageView(
+            size: width * 0.2,
+            profileImageUrl: userProfile.profileImageUrl!,
+          ),
+          SizedBox(width: width * 0.05),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  userProfile.nickname,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (userProfile.statusMessage?.isNotEmpty ?? false)
+                  Text(
+                    userProfile.statusMessage!,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+              ],
+            ),
+          ),
+          _buildActionButtons(userProfile, width),
+        ],
+      ),
+    );
+  }
+
+  // 수락 거절 Row
+  Widget _buildActionButtons(UserProfile userProfile, double width) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildAcceptButton(width, userProfile),
+        _buildRejectButton(width, userProfile),
+      ],
+    );
+  }
+
+  Widget _buildAcceptButton(double width, UserProfile userProfile) {
+    return IconButton(
+      icon: Icon(Icons.check_rounded, color: _acceptColor, size: width * 0.08),
+      onPressed: () => _acceptRequest(userProfile.id),
+    );
+  }
+
+  Widget _buildRejectButton(double width, UserProfile userProfile) {
+    return IconButton(
+      icon: Icon(Icons.close_rounded, color: _rejectColor, size: width * 0.08),
+      onPressed: () => _rejectRequest(userProfile.id),
+    );
+  }
+}

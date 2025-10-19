@@ -8,7 +8,7 @@ export async function handleMissionPropose(
   payload: MissionProposeWebhookPayload,
   supabase: SupabaseClient,
 ) {
-  const { mission_id, friend_id } = payload.record;
+  const { id, mission_id, friend_id } = payload.record;
 
   // 수신자 토큰 가져오기
   const { data: receiverData, error: receiverError } = await supabase
@@ -37,6 +37,7 @@ export async function handleMissionPropose(
   const notificationPayload: FCMPayload = {
     data: {
       type: "mission_propose",
+      id: id,
       mission_id: mission_id,
       click_action: "FLUTTER_NOTIFICATION_CLICK",
     },
