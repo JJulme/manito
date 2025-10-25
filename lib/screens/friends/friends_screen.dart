@@ -144,22 +144,23 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
     double width,
     FriendProfilesState friendProfilesState,
   ) {
-    friendProfilesState.friendList.sort(
-      (a, b) => a.displayName.compareTo(b.displayName),
-    );
     if (!friendProfilesState.isLoading &&
         friendProfilesState.friendList.isEmpty) {
-      return Expanded(child: Center(child: Text('친구를 추가해보세요!')));
-    }
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: friendProfilesState.friendList.length,
+      return SizedBox(height: width, child: Center(child: Text('친구를 추가해보세요!')));
+    } else {
+      friendProfilesState.friendList.sort(
+        (a, b) => a.displayName.compareTo(b.displayName),
+      );
+      return ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: friendProfilesState.friendList.length,
 
-      itemBuilder:
-          (context, index) =>
-              _buildFriendItem(friendProfilesState.friendList[index], width),
-    );
+        itemBuilder:
+            (context, index) =>
+                _buildFriendItem(friendProfilesState.friendList[index], width),
+      );
+    }
   }
 
   // 친구 항목

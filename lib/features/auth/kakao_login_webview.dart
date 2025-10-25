@@ -3,6 +3,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:manito/features/auth/auth_provider.dart';
+import 'package:manito/features/error/error_provider.dart';
 
 class KakaoLoginWebview extends ConsumerStatefulWidget {
   const KakaoLoginWebview({super.key});
@@ -21,16 +22,34 @@ class _KakaoLoginWebviewState extends ConsumerState<KakaoLoginWebview> {
   }
 
   Future<void> _loadUrl() async {
-    final authService = ref.read(authServiceProvider);
-    final url = await authService.getKakaoLoginUrl();
-    if (!mounted) return;
-    setState(() {
-      _kakaoLoginUrl = url;
-    });
+    try {
+      final authService = ref.read(authServiceProvider);
+      final url = await authService.getKakaoLoginUrl();
+      if (!mounted) return;
+      setState(() {
+        _kakaoLoginUrl = url;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      ref.read(errorProvider.notifier).setError('카카오 로그인 URL 로드 실패: $e');
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (mounted) context.pop();
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // ✅ authProvider 감시 - 로그인 완료되면 자동으로 화면 닫음
+    ref.listen(authProvider, (previous, next) {
+      next.whenData((auth) {
+        // 로그인 성공 (세션이 있으면)
+        if (auth.session?.user != null && mounted) {
+          context.pop();
+        }
+      });
+    });
+
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(),
@@ -53,11 +72,18 @@ class _KakaoLoginWebviewState extends ConsumerState<KakaoLoginWebview> {
                       final code = uri.queryParameters['code'];
                       if (code != null) {
                         ref
-                            .read(authNotifierProvider.notifier)
+                            .read(authProvider.notifier)
                             .exchangeKakaoCodeForSession(code);
-                        if (mounted) context.pop();
                       } else {
-                        // fail
+                        if (mounted) {
+                          ref
+                              .read(errorProvider.notifier)
+                              .setError('카카오 로그인 실패: 인증 코드 없음');
+
+                          Future.delayed(const Duration(milliseconds: 500), () {
+                            if (mounted) context.pop();
+                          });
+                        }
                       }
                       return NavigationActionPolicy.CANCEL;
                     }

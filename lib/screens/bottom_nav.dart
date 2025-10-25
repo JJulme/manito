@@ -99,6 +99,8 @@ class _BottomNavState extends ConsumerState<BottomNav>
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
         onTap: _onItemTapped,
         items: [
           BottomNavigationBarItem(

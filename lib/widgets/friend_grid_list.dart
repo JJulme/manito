@@ -16,6 +16,7 @@ class FriendGridList extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
+        mainAxisSpacing: 8,
         childAspectRatio: 6 / 7,
       ),
       itemCount: friends.length,
@@ -27,10 +28,10 @@ class FriendGridList extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               ProfileImageView(
-                size: width * 0.19,
+                size: width * 0.17,
                 profileImageUrl: profile.profileImageUrl!,
               ),
-              SizedBox(height: width * 0.02),
+              SizedBox(height: width * 0.015),
               Text(
                 profile.displayName,
                 style: Theme.of(context).textTheme.bodySmall,

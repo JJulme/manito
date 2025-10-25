@@ -11,6 +11,16 @@ class AuthService {
   final SupabaseClient _supabase;
   AuthService(this._supabase);
 
+  // ✅ 현재 세션 가져오기
+  Future<Session?> getCurrentSession() async {
+    try {
+      return _supabase.auth.currentSession;
+    } catch (e) {
+      debugPrint('getCurrentSession Error: $e');
+      return null;
+    }
+  }
+
   /// Kakao 로그인 처리 - 사용안함
   Future<void> loginWithKakao() async {
     // Kakao OAuth 로그인 시도

@@ -1,8 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/providers.dart';
-import 'package:manito/core/router.dart';
 import 'package:manito/features/auth/auth_service.dart';
+import 'package:manito/features/error/error_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 // AuthService 제공하는 프로바이더
@@ -16,90 +15,85 @@ final authStateChangesProvider = StreamProvider<AuthState>((ref) {
 });
 
 //
-final authNotifierProvider = StateNotifierProvider<AuthNotifier, bool>((ref) {
-  return AuthNotifier(ref);
-});
+// final authNotifierProvider = StateNotifierProvider<AuthNotifier, bool>((ref) {
+//   return AuthNotifier(ref);
+// });
 
-// 인증 노티파이어
-class AuthNotifier extends StateNotifier<bool> {
-  final Ref _ref;
-  AuthNotifier(this._ref) : super(false) {
-    // authStateChagesProvider 리슨하여 화면 이동
-    _ref.listen<AsyncValue<AuthState>>(authStateChangesProvider, (
-      previous,
-      next,
-    ) {
-      // 로그인 화면 이동
-      if (next.value?.event == AuthChangeEvent.signedIn) {
-        _ref.read(routerProvider).go('/bottom_nav');
-        debugPrint('로그인 성공');
-      }
-      // 로그아웃 화면 이동
-      else if (next.value?.event == AuthChangeEvent.signedOut) {
-        _ref.read(routerProvider).go('/login');
-        debugPrint('로그인 실패');
-      }
-    });
-  }
+final authProvider = AsyncNotifierProvider<AuthNotifier, AuthState>(
+  AuthNotifier.new,
+);
 
-  // 카카오 로그인 - 사용안함
-  Future<void> loginWithKakao() async {
-    state = true;
+class AuthNotifier extends AsyncNotifier<AuthState> {
+  @override
+  Future<AuthState> build() async {
     try {
-      await _ref.read(authServiceProvider).loginWithKakao();
-    } finally {
-      state = false;
-    }
-  }
+      // ✅ getCurrentSession 사용
+      final session = await ref.read(authServiceProvider).getCurrentSession();
 
-  //
-  Future<void> exchangeKakaoCodeForSession(String code) async {
-    state = true;
-    try {
-      final service = _ref.read(authServiceProvider);
-      await service.exchangeKakaoCodeForSession(code);
-    } finally {
-      state = false;
+      return AuthState(
+        session != null ? AuthChangeEvent.signedIn : AuthChangeEvent.signedOut,
+        session,
+      );
+    } catch (e) {
+      ref.read(errorProvider.notifier).setError('인증 상태 확인 실패: $e');
+      return AuthState(AuthChangeEvent.signedOut, null);
     }
   }
 
   // 구글 로그인
   Future<void> loginWithGoogle() async {
-    state = true;
-    try {
-      await _ref.read(authServiceProvider).loginWithGoogle();
-    } finally {
-      state = false;
-    }
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      await ref.read(authServiceProvider).loginWithGoogle();
+
+      // ✅ 새로운 세션 가져오기
+      final session = await ref.read(authServiceProvider).getCurrentSession();
+
+      return AuthState(AuthChangeEvent.signedIn, session);
+    });
   }
 
   // 애플 로그인
   Future<void> loginWithApple() async {
-    state = true;
-    try {
-      await _ref.read(authServiceProvider).loginWithApple();
-    } finally {
-      state = false;
-    }
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      await ref.read(authServiceProvider).loginWithApple();
+
+      final session = await ref.read(authServiceProvider).getCurrentSession();
+
+      return AuthState(AuthChangeEvent.signedIn, session);
+    });
+  }
+
+  // 카카오 로그인
+  Future<void> exchangeKakaoCodeForSession(String code) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      await ref.read(authServiceProvider).exchangeKakaoCodeForSession(code);
+
+      final session = await ref.read(authServiceProvider).getCurrentSession();
+
+      return AuthState(AuthChangeEvent.signedIn, session);
+    });
   }
 
   // 로그아웃
   Future<void> signOut() async {
-    state = true;
-    try {
-      await _ref.read(authServiceProvider).logout();
-    } finally {
-      state = false;
-    }
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      await ref.read(authServiceProvider).logout();
+
+      return AuthState(AuthChangeEvent.signedOut, null);
+    });
   }
 
   // 계정 삭제
   Future<void> deleteUser() async {
-    state = true;
-    try {
-      await _ref.read(authServiceProvider).deleteUser();
-    } finally {
-      state = false;
-    }
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      await ref.read(authServiceProvider).deleteUser();
+
+      return AuthState(AuthChangeEvent.signedOut, null);
+    });
   }
 }

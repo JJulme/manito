@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/providers.dart';
 import 'package:manito/features/auth/auth_provider.dart';
+import 'package:manito/features/badge/badge_provider.dart';
 import 'package:manito/features/fcm/fcm_provider.dart';
 import 'package:manito/features/manito/manito_provider.dart';
 import 'package:manito/features/missions/mission_provider.dart';
@@ -22,17 +23,17 @@ class SettingScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final double width = MediaQuery.of(context).size.width;
-    final notifier = ref.read(authNotifierProvider.notifier);
+    final notifier = ref.read(authProvider.notifier);
 
     /// 모든 사용자 관련 프로바이더 무효화
     void invalidateAllUserProviders() {
       // 인증 관련
-      ref.invalidate(supabaseProvider);
+      // ref.invalidate(supabaseProvider);
       ref.invalidate(currentUserProvider);
-      ref.invalidate(authStateChangesProvider);
+      ref.invalidate(badgeProvider);
 
       // 사용자 정보 관련
-      ref.invalidate(fcmListenerProvider);
+      // ref.invalidate(fcmListenerProvider);
       ref.invalidate(userProfileProvider);
       ref.invalidate(friendProfilesProvider);
 
@@ -46,11 +47,12 @@ class SettingScreen extends ConsumerWidget {
     void showLogoutDialog() async {
       final result = await DialogHelper.showConfirmDialog(
         context,
+        title: context.tr('setting_screen.logout_dialog_title'),
         message: context.tr('setting_screen.logout_dialog_message'),
       );
       if (result == true) {
-        invalidateAllUserProviders();
         notifier.signOut();
+        Future.microtask(() => invalidateAllUserProviders());
       }
     }
 
@@ -152,11 +154,12 @@ class SettingScreen extends ConsumerWidget {
     void showDeleteAccountDialog() async {
       final result = await DialogHelper.showWarningDialog(
         context,
+        title: context.tr('setting_screen.delete_account_dialog_title'),
         message: context.tr('setting_screen.delete_account_dialog_message'),
       );
       if (result == true) {
-        invalidateAllUserProviders();
         notifier.deleteUser();
+        invalidateAllUserProviders();
       }
     }
 

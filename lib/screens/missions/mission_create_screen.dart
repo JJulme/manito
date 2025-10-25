@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:manito/core/custom_icons.dart';
 import 'package:manito/features/missions/mission.dart';
 import 'package:manito/features/missions/mission_provider.dart';
 import 'package:manito/share/common_dialog.dart';
@@ -177,20 +178,41 @@ class _MissionCreateScreenState extends ConsumerState<MissionCreateScreen> {
     MissionCreateState state,
     MissionCreateNotifier notifier,
   ) {
-    return InkWell(
-      onTap: () {
-        notifier.updateSelectedFriends();
-        context.push('/mission_friends_search');
-      },
-      child:
-          state.confirmedFriends.isEmpty
-              ? Container(
-                width: double.infinity,
-                height: width * 0.25,
-                alignment: Alignment.center,
-                child: Text("mission_create_screen.empty_select_friends").tr(),
-              )
-              : FriendGridList(friends: state.confirmedFriends),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: width * 0.04),
+      child: InkWell(
+        onTap: () {
+          notifier.updateSelectedFriends();
+          context.push('/mission_friends_search');
+        },
+        child:
+            state.confirmedFriends.isEmpty
+                ? Container(
+                  width: double.infinity,
+                  height: width * 0.25,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(width * 0.013),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        CustomIcons.user_plus,
+                        size: width * 0.05,
+                        color: Colors.grey.shade800,
+                      ),
+                      SizedBox(width: width * 0.04),
+                      Text(
+                        "mission_create_screen.empty_select_friends",
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ).tr(),
+                    ],
+                  ),
+                )
+                : FriendGridList(friends: state.confirmedFriends),
+      ),
     );
   }
 }

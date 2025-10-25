@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -25,24 +26,53 @@ import 'package:manito/screens/posts/post_detail_screen.dart';
 import 'package:manito/screens/profile_edit_screen.dart';
 import 'package:manito/screens/setting_screen.dart';
 import 'package:manito/screens/splash_screen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class GoRouterRefreshNotifier extends ChangeNotifier {
+  // ✅ public 메서드로 래핑
+  void refresh() {
+    notifyListeners(); // 클래스 내부에서는 사용 가능
+  }
+}
+
+final goRouterRefreshProvider = Provider<GoRouterRefreshNotifier>((ref) {
+  final notifier = GoRouterRefreshNotifier();
+
+  ref.listen<AsyncValue<AuthState>>(authStateChangesProvider, (prev, next) {
+    Future.microtask(() => notifier.refresh()); // ✅ public 메서드 호출
+  });
+
+  return notifier;
+});
 
 final routerProvider = Provider<GoRouter>((ref) {
   ref.watch(fcmListenerProvider);
   return GoRouter(
     initialLocation: '/splash',
+    refreshListenable: ref.read(goRouterRefreshProvider),
     redirect: (context, state) {
-      final authStateAsync = ref.read(authStateChangesProvider);
-      return authStateAsync.when(
-        data: (authState) {
-          final isLoggedIn = authState.session?.user != null;
-          return _handleAuthenticatedRedirect(state, isLoggedIn);
+      final authState = ref.read(authStateChangesProvider);
+      return authState.when(
+        data: (auth) {
+          FlutterNativeSplash.remove();
+          final isLoggedIn = auth.session?.user != null;
+          final location = state.matchedLocation;
+          if (isLoggedIn) {
+            if (location == '/splash' || location == '/login') {
+              return '/bottom_nav';
+            }
+            return null;
+          } else {
+            if (location == '/login' || location == '/kakao_login') {
+              return null;
+            }
+            return '/login';
+          }
         },
         loading: () {
           return state.matchedLocation == '/splash' ? null : '/splash';
         },
-        error: (error, stack) {
-          return null;
-        },
+        error: (error, stackTrace) => null,
       );
     },
     routes: [

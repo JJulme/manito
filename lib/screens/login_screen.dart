@@ -13,7 +13,7 @@ class LoginScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final double width = MediaQuery.of(context).size.width;
-    final notifier = ref.read(authNotifierProvider.notifier);
+    final notifier = ref.read(authProvider.notifier);
     return Scaffold(
       body: SafeArea(
         child: IntroductionScreen(
