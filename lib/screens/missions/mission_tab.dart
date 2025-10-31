@@ -61,7 +61,16 @@ class _MissionTabState extends ConsumerState<MissionTab>
       return Center(child: CircularProgressIndicator());
     } else if (state.allMissions.isEmpty) {
       return Scaffold(
-        body: Center(child: Text('미션을 만들어 보세요!')),
+        body: RefreshIndicator(
+          onRefresh: () => notifier.fetchMyMissions(),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: SizedBox(
+              height: width,
+              child: Center(child: Text('미션을 만들어 보세요!')),
+            ),
+          ),
+        ),
         floatingActionButton: _buildFloatingActionButton(
           width,
           state,
@@ -70,14 +79,18 @@ class _MissionTabState extends ConsumerState<MissionTab>
       );
     }
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(height: width * 0.03),
-            _buildCompleteMissionList(width, state.completeMyMissions),
-            _buildAcceptMissionList(width, state.acceptMyMissions),
-            _buildPendingMissionList(width, state.pendingMyMissions),
-          ],
+      body: RefreshIndicator(
+        onRefresh: () => notifier.fetchMyMissions(),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            children: [
+              SizedBox(height: width * 0.03),
+              _buildCompleteMissionList(width, state.completeMyMissions),
+              _buildAcceptMissionList(width, state.acceptMyMissions),
+              _buildPendingMissionList(width, state.pendingMyMissions),
+            ],
+          ),
         ),
       ),
       floatingActionButton: _buildFloatingActionButton(width, state, notifier),
@@ -145,6 +158,7 @@ class _MissionTabState extends ConsumerState<MissionTab>
 
   // 완료 미션 아이템
   Widget _buildCompleteMissionItem(double width, MyMission mission) {
+    final badgeState = ref.watch(badgeProvider).valueOrNull;
     return Stack(
       children: [
         TabContainer(
@@ -168,9 +182,7 @@ class _MissionTabState extends ConsumerState<MissionTab>
           top: width * 0.03,
           right: width * 0.06,
           child: customBadgeIconWithLabel(
-            ref
-                .watch(badgeProvider)
-                .getBadgeCountByTypeId('mission_guess', mission.id),
+            badgeState!.getBadgeCountByTypeId('mission_guess', mission.id),
           ),
         ),
       ],
@@ -236,29 +248,47 @@ class _MissionTabState extends ConsumerState<MissionTab>
 
   // 진행중 미션 아이템
   Widget _buildAcceptMissionItem(double width, MyMission mission) {
+    final badgeState = ref.watch(badgeProvider).valueOrNull;
     return CustomSlide(
-      mainWidget: TabContainer(
-        child: Row(
-          children: [
-            Icon(
-              Icons.error_sharp,
-              size: width * 0.07,
-              color: Colors.deepOrange,
+      onTap:
+          () => ref
+              .read(badgeProvider.notifier)
+              .resetBadgeCount('mission_accept', typeId: mission.id),
+      mainWidget: Stack(
+        children: [
+          TabContainer(
+            child: Row(
+              children: [
+                Icon(
+                  Icons.error_sharp,
+                  size: width * 0.07,
+                  color: Colors.deepOrange,
+                ),
+                SizedBox(width: width * 0.02),
+                Text('진행중 미션', style: Theme.of(context).textTheme.titleSmall),
+                Spacer(),
+                Icon(CustomIcons.hourglass, size: width * 0.055),
+                SizedBox(width: width * 0.01),
+                TimerWidget(
+                  targetDateTime: mission.deadline,
+                  fontSize: width * 0.07,
+                  onTimerComplete:
+                      () =>
+                          ref
+                              .read(missionListProvider.notifier)
+                              .fetchMyMissions(),
+                ),
+              ],
             ),
-            SizedBox(width: width * 0.02),
-            Text('진행중 미션', style: Theme.of(context).textTheme.titleSmall),
-            Spacer(),
-            Icon(CustomIcons.hourglass, size: width * 0.055),
-            SizedBox(width: width * 0.01),
-            TimerWidget(
-              targetDateTime: mission.deadline,
-              fontSize: width * 0.07,
-              onTimerComplete:
-                  () =>
-                      ref.read(missionListProvider.notifier).fetchMyMissions(),
+          ),
+          Positioned(
+            top: width * 0.03,
+            right: width * 0.06,
+            child: customBadgeIconWithLabel(
+              badgeState!.getBadgeCountByTypeId('mission_accept', mission.id),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
 
       subWidget: TabContainer(

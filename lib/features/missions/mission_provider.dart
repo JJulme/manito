@@ -121,7 +121,7 @@ class MissionListNotifier extends StateNotifier<MyMissionState> {
         isLoading: false,
       );
     } catch (e) {
-      debugPrint('MissionNotifier.fetchMyMissions Error: $e');
+      debugPrint('MissionListNotifier.fetchMyMissions Error: $e');
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }

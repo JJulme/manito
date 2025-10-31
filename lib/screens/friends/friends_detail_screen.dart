@@ -56,16 +56,10 @@ class _FriendsDetailScreenState extends ConsumerState<FriendsDetailScreen> {
     if (result == true) {
       final userId = ref.read(currentUserProvider)!.id;
       final friendId = widget.friendProfile!.id;
-      final success = await ref
-          .read(blacklistServiceProvider)
-          .blockFriend(userId, friendId);
-      if (success) {
-        ref.read(friendProfilesProvider.notifier).fetchFriendList();
-        if (!mounted) return;
-        Navigator.pop(context);
-      } else {
-        customToast(width: width, msg: '차단 실패');
-      }
+      await ref.read(blacklistServiceProvider).blockFriend(userId, friendId);
+      ref.read(friendProfilesProvider.notifier).fetchFriendList();
+      if (!mounted) return;
+      Navigator.pop(context);
     }
   }
 

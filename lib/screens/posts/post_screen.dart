@@ -134,9 +134,9 @@ class _PostScreenState extends ConsumerState<PostScreen>
         ref
             .read(friendProfilesProvider.notifier)
             .searchFriendProfile(post.creatorId!)!;
-    final int badgeCount = ref
-        .watch(badgeProvider)
-        .getBadgeCountByTypeId('post_comment', post.id!);
+    final int badgeCount = ref.watch(
+      specificBadgeByIdProvider((type: 'post_comment', typeId: post.id!)),
+    );
 
     return PostItem(
       width: screenWidth,

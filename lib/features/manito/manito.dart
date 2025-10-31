@@ -167,18 +167,14 @@ class ManitoPost {
 
 // ========== State ==========
 class ManitoListState {
-  final bool isLoading;
   final List<ManitoPropose> proposeList;
   final List<ManitoAccept> acceptList;
   final List<ManitoGuess> guessList;
-  final String? error;
 
   ManitoListState({
-    this.isLoading = false,
     this.proposeList = const [],
     this.acceptList = const [],
     this.guessList = const [],
-    this.error,
   });
 
   bool get isEmpty =>
@@ -192,11 +188,9 @@ class ManitoListState {
     String? error,
   }) {
     return ManitoListState(
-      isLoading: isLoading ?? this.isLoading,
       proposeList: proposeList ?? this.proposeList,
       acceptList: acceptList ?? this.acceptList,
       guessList: guessList ?? this.guessList,
-      error: error ?? this.error,
     );
   }
 }

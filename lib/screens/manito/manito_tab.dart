@@ -42,6 +42,7 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
         .read(badgeProvider.notifier)
         .resetBadgeCount('mission_propose', typeId: propose.id);
     final result = await context.push('/manito_propose', extra: propose);
+    // 수락했을 경우 새로고침
     if (result == true) {
       if (!mounted) return;
       ref
@@ -60,20 +61,50 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
     super.build(context);
     final double width = MediaQuery.of(context).size.width;
     final state = ref.watch(manitoListProvider);
-    if (state.isLoading) {
-      return Center(child: CircularProgressIndicator());
-    } else if (state.isEmpty) {
-      return Center(child: Text('진행중인 미션이 없습니다.'));
-    }
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          SizedBox(height: width * 0.03),
-          _buildProposeList(width, state.proposeList),
-          _buildGuessList(width, state.guessList),
-          _buildAcceptList(width, state.acceptList),
-        ],
-      ),
+    final notifier = ref.read(manitoListProvider.notifier);
+
+    return state.when(
+      loading: () => Center(child: CircularProgressIndicator()),
+      error:
+          (error, stackTrace) => RefreshIndicator(
+            onRefresh: () => notifier.refreshAll(context.locale.languageCode),
+            child: SingleChildScrollView(
+              physics: AlwaysScrollableScrollPhysics(),
+              child: SizedBox(
+                height: width,
+                child: Center(child: Text('데이터를 가져오는데 오류가 발생했습니다.')),
+              ),
+            ),
+          ),
+      data: (data) {
+        if (data.isEmpty) {
+          return RefreshIndicator(
+            onRefresh: () => notifier.refreshAll(context.locale.languageCode),
+            child: SingleChildScrollView(
+              physics: AlwaysScrollableScrollPhysics(),
+              child: SizedBox(
+                height: width,
+                child: const Center(child: Text('진행중인 미션이 없습니다.')),
+              ),
+            ),
+          );
+        } else {
+          return RefreshIndicator(
+            onRefresh: () => notifier.refreshAll(context.locale.languageCode),
+            child: SingleChildScrollView(
+              physics: AlwaysScrollableScrollPhysics(),
+              child: Column(
+                children: [
+                  SizedBox(height: width * 0.03),
+                  _buildProposeList(width, data.proposeList),
+                  _buildGuessList(width, data.guessList),
+                  _buildAcceptList(width, data.acceptList),
+                ],
+              ),
+            ),
+          );
+        }
+      },
     );
   }
 
@@ -107,6 +138,7 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
   }
 
   Widget _buildProposeItem(double width, ManitoPropose manitoPropose) {
+    final badgeState = ref.watch(badgeProvider).valueOrNull;
     return Stack(
       children: [
         TabContainer(
@@ -140,9 +172,10 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
           top: width * 0.03,
           right: width * 0.06,
           child: customBadgeIconWithLabel(
-            ref
-                .watch(badgeProvider)
-                .getBadgeCountByTypeId('mission_propose', manitoPropose.id),
+            badgeState!.getBadgeCountByTypeId(
+              'mission_propose',
+              manitoPropose.id,
+            ),
           ),
         ),
       ],
@@ -213,7 +246,7 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
               child: AutoSizeText(
                 manitoAccept.content,
                 maxLines: 2,
-                style: Theme.of(context).textTheme.bodySmall,
+                style: Theme.of(context).textTheme.titleSmall,
               ),
             ),
             IconButton(

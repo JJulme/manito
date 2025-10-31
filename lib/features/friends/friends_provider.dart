@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/providers.dart';
+import 'package:manito/features/error/error_provider.dart';
 import 'package:manito/features/friends/friends.dart';
 import 'package:manito/features/friends/friends_service.dart';
 import 'package:manito/features/profiles/profile_provider.dart';
+import 'package:manito/features/snackbar/snackbar.dart';
+import 'package:manito/features/snackbar/snackbar_provider.dart';
 
-// ========== Provider ==========
+// ========== Service Provider ==========
 final friendSearchServiceProvider = Provider<FriendSearchService>((ref) {
   final supabase = ref.watch(supabaseProvider);
   return FriendSearchService(supabase);
@@ -26,13 +29,11 @@ final friendEditServiceProvider = Provider<FriendEditService>((ref) {
   return FriendEditService(supabase);
 });
 
+// ========== Notifier Provider ==========
 final friendSearchProvider =
-    StateNotifierProvider.autoDispose<FriendSearchNotifier, FriendSearchState>((
-      ref,
-    ) {
-      final service = ref.watch(friendSearchServiceProvider);
-      return FriendSearchNotifier(service);
-    });
+    AsyncNotifierProvider<FriendSearchNotifier, FriendSearchState>(
+      FriendSearchNotifier.new,
+    );
 
 final friendRequestProvider = StateNotifierProvider.autoDispose<
   FriendRequestNotifier,
@@ -57,33 +58,63 @@ final friendEditProvider =
     });
 
 // ========== Notifier ==========
-class FriendSearchNotifier extends StateNotifier<FriendSearchState> {
-  final FriendSearchService _service;
-  FriendSearchNotifier(this._service) : super(const FriendSearchState());
+class FriendSearchNotifier extends AsyncNotifier<FriendSearchState> {
+  @override
+  Future<FriendSearchState> build() async {
+    // 초기 상태 (비어있음)
+    return const FriendSearchState();
+  }
 
-  // 이메일 검색
+  /// 이메일 검색
   Future<void> searchEmail(String email) async {
-    state = state.copyWith(isLoading: true, query: email, friendProfile: null);
+    // 로딩 상태
+    state = const AsyncValue.loading();
+
+    state = await AsyncValue.guard(() async {
+      try {
+        final service = ref.read(friendSearchServiceProvider);
+        final profile = await service.searchEmail(email);
+
+        return FriendSearchState(query: email, friendProfile: profile);
+      } catch (e) {
+        // 에러를 글로벌로 전달
+        ref.read(errorProvider.notifier).setError('친구 검색 실패: $e');
+
+        // 검색 실패 시에도 query는 유지
+        return FriendSearchState(query: email, friendProfile: null);
+      }
+    });
+  }
+
+  /// 친구 신청 보내기
+  Future<String> sendFriendRequest() async {
+    final currentState = state.valueOrNull;
+    final profile = currentState?.friendProfile;
+
+    if (profile == null) {
+      ref.read(errorProvider.notifier).setError('검색된 친구가 없습니다');
+      return '';
+    }
+
     try {
-      final profile = await _service.searchEmail(email);
-      state = state.copyWith(
-        isLoading: false,
-        isSearching: true,
-        friendProfile: profile,
-      );
+      final service = ref.read(friendSearchServiceProvider);
+      final result = await service.sendFriendRequest(profile.id);
+
+      // 성공 메시지는 스넥바로 표시
+      ref
+          .read(snackBarProvider.notifier)
+          .show(result, type: SnackBarType.success);
+
+      return result;
     } catch (e) {
-      debugPrint('FriendSearchNotifier.searchEmail Error: $e');
-      state = state.copyWith(isLoading: false, error: e.toString());
+      ref.read(errorProvider.notifier).setError('친구 신청 실패: $e');
+      return '';
     }
   }
 
-  // 친구 신청 보내기
-  Future<String> sendFriendRequest() async {
-    final profile = state.friendProfile;
-    if (profile == null) return '';
-    final result = await _service.sendFriendRequest(profile.id);
-    state = state.copyWith(message: result);
-    return result;
+  /// 검색 초기화
+  void clear() {
+    state = const AsyncValue.data(FriendSearchState());
   }
 }
 
@@ -185,10 +216,9 @@ class BlacklistNotifier extends StateNotifier<BlacklistState> {
   }
 
   /// 친구 차단
-  Future<bool> blockFriend(String friendId) async {
+  Future<void> blockFriend(String friendId) async {
     try {
-      final result = await _service.blockFriend(_currentUserId, friendId);
-      return result;
+      await _service.blockFriend(_currentUserId, friendId);
     } catch (e) {
       debugPrint('BlacklistNotifier.blockFriend Error: $e');
       rethrow;

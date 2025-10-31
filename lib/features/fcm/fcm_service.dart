@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/features/badge/badge_provider.dart';
+import 'package:manito/features/error/error_provider.dart';
 import 'package:manito/features/manito/manito_provider.dart';
 import 'package:manito/features/missions/mission_provider.dart';
 import 'package:manito/features/posts/post_provider.dart';
@@ -55,10 +56,13 @@ class FCMService {
       debugPrint('✅ FCM initialized successfully for user: $userId');
     } catch (e) {
       debugPrint('❌ FCM initialization failed: $e');
-      onError?.call(
-        "bottom_nav.token_error_snack_title",
-        "bottom_nav.token_error_snack_message",
-      );
+      _ref
+          .read(errorProvider.notifier)
+          .setError('FCM initialization failed: $e');
+      // onError?.call(
+      //   "bottom_nav.token_error_snack_title",
+      //   "bottom_nav.token_error_snack_message",
+      // );
     }
   }
 
@@ -74,6 +78,9 @@ class FCMService {
       );
     } catch (e) {
       debugPrint('❌ Failed to save FCM token: $e');
+      _ref
+          .read(errorProvider.notifier)
+          .setError('Failed to save FCM token: $e');
       rethrow;
     }
   }
@@ -96,7 +103,7 @@ class FCMService {
         await _handleMissionPropose(message.data['id']);
         break;
       case 'update_mission_progress':
-        await _handleMissionProgress(message.data['id']);
+        await _handleMissionProgress(message.data['mission_id']);
         break;
       case 'update_mission_guess':
         await _handleMissionGuess(message.data['id']);
@@ -272,10 +279,15 @@ class FCMService {
           .update({'fcm_token': null})
           .eq('id', userId);
 
+      await _firebaseMessaging.deleteToken();
+
       _currentToken = null;
       debugPrint('✅ FCM token cleared for user: $userId');
     } catch (e) {
       debugPrint('❌ Failed to clear FCM token: $e');
+      _ref
+          .read(errorProvider.notifier)
+          .setError('Failed to clear FCM token: $e');
     }
   }
 }

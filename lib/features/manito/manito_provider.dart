@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/providers.dart';
+import 'package:manito/features/error/error_provider.dart';
 import 'package:manito/features/image/image_service.dart';
 import 'package:manito/features/manito/manito.dart';
 import 'package:manito/features/manito/manito_service.dart';
@@ -27,10 +30,9 @@ final manitoPostServiceProvider = Provider<ManitoPostService>((ref) {
 
 // ========== Notifier Provider ==========
 final manitoListProvider =
-    StateNotifierProvider<ManitoListNotifier, ManitoListState>((ref) {
-      final service = ref.watch(manitoServiceProvider);
-      return ManitoListNotifier(ref, service);
-    });
+    AsyncNotifierProvider<ManitoListNotifier, ManitoListState>(
+      ManitoListNotifier.new,
+    );
 
 StateNotifierProvider<ManitoProposeNotifier, ManitoProposeState>
 createManitoProposeProvider(ManitoPropose originalPropose) {
@@ -68,71 +70,110 @@ final manitoPostProvider = StateNotifierProvider.family
     });
 
 // ========== Notifier ==========
-class ManitoListNotifier extends StateNotifier<ManitoListState> {
-  final Ref _ref;
-  final ManitoService _service;
-  ManitoListNotifier(this._ref, this._service) : super(ManitoListState());
-
-  // 나에게 온 미션 제의 목록 가져오기
-  Future<void> fetchProposeList() async {
+class ManitoListNotifier extends AsyncNotifier<ManitoListState> {
+  @override
+  Future<ManitoListState> build() async {
     try {
-      final proposeList = await _service.fetchProposeList();
-      state = state.copyWith(proposeList: proposeList);
+      final languageCode = ref.read(languageCodeProvider);
+      return _fetchAll(languageCode);
     } catch (e) {
-      state = state.copyWith(error: e.toString());
+      ref.read(errorProvider.notifier).setError('마니또 목록 가져오기 실패: $e');
+      return ManitoListState();
     }
   }
 
-  /// 내가 수락한 미션 목록 가져오기
-  Future<void> fetchAcceptList(String languageCode) async {
-    try {
-      final acceptList = await _service.fetchAcceptList(languageCode);
-      final List<ManitoAccept> allAcceptList = [];
-      for (var acceptData in acceptList) {
-        final creatorId = acceptData['creator_id'];
-        final FriendProfile? creatorProfile = _ref
-            .read(friendProfilesProvider.notifier)
-            .searchFriendProfile(creatorId);
-        final manitoAccept = ManitoAccept.fromJson(acceptData, creatorProfile!);
-        allAcceptList.add(manitoAccept);
+  /// 내부용: Accept 리스트 변환
+  List<ManitoAccept> _convertAcceptList(List<dynamic> data) {
+    final acceptList = <ManitoAccept>[];
+    for (var acceptData in data) {
+      final creatorId = acceptData['creator_id'];
+      final creatorProfile = ref
+          .read(friendProfilesProvider.notifier)
+          .searchFriendProfile(creatorId);
+
+      if (creatorProfile != null) {
+        acceptList.add(ManitoAccept.fromJson(acceptData, creatorProfile));
       }
-      state = state.copyWith(acceptList: allAcceptList);
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
     }
+    return acceptList;
+  }
+
+  /// 내부용: Guess 리스트 변환
+  List<ManitoGuess> _convertGuessList(List<dynamic> data) {
+    final guessList = <ManitoGuess>[];
+    for (var guessData in data) {
+      final creatorId = guessData['creator_id'];
+      final creatorProfile = ref
+          .read(friendProfilesProvider.notifier)
+          .searchFriendProfile(creatorId);
+
+      if (creatorProfile != null) {
+        guessList.add(ManitoGuess.fromJson(guessData, creatorProfile));
+      }
+    }
+    return guessList;
+  }
+
+  /// 내부용: 모든 목록 가져오기
+  Future<ManitoListState> _fetchAll(String languageCode) async {
+    final service = ref.read(manitoServiceProvider);
+    final results = await Future.wait([
+      service.fetchProposeList(),
+      service.fetchAcceptList(languageCode),
+      service.fetchGuessList(),
+    ]);
+
+    return ManitoListState(
+      proposeList: results[0] as List<ManitoPropose>,
+      acceptList: _convertAcceptList(results[1]),
+      guessList: _convertGuessList(results[2]),
+    );
+  }
+
+  /// 나에게 온 미션 제의
+  Future<void> fetchProposeList() async {
+    final currentState = state.valueOrNull ?? ManitoListState();
+
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final service = ref.read(manitoServiceProvider);
+      final proposeList = await service.fetchProposeList();
+
+      return currentState.copyWith(proposeList: proposeList);
+    });
+  }
+
+  /// 내가 수락한 미션 제의
+  Future<void> fetchAcceptList(String languageCode) async {
+    final currentState = state.valueOrNull ?? ManitoListState();
+
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final service = ref.read(manitoServiceProvider);
+      final acceptListData = await service.fetchAcceptList(languageCode);
+
+      return currentState.copyWith(
+        acceptList: _convertAcceptList(acceptListData),
+      );
+    });
   }
 
   /// 추측중 미션 목록 가져오기
   Future<void> fetchGuessList() async {
-    try {
-      final guessList = await _service.fetchGuessList();
-      final List<ManitoGuess> allGuessList = [];
-      for (var guessData in guessList) {
-        final creatorId = guessData['creator_id'];
-        final FriendProfile? creatorProfile = _ref
-            .read(friendProfilesProvider.notifier)
-            .searchFriendProfile(creatorId);
-        final manitoGuess = ManitoGuess.fromJson(guessData, creatorProfile!);
-        allGuessList.add(manitoGuess);
-      }
-      state = state.copyWith(guessList: allGuessList);
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
-    }
+    final currentState = state.valueOrNull ?? ManitoListState();
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final service = ref.read(manitoServiceProvider);
+      final guessListData = await service.fetchGuessList();
+
+      return currentState.copyWith(guessList: _convertGuessList(guessListData));
+    });
   }
 
   /// 모든 목록 새로고침
   Future<void> refreshAll(String languageCode) async {
-    state = state.copyWith(isLoading: true, error: null);
-    try {
-      await Future.wait([
-        fetchProposeList(),
-        fetchAcceptList(languageCode),
-        fetchGuessList(),
-      ]);
-    } finally {
-      state = state.copyWith(isLoading: false);
-    }
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() => _fetchAll(languageCode));
   }
 }
 

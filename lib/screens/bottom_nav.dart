@@ -25,7 +25,7 @@ class _BottomNavState extends ConsumerState<BottomNav>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    ref.read(badgeProvider.notifier).fetchBadges();
+    Future.microtask(() => ref.read(badgeProvider.notifier).refresh());
   }
 
   @override

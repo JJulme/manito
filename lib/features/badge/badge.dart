@@ -1,5 +1,4 @@
 // ========== Model ==========
-import 'package:flutter/material.dart';
 
 class BadgeModel {
   final String type;
@@ -75,70 +74,5 @@ class BadgeState {
   // 특정 typeId의 뱃지 개수 조회
   int getBadgeCountByTypeId(String type, String typeId) {
     return badgeByTarget[type]?[typeId] ?? 0;
-  }
-
-  // 뱃지 모두 초기화
-  BadgeState resetBadgeCount(String type, String typeId) {
-    return updateBadgeCount(type, 0, typeId: typeId);
-  }
-
-  // 뱃지 증가 (특정 typeId만)
-  BadgeState incrementBadge(String type, String typeId) {
-    final current = getBadgeCountByTypeId(type, typeId);
-    return updateBadgeCount(type, current + 1, typeId: typeId);
-  }
-
-  // 뱃지 값 증가 - 포그라운드에서 사용
-  BadgeState updateBadgeCount(String type, int count, {String? typeId}) {
-    final newBadgeByTarget = badgeByTarget.map(
-      (key, value) => MapEntry(key, Map<String, int>.from(value)),
-    );
-    final newBadgeTotals = Map<String, int>.from(badgeTotals);
-
-    if (count == 0 && typeId == null) {
-      // ✅ 같은 type의 모든 뱃지값을 0으로 만들기
-      if (newBadgeByTarget.containsKey(type)) {
-        final updatedMap = newBadgeByTarget[type]!.map(
-          (k, v) => MapEntry(k, 0),
-        );
-        newBadgeByTarget[type] = updatedMap;
-      }
-      // 총합도 0으로
-      newBadgeTotals[type] = 0;
-    } else if (typeId != null) {
-      // ✅ 특정 typeId만 업데이트
-      final targetMap = Map<String, int>.from(newBadgeByTarget[type] ?? {});
-      targetMap[typeId] = count;
-      newBadgeByTarget[type] = targetMap;
-
-      // 해당 type의 총합 다시 계산
-      newBadgeTotals[type] = targetMap.values.fold(0, (a, b) => a + b);
-    } else {
-      // count > 0 이고 typeId가 없으면 에러
-      debugPrint('BadgeState.updateBadgeCount: typeId가 필요합니다 (count가 0이 아닐 때)');
-    }
-
-    return copyWith(
-      badgeByTarget: newBadgeByTarget,
-      badgeTotals: newBadgeTotals,
-    ).recalculateCount();
-  }
-
-  // 뱃지 합산
-  BadgeState recalculateCount() {
-    // Mission 뱃지 합산
-    final newBadgeMissionCount =
-        (badgeTotals['mission_accept'] ?? 0) +
-        (badgeTotals['mission_guess'] ?? 0);
-    final newBadgeManitoCount = badgeTotals['mission_propose'] ?? 0;
-    final newBadgeHomeCount = newBadgeMissionCount + newBadgeManitoCount;
-    final newBadgePostCount = badgeTotals['post_comment'] ?? 0;
-
-    return copyWith(
-      badgeHomeCount: newBadgeHomeCount,
-      badgeMissionCount: newBadgeMissionCount,
-      badgeManitoCount: newBadgeManitoCount,
-      badgePostCount: newBadgePostCount,
-    );
   }
 }

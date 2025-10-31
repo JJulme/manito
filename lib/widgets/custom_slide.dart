@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 class CustomSlide extends StatefulWidget {
   final Widget mainWidget;
   final Widget subWidget;
+  final VoidCallback? onTap;
   const CustomSlide({
     super.key,
     required this.mainWidget,
     required this.subWidget,
+    this.onTap,
   });
 
   @override
@@ -22,6 +24,7 @@ class _CustomSlideState extends State<CustomSlide> {
     double width = MediaQuery.of(context).size.width;
     return GestureDetector(
       onTap: () {
+        widget.onTap?.call();
         setState(() {
           isSubScreenVisible = !isSubScreenVisible;
         });

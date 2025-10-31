@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/providers.dart';
 import 'package:manito/features/auth/auth_provider.dart';
 import 'package:manito/features/badge/badge_provider.dart';
-import 'package:manito/features/fcm/fcm_provider.dart';
 import 'package:manito/features/manito/manito_provider.dart';
 import 'package:manito/features/missions/mission_provider.dart';
 import 'package:manito/features/posts/post_provider.dart';
@@ -28,12 +27,10 @@ class SettingScreen extends ConsumerWidget {
     /// 모든 사용자 관련 프로바이더 무효화
     void invalidateAllUserProviders() {
       // 인증 관련
-      // ref.invalidate(supabaseProvider);
       ref.invalidate(currentUserProvider);
       ref.invalidate(badgeProvider);
 
       // 사용자 정보 관련
-      // ref.invalidate(fcmListenerProvider);
       ref.invalidate(userProfileProvider);
       ref.invalidate(friendProfilesProvider);
 
@@ -51,7 +48,7 @@ class SettingScreen extends ConsumerWidget {
         message: context.tr('setting_screen.logout_dialog_message'),
       );
       if (result == true) {
-        notifier.signOut();
+        await notifier.signOut();
         Future.microtask(() => invalidateAllUserProviders());
       }
     }

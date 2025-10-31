@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/features/auth/auth_provider.dart';
+import 'package:manito/features/error/error_provider.dart';
 import 'package:manito/features/fcm/fcm_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -49,6 +50,9 @@ class FCMListener {
       loading: () {},
       error: (error, stackTrace) async {
         debugPrint('Auth state error, clearing FCM: $error');
+        _ref
+            .read(errorProvider.notifier)
+            .setError('Auth state error, clearing FCM: $error');
         await _handleUserLoggedOut();
       },
     );
@@ -68,6 +72,9 @@ class FCMListener {
       debugPrint('✅ FCM setup completed for user: ${user.id}');
     } catch (e) {
       debugPrint('❌ FCM setup failed for user ${user.id}: $e');
+      _ref
+          .read(errorProvider.notifier)
+          .setError('FCM setup failed for user: $e');
     }
   }
 
@@ -85,6 +92,7 @@ class FCMListener {
       debugPrint('✅ FCM cleanup completed');
     } catch (e) {
       debugPrint('❌ FCM cleanup failed: $e');
+      _ref.read(errorProvider.notifier).setError('FCM cleanup failed: $e');
     }
   }
 }

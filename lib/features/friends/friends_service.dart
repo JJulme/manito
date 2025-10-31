@@ -36,7 +36,7 @@ class FriendSearchService {
       return result;
     } catch (e) {
       debugPrint('FriendSearchService.sendFriendRequest Error: $e');
-      return e.toString();
+      rethrow;
     }
   }
 }
@@ -146,16 +146,15 @@ class BlacklistService {
   }
 
   /// 친구 차단
-  Future<bool> blockFriend(String userId, String friendId) async {
+  Future<void> blockFriend(String userId, String friendId) async {
     try {
       await _supabase.rpc(
         'block_friend',
         params: {'p_user_id': userId, 'p_friend_id': friendId},
       );
-      return true;
     } catch (e) {
       debugPrint('blockFriend Error: $e');
-      return false;
+      rethrow;
     }
   }
 }
@@ -164,7 +163,7 @@ class FriendEditService {
   final SupabaseClient _supabase;
   FriendEditService(this._supabase);
 
-  Future<String> updateFriendName(
+  Future<void> updateFriendName(
     String userId,
     String friendId,
     String name,
@@ -175,10 +174,9 @@ class FriendEditService {
           .update({'friend_nickname': name})
           .eq('friend_id', friendId)
           .eq('user_id', userId);
-      return 'edit_success';
     } catch (e) {
       debugPrint('FriendEditService.updateFriendName Error: $e');
-      return e.toString();
+      rethrow;
     }
   }
 }

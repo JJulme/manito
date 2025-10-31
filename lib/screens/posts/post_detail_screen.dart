@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/features/posts/post.dart';
@@ -88,12 +89,15 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
       width: width,
       title: Row(
         children: [
-          Text(
-            widget.post.content!,
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          SizedBox(width: width * 0.02),
           Icon(iconMap[widget.post.contentType], color: Colors.grey[800]),
+          SizedBox(width: width * 0.02),
+          Expanded(
+            child: AutoSizeText(
+              widget.post.content!,
+              minFontSize: 7,
+              maxLines: 1,
+            ),
+          ),
         ],
       ),
       actions: [_buildPopupMenu(width)],

@@ -23,6 +23,12 @@ class _FriendsSearchScreenState extends ConsumerState<FriendsSearchScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
 
+  @override
+  void dispose() {
+    emailController.dispose();
+    super.dispose();
+  }
+
   // 이메일 검증
   String? _emailValidator(String? email) {
     return (GetUtils.isEmail(email ?? '')
@@ -33,6 +39,7 @@ class _FriendsSearchScreenState extends ConsumerState<FriendsSearchScreen> {
   // 입력값 지우기
   void _clearText() {
     emailController.clear();
+    ref.read(friendSearchProvider.notifier).clear();
   }
 
   // 검색버튼 동작 함수
@@ -53,16 +60,23 @@ class _FriendsSearchScreenState extends ConsumerState<FriendsSearchScreen> {
     );
   }
 
-  void _handleFriendRequest(double width, String friendId) async {
-    final result = ref
+  // ✅ 친구 신청 처리 (개선)
+  Future<void> _handleFriendRequest(double width, String friendId) async {
+    // 이미 친구인지 확인
+    final isFriend = ref
         .read(friendProfilesProvider.notifier)
         .searchFriendProfile(friendId);
-    if (result == 'unknown') {
-      // 이미 친구입니다.
+
+    if (isFriend == 'unknown') {
       customToast(width: width, msg: '이미 친구입니다');
-    } else {
-      final result =
-          await ref.read(friendSearchProvider.notifier).sendFriendRequest();
+      return;
+    }
+
+    // 친구 신청
+    final result =
+        await ref.read(friendSearchProvider.notifier).sendFriendRequest();
+
+    if (result.isNotEmpty) {
       customToast(
         width: width,
         msg: context.tr("friends_search_screen.$result"),
@@ -73,8 +87,9 @@ class _FriendsSearchScreenState extends ConsumerState<FriendsSearchScreen> {
   @override
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
-    final state = ref.watch(friendSearchProvider);
+    final searchState = ref.watch(friendSearchProvider); // ✅ AsyncValue
     final userProfileState = ref.watch(userProfileProvider);
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -86,7 +101,8 @@ class _FriendsSearchScreenState extends ConsumerState<FriendsSearchScreen> {
               SizedBox(height: width * 0.03),
               _buildMyEmailSection(width, userProfileState.userProfile!.email),
               SizedBox(height: width * 0.03),
-              _buildProfileSection(width, state),
+              // ✅ AsyncValue.when 사용
+              _buildProfileSection(width, searchState),
             ],
           ),
         ),
@@ -157,74 +173,96 @@ class _FriendsSearchScreenState extends ConsumerState<FriendsSearchScreen> {
     );
   }
 
-  // 검색된 결과
-  Widget _buildProfileSection(double width, FriendSearchState state) {
-    // 검색중
-    if (state.isLoading) {
-      return Container(
-        height: width * 0.53,
-        alignment: Alignment.center,
-        child: CircularProgressIndicator(),
-      );
-    }
-    // 오류 발생
-    else if (state.hasError) {
-      return Container(
-        height: width * 0.53,
-        alignment: Alignment.center,
-        child: Text(state.error.toString()),
-      );
-    }
-    // 검색 전
-    else if (state.isEmpty) {
-      return SizedBox.shrink();
-    }
-    // 검색 결과 없음
-    else if (state.noResult) {
-      return Container(
-        height: width * 0.53,
-        alignment: Alignment.center,
-        child: Text('검색결과가 없습니다.'),
-      );
-    }
-    // 검색결과 있음
-    else {
-      return Padding(
-        padding: EdgeInsets.symmetric(horizontal: width * 0.05),
-        child: Container(
-          width: double.infinity,
-          alignment: Alignment.center,
-          padding: EdgeInsets.all(width * 0.06),
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(width * 0.02),
+  // ✅ AsyncValue.when 패턴으로 변경
+  Widget _buildProfileSection(
+    double width,
+    AsyncValue<FriendSearchState> searchState,
+  ) {
+    return searchState.when(
+      // 로딩 중
+      loading:
+          () => Container(
+            height: width * 0.53,
+            alignment: Alignment.center,
+            child: CircularProgressIndicator(),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ProfileImageView(
-                size: width * 0.3,
-                profileImageUrl: state.friendProfile!.profileImageUrl!,
-              ),
-              SizedBox(height: width * 0.03),
-              Text(
-                state.friendProfile!.nickname,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              SizedBox(height: width * 0.02),
-              ElevatedButton(
-                onPressed:
-                    () => _handleFriendRequest(width, state.friendProfile!.id),
-                child:
-                    Text(
-                      "friends_search_screen.request_btn",
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ).tr(),
-              ),
-            ],
+
+      // 에러 발생
+      error:
+          (error, stack) => Container(
+            height: width * 0.53,
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  size: width * 0.15,
+                  color: Colors.red,
+                ),
+                SizedBox(height: width * 0.03),
+                Text('검색 중 오류가 발생했습니다'),
+                SizedBox(height: width * 0.02),
+                TextButton(onPressed: _clearText, child: Text('다시 시도')),
+              ],
+            ),
           ),
-        ),
-      );
-    }
+
+      // 성공 (데이터 있음)
+      data: (state) {
+        // 검색 전
+        if (state.isEmpty) {
+          return SizedBox.shrink();
+        }
+
+        // 검색 결과 없음
+        if (state.noResult) {
+          return Container(
+            height: width * 0.53,
+            alignment: Alignment.center,
+            child: Text('검색결과가 없습니다.'),
+          );
+        }
+
+        // 검색 결과 있음
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: width * 0.05),
+          child: Container(
+            width: double.infinity,
+            alignment: Alignment.center,
+            padding: EdgeInsets.all(width * 0.06),
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(width * 0.02),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ProfileImageView(
+                  size: width * 0.3,
+                  profileImageUrl: state.friendProfile!.profileImageUrl!,
+                ),
+                SizedBox(height: width * 0.03),
+                Text(
+                  state.friendProfile!.nickname,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                SizedBox(height: width * 0.02),
+                ElevatedButton(
+                  onPressed:
+                      () =>
+                          _handleFriendRequest(width, state.friendProfile!.id),
+                  child:
+                      Text(
+                        "friends_search_screen.request_btn",
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ).tr(),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }

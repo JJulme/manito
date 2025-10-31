@@ -9,7 +9,8 @@ class BadgeService {
   /// 뱃지 목록 가져오기
   Future<List<BadgeModel>> fetchBadges() async {
     try {
-      final userId = _supabase.auth.currentUser!.id;
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return [];
       final data = await _supabase
           .from('badges')
           .select('type, type_id, count')

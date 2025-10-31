@@ -3,44 +3,23 @@ import 'package:manito/features/profiles/profile.dart';
 class FriendSearchState {
   final String query;
   final UserProfile? friendProfile;
-  final bool isLoading;
-  final bool isSearching;
-  final String? message;
-  final String? error;
-  const FriendSearchState({
-    this.query = '',
-    this.friendProfile,
-    this.isLoading = false,
-    this.isSearching = false,
-    this.message,
-    this.error,
-  });
+
+  const FriendSearchState({this.query = '', this.friendProfile});
 
   bool get hasResult => friendProfile != null;
-  bool get hasError => error != null;
-  bool get isEmpty => friendProfile == null && !isSearching;
-  bool get noResult => friendProfile == null && isSearching;
+  bool get isEmpty => friendProfile == null && query.isEmpty;
+  bool get noResult => friendProfile == null && query.isNotEmpty;
 
   FriendSearchState copyWith({
     String? query,
-    // null 설정
     Object? friendProfile = _noChange,
-    bool? isLoading,
-    bool? isSearching,
-    String? message,
-    String? error,
   }) {
     return FriendSearchState(
       query: query ?? this.query,
-      // null 설정 가능
       friendProfile:
           friendProfile == _noChange
               ? this.friendProfile
               : friendProfile as UserProfile?,
-      isLoading: isLoading ?? this.isLoading,
-      isSearching: isSearching ?? this.isSearching,
-      message: message ?? this.message,
-      error: error ?? this.error,
     );
   }
 

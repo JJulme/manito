@@ -40,7 +40,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     super.build(context);
     final double width = MediaQuery.of(context).size.width;
     final userProfileState = ref.watch(userProfileProvider);
-    final badgeState = ref.watch(badgeProvider);
+    final badgeMissionCount = ref.watch(badgeMissionCountProvider);
+    final badgeManitoCount = ref.watch(badgeManitoCountProvider);
 
     if (userProfileState.isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -69,11 +70,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 TabBar(
                   tabs: [
                     customBadgeIconWithLabel(
-                      badgeState.badgeMissionCount,
+                      badgeMissionCount,
                       child: Tab(text: '보낸미션'),
                     ),
                     customBadgeIconWithLabel(
-                      badgeState.badgeManitoCount,
+                      badgeManitoCount,
                       child: Tab(text: '받은미션'),
                     ),
                   ],
