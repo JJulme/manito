@@ -5,6 +5,7 @@ import 'package:manito/features/posts/post.dart';
 import 'package:manito/features/posts/post_provider.dart';
 import 'package:manito/features/profiles/profile.dart';
 import 'package:manito/features/profiles/profile_provider.dart';
+import 'package:manito/main.dart';
 import 'package:manito/share/constants.dart';
 import 'package:manito/share/report_bottomsheet.dart';
 import 'package:manito/share/sub_appbar.dart';
@@ -42,7 +43,6 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   // late final provider = createPostDetailProvider(widget.post);
   @override
   Widget build(BuildContext context) {
-    final double width = MediaQuery.of(context).size.width;
     final state = ref.watch(_postDetailProvider);
     final notifier = ref.read(_postDetailProvider.notifier);
     ref.listen<PostDetailState>(_postDetailProvider, (previous, next) {
@@ -65,8 +65,8 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        appBar: _buildAppBar(width),
-        body: SafeArea(child: _buildBody(width, state, notifier)),
+        appBar: _buildAppBar(),
+        body: SafeArea(child: _buildBody(state, notifier)),
       ),
     );
   }
@@ -84,9 +84,8 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(double width) {
+  PreferredSizeWidget _buildAppBar() {
     return SubAppbar(
-      width: width,
       title: Row(
         children: [
           Icon(iconMap[widget.post.contentType], color: Colors.grey[800]),
@@ -100,12 +99,12 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
           ),
         ],
       ),
-      actions: [_buildPopupMenu(width)],
+      actions: [_buildPopupMenu()],
     );
   }
 
   // 앱바 팝업 버튼
-  Widget _buildPopupMenu(double width) {
+  Widget _buildPopupMenu() {
     return Padding(
       padding: EdgeInsets.only(right: width * 0.02),
       child: PopupMenuButton(
@@ -131,21 +130,17 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   }
 
   // 전체, 댓글창
-  Widget _buildBody(
-    double width,
-    PostDetailState state,
-    PostDetailNotifier notifier,
-  ) {
+  Widget _buildBody(PostDetailState state, PostDetailNotifier notifier) {
     return Column(
       children: [
-        Expanded(child: _buildContent(width, state)),
-        _buildMessageBar(width, notifier),
+        Expanded(child: _buildContent(state)),
+        _buildMessageBar(notifier),
       ],
     );
   }
 
   // 마니또 활동, 생성자 추측, 댓글 목록
-  Widget _buildContent(double width, PostDetailState state) {
+  Widget _buildContent(PostDetailState state) {
     if (state.isLoading || state.postDetail == null) {
       return Center(child: CircularProgressIndicator());
     } else if (state.error != null && state.postDetail == null) {
@@ -157,16 +152,16 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildProfile(width, widget.manitoProfile),
+          _buildProfile(widget.manitoProfile),
           SizedBox(height: width * 0.03),
-          _buildImageSection(width, state),
-          _buildTextSection(width, state.postDetail!.description!),
+          _buildImageSection(state),
+          _buildTextSection(state.postDetail!.description!),
           Divider(),
-          _buildProfile(width, widget.creatorProfile),
+          _buildProfile(widget.creatorProfile),
           SizedBox(height: width * 0.03),
-          _buildTextSection(width, state.postDetail!.guess!),
+          _buildTextSection(state.postDetail!.guess!),
           Divider(),
-          _buildCommentSection(width, state),
+          _buildCommentSection(state),
           SizedBox(height: width * 0.05),
         ],
       ),
@@ -174,7 +169,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   }
 
   // 생성자, 마니또 프로필
-  Widget _buildProfile(double width, FriendProfile profile) {
+  Widget _buildProfile(FriendProfile profile) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: width * 0.05),
       child: Row(
@@ -191,19 +186,18 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   }
 
   // 이미지 슬라이더
-  Widget _buildImageSection(double width, PostDetailState state) {
+  Widget _buildImageSection(PostDetailState state) {
     if (state.postDetail!.imageUrlList?.isEmpty ?? true) {
       return const SizedBox.shrink();
     }
     return ImageSlider(
       images: state.postDetail!.imageUrlList!,
-      width: width,
       boxFit: BoxFit.contain,
     );
   }
 
   // 마니또 설명과 생성자 추측
-  Widget _buildTextSection(double width, String text) {
+  Widget _buildTextSection(String text) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: width * 0.05,
@@ -214,7 +208,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   }
 
   // 댓글 리스트
-  Widget _buildCommentSection(double width, PostDetailState state) {
+  Widget _buildCommentSection(PostDetailState state) {
     if (state.commentList.isEmpty) {
       return Center(
         child: Text(
@@ -233,7 +227,6 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
         itemCount: state.commentList.length,
         itemBuilder:
             (context, index) => _buildCommentItem(
-              width,
               state.commentList[index].userId,
               state.commentList[index],
             ),
@@ -242,7 +235,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   }
 
   // 댓글 아이템
-  Widget _buildCommentItem(double width, String userId, Comment comment) {
+  Widget _buildCommentItem(String userId, Comment comment) {
     final FriendProfile? profile = ref
         .read(friendProfilesProvider.notifier)
         .searchFriendProfile(userId);
@@ -293,7 +286,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   }
 
   // 댓글창
-  Widget _buildMessageBar(double width, PostDetailNotifier notifier) {
+  Widget _buildMessageBar(PostDetailNotifier notifier) {
     return Padding(
       padding: EdgeInsets.all(width * 0.02),
       child: Row(

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:manito/main.dart';
 
 class CustomPopupMenuItem extends PopupMenuItem<String> {
   CustomPopupMenuItem({
     super.key,
-    required double width,
     required Widget icon,
     required String text,
     required String value,

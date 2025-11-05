@@ -14,6 +14,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:manito/features/fcm/firebase_options.dart';
 
+late double width;
+
 void main() async {
   // 웹바인딩 설정
   // WidgetsFlutterBinding.ensureInitialized();
@@ -77,7 +79,7 @@ class _ManitoState extends ConsumerState<Manito> {
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
+    width = MediaQuery.of(context).size.width;
     // 테마 설정
     var themeData = ThemeData(
       useMaterial3: true,

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:manito/main.dart';
 
-void customToast({required double width, required String msg}) {
+void customToast({required String msg}) {
   Fluttertoast.showToast(
     msg: '  $msg  ',
     fontSize: width * 0.042,

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/features/friends/friends.dart';
 import 'package:manito/features/friends/friends_provider.dart';
 import 'package:manito/features/profiles/profile.dart';
+import 'package:manito/main.dart';
 import 'package:manito/share/common_dialog.dart';
 import 'package:manito/share/sub_appbar.dart';
 import 'package:manito/widgets/profile_image_view.dart';
@@ -30,22 +31,20 @@ class _FriendsBlacklistScreenState
 
   @override
   Widget build(BuildContext context) {
-    final double width = MediaQuery.of(context).size.width;
     final state = ref.watch(blacklistProvider);
     return Scaffold(
       appBar: SubAppbar(
-        width: width,
         title:
             Text(
               'friends_blacklist_screen.title',
               style: Theme.of(context).textTheme.headlineMedium,
             ).tr(),
       ),
-      body: _buildBody(width, state),
+      body: _buildBody(state),
     );
   }
 
-  Widget _buildBody(double width, BlacklistState state) {
+  Widget _buildBody(BlacklistState state) {
     if (state.isLoading) {
       return Center(child: CircularProgressIndicator());
     } else if (state.error != null) {
@@ -63,13 +62,13 @@ class _FriendsBlacklistScreenState
         itemCount: state.blackList.length,
         itemBuilder: (context, index) {
           final userProfile = state.blackList[index];
-          return _buildBlacklistItem(width, userProfile);
+          return _buildBlacklistItem(userProfile);
         },
       );
     }
   }
 
-  Widget _buildBlacklistItem(double width, UserProfile userProfile) {
+  Widget _buildBlacklistItem(UserProfile userProfile) {
     return Container(
       padding: EdgeInsets.symmetric(
         vertical: width * 0.02,

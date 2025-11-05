@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:manito/core/custom_icons.dart';
 import 'package:manito/features/missions/mission.dart';
 import 'package:manito/features/missions/mission_provider.dart';
+import 'package:manito/main.dart';
 import 'package:manito/share/common_dialog.dart';
 import 'package:manito/share/custom_toast.dart';
 import 'package:manito/share/sub_appbar.dart';
@@ -25,12 +26,11 @@ class _MissionCreateScreenState extends ConsumerState<MissionCreateScreen> {
 
   // 미선 생성 다이얼로그
   void _showMissionCreationDialog(
-    double width,
     MissionCreateState state,
     MissionCreateNotifier notifier,
   ) async {
     if (state.confirmedFriends.length < 2) {
-      customToast(width: width, msg: '친구를 2명 이상 선택해 주세요.');
+      customToast(msg: '친구를 2명 이상 선택해 주세요.');
     } else {
       final result = await DialogHelper.showConfirmDialog(
         context,
@@ -46,28 +46,26 @@ class _MissionCreateScreenState extends ConsumerState<MissionCreateScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final double width = MediaQuery.of(context).size.width;
     final state = ref.watch(missionCreateProvider);
     final notifier = ref.read(missionCreateProvider.notifier);
     return Scaffold(
       appBar: SubAppbar(
-        width: width,
         title: Text('미션 만들기'),
-        actions: [_appbarActions(width, state, notifier)],
+        actions: [_appbarActions(state, notifier)],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionTitle(width, '타입'),
-              _buildTypeToggle(width),
+              _buildSectionTitle('타입'),
+              _buildTypeToggle(),
               Divider(),
-              _buildSectionTitle(width, '기간'),
-              _buildPeriodToggle(width),
+              _buildSectionTitle('기간'),
+              _buildPeriodToggle(),
               Divider(),
-              _buildSectionTitle(width, '친구'),
-              _buildSelectedFriends(width, state, notifier),
+              _buildSectionTitle('친구'),
+              _buildSelectedFriends(state, notifier),
             ],
           ),
         ),
@@ -77,18 +75,17 @@ class _MissionCreateScreenState extends ConsumerState<MissionCreateScreen> {
 
   // 미션 생성 버튼
   Widget _appbarActions(
-    double width,
     MissionCreateState state,
     MissionCreateNotifier notifier,
   ) {
     return TextButton(
       child: Text('완료', style: TextTheme.of(context).bodyMedium),
-      onPressed: () => _showMissionCreationDialog(width, state, notifier),
+      onPressed: () => _showMissionCreationDialog(state, notifier),
     );
   }
 
   // 타이틀 위젯
-  Widget _buildSectionTitle(double width, String title) {
+  Widget _buildSectionTitle(String title) {
     return Padding(
       padding: EdgeInsets.all(width * 0.05),
       child: Text(title, style: Theme.of(context).textTheme.titleLarge),
@@ -96,7 +93,7 @@ class _MissionCreateScreenState extends ConsumerState<MissionCreateScreen> {
   }
 
   // 타입 토글 버튼
-  Widget _buildTypeToggle(double width) {
+  Widget _buildTypeToggle() {
     return Container(
       width: double.infinity,
       alignment: Alignment.center,
@@ -143,7 +140,7 @@ class _MissionCreateScreenState extends ConsumerState<MissionCreateScreen> {
   }
 
   // 기간 토글 버튼
-  Widget _buildPeriodToggle(double width) {
+  Widget _buildPeriodToggle() {
     return Container(
       width: double.infinity,
       alignment: Alignment.center,
@@ -174,7 +171,6 @@ class _MissionCreateScreenState extends ConsumerState<MissionCreateScreen> {
 
   // 친구 선택, 친구 목록
   Widget _buildSelectedFriends(
-    double width,
     MissionCreateState state,
     MissionCreateNotifier notifier,
   ) {

@@ -10,6 +10,7 @@ import 'package:manito/features/posts/post.dart';
 import 'package:manito/features/posts/post_provider.dart';
 import 'package:manito/features/profiles/profile.dart';
 import 'package:manito/features/profiles/profile_provider.dart';
+import 'package:manito/main.dart';
 import 'package:manito/share/common_dialog.dart';
 import 'package:manito/share/custom_popup_menu_item.dart';
 import 'package:manito/share/custom_toast.dart';
@@ -48,7 +49,7 @@ class _FriendsDetailScreenState extends ConsumerState<FriendsDetailScreen> {
     context.push('/friends_edit', extra: widget.friendProfile);
   }
 
-  Future<void> _handleBlackFriend(double width) async {
+  Future<void> _handleBlackFriend() async {
     final result = await DialogHelper.showConfirmDialog(
       context,
       message: context.tr("friends_detail_screen.dialog_message"),
@@ -77,13 +78,11 @@ class _FriendsDetailScreenState extends ConsumerState<FriendsDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final double width = MediaQuery.of(context).size.width;
     final postsState = ref.watch(postsProvider);
     return Scaffold(
       appBar: SubAppbar(
-        width: width,
         title: Text(widget.friendProfile!.nickname),
-        actions: [_buildPopupMenu(width)],
+        actions: [_buildPopupMenu()],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -95,9 +94,9 @@ class _FriendsDetailScreenState extends ConsumerState<FriendsDetailScreen> {
                 statusMessage: widget.friendProfile!.statusMessage!,
               ),
               SizedBox(height: width * 0.03),
-              _buildBannerAd(width),
+              _buildBannerAd(),
               SizedBox(height: width * 0.03),
-              _buildPostList(width, postsState),
+              _buildPostList(postsState),
             ],
           ),
         ),
@@ -105,7 +104,7 @@ class _FriendsDetailScreenState extends ConsumerState<FriendsDetailScreen> {
     );
   }
 
-  Widget _buildPopupMenu(double width) {
+  Widget _buildPopupMenu() {
     return Padding(
       padding: EdgeInsets.only(right: width * 0.02),
       child: PopupMenuButton(
@@ -113,21 +112,18 @@ class _FriendsDetailScreenState extends ConsumerState<FriendsDetailScreen> {
         itemBuilder:
             (context) => [
               CustomPopupMenuItem(
-                width: width,
                 icon: Icon(Icons.edit),
                 text: '이름 수정',
                 value: '',
                 onTap: _toFriendEdit,
               ),
               CustomPopupMenuItem(
-                width: width,
                 icon: Icon(Icons.no_accounts_rounded),
                 text: '친구 차단',
                 value: '',
-                onTap: () => _handleBlackFriend(width),
+                onTap: () => _handleBlackFriend(),
               ),
               CustomPopupMenuItem(
-                width: width,
                 icon: Icon(Icons.report_problem_rounded),
                 text: '신고하기',
                 value: '',
@@ -139,14 +135,11 @@ class _FriendsDetailScreenState extends ConsumerState<FriendsDetailScreen> {
   }
 
   // 광고
-  Widget _buildBannerAd(double screenWidth) {
+  Widget _buildBannerAd() {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: screenWidth * _horizontalPadding,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: width * _horizontalPadding),
       child: BannerAdWidget(
-        borderRadius: screenWidth * _borderRadius,
-        width: screenWidth - (_horizontalPadding * 2) * screenWidth,
+        borderRadius: width * _borderRadius,
         androidAdId: dotenv.env['BANNER_FRIEND_DETAIL_ANDROID']!,
         iosAdId: dotenv.env['BANNER_FRIEND_DETAIL_IOS']!,
       ),
@@ -154,7 +147,7 @@ class _FriendsDetailScreenState extends ConsumerState<FriendsDetailScreen> {
   }
 
   // 포스트 리스트뷰
-  Widget _buildPostList(double screenWidth, PostsState postsState) {
+  Widget _buildPostList(PostsState postsState) {
     final postList = ref
         .read(postsProvider.notifier)
         .getPostsWithFriend(widget.friendProfile!.id);
@@ -169,13 +162,12 @@ class _FriendsDetailScreenState extends ConsumerState<FriendsDetailScreen> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: postList.length,
-      itemBuilder:
-          (context, index) => _buildPostItem(screenWidth, postList[index]),
+      itemBuilder: (context, index) => _buildPostItem(postList[index]),
     );
   }
 
   // 포스트 아이템
-  Widget _buildPostItem(double screenWidth, Post post) {
+  Widget _buildPostItem(Post post) {
     final FriendProfile manitoProfile =
         ref
             .read(friendProfilesProvider.notifier)
@@ -187,7 +179,6 @@ class _FriendsDetailScreenState extends ConsumerState<FriendsDetailScreen> {
     final int badgeCount = ref.watch(specificBadgeProvider(post.id!));
 
     return PostItem(
-      width: screenWidth,
       post: post,
       manitoProfile: manitoProfile,
       creatorProfile: creatorProfile,

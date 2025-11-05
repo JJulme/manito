@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/providers.dart';
@@ -7,7 +6,6 @@ import 'package:manito/features/error/error_provider.dart';
 import 'package:manito/features/image/image_service.dart';
 import 'package:manito/features/manito/manito.dart';
 import 'package:manito/features/manito/manito_service.dart';
-import 'package:manito/features/profiles/profile.dart';
 import 'package:manito/features/profiles/profile_provider.dart';
 import 'package:photo_manager/photo_manager.dart';
 

@@ -1,5 +1,4 @@
 // ==========Model==========
-
 import 'dart:io';
 
 class UserProfile {
@@ -8,6 +7,7 @@ class UserProfile {
   final String nickname;
   final String? statusMessage;
   final String? profileImageUrl;
+  final String? autoReply;
 
   UserProfile({
     required this.id,
@@ -15,6 +15,7 @@ class UserProfile {
     required this.nickname,
     this.statusMessage,
     this.profileImageUrl,
+    this.autoReply,
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
@@ -24,6 +25,7 @@ class UserProfile {
       nickname: json['nickname'] as String,
       statusMessage: json['status_message'] as String,
       profileImageUrl: json['profile_image_url'] as String,
+      autoReply: json['auto_reply'] as String,
     );
   }
 
@@ -33,6 +35,7 @@ class UserProfile {
     String? nickname,
     String? statusMessage,
     String? profileImageUrl,
+    String? autoReply,
   }) {
     return UserProfile(
       id: id ?? this.id,
@@ -40,6 +43,7 @@ class UserProfile {
       nickname: nickname ?? this.nickname,
       statusMessage: statusMessage ?? this.statusMessage,
       profileImageUrl: profileImageUrl ?? this.profileImageUrl,
+      autoReply: autoReply ?? this.autoReply,
     );
   }
 }

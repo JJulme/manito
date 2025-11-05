@@ -1,5 +1,6 @@
 // 개별 FlipCard 위젯
 import 'package:flutter/material.dart';
+import 'package:manito/main.dart';
 
 class CustomSlide extends StatefulWidget {
   final Widget mainWidget;
@@ -21,7 +22,6 @@ class _CustomSlideState extends State<CustomSlide> {
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
     return GestureDetector(
       onTap: () {
         widget.onTap?.call();

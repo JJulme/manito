@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:manito/features/manito/manito.dart';
 import 'package:manito/features/manito/manito_provider.dart';
+import 'package:manito/main.dart';
 import 'package:manito/share/custom_toast.dart';
 import 'package:manito/share/sub_appbar.dart';
 import 'package:manito/widgets/image_slider.dart';
@@ -51,7 +52,7 @@ class _ManitoPostScreenState extends ConsumerState<ManitoPostScreen> {
   }
 
   // 버튼 동작
-  void _handleBottomButton(double width, ManitoPostState state) async {
+  void _handleBottomButton(ManitoPostState state) async {
     // 저장중, 미션 종료중
     if (state.isSaving || state.isPosting) {
       null;
@@ -72,13 +73,12 @@ class _ManitoPostScreenState extends ConsumerState<ManitoPostScreen> {
     }
     // 글자 수 부족
     else {
-      customToast(width: width, msg: '정성부족');
+      customToast(msg: '정성부족');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final double width = MediaQuery.of(context).size.width;
     final state = ref.watch(manitoPostProvider(widget.manitoAccept));
     final notifier = ref.read(manitoPostProvider(widget.manitoAccept).notifier);
 
@@ -99,7 +99,7 @@ class _ManitoPostScreenState extends ConsumerState<ManitoPostScreen> {
         );
       } else if (previous?.status == ManitoPostStatus.saving &&
           next.status == ManitoPostStatus.saved) {
-        customToast(width: width, msg: '저장성공');
+        customToast(msg: '저장성공');
       } else if (next.error != null) {
         ScaffoldMessenger.of(
           context,
@@ -111,7 +111,6 @@ class _ManitoPostScreenState extends ConsumerState<ManitoPostScreen> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: SubAppbar(
-          width: width,
           title: Row(
             children: [
               Text('미션 기록하기'),
@@ -123,26 +122,22 @@ class _ManitoPostScreenState extends ConsumerState<ManitoPostScreen> {
             ],
           ),
         ),
-        body: _buildBody(width, state, notifier),
-        bottomNavigationBar: _buildBottomButton(width, state),
+        body: _buildBody(state, notifier),
+        bottomNavigationBar: _buildBottomButton(state),
       ),
     );
   }
 
-  Widget _buildBody(
-    double width,
-    ManitoPostState state,
-    ManitoPostNotifier notifier,
-  ) {
+  Widget _buildBody(ManitoPostState state, ManitoPostNotifier notifier) {
     return SafeArea(
       child: Stack(
         children: [
           SingleChildScrollView(
             child: Column(
               children: [
-                _buildImageSection(width, state, notifier),
-                _buildDescriptionSection(width),
-                _buildWarningMessage(width),
+                _buildImageSection(state, notifier),
+                _buildDescriptionSection(),
+                _buildWarningMessage(),
               ],
             ),
           ),
@@ -157,44 +152,39 @@ class _ManitoPostScreenState extends ConsumerState<ManitoPostScreen> {
   }
 
   Widget _buildImageSection(
-    double width,
     ManitoPostState state,
     ManitoPostNotifier notifier,
   ) {
     // 서버에 저장된 이미지가 있는 경우
     if (state.existingImageUrls.isNotEmpty) {
-      return _buildImageContent(width, state.existingImageUrls, notifier);
+      return _buildImageContent(state.existingImageUrls, notifier);
     }
     // 앨범에서 선택된 이미지가 있는 경우
     else if (state.selectedImages.isNotEmpty) {
-      return _buildImageContent(width, state.selectedImages, notifier);
+      return _buildImageContent(state.selectedImages, notifier);
     }
     // 이미지가 없는 경우
     else {
-      return _buildEmptyImageContent(width, context);
+      return _buildEmptyImageContent(context);
     }
   }
 
   // 이미지가 있을 때
-  Widget _buildImageContent(
-    double width,
-    List<dynamic> images,
-    ManitoPostNotifier notifier,
-  ) {
+  Widget _buildImageContent(List<dynamic> images, ManitoPostNotifier notifier) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // _ImageRow(images: images, addPressed: () {}, delPressed: () {}),
-        _buildImageRow(width, images, notifier),
+        _buildImageRow(images, notifier),
         SizedBox(height: width * 0.01),
-        ImageSlider(images: images, width: width),
+        ImageSlider(images: images),
         SizedBox(height: width * 0.01),
       ],
     );
   }
 
   // 이미지가 없을 때
-  Widget _buildEmptyImageContent(double width, BuildContext context) {
+  Widget _buildEmptyImageContent(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -216,11 +206,7 @@ class _ManitoPostScreenState extends ConsumerState<ManitoPostScreen> {
   }
 
   // 이미지 추가 버튼, 이미지 목록
-  Widget _buildImageRow(
-    double width,
-    List<dynamic> images,
-    ManitoPostNotifier notifier,
-  ) {
+  Widget _buildImageRow(List<dynamic> images, ManitoPostNotifier notifier) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
@@ -247,7 +233,7 @@ class _ManitoPostScreenState extends ConsumerState<ManitoPostScreen> {
   }
 
   // 설명 쓰는 부분
-  Widget _buildDescriptionSection(double width) {
+  Widget _buildDescriptionSection() {
     final String toFriend = context.tr(
       "manito_post_screen.to_friend",
       namedArgs: {"nickname": widget.manitoAccept.creatorProfile.displayName},
@@ -271,7 +257,7 @@ class _ManitoPostScreenState extends ConsumerState<ManitoPostScreen> {
   }
 
   // 경고 문구
-  Widget _buildWarningMessage(double width) {
+  Widget _buildWarningMessage() {
     return Padding(
       padding: EdgeInsets.fromLTRB(width * 0.03, 0, width * 0.03, width * 0.02),
       child:
@@ -283,12 +269,12 @@ class _ManitoPostScreenState extends ConsumerState<ManitoPostScreen> {
   }
 
   // 바텀 버튼
-  Widget _buildBottomButton(double width, ManitoPostState state) {
+  Widget _buildBottomButton(ManitoPostState state) {
     return BottomAppBar(
       child: Container(
         margin: EdgeInsets.all(width * 0.03),
         child: ElevatedButton(
-          onPressed: () => _handleBottomButton(width, state),
+          onPressed: () => _handleBottomButton(state),
           child:
               state.isSaving || state.isPosting
                   ? const CircularProgressIndicator(
@@ -314,7 +300,6 @@ class _AddImageButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double width = MediaQuery.of(context).size.width;
     return Container(
       margin: EdgeInsets.fromLTRB(width * 0.02, width * 0.02, width * 0.02, 0),
       child: SizedBox(
@@ -337,7 +322,6 @@ class _ImageItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double width = MediaQuery.of(context).size.width;
     return Stack(
       children: [_buildImageContainer(width), _buildDeleteButton(width)],
     );

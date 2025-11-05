@@ -21,9 +21,12 @@ class ProfileService {
       final data =
           await _supabase
               .from('profiles')
-              .select('id, email, nickname, status_message, profile_image_url')
+              .select(
+                'id, email, nickname, status_message, profile_image_url, auto_reply',
+              )
               .eq('id', userId)
               .single();
+      print(data);
       final userProfile = UserProfile.fromJson(data);
       // 캐시 비우기
       if (userProfile.profileImageUrl != null) {
@@ -120,6 +123,7 @@ class ProfileEditService {
   Future<void> updateProfile({
     required String nickname,
     required String statusMessage,
+    required String autoReply,
     required File? selectedImage,
     required String profileImageUrl,
   }) async {
@@ -131,6 +135,7 @@ class ProfileEditService {
       final updateData = {
         'nickname': nickname,
         'status_message': statusMessage,
+        'auto_reply': autoReply,
       };
       // 저장 이미지 이름 설정
       final String fileName = '${_supabase.auth.currentUser!.id}.jpg';

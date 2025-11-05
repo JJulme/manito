@@ -7,6 +7,7 @@ import 'package:manito/features/manito/manito.dart';
 import 'package:manito/features/manito/manito_provider.dart';
 import 'package:manito/features/profiles/profile.dart';
 import 'package:manito/features/profiles/profile_provider.dart';
+import 'package:manito/main.dart';
 import 'package:manito/share/common_dialog.dart';
 import 'package:manito/share/constants.dart';
 import 'package:manito/share/custom_toast.dart';
@@ -43,9 +44,9 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
     setState(() => selectedContent = contentId);
   }
 
-  void _showAcceptMissionDialog(double width) async {
+  void _showAcceptMissionDialog() async {
     if (selectedContent == null) {
-      customToast(width: width, msg: '미션을 선택해 주세요.');
+      customToast(msg: '미션을 선택해 주세요.');
       return;
     }
     final result = await DialogHelper.showConfirmDialog(
@@ -59,7 +60,6 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final double width = MediaQuery.of(context).size.width;
     final state = ref.watch(_manitoProposeProvider);
     // final notifier = ref.read(_manitoProposeProvider.notifier);
     final FriendProfile? profile = ref
@@ -82,7 +82,6 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
 
     return Scaffold(
       appBar: SubAppbar(
-        width: width,
         title: Text(
           "mission_propose_screen.title",
           style: Theme.of(context).textTheme.headlineMedium,
@@ -93,17 +92,13 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
         child:
             state.pageLoading
                 ? Center(child: CircularProgressIndicator())
-                : _buildBody(width, profile, state),
+                : _buildBody(profile, state),
       ),
     );
   }
 
   // 바디
-  Widget _buildBody(
-    double width,
-    FriendProfile profile,
-    ManitoProposeState state,
-  ) {
+  Widget _buildBody(FriendProfile profile, ManitoProposeState state) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -114,13 +109,12 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
           statusMessage: profile.statusMessage!,
         ),
         SizedBox(height: width * 0.03),
-        _buildProposeDetail(width, state),
+        _buildProposeDetail(state),
         SizedBox(height: width * 0.03),
         Wrap(
           children:
               state.propose!.randomContents!.map((e) {
                 return _buildMissionItem(
-                  width,
                   e.content,
                   selectedContent == e.id,
                   () => _selectedContentButton(e.id),
@@ -128,13 +122,13 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
               }).toList(),
         ),
         Spacer(),
-        _buildBottomButton(width, state),
+        _buildBottomButton(state),
       ],
     );
   }
 
   // 유형, 기간
-  Widget _buildProposeDetail(double width, ManitoProposeState state) {
+  Widget _buildProposeDetail(ManitoProposeState state) {
     final String deadline = DateFormat(
       'yy.MM.dd HH:mm',
     ).format(state.propose!.deadline!);
@@ -206,12 +200,7 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
   }
 
   // 선택할 미션 아이템
-  Widget _buildMissionItem(
-    double width,
-    String text,
-    bool isSelected,
-    VoidCallback onTap,
-  ) {
+  Widget _buildMissionItem(String text, bool isSelected, VoidCallback onTap) {
     final textColor = isSelected ? Colors.black : Colors.grey.shade400;
     final iconColor = isSelected ? Colors.black : Colors.white70;
     final borderColor = isSelected ? Colors.grey : Colors.grey.shade400;
@@ -261,7 +250,7 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
   }
 
   // 하단 수락 버튼
-  Widget _buildBottomButton(double width, ManitoProposeState state) {
+  Widget _buildBottomButton(ManitoProposeState state) {
     return Container(
       width: double.infinity,
       height: width * 0.13,
@@ -271,7 +260,7 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
       ),
       child: ElevatedButton(
         // onPressed: state.isLoading ? null : () => _updateMissionGuess(notifier),
-        onPressed: () => _showAcceptMissionDialog(width),
+        onPressed: () => _showAcceptMissionDialog(),
         child:
             state.isLoading
                 ? CircularProgressIndicator()
@@ -287,7 +276,7 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
                       fontSize: width * 0.07,
                       onTimerComplete: () async {
                         context.pop();
-                        customToast(width: width, msg: '수락 시간 만료');
+                        customToast(msg: '수락 시간 만료');
                       },
                     ),
                   ],

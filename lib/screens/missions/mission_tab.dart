@@ -6,6 +6,7 @@ import 'package:manito/features/badge/badge_provider.dart';
 import 'package:manito/features/missions/mission.dart';
 import 'package:manito/features/missions/mission_provider.dart';
 import 'package:manito/features/posts/post_provider.dart';
+import 'package:manito/main.dart';
 import 'package:manito/share/constants.dart';
 import 'package:manito/share/custom_badge.dart';
 import 'package:manito/share/custom_toast.dart';
@@ -54,7 +55,6 @@ class _MissionTabState extends ConsumerState<MissionTab>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final double width = MediaQuery.of(context).size.width;
     final state = ref.watch(missionListProvider);
     final notifier = ref.read(missionListProvider.notifier);
     if (state.isLoading) {
@@ -71,11 +71,7 @@ class _MissionTabState extends ConsumerState<MissionTab>
             ),
           ),
         ),
-        floatingActionButton: _buildFloatingActionButton(
-          width,
-          state,
-          notifier,
-        ),
+        floatingActionButton: _buildFloatingActionButton(state, notifier),
       );
     }
     return Scaffold(
@@ -86,20 +82,19 @@ class _MissionTabState extends ConsumerState<MissionTab>
           child: Column(
             children: [
               SizedBox(height: width * 0.03),
-              _buildCompleteMissionList(width, state.completeMyMissions),
-              _buildAcceptMissionList(width, state.acceptMyMissions),
-              _buildPendingMissionList(width, state.pendingMyMissions),
+              _buildCompleteMissionList(state.completeMyMissions),
+              _buildAcceptMissionList(state.acceptMyMissions),
+              _buildPendingMissionList(state.pendingMyMissions),
             ],
           ),
         ),
       ),
-      floatingActionButton: _buildFloatingActionButton(width, state, notifier),
+      floatingActionButton: _buildFloatingActionButton(state, notifier),
     );
   }
 
   // 미션 생성 버튼
   Widget _buildFloatingActionButton(
-    double width,
     MyMissionState state,
     MissionListNotifier notifier,
   ) {
@@ -114,7 +109,7 @@ class _MissionTabState extends ConsumerState<MissionTab>
       ),
       onPressed: () async {
         if (state.allMissions.length >= 3) {
-          customToast(width: width, msg: '미션은 최대 3개까지 생성 가능합니다.');
+          customToast(msg: '미션은 최대 3개까지 생성 가능합니다.');
         } else {
           final result = await context.push('/mission_create');
           if (result == true) notifier.fetchMyMissions();
@@ -124,40 +119,39 @@ class _MissionTabState extends ConsumerState<MissionTab>
   }
 
   // 완료 미션 리스트
-  Widget _buildCompleteMissionList(double width, List<MyMission> missions) {
+  Widget _buildCompleteMissionList(List<MyMission> missions) {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: missions.length,
       itemBuilder:
-          (context, index) => _buildCompleteMissionItem(width, missions[index]),
+          (context, index) => _buildCompleteMissionItem(missions[index]),
     );
   }
 
   // 진행중 미션 리스트
-  Widget _buildAcceptMissionList(double width, List<MyMission> missions) {
+  Widget _buildAcceptMissionList(List<MyMission> missions) {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: missions.length,
-      itemBuilder:
-          (context, index) => _buildAcceptMissionItem(width, missions[index]),
+      itemBuilder: (context, index) => _buildAcceptMissionItem(missions[index]),
     );
   }
 
   // 대기중 미션 리스트
-  Widget _buildPendingMissionList(double width, List<MyMission> missions) {
+  Widget _buildPendingMissionList(List<MyMission> missions) {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: missions.length,
       itemBuilder:
-          (context, index) => _buildPendingMissionItem(width, missions[index]),
+          (context, index) => _buildPendingMissionItem(missions[index]),
     );
   }
 
   // 완료 미션 아이템
-  Widget _buildCompleteMissionItem(double width, MyMission mission) {
+  Widget _buildCompleteMissionItem(MyMission mission) {
     final badgeState = ref.watch(badgeProvider).valueOrNull;
     return Stack(
       children: [
@@ -190,7 +184,7 @@ class _MissionTabState extends ConsumerState<MissionTab>
   }
 
   // 대기중 미션 아이템
-  Widget _buildPendingMissionItem(double width, MyMission mission) {
+  Widget _buildPendingMissionItem(MyMission mission) {
     return CustomSlide(
       mainWidget: TabContainer(
         child: Row(
@@ -247,7 +241,7 @@ class _MissionTabState extends ConsumerState<MissionTab>
   }
 
   // 진행중 미션 아이템
-  Widget _buildAcceptMissionItem(double width, MyMission mission) {
+  Widget _buildAcceptMissionItem(MyMission mission) {
     final badgeState = ref.watch(badgeProvider).valueOrNull;
     return CustomSlide(
       onTap:

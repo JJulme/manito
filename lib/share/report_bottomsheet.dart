@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/features/report/report.dart';
 import 'package:manito/features/report/report_provider.dart';
+import 'package:manito/main.dart';
 
 class ReportBottomsheet extends ConsumerWidget {
   final String userId;
@@ -20,8 +21,6 @@ class ReportBottomsheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(reportNotifierProvider);
     final notifier = ref.read(reportNotifierProvider.notifier);
-
-    final double width = MediaQuery.of(context).size.width;
 
     return SafeArea(
       child: Padding(

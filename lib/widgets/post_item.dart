@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:manito/features/badge/badge_provider.dart';
 import 'package:manito/features/posts/post.dart';
 import 'package:manito/features/profiles/profile.dart';
+import 'package:manito/main.dart';
 import 'package:manito/share/constants.dart';
 import 'package:manito/share/custom_badge.dart';
 import 'package:manito/widgets/profile_image_view.dart';
@@ -13,7 +14,6 @@ class PostItem extends ConsumerWidget {
   final Post post;
   final FriendProfile manitoProfile;
   final FriendProfile creatorProfile;
-  final double width;
   final int badgeCount;
 
   const PostItem({
@@ -21,7 +21,6 @@ class PostItem extends ConsumerWidget {
     required this.post,
     required this.manitoProfile,
     required this.creatorProfile,
-    required this.width,
     required this.badgeCount,
   });
 
@@ -52,7 +51,7 @@ class PostItem extends ConsumerWidget {
         ),
         child: Row(
           children: [
-            _buildProfileStack(manitoProfile, creatorProfile, width),
+            _buildProfileStack(manitoProfile, creatorProfile),
 
             SizedBox(width: 0.04 * width),
 
@@ -60,14 +59,14 @@ class PostItem extends ConsumerWidget {
             Expanded(child: _buildMissionDetails(context, post)),
 
             // Timestamp and Badge
-            _buildTimestampAndBadge(context, post, width),
+            _buildTimestampAndBadge(context, post),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildProfileStack(dynamic manito, dynamic creator, double width) {
+  Widget _buildProfileStack(dynamic manito, dynamic creator) {
     return SizedBox(
       height: width * 0.195,
       width: width * 0.195,
@@ -139,11 +138,7 @@ class PostItem extends ConsumerWidget {
     );
   }
 
-  Widget _buildTimestampAndBadge(
-    BuildContext context,
-    Post post,
-    double width,
-  ) {
+  Widget _buildTimestampAndBadge(BuildContext context, Post post) {
     return SizedBox(
       width: width * 0.135,
       child: Column(

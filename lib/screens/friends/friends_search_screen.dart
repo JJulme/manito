@@ -7,6 +7,7 @@ import 'package:get/get_utils/src/get_utils/get_utils.dart';
 import 'package:manito/features/friends/friends.dart';
 import 'package:manito/features/friends/friends_provider.dart';
 import 'package:manito/features/profiles/profile_provider.dart';
+import 'package:manito/main.dart';
 import 'package:manito/share/custom_toast.dart';
 import 'package:manito/share/sub_appbar.dart';
 import 'package:manito/widgets/profile_image_view.dart';
@@ -43,7 +44,7 @@ class _FriendsSearchScreenState extends ConsumerState<FriendsSearchScreen> {
   }
 
   // 검색버튼 동작 함수
-  Future<void> _searchEmail(double width) async {
+  Future<void> _searchEmail() async {
     if (_formKey.currentState!.validate()) {
       await ref
           .read(friendSearchProvider.notifier)
@@ -52,23 +53,20 @@ class _FriendsSearchScreenState extends ConsumerState<FriendsSearchScreen> {
   }
 
   // 내 이메일 복사 완료 스넥바
-  void _copyEmailToClipboard(double width, String email) {
+  void _copyEmailToClipboard(String email) {
     Clipboard.setData(ClipboardData(text: email));
-    customToast(
-      width: width,
-      msg: context.tr("friends_search_screen.copy_message"),
-    );
+    customToast(msg: context.tr("friends_search_screen.copy_message"));
   }
 
   // ✅ 친구 신청 처리 (개선)
-  Future<void> _handleFriendRequest(double width, String friendId) async {
+  Future<void> _handleFriendRequest(String friendId) async {
     // 이미 친구인지 확인
     final isFriend = ref
         .read(friendProfilesProvider.notifier)
         .searchFriendProfile(friendId);
 
     if (isFriend == 'unknown') {
-      customToast(width: width, msg: '이미 친구입니다');
+      customToast(msg: '이미 친구입니다');
       return;
     }
 
@@ -77,32 +75,28 @@ class _FriendsSearchScreenState extends ConsumerState<FriendsSearchScreen> {
         await ref.read(friendSearchProvider.notifier).sendFriendRequest();
 
     if (result.isNotEmpty) {
-      customToast(
-        width: width,
-        msg: context.tr("friends_search_screen.$result"),
-      );
+      customToast(msg: context.tr("friends_search_screen.$result"));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final double width = MediaQuery.of(context).size.width;
     final searchState = ref.watch(friendSearchProvider); // ✅ AsyncValue
     final userProfileState = ref.watch(userProfileProvider);
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        appBar: SubAppbar(width: width, title: Text('친구 찾기')),
+        appBar: SubAppbar(title: Text('친구 찾기')),
         body: SafeArea(
           child: Column(
             children: [
-              _buildSearchForm(width),
+              _buildSearchForm(),
               SizedBox(height: width * 0.03),
-              _buildMyEmailSection(width, userProfileState.userProfile!.email),
+              _buildMyEmailSection(userProfileState.userProfile!.email),
               SizedBox(height: width * 0.03),
               // ✅ AsyncValue.when 사용
-              _buildProfileSection(width, searchState),
+              _buildProfileSection(searchState),
             ],
           ),
         ),
@@ -111,7 +105,7 @@ class _FriendsSearchScreenState extends ConsumerState<FriendsSearchScreen> {
   }
 
   // 검색창
-  Widget _buildSearchForm(double width) {
+  Widget _buildSearchForm() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: width * 0.05),
       child: Form(
@@ -121,7 +115,7 @@ class _FriendsSearchScreenState extends ConsumerState<FriendsSearchScreen> {
           validator: _emailValidator,
           keyboardType: TextInputType.emailAddress,
           textInputAction: TextInputAction.search,
-          onFieldSubmitted: (_) => _searchEmail(width),
+          onFieldSubmitted: (_) => _searchEmail(),
           decoration: InputDecoration(
             labelStyle: Theme.of(context).textTheme.bodyLarge,
             hintText: context.tr("friends_search_screen.hint"),
@@ -139,7 +133,7 @@ class _FriendsSearchScreenState extends ConsumerState<FriendsSearchScreen> {
   }
 
   // 내 이메일
-  Widget _buildMyEmailSection(double width, String email) {
+  Widget _buildMyEmailSection(String email) {
     return Column(
       children: [
         Container(
@@ -150,7 +144,7 @@ class _FriendsSearchScreenState extends ConsumerState<FriendsSearchScreen> {
             borderRadius: BorderRadius.circular(width * 0.02),
           ),
           child: GestureDetector(
-            onTap: () => _copyEmailToClipboard(width, email),
+            onTap: () => _copyEmailToClipboard(email),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -174,10 +168,7 @@ class _FriendsSearchScreenState extends ConsumerState<FriendsSearchScreen> {
   }
 
   // ✅ AsyncValue.when 패턴으로 변경
-  Widget _buildProfileSection(
-    double width,
-    AsyncValue<FriendSearchState> searchState,
-  ) {
+  Widget _buildProfileSection(AsyncValue<FriendSearchState> searchState) {
     return searchState.when(
       // 로딩 중
       loading:
@@ -250,8 +241,7 @@ class _FriendsSearchScreenState extends ConsumerState<FriendsSearchScreen> {
                 SizedBox(height: width * 0.02),
                 ElevatedButton(
                   onPressed:
-                      () =>
-                          _handleFriendRequest(width, state.friendProfile!.id),
+                      () => _handleFriendRequest(state.friendProfile!.id),
                   child:
                       Text(
                         "friends_search_screen.request_btn",

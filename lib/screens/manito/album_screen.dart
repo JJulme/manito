@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/features/manito/manito.dart';
 import 'package:manito/features/manito/manito_provider.dart';
+import 'package:manito/main.dart';
 import 'package:manito/share/custom_toast.dart';
 import 'package:manito/core/constants.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -105,7 +106,7 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen> {
   }
 
   // 선택 토글 순서 계산 동작 함수
-  void _toggleSelect(double width, String assetId) {
+  void _toggleSelect(String assetId) {
     // 이미 선택된 경우: 제거하고 이후 번호들을 당김
     if (_selectedOrder.containsKey(assetId)) {
       final removedOrder = _selectedOrder[assetId]!;
@@ -123,7 +124,7 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen> {
       _selectedOrder.clear();
       _selectedOrder.addAll(updatedOrder);
     } else if (_selectedOrder.length >= 6) {
-      customToast(width: width, msg: '최대 6개까지 선택');
+      customToast(msg: '최대 6개까지 선택');
     }
     // 새로 선택하는 경우: 다음 번호 부여
     else {
@@ -162,8 +163,7 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final double width = MediaQuery.of(context).size.width;
-    return Scaffold(appBar: _buildAppBar(), body: _buildBody(width));
+    return Scaffold(appBar: _buildAppBar(), body: _buildBody());
   }
 
   PreferredSizeWidget _buildAppBar() {
@@ -183,7 +183,7 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen> {
     );
   }
 
-  Widget _buildBody(double width) {
+  Widget _buildBody() {
     if (_isLoading && _photos.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     } else if (_photos.isEmpty) {
@@ -219,7 +219,7 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen> {
           selectedOrder: _selectedOrder[photo.id],
           onToggle: () {
             setState(() {
-              _toggleSelect(width, photo.id);
+              _toggleSelect(photo.id);
             });
           },
         );
@@ -245,7 +245,6 @@ class _PhotoGridItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double width = MediaQuery.of(context).size.width;
     final isSelected = selectedOrder != null;
 
     return GestureDetector(

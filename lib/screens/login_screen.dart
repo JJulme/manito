@@ -5,13 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:manito/features/auth/auth_provider.dart';
+import 'package:manito/main.dart';
 
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final double width = MediaQuery.of(context).size.width;
     final notifier = ref.read(authProvider.notifier);
     return Scaffold(
       body: SafeArea(
@@ -26,7 +26,7 @@ class LoginScreen extends ConsumerWidget {
                 width: 0.7 * width,
                 height: 0.7 * width,
               ),
-              decoration: getPageDecoration(width),
+              decoration: getPageDecoration(),
             ),
             // 화면 2
             PageViewModel(
@@ -37,7 +37,7 @@ class LoginScreen extends ConsumerWidget {
                 width: 0.7 * width,
                 height: 0.7 * width,
               ),
-              decoration: getPageDecoration(width),
+              decoration: getPageDecoration(),
             ),
             // 화면 3
             PageViewModel(
@@ -48,7 +48,7 @@ class LoginScreen extends ConsumerWidget {
                 width: 0.7 * width,
                 height: 0.7 * width,
               ),
-              decoration: getPageDecoration(width),
+              decoration: getPageDecoration(),
             ),
             // 화면 4
             PageViewModel(
@@ -59,7 +59,7 @@ class LoginScreen extends ConsumerWidget {
                 width: 0.7 * width,
                 height: 0.7 * width,
               ),
-              decoration: getPageDecoration(width),
+              decoration: getPageDecoration(),
             ),
             // 화면 5
             PageViewModel(
@@ -96,7 +96,7 @@ class LoginScreen extends ConsumerWidget {
                 width: 0.7 * width,
                 height: 0.7 * width,
               ),
-              decoration: getPageDecoration(width),
+              decoration: getPageDecoration(),
             ),
           ],
           next: Icon(Icons.arrow_forward_ios_rounded),
@@ -108,7 +108,7 @@ class LoginScreen extends ConsumerWidget {
     );
   }
 
-  PageDecoration getPageDecoration(double width) {
+  PageDecoration getPageDecoration() {
     return PageDecoration(
       titleTextStyle: TextStyle(
         fontSize: 0.065 * width,
@@ -129,7 +129,6 @@ class AuthButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
     return SizedBox(
       height: width * 0.125,
       child: InkWell(

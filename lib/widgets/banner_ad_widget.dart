@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:manito/main.dart';
 
 class BannerAdWidget extends StatefulWidget {
-  final double width;
   final String androidAdId;
   final String iosAdId;
   final double borderRadius;
 
   const BannerAdWidget({
     super.key,
-    required this.width,
     required this.androidAdId,
     required this.iosAdId,
     this.borderRadius = 0.0,
@@ -70,8 +69,7 @@ class _AdmobBannerState extends State<BannerAdWidget> {
   }
 
   // 너비에 맞는 높이 계산 (50/320 비율 유지)
-  double get _height =>
-      widget.width * (bannerDefaultHeight / bannerDefaultWidth);
+  double get _height => width * (bannerDefaultHeight / bannerDefaultWidth);
 
   void _loadAd() {
     _bannerAd = BannerAd(
@@ -109,11 +107,11 @@ class _AdmobBannerState extends State<BannerAdWidget> {
         builder: (context) {
           if (_isAdLoaded && _bannerAd != null) {
             return SizedBox(
-              width: widget.width,
+              width: width,
               height: _height,
               child: Center(
                 child: Transform.scale(
-                  scale: widget.width / bannerDefaultWidth,
+                  scale: width / bannerDefaultWidth,
                   child: SizedBox(
                     width: bannerDefaultWidth,
                     height: bannerDefaultHeight,
@@ -130,7 +128,7 @@ class _AdmobBannerState extends State<BannerAdWidget> {
           // 광고 로딩중
           else {
             return Container(
-              width: widget.width,
+              width: width,
               height: _height,
               decoration: BoxDecoration(color: Colors.grey[200]),
             );

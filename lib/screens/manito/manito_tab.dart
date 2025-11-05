@@ -7,6 +7,7 @@ import 'package:manito/features/badge/badge_provider.dart';
 import 'package:manito/features/manito/manito.dart';
 import 'package:manito/features/manito/manito_provider.dart';
 import 'package:manito/features/profiles/profile.dart';
+import 'package:manito/main.dart';
 import 'package:manito/share/custom_badge.dart';
 import 'package:manito/widgets/tab_container.dart';
 import 'package:manito/core/custom_icons.dart';
@@ -59,7 +60,6 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final double width = MediaQuery.of(context).size.width;
     final state = ref.watch(manitoListProvider);
     final notifier = ref.read(manitoListProvider.notifier);
 
@@ -96,9 +96,9 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
               child: Column(
                 children: [
                   SizedBox(height: width * 0.03),
-                  _buildProposeList(width, data.proposeList),
-                  _buildGuessList(width, data.guessList),
-                  _buildAcceptList(width, data.acceptList),
+                  _buildProposeList(data.proposeList),
+                  _buildGuessList(data.guessList),
+                  _buildAcceptList(data.acceptList),
                 ],
               ),
             ),
@@ -108,36 +108,34 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
     );
   }
 
-  Widget _buildProposeList(double width, List<ManitoPropose> proposeList) {
+  Widget _buildProposeList(List<ManitoPropose> proposeList) {
     return ListView.builder(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
       itemCount: proposeList.length,
-      itemBuilder:
-          (context, index) => _buildProposeItem(width, proposeList[index]),
+      itemBuilder: (context, index) => _buildProposeItem(proposeList[index]),
     );
   }
 
-  Widget _buildGuessList(double width, List<ManitoGuess> guessList) {
+  Widget _buildGuessList(List<ManitoGuess> guessList) {
     return ListView.builder(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
       itemCount: guessList.length,
-      itemBuilder: (context, index) => _buildGuessItem(width, guessList[index]),
+      itemBuilder: (context, index) => _buildGuessItem(guessList[index]),
     );
   }
 
-  Widget _buildAcceptList(double width, List<ManitoAccept> acceptList) {
+  Widget _buildAcceptList(List<ManitoAccept> acceptList) {
     return ListView.builder(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
       itemCount: acceptList.length,
-      itemBuilder:
-          (context, index) => _buildAcceptItem(width, acceptList[index]),
+      itemBuilder: (context, index) => _buildAcceptItem(acceptList[index]),
     );
   }
 
-  Widget _buildProposeItem(double width, ManitoPropose manitoPropose) {
+  Widget _buildProposeItem(ManitoPropose manitoPropose) {
     final badgeState = ref.watch(badgeProvider).valueOrNull;
     return Stack(
       children: [
@@ -182,7 +180,7 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
     );
   }
 
-  Widget _buildGuessItem(double width, ManitoGuess manitoGuess) {
+  Widget _buildGuessItem(ManitoGuess manitoGuess) {
     final FriendProfile profile = manitoGuess.creatorProfile;
     return TabContainer(
       child: Row(
@@ -203,7 +201,7 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
     );
   }
 
-  Widget _buildAcceptItem(double width, ManitoAccept manitoAccept) {
+  Widget _buildAcceptItem(ManitoAccept manitoAccept) {
     return CustomSlide(
       mainWidget: TabContainer(
         child: Row(

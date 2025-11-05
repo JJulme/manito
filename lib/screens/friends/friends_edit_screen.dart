@@ -6,6 +6,7 @@ import 'package:manito/features/friends/friends.dart';
 import 'package:manito/features/friends/friends_provider.dart';
 import 'package:manito/features/profiles/profile.dart';
 import 'package:manito/features/profiles/profile_provider.dart';
+import 'package:manito/main.dart';
 import 'package:manito/share/custom_toast.dart';
 import 'package:manito/share/sub_appbar.dart';
 
@@ -42,7 +43,7 @@ class _FriendsEditScreenState extends ConsumerState<FriendsEditScreen> {
     return null;
   }
 
-  Future<void> _updateFriendName(double width, String friendId) async {
+  Future<void> _updateFriendName(String friendId) async {
     if (_formKey.currentState!.validate()) {
       final friendName = _nameController.text.trim();
       final result = await ref
@@ -55,26 +56,24 @@ class _FriendsEditScreenState extends ConsumerState<FriendsEditScreen> {
         Navigator.pop(context);
         Navigator.pop(context);
       } else {
-        customToast(width: width, msg: '오류 발생');
+        customToast(msg: '오류 발생');
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final double width = MediaQuery.of(context).size.width;
     final state = ref.watch(friendEditProvider);
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: SubAppbar(
-          width: width,
           title:
               Text(
                 "friends_modify_screen.title",
                 style: Theme.of(context).textTheme.titleMedium,
               ).tr(),
-          actions: [_buildUpdateBtn(width, state)],
+          actions: [_buildUpdateBtn(state)],
         ),
         body: SafeArea(
           child: Stack(
@@ -83,8 +82,8 @@ class _FriendsEditScreenState extends ConsumerState<FriendsEditScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(height: width * 0.02),
-                  _buildNameInputSection(width),
-                  _buildCurrentName(width),
+                  _buildNameInputSection(),
+                  _buildCurrentName(),
                 ],
               ),
               if (state.isLoading) _buildLoadingOverlay(),
@@ -95,7 +94,7 @@ class _FriendsEditScreenState extends ConsumerState<FriendsEditScreen> {
     );
   }
 
-  IconButton _buildUpdateBtn(double width, FriendEditState state) {
+  IconButton _buildUpdateBtn(FriendEditState state) {
     if (state.isLoading) {
       return IconButton(
         onPressed: null,
@@ -106,12 +105,12 @@ class _FriendsEditScreenState extends ConsumerState<FriendsEditScreen> {
     }
     return IconButton(
       icon: Icon(Icons.check, color: Colors.green, size: width * 0.08),
-      onPressed: () => _updateFriendName(width, widget.friendProfile!.id),
+      onPressed: () => _updateFriendName(widget.friendProfile!.id),
     );
   }
 
   // 친구 이름 수정 텍스트 폼필드
-  Widget _buildNameInputSection(double width) {
+  Widget _buildNameInputSection() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: width * 0.05),
       child: Form(
@@ -130,7 +129,7 @@ class _FriendsEditScreenState extends ConsumerState<FriendsEditScreen> {
   }
 
   // 친구가 직접 설정한 이름 보여주는 텍스트
-  Widget _buildCurrentName(double width) {
+  Widget _buildCurrentName() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: width * 0.05),
       child: Text(

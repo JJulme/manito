@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:manito/main.dart';
 
 class TabContainer extends StatelessWidget {
   final Widget child;
@@ -6,7 +7,6 @@ class TabContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double width = MediaQuery.of(context).size.width;
     return Container(
       width: width - (width * 0.06),
       height: width * 0.2,

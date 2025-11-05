@@ -10,6 +10,7 @@ import 'package:manito/features/manito/manito_provider.dart';
 import 'package:manito/features/missions/mission_provider.dart';
 import 'package:manito/features/posts/post_provider.dart';
 import 'package:manito/features/profiles/profile_provider.dart';
+import 'package:manito/main.dart';
 import 'package:manito/share/common_dialog.dart';
 import 'package:manito/share/custom_toast.dart';
 import 'package:manito/share/sub_appbar.dart';
@@ -21,7 +22,6 @@ class SettingScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final double width = MediaQuery.of(context).size.width;
     final notifier = ref.read(authProvider.notifier);
 
     /// 모든 사용자 관련 프로바이더 무효화
@@ -140,10 +140,7 @@ class SettingScreen extends ConsumerWidget {
       Clipboard.setData(const ClipboardData(text: _contactEmail));
 
       if (Platform.isIOS) {
-        customToast(
-          width: width,
-          msg: context.tr("setting_screen.copy_snack_message"),
-        );
+        customToast(msg: context.tr("setting_screen.copy_snack_message"));
       }
     }
 
@@ -162,7 +159,6 @@ class SettingScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: SubAppbar(
-        width: width,
         title:
             Text(
               'setting_screen.title',
@@ -174,7 +170,6 @@ class SettingScreen extends ConsumerWidget {
           children: [
             // 로그아웃
             _buildSettingItem(
-              width: width,
               context: context,
               icon: Icons.logout_outlined,
               title: context.tr('setting_screen.logout'),
@@ -190,7 +185,6 @@ class SettingScreen extends ConsumerWidget {
             // ),
             // 문의하기
             _buildSettingItem(
-              width: width,
               context: context,
               icon: Icons.mail_outline_rounded,
               title: context.tr('setting_screen.contact'),
@@ -199,7 +193,6 @@ class SettingScreen extends ConsumerWidget {
             ),
             // 계정삭제
             _buildSettingItem(
-              width: width,
               context: context,
               icon: Icons.disabled_by_default_rounded,
               title: context.tr('setting_screen.delete_account'),
@@ -213,7 +206,6 @@ class SettingScreen extends ConsumerWidget {
 
   // 목록 아이템
   Widget _buildSettingItem({
-    required double width,
     required BuildContext context,
     required IconData icon,
     required String title,

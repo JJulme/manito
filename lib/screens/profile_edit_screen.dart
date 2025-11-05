@@ -4,12 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/features/profiles/profile.dart';
 import 'package:manito/features/profiles/profile_provider.dart';
+import 'package:manito/main.dart';
 import 'package:manito/share/custom_toast.dart';
 import 'package:manito/share/sub_appbar.dart';
 import 'package:manito/widgets/profile_image_view.dart';
 
 class ProfileEditScreen extends ConsumerStatefulWidget {
-  const ProfileEditScreen({super.key});
+  final bool canGoback;
+  const ProfileEditScreen({super.key, this.canGoback = true});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -17,9 +19,11 @@ class ProfileEditScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
-  final _formKey = GlobalKey<FormState>();
+  final _nameFormKey = GlobalKey<FormState>();
+  final _replyFormKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _statusController;
+  late TextEditingController _replyController;
 
   @override
   void initState() {
@@ -30,6 +34,9 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     );
     _statusController = TextEditingController(
       text: profileState.userProfile!.statusMessage,
+    );
+    _replyController = TextEditingController(
+      text: profileState.userProfile!.autoReply,
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -43,6 +50,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   void dispose() {
     _nameController.dispose();
     _statusController.dispose();
+    _replyController.dispose();
     super.dispose();
   }
 
@@ -59,37 +67,52 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     return null;
   }
 
+  /// 자동응답 입력 검증 함수
+  String? _validateReply(String? value) {
+    // 값이 비어있는지 확인
+    if (value == null || value.isEmpty) {
+      return '5글자 이상 입력해주세요.';
+    }
+    final String trimmedValue = value.trim();
+    if (trimmedValue.length < 5) {
+      return '5글자 이상 입력해주세요.';
+    }
+    return null;
+  }
+
+  // 프로필 정보 업데이트
   Future<void> _handleButton(
-    double width,
     ProfileEditState state,
     ProfileEditNotifier notifier,
   ) async {
-    await notifier.updateProfile(
-      nickname: _nameController.text,
-      statusMessage: _statusController.text,
-    );
-    if (!mounted) return;
-    if (state.error != null) {
-      Navigator.pop(context, false);
-      customToast(width: width, msg: state.error.toString());
-    } else {
-      ref.read(userProfileProvider.notifier).getProfile();
-      Navigator.pop(context, true);
+    if ((_nameFormKey.currentState?.validate() ?? false) &&
+        (_replyFormKey.currentState?.validate() ?? false)) {
+      await notifier.updateProfile(
+        nickname: _nameController.text,
+        statusMessage: _statusController.text,
+        autoReply: _replyController.text,
+      );
+      if (!mounted) return;
+      if (state.error != null) {
+        Navigator.pop(context, false);
+        customToast(msg: state.error.toString());
+      } else {
+        ref.read(userProfileProvider.notifier).getProfile();
+        Navigator.pop(context, true);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final double width = MediaQuery.of(context).size.width;
     final state = ref.watch(profileEditProvider);
     final notifier = ref.read(profileEditProvider.notifier);
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: SubAppbar(
-          width: width,
           title: Text('프로필 수정'),
-          actions: [_buildUpdateBtn(width, state, notifier)],
+          actions: [_buildUpdateBtn(state, notifier)],
         ),
         body: SafeArea(
           child: Stack(
@@ -99,11 +122,15 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                   padding: EdgeInsets.symmetric(horizontal: width * 0.05),
                   child: Column(
                     children: [
-                      _buildProfileImageSection(width, state, notifier),
+                      _buildProfileImageSection(state, notifier),
                       SizedBox(height: width * 0.06),
                       _buildNameField(_nameController),
                       SizedBox(height: width * 0.06),
                       _buildStatusField(_statusController),
+                      SizedBox(height: width * 0.06),
+                      _buildReplyField(_replyController),
+                      SizedBox(height: width * 0.02),
+                      _buildReplyInfo(),
                     ],
                   ),
                 ),
@@ -118,7 +145,6 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
 
   // 아이콘 버튼
   IconButton _buildUpdateBtn(
-    double width,
     ProfileEditState state,
     ProfileEditNotifier notifier,
   ) {
@@ -129,13 +155,12 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                 valueColor: AlwaysStoppedAnimation(Colors.grey),
               )
               : Icon(Icons.check, color: Colors.green, size: width * 0.08),
-      onPressed: () => _handleButton(width, state, notifier),
+      onPressed: () => _handleButton(state, notifier),
     );
   }
 
   // 프로필 이미지 화면
   Widget _buildProfileImageSection(
-    double width,
     ProfileEditState state,
     ProfileEditNotifier notifier,
   ) {
@@ -200,15 +225,22 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   // 이름 입력창
   Widget _buildNameField(TextEditingController nameController) {
     return Form(
-      key: _formKey,
+      key: _nameFormKey,
       child: TextFormField(
         maxLength: 10,
-        validator: _validateNickname,
         controller: nameController,
+        validator: (value) => _validateNickname(value),
         inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[\n]'))],
         decoration: InputDecoration(
           labelText: context.tr('modify_screen.name'),
         ),
+        buildCounter:
+            (
+              context, {
+              required currentLength,
+              required isFocused,
+              required maxLength,
+            }) => null,
       ),
     );
   }
@@ -223,6 +255,46 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[\n]'))],
       decoration: InputDecoration(
         labelText: context.tr("modify_screen.status_message"),
+      ),
+      buildCounter:
+          (
+            context, {
+            required currentLength,
+            required isFocused,
+            required maxLength,
+          }) => null,
+    );
+  }
+
+  // 자동응답 입력창
+  Widget _buildReplyField(TextEditingController replyController) {
+    return Form(
+      key: _replyFormKey,
+      child: TextFormField(
+        minLines: 1,
+        maxLines: 5,
+        maxLength: 40,
+        controller: replyController,
+        validator: (value) => _validateReply(value),
+        decoration: InputDecoration(labelText: '자동응답'),
+        buildCounter:
+            (
+              context, {
+              required currentLength,
+              required isFocused,
+              required maxLength,
+            }) => null,
+      ),
+    );
+  }
+
+  // 자동응답 설명창
+  Widget _buildReplyInfo() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: width * 0.02),
+      child: Text(
+        '자동응답은 미션을 수락하고 제한시간까지 아무것도 입력 못했을 때 자동으로 전송됩니다.',
+        style: Theme.of(context).textTheme.labelLarge,
       ),
     );
   }

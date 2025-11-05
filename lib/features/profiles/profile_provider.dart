@@ -1,21 +1,29 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/providers.dart';
+import 'package:manito/features/error/error_provider.dart';
 import 'package:manito/features/profiles/profile.dart';
 import 'package:manito/features/profiles/profile_service.dart';
 
-// ========== Provider ==========
+// ========== Service Provider ==========
 final profileServiceProvider = Provider<ProfileService>((ref) {
   final supabase = ref.read(supabaseProvider);
   return ProfileService(supabase);
 });
 
+// ========== Notifier Provider ==========
 final userProfileProvider =
     StateNotifierProvider<UserProfileNotifier, UserProfileState>((ref) {
       final service = ref.watch(profileServiceProvider);
       return UserProfileNotifier(service);
     });
+
+// final userProfileProvider =
+//     AsyncNotifierProvider<UserProfileNotifier2, UserProfile?>(
+//   UserProfileNotifier2.new,
+// );
 
 final friendProfilesProvider =
     StateNotifierProvider<FriendProfilesNotifier, FriendProfilesState>((ref) {
@@ -62,6 +70,32 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
   // 프로필 새로고침
   Future<void> refreshProfile() async {
     await getProfile();
+  }
+}
+
+class UserProfileNotifier2 extends AsyncNotifier<UserProfile> {
+  late final ProfileService _service;
+  @override
+  FutureOr<UserProfile> build() async {
+    try {
+      _service = ref.read(profileServiceProvider);
+      return await _service.getProfile();
+    } catch (e) {
+      ref.read(errorProvider.notifier).setError('profile load error: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> refreshProfile() async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      try {
+        return await _service.getProfile();
+      } catch (e) {
+        ref.read(errorProvider.notifier).setError('profile refresh error: $e');
+        rethrow;
+      }
+    });
   }
 }
 
@@ -145,12 +179,14 @@ class ProfileEditNotifier extends StateNotifier<ProfileEditState> {
   Future<void> updateProfile({
     required String nickname,
     required String statusMessage,
+    required String autoReply,
   }) async {
     state = state.copyWith(isLoading: true);
     try {
       await _service.updateProfile(
         nickname: nickname,
         statusMessage: statusMessage,
+        autoReply: autoReply,
         selectedImage: state.selectedImage,
         profileImageUrl: state.profileImageUrl,
       );

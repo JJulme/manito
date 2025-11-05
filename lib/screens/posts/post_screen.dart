@@ -6,6 +6,7 @@ import 'package:manito/features/posts/post.dart';
 import 'package:manito/features/posts/post_provider.dart';
 import 'package:manito/features/profiles/profile.dart';
 import 'package:manito/features/profiles/profile_provider.dart';
+import 'package:manito/main.dart';
 import 'package:manito/share/main_appbar.dart';
 import 'package:manito/widgets/post_item.dart';
 import 'package:manito/widgets/banner_ad_widget.dart';
@@ -52,18 +53,16 @@ class _PostScreenState extends ConsumerState<PostScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    double width = MediaQuery.of(context).size.width;
     final postState = ref.watch(postsProvider);
     final friendProfilesState = ref.watch(friendProfilesProvider);
     return Scaffold(
-      appBar: MainAppbar(width: width, text: '기록'),
-      body: SafeArea(child: _buildBody(width, postState, friendProfilesState)),
+      appBar: MainAppbar(text: '기록'),
+      body: SafeArea(child: _buildBody(postState, friendProfilesState)),
     );
   }
 
   // 바디
   Widget _buildBody(
-    double screenWidth,
     PostsState postState,
     FriendProfilesState friendProfilesState,
   ) {
@@ -87,9 +86,9 @@ class _PostScreenState extends ConsumerState<PostScreen>
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
             children: [
-              _buildBannerAd(screenWidth),
-              SizedBox(height: _verticalSpacing * screenWidth),
-              _buildPostList(screenWidth, postState),
+              _buildBannerAd(),
+              SizedBox(height: width * _verticalSpacing),
+              _buildPostList(postState),
             ],
           ),
         ),
@@ -98,14 +97,11 @@ class _PostScreenState extends ConsumerState<PostScreen>
   }
 
   // 광고
-  Widget _buildBannerAd(double screenWidth) {
+  Widget _buildBannerAd() {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: _horizontalPadding * screenWidth,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: width * _horizontalPadding),
       child: BannerAdWidget(
-        borderRadius: _borderRadius * screenWidth,
-        width: screenWidth - _bannerPadding * screenWidth,
+        borderRadius: width * _borderRadius,
         androidAdId: dotenv.env['BANNER_POST_ANDROID']!,
         iosAdId: dotenv.env['BANNER_POST_IOS']!,
       ),
@@ -113,19 +109,18 @@ class _PostScreenState extends ConsumerState<PostScreen>
   }
 
   // 포스트 리스트뷰
-  Widget _buildPostList(double screenWidth, PostsState postState) {
+  Widget _buildPostList(PostsState postState) {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: postState.postList.length,
       itemBuilder:
-          (context, index) =>
-              _buildPostItem(screenWidth, postState.postList[index]),
+          (context, index) => _buildPostItem(postState.postList[index]),
     );
   }
 
   // 포스트 아이템
-  Widget _buildPostItem(double screenWidth, Post post) {
+  Widget _buildPostItem(Post post) {
     final FriendProfile manitoProfile =
         ref
             .read(friendProfilesProvider.notifier)
@@ -139,7 +134,6 @@ class _PostScreenState extends ConsumerState<PostScreen>
     );
 
     return PostItem(
-      width: screenWidth,
       post: post,
       manitoProfile: manitoProfile,
       creatorProfile: creatorProfile,

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:manito/features/missions/mission.dart';
 import 'package:manito/features/missions/mission_provider.dart';
+import 'package:manito/main.dart';
 import 'package:manito/share/constants.dart';
 import 'package:manito/share/sub_appbar.dart';
 import 'package:manito/widgets/friend_grid_list.dart';
@@ -40,7 +41,6 @@ class _MissionGuessScreenState extends ConsumerState<MissionGuessScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final double width = MediaQuery.of(context).size.width;
     final state = ref.watch(missionGuessProvider);
     final notifier = ref.watch(missionGuessProvider.notifier);
 
@@ -61,7 +61,6 @@ class _MissionGuessScreenState extends ConsumerState<MissionGuessScreen> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: SubAppbar(
-          width: width,
           title: Text("mission_guess_screen.title").tr(),
           // actions: [_appbarAction(width)],
         ),
@@ -73,16 +72,16 @@ class _MissionGuessScreenState extends ConsumerState<MissionGuessScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildDeadlineSection(width, context),
+                      _buildDeadlineSection(context),
                       SizedBox(height: width * 0.03),
                       FriendGridList(friends: widget.mission.friendProfiles),
                       SizedBox(height: width * 0.03),
-                      _buildGuessInput(width, context),
+                      _buildGuessInput(context),
                     ],
                   ),
                 ),
               ),
-              _buildBottomButton(width, state, notifier),
+              _buildBottomButton(state, notifier),
             ],
           ),
         ),
@@ -91,7 +90,7 @@ class _MissionGuessScreenState extends ConsumerState<MissionGuessScreen> {
   }
 
   // 미션 기한
-  Widget _buildDeadlineSection(double width, BuildContext context) {
+  Widget _buildDeadlineSection(BuildContext context) {
     final String createdAt = DateFormat(
       'yy.MM.dd HH:mm',
     ).format(widget.mission.createdAt);
@@ -120,7 +119,7 @@ class _MissionGuessScreenState extends ConsumerState<MissionGuessScreen> {
   }
 
   // 추측 글 작성 텍스트 필드
-  Widget _buildGuessInput(double width, BuildContext context) {
+  Widget _buildGuessInput(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: width * 0.04),
       child: Form(
@@ -142,7 +141,6 @@ class _MissionGuessScreenState extends ConsumerState<MissionGuessScreen> {
 
   // 바텀 버튼
   Widget _buildBottomButton(
-    double width,
     MissionGuessState state,
     MissionGuessNotifier notifier,
   ) {

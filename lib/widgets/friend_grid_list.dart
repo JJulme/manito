@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:manito/main.dart';
 import 'package:manito/widgets/profile_image_view.dart';
 import 'package:manito/features/profiles/profile.dart';
 
@@ -9,7 +10,6 @@ class FriendGridList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double width = MediaQuery.of(context).size.width;
     return GridView.builder(
       shrinkWrap: true,
       padding: EdgeInsets.zero,

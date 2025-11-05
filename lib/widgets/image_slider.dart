@@ -1,19 +1,18 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:manito/main.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class ImageSlider extends StatefulWidget {
   final List<dynamic> images;
-  final double width;
   final BoxFit? boxFit;
 
   const ImageSlider({
     super.key,
     required this.images,
-    required this.width,
     this.boxFit = BoxFit.cover,
   });
 
@@ -33,33 +32,33 @@ class _ImageSliderState extends State<ImageSlider> {
           itemBuilder: (context, index, realIndex) {
             final image = widget.images[index];
             return Container(
-              width: widget.width,
-              height: widget.width,
+              width: width,
+              height: width,
               color: Colors.grey[100],
-              margin: EdgeInsets.all(0.01 * widget.width),
+              margin: EdgeInsets.all(0.01 * width),
               child: _buildImageItem(image, widget.boxFit),
             );
           },
           options: CarouselOptions(
             enableInfiniteScroll: false,
             viewportFraction: 1,
-            height: widget.width,
+            height: width,
             onPageChanged: (index, reason) {
               _activeIndex = index;
             },
           ),
         ),
         Positioned(
-          bottom: 0.02 * widget.width,
+          bottom: 0.02 * width,
           child: Container(
-            width: widget.width,
+            width: width,
             alignment: Alignment.bottomCenter,
             child: AnimatedSmoothIndicator(
               activeIndex: _activeIndex,
               count: widget.images.length,
               effect: JumpingDotEffect(
-                dotWidth: 0.02 * widget.width,
-                dotHeight: 0.02 * widget.width,
+                dotWidth: 0.02 * width,
+                dotHeight: 0.02 * width,
                 activeDotColor: Colors.grey[700]!,
                 dotColor: Colors.grey,
               ),

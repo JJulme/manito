@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/features/badge/badge_provider.dart';
+import 'package:manito/main.dart';
 import 'package:manito/screens/friends/friends_screen.dart';
 import 'package:manito/screens/home_screen.dart';
 import 'package:manito/screens/posts/post_screen.dart';
@@ -90,8 +91,6 @@ class _BottomNavState extends ConsumerState<BottomNav>
 
   @override
   Widget build(BuildContext context) {
-    final double width = MediaQuery.of(context).size.width;
-
     return Scaffold(
       body: IndexedStack(
         index: _selectedIndex,

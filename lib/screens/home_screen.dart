@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:manito/features/badge/badge_provider.dart';
 import 'package:manito/features/profiles/profile_provider.dart';
+import 'package:manito/main.dart';
 import 'package:manito/screens/manito/manito_tab.dart';
 import 'package:manito/screens/missions/mission_tab.dart';
 import 'package:manito/share/custom_badge.dart';
@@ -38,7 +39,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final double width = MediaQuery.of(context).size.width;
     final userProfileState = ref.watch(userProfileProvider);
     final badgeMissionCount = ref.watch(badgeMissionCountProvider);
     final badgeManitoCount = ref.watch(badgeManitoCountProvider);
@@ -51,11 +51,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         child: DefaultTabController(
           length: 2,
           child: Scaffold(
-            appBar: MainAppbar(
-              width: width,
-              text: 'manito',
-              actions: [_buildPopupMenu(width)],
-            ),
+            appBar: MainAppbar(text: 'manito', actions: [_buildPopupMenu()]),
             body: Column(
               children: [
                 // 프로필 사진, 이름, 상태메시지
@@ -65,7 +61,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   statusMessage: userProfile.statusMessage!,
                 ),
                 SizedBox(height: width * 0.03),
-                _buildBannerAd(width),
+                _buildBannerAd(),
                 SizedBox(height: width * 0.03),
                 TabBar(
                   tabs: [
@@ -93,7 +89,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   // 앱바 팝업 버튼
-  Widget _buildPopupMenu(double width) {
+  Widget _buildPopupMenu() {
     return Padding(
       padding: EdgeInsets.only(right: width * 0.02),
       child: PopupMenuButton(
@@ -103,13 +99,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         itemBuilder:
             (context) => [
               CustomPopupMenuItem(
-                width: width,
                 icon: Icon(Icons.edit),
                 text: '프로필 수정',
                 value: '/profile_modify',
               ),
               CustomPopupMenuItem(
-                width: width,
                 icon: Icon(Icons.settings_rounded),
                 text: '설정',
                 value: '/setting',
@@ -120,14 +114,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   // 광고
-  Widget _buildBannerAd(double screenWidth) {
+  Widget _buildBannerAd() {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: screenWidth * _horizontalPadding,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: width * _horizontalPadding),
       child: BannerAdWidget(
-        borderRadius: screenWidth * _borderRadius,
-        width: screenWidth - (_horizontalPadding * 2) * screenWidth,
+        borderRadius: width * _borderRadius,
         androidAdId: dotenv.env['BANNER_MISSION_ANDROID']!,
         iosAdId: dotenv.env['BANNER_MISSION_IOS']!,
       ),

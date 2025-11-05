@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/features/friends/friends.dart';
 import 'package:manito/features/friends/friends_provider.dart';
 import 'package:manito/features/profiles/profile.dart';
+import 'package:manito/main.dart';
 import 'package:manito/share/common_dialog.dart';
 import 'package:manito/share/sub_appbar.dart';
 import 'package:manito/widgets/profile_image_view.dart';
@@ -44,22 +45,20 @@ class _FriendsRequestScreenState extends ConsumerState<FriendsRequestScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final double width = MediaQuery.of(context).size.width;
     final state = ref.watch(friendRequestProvider);
     return Scaffold(
       appBar: SubAppbar(
-        width: width,
         title:
             Text(
               'friends_request_screen.title',
               style: Theme.of(context).textTheme.headlineMedium,
             ).tr(),
       ),
-      body: _buildBody(width, state),
+      body: _buildBody(state),
     );
   }
 
-  Widget _buildBody(double width, FriendRequestState state) {
+  Widget _buildBody(FriendRequestState state) {
     if (state.isLoading) {
       return Center(child: CircularProgressIndicator());
     } else if (state.isLoading == false && state.requestUserList.isEmpty) {
@@ -75,13 +74,13 @@ class _FriendsRequestScreenState extends ConsumerState<FriendsRequestScreen> {
         itemCount: state.requestUserList.length,
         itemBuilder: (context, index) {
           final userProfile = state.requestUserList[index];
-          return _buildRequestItem(width, userProfile);
+          return _buildRequestItem(userProfile);
         },
       );
     }
   }
 
-  Widget _buildRequestItem(double width, UserProfile userProfile) {
+  Widget _buildRequestItem(UserProfile userProfile) {
     return Container(
       padding: EdgeInsets.symmetric(
         vertical: width * 0.03,
@@ -113,31 +112,31 @@ class _FriendsRequestScreenState extends ConsumerState<FriendsRequestScreen> {
               ],
             ),
           ),
-          _buildActionButtons(userProfile, width),
+          _buildActionButtons(userProfile),
         ],
       ),
     );
   }
 
   // 수락 거절 Row
-  Widget _buildActionButtons(UserProfile userProfile, double width) {
+  Widget _buildActionButtons(UserProfile userProfile) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildAcceptButton(width, userProfile),
-        _buildRejectButton(width, userProfile),
+        _buildAcceptButton(userProfile),
+        _buildRejectButton(userProfile),
       ],
     );
   }
 
-  Widget _buildAcceptButton(double width, UserProfile userProfile) {
+  Widget _buildAcceptButton(UserProfile userProfile) {
     return IconButton(
       icon: Icon(Icons.check_rounded, color: _acceptColor, size: width * 0.08),
       onPressed: () => _acceptRequest(userProfile.id),
     );
   }
 
-  Widget _buildRejectButton(double width, UserProfile userProfile) {
+  Widget _buildRejectButton(UserProfile userProfile) {
     return IconButton(
       icon: Icon(Icons.close_rounded, color: _rejectColor, size: width * 0.08),
       onPressed: () => _rejectRequest(userProfile.id),

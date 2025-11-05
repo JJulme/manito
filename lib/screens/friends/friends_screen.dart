@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:manito/features/badge/badge_provider.dart';
 import 'package:manito/features/profiles/profile.dart';
 import 'package:manito/features/profiles/profile_provider.dart';
+import 'package:manito/main.dart';
 import 'package:manito/share/custom_badge.dart';
 import 'package:manito/share/custom_popup_menu_item.dart';
 import 'package:manito/share/main_appbar.dart';
@@ -45,7 +46,6 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final double width = MediaQuery.of(context).size.width;
     final friendProfilesState = ref.watch(friendProfilesProvider);
 
     // 에러 감지
@@ -57,11 +57,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
       }
     });
     return Scaffold(
-      appBar: MainAppbar(
-        width: width,
-        text: '친구',
-        actions: [_buildPopupMenu(width)],
-      ),
+      appBar: MainAppbar(text: '친구', actions: [_buildPopupMenu()]),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh:
@@ -71,9 +67,9 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
             physics: const AlwaysScrollableScrollPhysics(),
             child: Column(
               children: [
-                _buildBannerAd(width),
+                _buildBannerAd(),
                 SizedBox(height: width * 0.03),
-                _buildFriendsList(width, friendProfilesState),
+                _buildFriendsList(friendProfilesState),
               ],
             ),
           ),
@@ -83,7 +79,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
   }
 
   // 앱바 팝업 버튼
-  Widget _buildPopupMenu(double width) {
+  Widget _buildPopupMenu() {
     int badgeCount = ref.watch(specificBadgeProvider('friend_request'));
     return Padding(
       padding: EdgeInsets.only(right: width * 0.02),
@@ -104,13 +100,11 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
         itemBuilder:
             (context) => [
               CustomPopupMenuItem(
-                width: width,
                 icon: Icon(Icons.person_add_alt_1_rounded),
                 text: '친구 찾기',
                 value: '/friends_search',
               ),
               CustomPopupMenuItem(
-                width: width,
                 icon: customBadgeIconWithLabel(
                   badgeCount,
                   child: Icon(Icons.supervisor_account_rounded),
@@ -119,7 +113,6 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
                 value: '/friends_request',
               ),
               CustomPopupMenuItem(
-                width: width,
                 icon: Icon(Icons.no_accounts_rounded),
                 text: '차단 목록',
                 value: '/friends_blacklist',
@@ -130,9 +123,8 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
   }
 
   // 광고
-  Widget _buildBannerAd(double width) {
+  Widget _buildBannerAd() {
     return BannerAdWidget(
-      width: width - (width * 0.06),
       borderRadius: width * 0.02,
       androidAdId: dotenv.env['BANNER_FRIENDS_ANDROID']!,
       iosAdId: dotenv.env['BANNER_FRIENDS_IOS']!,
@@ -140,10 +132,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
   }
 
   // 친구 목록
-  Widget _buildFriendsList(
-    double width,
-    FriendProfilesState friendProfilesState,
-  ) {
+  Widget _buildFriendsList(FriendProfilesState friendProfilesState) {
     if (!friendProfilesState.isLoading &&
         friendProfilesState.friendList.isEmpty) {
       return SizedBox(height: width, child: Center(child: Text('친구를 추가해보세요!')));
@@ -158,13 +147,13 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
 
         itemBuilder:
             (context, index) =>
-                _buildFriendItem(friendProfilesState.friendList[index], width),
+                _buildFriendItem(friendProfilesState.friendList[index]),
       );
     }
   }
 
   // 친구 항목
-  Widget _buildFriendItem(FriendProfile friendProfile, double width) {
+  Widget _buildFriendItem(FriendProfile friendProfile) {
     return InkWell(
       onTap: () => _toFriendsDetail(friendProfile),
       child: Container(
@@ -180,7 +169,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
             ),
             SizedBox(width: width * 0.035),
             Expanded(child: _buildFriendInfo(friendProfile)),
-            _buildMissionBadge(friendProfile.progressMissions, width),
+            _buildMissionBadge(friendProfile.progressMissions),
           ],
         ),
       ),
@@ -212,7 +201,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
   }
 
   // 진행중인 미션 개수 아이콘
-  Widget _buildMissionBadge(int count, double width) {
+  Widget _buildMissionBadge(int count) {
     return Stack(
       alignment: AlignmentDirectional.center,
       children: [

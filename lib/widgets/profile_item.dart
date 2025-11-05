@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:manito/main.dart';
 import 'package:manito/widgets/profile_image_view.dart';
 
 class ProfileItem extends StatelessWidget {
@@ -16,7 +17,6 @@ class ProfileItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double width = MediaQuery.of(context).size.width;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: width * _horizontalPadding),
       child: Row(

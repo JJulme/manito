@@ -112,7 +112,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/profile_modify',
         name: 'profileModify',
-        builder: (context, state) => const ProfileEditScreen(),
+        builder: (context, state) {
+          final canGoBack = state.extra as bool? ?? true;
+          return ProfileEditScreen(canGoback: canGoBack);
+        },
       ),
       GoRoute(
         path: '/post_detail',
