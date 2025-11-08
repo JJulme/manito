@@ -68,12 +68,13 @@ class Manito extends ConsumerStatefulWidget {
 
 class _ManitoState extends ConsumerState<Manito> {
   @override
-  void initState() {
-    super.initState();
-    // 언어 코드 상태 저장
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(languageCodeProvider.notifier).state =
-          EasyLocalization.of(context)!.locale.languageCode;
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 언어 코드 프로바이더에 저장
+    Future.microtask(() {
+      if (!mounted) return;
+      final lang = context.locale.languageCode;
+      ref.read(languageCodeProvider.notifier).state = lang;
     });
   }
 

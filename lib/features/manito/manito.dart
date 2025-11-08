@@ -78,6 +78,35 @@ class ManitoPropose {
   }
 }
 
+// 사용안하고 있음
+class ManitoProposeDetail {
+  final String missionId;
+  final List<ManitoContent> randomContents;
+  final String contentType;
+  final DateTime deadline;
+
+  const ManitoProposeDetail({
+    required this.missionId,
+    required this.randomContents,
+    required this.contentType,
+    required this.deadline,
+  });
+
+  factory ManitoProposeDetail.fromJson(Map<String, dynamic> json) {
+    final missions = json['missions'];
+
+    return ManitoProposeDetail(
+      missionId: json['mission_id'] as String,
+      randomContents:
+          (json['random_contents'] as List)
+              .map((e) => e is ManitoContent ? e : ManitoContent.fromJson(e))
+              .toList(),
+      contentType: missions['content_type'] as String,
+      deadline: DateTime.parse(missions['deadline']),
+    );
+  }
+}
+
 class ManitoAccept {
   final String id;
   final FriendProfile creatorProfile;
@@ -197,21 +226,14 @@ class ManitoListState {
 
 class ManitoProposeState {
   final bool isLoading;
-  final ManitoPropose? propose;
+  final ManitoProposeDetail? propose;
   final String? error;
 
   ManitoProposeState({this.isLoading = false, this.propose, this.error});
 
-  bool get pageLoading => isLoading || !propose!.isDetailLoaded;
-
-  const ManitoProposeState.initial(ManitoPropose originalPropose)
-    : isLoading = false,
-      propose = originalPropose,
-      error = null;
-
   ManitoProposeState copyWith({
     bool? isLoading,
-    ManitoPropose? propose,
+    ManitoProposeDetail? propose,
     String? error,
   }) {
     return ManitoProposeState(

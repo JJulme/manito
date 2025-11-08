@@ -14,6 +14,4 @@ final currentUserProvider = Provider<User?>((ref) {
   return supabase.auth.currentUser;
 });
 
-final languageCodeProvider = StateProvider<String>((ref) {
-  return 'en';
-});
+final languageCodeProvider = StateProvider<String>((ref) => 'en');

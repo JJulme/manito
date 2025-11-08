@@ -26,19 +26,19 @@ class ManitoProposeScreen extends ConsumerStatefulWidget {
 }
 
 class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
-  late final StateNotifierProvider<ManitoProposeNotifier, ManitoProposeState>
-  _manitoProposeProvider;
+  // late final StateNotifierProvider<ManitoProposeNotifier, ManitoProposeState>
+  // _manitoProposeProvider;
   String? selectedContent;
-  @override
-  void initState() {
-    super.initState();
-    _manitoProposeProvider = createManitoProposeProvider(widget.propose);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(_manitoProposeProvider.notifier)
-          .getPropose(context.locale.languageCode);
-    });
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _manitoProposeProvider = createManitoProposeProvider(widget.propose);
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     ref
+  //         .read(_manitoProposeProvider.notifier)
+  //         .getPropose(context.locale.languageCode);
+  //   });
+  // }
 
   void _selectedContentButton(String contentId) {
     setState(() => selectedContent = contentId);
@@ -51,34 +51,32 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
     }
     final result = await DialogHelper.showConfirmDialog(
       context,
-      message: '미션 수락?',
+      title: '미션 수락',
+      message: '미션을 수락하시겠습니까?',
     );
     if (result!) {
-      ref.read(_manitoProposeProvider.notifier).acceptPropose(selectedContent!);
+      // ref.read(_manitoProposeProvider.notifier).acceptPropose(selectedContent!);
+      if (!mounted) return;
+      context.pop(true);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(_manitoProposeProvider);
-    // final notifier = ref.read(_manitoProposeProvider.notifier);
+    // final state = ref.watch(_manitoProposeProvider);
+    final proposeAsync = ref.watch(manitoProposeProvider(widget.propose.id));
     final FriendProfile? profile = ref
         .read(friendProfilesProvider.notifier)
         .searchFriendProfile(widget.propose.creatorId);
 
-    ref.listen(_manitoProposeProvider, (previous, next) {
-      if (previous!.isLoading == true &&
-          previous.propose!.isDetailLoaded == true &&
-          next.isLoading == false &&
-          next.error == null) {
-        context.pop(true);
-      }
-      if (next.error != null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('오류: ${next.error}')));
-      }
-    });
+    // ref.listen(_manitoProposeProvider, (previous, next) {
+    //   if (next.error != null) {
+    //     context.pop(true);
+    //     ScaffoldMessenger.of(
+    //       context,
+    //     ).showSnackBar(SnackBar(content: Text('오류: ${next.error}')));
+    //   }
+    // });
 
     return Scaffold(
       appBar: SubAppbar(
@@ -88,11 +86,18 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
           overflow: TextOverflow.ellipsis,
         ).tr(namedArgs: {"nickname": profile!.displayName}),
       ),
-      body: SafeArea(
-        child:
-            state.pageLoading
-                ? Center(child: CircularProgressIndicator())
-                : _buildBody(profile, state),
+      // body: SafeArea(
+      //   child:
+      //       state.pageLoading
+      //           ? Center(child: CircularProgressIndicator())
+      //           : _buildBody(profile, state),
+      // ),
+      body: proposeAsync.when(
+        loading: () => Center(child: CircularProgressIndicator()),
+        error: (error, stackTrace) => Center(child: Text(error.toString())),
+        data: (state) {
+          return _buildBody(profile, state);
+        },
       ),
     );
   }
@@ -113,7 +118,7 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
         SizedBox(height: width * 0.03),
         Wrap(
           children:
-              state.propose!.randomContents!.map((e) {
+              state.propose!.randomContents.map((e) {
                 return _buildMissionItem(
                   e.content,
                   selectedContent == e.id,
@@ -131,7 +136,7 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
   Widget _buildProposeDetail(ManitoProposeState state) {
     final String deadline = DateFormat(
       'yy.MM.dd HH:mm',
-    ).format(state.propose!.deadline!);
+    ).format(state.propose!.deadline);
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: width * 0.03),
       child: Column(
@@ -272,7 +277,7 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
                       style: Theme.of(context).textTheme.titleMedium,
                     ).tr(),
                     TimerWidget(
-                      targetDateTime: state.propose!.acceptDeadline,
+                      targetDateTime: widget.propose.acceptDeadline,
                       fontSize: width * 0.07,
                       onTimerComplete: () async {
                         context.pop();

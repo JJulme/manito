@@ -108,6 +108,7 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
     );
   }
 
+  // 제안 리스트
   Widget _buildProposeList(List<ManitoPropose> proposeList) {
     return ListView.builder(
       shrinkWrap: true,
@@ -117,6 +118,7 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
     );
   }
 
+  // 추측 리스트
   Widget _buildGuessList(List<ManitoGuess> guessList) {
     return ListView.builder(
       shrinkWrap: true,
@@ -126,6 +128,7 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
     );
   }
 
+  // 수락 리스트
   Widget _buildAcceptList(List<ManitoAccept> acceptList) {
     return ListView.builder(
       shrinkWrap: true,
@@ -135,6 +138,7 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
     );
   }
 
+  // 제안온 미션 아이템
   Widget _buildProposeItem(ManitoPropose manitoPropose) {
     final badgeState = ref.watch(badgeProvider).valueOrNull;
     return Stack(
@@ -180,6 +184,7 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
     );
   }
 
+  // 미션 추측중인 아이템
   Widget _buildGuessItem(ManitoGuess manitoGuess) {
     final FriendProfile profile = manitoGuess.creatorProfile;
     return TabContainer(
@@ -201,6 +206,7 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
     );
   }
 
+  // 수락한 미션 아이템
   Widget _buildAcceptItem(ManitoAccept manitoAccept) {
     return CustomSlide(
       mainWidget: TabContainer(

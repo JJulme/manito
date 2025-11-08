@@ -128,6 +128,52 @@ class ManitoProposeService {
     }
   }
 
+  Future<ManitoProposeDetail> getManitoPropose2(
+    String languageCode,
+    String proposeId,
+  ) async {
+    try {
+      final Map<String, dynamic> data =
+          await _supabase
+              .from('mission_propose')
+              .select('''
+              mission_id,
+              random_contents,
+              missions:mission_id(accept_deadline, content_type, deadline)
+              ''')
+              .eq('id', proposeId)
+              .single();
+      // text id 문자열 리스트
+      final List<String> textIdList =
+          (data["random_contents"] as List).map((e) => e.toString()).toList();
+      // 언어 설정에 맞게 미션 내용 가져오기
+      final contents = await _supabase.rpc(
+        "fetch_mission_contents_from_ids",
+        params: {'id_array': textIdList, "locale_code": languageCode},
+      );
+      // 가져온 데이터를 Map으로 변경
+      List<ManitoContent> contentList = [];
+      if (data["random_contents"].length == contents.length) {
+        for (int i = 0; i < contents.length; i++) {
+          final String textId = data["random_contents"][i].toString();
+          final String content = contents[i]["content_text"].toString();
+          contentList.add(ManitoContent(id: textId, content: content));
+        }
+      }
+      final missionsData = data['missions'] as Map<String, dynamic>;
+
+      return ManitoProposeDetail(
+        missionId: data['mission_id'] as String,
+        randomContents: contentList,
+        contentType: missionsData['content_type'] as String,
+        deadline: DateTime.parse(missionsData['deadline'] as String),
+      );
+    } catch (e) {
+      debugPrint('ManitoProposeService.getManitoPropose Error: $e');
+      rethrow;
+    }
+  }
+
   Future<void> acceptManitoPropose(String missionId, String contentId) async {
     try {
       await _supabase.rpc(
