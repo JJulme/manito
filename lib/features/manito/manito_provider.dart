@@ -33,31 +33,10 @@ final manitoListProvider =
     );
 
 final manitoProposeProvider = AsyncNotifierProvider.family<
-  ManitoProposeNotifier2,
+  ManitoProposeNotifier,
   ManitoProposeState,
   String
->(ManitoProposeNotifier2.new);
-
-// StateNotifierProvider<ManitoProposeNotifier, ManitoProposeState>
-// createManitoProposeProvider(ManitoPropose originalPropose) {
-//   return StateNotifierProvider<ManitoProposeNotifier, ManitoProposeState>((
-//     ref,
-//   ) {
-//     final service = ref.watch(manitoProposeServiceProvider);
-//     return ManitoProposeNotifier(service, originalPropose);
-//   });
-// }
-
-// final manitoProposeProvider = StateNotifierProvider.family
-//     .autoDispose<ManitoProposeNotifier, ManitoProposeState, ManitoPropose>((ref, originalPropose) {
-//   final service = ref.watch(manitoProposeServiceProvider);
-//   final notifier = ManitoProposeNotifier(service, originalPropose);
-
-//   // 화면 진입 후 자동 데이터 fetch
-//   Future.microtask(() => notifier.getPropose(ref.read(localeProvider))); // 필요 시 localeProvider 사용
-
-//   return notifier;
-// });
+>(ManitoProposeNotifier.new);
 
 final manitoPostProvider = StateNotifierProvider.family
     .autoDispose<ManitoPostNotifier, ManitoPostState, ManitoAccept>((
@@ -181,45 +160,7 @@ class ManitoListNotifier extends AsyncNotifier<ManitoListState> {
   }
 }
 
-// class ManitoProposeNotifier extends StateNotifier<ManitoProposeState> {
-//   final ManitoProposeService _service;
-//   final ManitoPropose originalPropose;
-//   ManitoProposeNotifier(this._service, this.originalPropose)
-//     : super(ManitoProposeState.initial(originalPropose));
-
-//   // 제안 정보 가져오기
-//   Future<void> getPropose(String languageCode) async {
-//     try {
-//       state = state.copyWith(isLoading: true, error: null);
-//       if (state.propose!.isDetailLoaded) {
-//         state = state.copyWith(isLoading: false);
-//         return;
-//       }
-//       final ManitoPropose data = await _service.getManitoPropose(
-//         languageCode,
-//         originalPropose,
-//       );
-//       state = state.copyWith(isLoading: false, propose: data);
-//     } catch (e) {
-//       debugPrint('ManitoProposeNotifier.getPropose Error: $e');
-//       state = state.copyWith(isLoading: false, error: e.toString());
-//     }
-//   }
-
-//   // 제안 수락하기
-//   Future<void> acceptPropose(String contentId) async {
-//     try {
-//       state = state.copyWith(isLoading: true, error: null);
-//       await _service.acceptManitoPropose(state.propose!.missionId!, contentId);
-//       state = state.copyWith(isLoading: false);
-//     } catch (e) {
-//       debugPrint('ManitoProposeNotifier.acceptPropose Error: $e');
-//       state = state.copyWith(isLoading: false, error: e.toString());
-//     }
-//   }
-// }
-
-class ManitoProposeNotifier2
+class ManitoProposeNotifier
     extends FamilyAsyncNotifier<ManitoProposeState, String> {
   @override
   FutureOr<ManitoProposeState> build(String proposeId) async {

@@ -197,7 +197,7 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
           SizedBox(width: width * 0.02),
           Expanded(
             child: Text(
-              "${profile.nickname} ${context.tr("manito_screen.guessing_manito")}",
+              "${profile.displayName} ${context.tr("manito_screen.guessing_manito")}",
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),

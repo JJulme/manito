@@ -26,19 +26,7 @@ class ManitoProposeScreen extends ConsumerStatefulWidget {
 }
 
 class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
-  // late final StateNotifierProvider<ManitoProposeNotifier, ManitoProposeState>
-  // _manitoProposeProvider;
   String? selectedContent;
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _manitoProposeProvider = createManitoProposeProvider(widget.propose);
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //     ref
-  //         .read(_manitoProposeProvider.notifier)
-  //         .getPropose(context.locale.languageCode);
-  //   });
-  // }
 
   void _selectedContentButton(String contentId) {
     setState(() => selectedContent = contentId);
@@ -55,7 +43,9 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
       message: '미션을 수락하시겠습니까?',
     );
     if (result!) {
-      // ref.read(_manitoProposeProvider.notifier).acceptPropose(selectedContent!);
+      await ref
+          .read(manitoProposeProvider(widget.propose.id).notifier)
+          .acceptPropose(selectedContent!);
       if (!mounted) return;
       context.pop(true);
     }
