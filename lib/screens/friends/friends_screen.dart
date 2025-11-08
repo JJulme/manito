@@ -86,7 +86,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
       child: PopupMenuButton(
         icon: customBadgeIconWithLabel(
           badgeCount,
-          child: Icon(Icons.person_add_alt_1_rounded, size: width * 0.06),
+          child: Icon(Icons.more_vert, size: width * 0.06),
         ),
         position: PopupMenuPosition.under,
         onSelected: (value) {
