@@ -59,15 +59,6 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
         .read(friendProfilesProvider.notifier)
         .searchFriendProfile(widget.propose.creatorId);
 
-    // ref.listen(_manitoProposeProvider, (previous, next) {
-    //   if (next.error != null) {
-    //     context.pop(true);
-    //     ScaffoldMessenger.of(
-    //       context,
-    //     ).showSnackBar(SnackBar(content: Text('오류: ${next.error}')));
-    //   }
-    // });
-
     return Scaffold(
       appBar: SubAppbar(
         title: Text(
@@ -76,12 +67,6 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
           overflow: TextOverflow.ellipsis,
         ).tr(namedArgs: {"nickname": profile!.displayName}),
       ),
-      // body: SafeArea(
-      //   child:
-      //       state.pageLoading
-      //           ? Center(child: CircularProgressIndicator())
-      //           : _buildBody(profile, state),
-      // ),
       body: proposeAsync.when(
         loading: () => Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => Center(child: Text(error.toString())),
@@ -94,30 +79,35 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
 
   // 바디
   Widget _buildBody(FriendProfile profile, ManitoProposeState state) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
+    return Stack(
       children: [
-        SizedBox(height: width * 0.03),
-        ProfileItem(
-          profileImageUrl: profile.profileImageUrl!,
-          name: profile.displayName,
-          statusMessage: profile.statusMessage!,
+        Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            SizedBox(height: width * 0.03),
+            ProfileItem(
+              profileImageUrl: profile.profileImageUrl!,
+              name: profile.displayName,
+              statusMessage: profile.statusMessage!,
+            ),
+            SizedBox(height: width * 0.03),
+            _buildProposeDetail(state),
+            SizedBox(height: width * 0.03),
+            Wrap(
+              children:
+                  state.propose!.randomContents.map((e) {
+                    return _buildMissionItem(
+                      e.content,
+                      selectedContent == e.id,
+                      () => _selectedContentButton(e.id),
+                    );
+                  }).toList(),
+            ),
+            Spacer(),
+            _buildBottomButton(state),
+          ],
         ),
-        SizedBox(height: width * 0.03),
-        _buildProposeDetail(state),
-        SizedBox(height: width * 0.03),
-        Wrap(
-          children:
-              state.propose!.randomContents.map((e) {
-                return _buildMissionItem(
-                  e.content,
-                  selectedContent == e.id,
-                  () => _selectedContentButton(e.id),
-                );
-              }).toList(),
-        ),
-        Spacer(),
-        _buildBottomButton(state),
+        if (state.isAccepting) _buildLoadingOverlay(),
       ],
     );
   }
@@ -257,7 +247,7 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
         // onPressed: state.isLoading ? null : () => _updateMissionGuess(notifier),
         onPressed: () => _showAcceptMissionDialog(),
         child:
-            state.isLoading
+            state.isAccepting
                 ? CircularProgressIndicator()
                 : Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -277,6 +267,14 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
                   ],
                 ),
       ),
+    );
+  }
+
+  // 로딩중 입력 방지
+  Widget _buildLoadingOverlay() {
+    return ModalBarrier(
+      dismissible: false,
+      color: Colors.black.withAlpha((0.5 * 255).round()),
     );
   }
 }

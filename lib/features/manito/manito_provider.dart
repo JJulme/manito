@@ -194,20 +194,18 @@ class ManitoProposeNotifier
     final currentState = state.valueOrNull;
     if (currentState == null) return;
 
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      try {
-        final service = ref.read(manitoProposeServiceProvider);
-        await service.acceptManitoPropose(
-          currentState.propose!.missionId,
-          contentId,
-        );
-        return currentState;
-      } catch (e) {
-        ref.read(errorProvider.notifier).setError('제안 수락 실패: $e');
-        rethrow;
-      }
-    });
+    state = AsyncValue.data(currentState.copyWith(isAccepting: true));
+    try {
+      final service = ref.read(manitoProposeServiceProvider);
+      await service.acceptManitoPropose(
+        currentState.propose!.missionId,
+        contentId,
+      );
+      state = AsyncValue.data(currentState.copyWith(isAccepting: false));
+    } catch (e) {
+      ref.read(errorProvider.notifier).setError('제안 수락 실패: $e');
+      state = AsyncValue.data(currentState.copyWith(isAccepting: false));
+    }
   }
 }
 

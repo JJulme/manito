@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:manito/features/manito/manito.dart';
 import 'package:manito/features/manito/manito_provider.dart';
 import 'package:manito/main.dart';
+import 'package:manito/share/common_dialog.dart';
 import 'package:manito/share/custom_toast.dart';
 import 'package:manito/share/sub_appbar.dart';
 import 'package:manito/widgets/image_slider.dart';
@@ -59,6 +60,11 @@ class _ManitoPostScreenState extends ConsumerState<ManitoPostScreen> {
     }
     // 미션 종료 가능할 때
     else if (state.canPost) {
+      DialogHelper.showConfirmDialog(
+        context,
+        title: '미션 종료',
+        message: '미션을 종료하시겠습니까?',
+      );
       final notifier = ref.read(
         manitoPostProvider(widget.manitoAccept).notifier,
       );

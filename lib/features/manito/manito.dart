@@ -225,21 +225,19 @@ class ManitoListState {
 }
 
 class ManitoProposeState {
-  final bool isLoading;
   final ManitoProposeDetail? propose;
-  final String? error;
+  final bool isAccepting;
 
-  ManitoProposeState({this.isLoading = false, this.propose, this.error});
+  ManitoProposeState({this.isAccepting = false, this.propose});
 
   ManitoProposeState copyWith({
-    bool? isLoading,
+    bool? isAccepting,
     ManitoProposeDetail? propose,
     String? error,
   }) {
     return ManitoProposeState(
-      isLoading: isLoading ?? this.isLoading,
+      isAccepting: isAccepting ?? this.isAccepting,
       propose: propose ?? this.propose,
-      error: error ?? this.error,
     );
   }
 }
