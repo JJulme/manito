@@ -24,6 +24,7 @@ class FriendGridList extends StatelessWidget {
         final profile = friends[index];
         return Container(
           alignment: Alignment.center,
+          padding: EdgeInsets.symmetric(horizontal: width * 0.035),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -34,8 +35,8 @@ class FriendGridList extends StatelessWidget {
               SizedBox(height: width * 0.015),
               Text(
                 profile.displayName,
-                style: Theme.of(context).textTheme.bodySmall,
                 overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodySmall,
               ),
             ],
           ),

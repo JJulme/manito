@@ -106,10 +106,10 @@ class FCMService {
         await _handleMissionProgress(message.data['mission_id']);
         break;
       case 'update_mission_guess':
-        await _handleMissionGuess(message.data['id']);
+        await _handleMissionGuess(message.data['mission_id']);
         break;
       case 'update_mission_complete':
-        await _handleMissionComplete(message.data['id']);
+        await _handleMissionComplete(message.data['mission_id']);
         break;
       case 'insert_comment':
         await _handleNewComment(message);
