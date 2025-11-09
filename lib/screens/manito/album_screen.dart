@@ -38,8 +38,8 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen> {
     _scrollController.addListener(_onScroll);
 
     // 초기 선택 이미지의 순서 저장
-    final initialAssets =
-        ref.read(manitoPostProvider(widget.manitoAccept)).selectedImages;
+    final postAsync = ref.read(manitoPostProvider(widget.manitoAccept));
+    final initialAssets = postAsync.value!.selectedImages;
     for (int i = 0; i < initialAssets.length; i++) {
       _selectedOrder[initialAssets[i].id] = i + 1;
     }

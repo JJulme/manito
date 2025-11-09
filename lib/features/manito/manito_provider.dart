@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/providers.dart';
 import 'package:manito/features/error/error_provider.dart';
@@ -38,19 +37,11 @@ final manitoProposeProvider = AsyncNotifierProvider.family<
   String
 >(ManitoProposeNotifier.new);
 
-final manitoPostProvider = StateNotifierProvider.family
-    .autoDispose<ManitoPostNotifier, ManitoPostState, ManitoAccept>((
-      ref,
-      manitoAccept,
-    ) {
-      final service = ref.watch(manitoPostServiceProvider);
-      final notifier = ManitoPostNotifier(
-        service: service,
-        manitoAccept: manitoAccept,
-      );
-      Future.microtask(() => notifier.getPost());
-      return notifier;
-    });
+final manitoPostProvider = AsyncNotifierProvider.family<
+  ManitoPostNotifier,
+  ManitoPostState,
+  ManitoAccept
+>(ManitoPostNotifier.new);
 
 // ========== Notifier ==========
 class ManitoListNotifier extends AsyncNotifier<ManitoListState> {
@@ -209,76 +200,139 @@ class ManitoProposeNotifier
   }
 }
 
-class ManitoPostNotifier extends StateNotifier<ManitoPostState> {
-  final ManitoPostService _service;
-  ManitoPostNotifier({
-    required ManitoPostService service,
-    required ManitoAccept manitoAccept,
-  }) : _service = service,
-       super(ManitoPostState(manitoAccept: manitoAccept));
-
-  // 입력했던 정보 가져오기
-  Future<void> getPost() async {
+class ManitoPostNotifier
+    extends FamilyAsyncNotifier<ManitoPostState, ManitoAccept> {
+  @override
+  FutureOr<ManitoPostState> build(ManitoAccept arg) async {
     try {
-      state = state.setLoading();
-      final post = await _service.getManitoPost(state.manitoAccept.id);
-      state = state.setLoaded(post);
+      final service = ref.read(manitoPostServiceProvider);
+      final post = await service.getManitoPost(arg.id);
+      return ManitoPostState(
+        manitoAccept: arg,
+        description: post.description ?? '',
+        existingImageUrls: post.imageUrlList ?? [],
+        status:
+            post.description!.isEmpty
+                ? ManitoPostStatus.editing
+                : ManitoPostStatus.saved,
+      );
     } catch (e) {
-      state = state.setError('게시물을 불러올 수 없습니다.');
-      debugPrint('ManitoPostNotifier.getPost Error: $e');
+      return ManitoPostState(
+        manitoAccept: arg,
+        status: ManitoPostStatus.editing,
+      );
     }
   }
 
-  // 앨범에서 선택한 이미지 저장
+  // ========== 로컬 상태 변경 ==========
+  // 이미지 추가
   void addImages(List<AssetEntity> selectedAssets) {
-    state = state.addSelectedImage(selectedAssets);
+    final currentState = state.valueOrNull;
+    if (currentState == null) return;
+    state = AsyncValue.data(
+      currentState.copyWith(
+        selectedImages: selectedAssets,
+        status: ManitoPostStatus.editing,
+      ),
+    );
   }
 
-  /// 선택한 이미지 삭제
+  // 새로 선택한 이미지 제거
   void removeSelectedImage(int index) {
-    state = state.removeSelectedImage(index);
+    final currentState = state.valueOrNull;
+    if (currentState == null) return;
+    final newSelectedImages = List<AssetEntity>.from(
+      currentState.selectedImages,
+    );
+    newSelectedImages.removeAt(index);
+    state = AsyncValue.data(
+      currentState.copyWith(
+        selectedImages: newSelectedImages,
+        status: ManitoPostStatus.editing,
+      ),
+    );
   }
 
-  /// 기존 이미지 삭제
+  // 기존에 선택한 이미지 제거
   void removeExistingImage(int index) {
-    state = state.removeExistingImage(index);
+    final currentState = state.valueOrNull;
+    if (currentState == null) return;
+    final newExistingImages = List<String>.from(currentState.existingImageUrls);
+    newExistingImages.removeAt(index);
+    state = AsyncValue.data(
+      currentState.copyWith(
+        existingImageUrls: newExistingImages,
+        status: ManitoPostStatus.editing,
+      ),
+    );
   }
 
-  /// 설명 업데이트
+  // 설명 업데이트
   void updateDescription(String description) {
-    // if (!state.canEdit) return;
-    state = state.updateDescription(description);
+    final currentState = state.valueOrNull;
+    if (currentState == null) return;
+    state = AsyncValue.data(
+      currentState.copyWith(
+        description: description,
+        status: ManitoPostStatus.editing,
+      ),
+    );
   }
 
+  // ========== 서버 통신 ==========
   // 게시물 저장
   Future<void> savePost() async {
-    state = state.setSaving();
+    final currentState = state.valueOrNull;
+    if (currentState == null) return;
+
+    // ✅ isSaving만 true로 (화면 전체 로딩 X)
+    state = AsyncValue.data(
+      currentState.copyWith(status: ManitoPostStatus.saving),
+    );
     try {
-      final uploadedImageUrls = await _service.saveManitoPost(
-        missionId: state.manitoAccept.id,
-        description: state.description,
-        existingImageUrls: state.existingImageUrls,
-        selectedImages: state.selectedImages,
+      final service = ref.read(manitoPostServiceProvider);
+      final uploadedImageUrls = await service.saveManitoPost(
+        missionId: currentState.manitoAccept.id,
+        description: currentState.description,
+        existingImageUrls: currentState.existingImageUrls,
+        selectedImages: currentState.selectedImages,
       );
-      state = state.setSaved(uploadedImageUrls);
+      state = AsyncValue.data(
+        currentState.copyWith(
+          existingImageUrls: uploadedImageUrls,
+          selectedImages: [],
+          status: ManitoPostStatus.saved,
+        ),
+      );
     } catch (e) {
-      state = state.setError(e.toString());
-      debugPrint('ManitoPostNotifier.savePost: $e');
+      state = AsyncValue.data(
+        currentState.copyWith(status: ManitoPostStatus.editing),
+      );
+      ref.read(errorProvider.notifier).setError('게시물 저장 실패: $e');
     }
   }
 
   // 미션 완료
   Future<void> completePost() async {
-    state = state.setPosting();
+    final currentState = state.valueOrNull;
+    if (currentState == null) return;
+    state = AsyncValue.data(
+      currentState.copyWith(status: ManitoPostStatus.posting),
+    );
     try {
-      await _service.completeManitoPost(
-        missionId: state.manitoAccept.id,
-        creatorId: state.manitoAccept.creatorProfile.id,
+      final service = ref.read(manitoPostServiceProvider);
+      await service.completeManitoPost(
+        missionId: currentState.manitoAccept.id,
+        creatorId: currentState.manitoAccept.creatorProfile.id,
       );
-      state = state.setPosted();
+      state = AsyncValue.data(
+        currentState.copyWith(status: ManitoPostStatus.posted),
+      );
     } catch (e) {
-      state = state.setError(e.toString());
-      debugPrint('ManitoPostNotifier.completePost: $e');
+      state = AsyncValue.data(
+        currentState.copyWith(status: ManitoPostStatus.saved),
+      );
+      ref.read(errorProvider.notifier).setError('completePost Error: $e');
     }
   }
 }

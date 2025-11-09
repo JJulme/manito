@@ -245,133 +245,45 @@ class ManitoProposeState {
 class ManitoPostState {
   final ManitoAccept manitoAccept;
   final ManitoPost? post;
-  final List<AssetEntity> selectedImages;
-  final List<String> existingImageUrls;
-  final ManitoPostStatus status;
   final String description;
-  final String? error;
+  final List<String> existingImageUrls;
+  final List<AssetEntity> selectedImages;
+
+  // 로딩 상태 유지
+  final ManitoPostStatus status;
 
   const ManitoPostState({
     required this.manitoAccept,
+    required this.status,
     this.post,
-    this.selectedImages = const [],
-    this.existingImageUrls = const [],
-    this.status = ManitoPostStatus.initial,
     this.description = '',
-    this.error,
+    this.existingImageUrls = const [],
+    this.selectedImages = const [],
   });
-
-  bool get isLoading => status == ManitoPostStatus.loading;
-  bool get isSaving => status == ManitoPostStatus.saving;
-  bool get isPosting => status == ManitoPostStatus.posting;
-  bool get hasError => status == ManitoPostStatus.error;
-  bool get isEditing => status == ManitoPostStatus.editing;
-
-  int get totalImageCount => selectedImages.length + existingImageUrls.length;
-  bool get hasContent => description.isNotEmpty;
-
-  // 저장 가능 여부: 편집 중이고, 저장/전송 중이 아닐 때
-  bool get canSave => isEditing && hasContent;
-
-  // 전송 가능 여부: 저장 완료 상태이고, 내용이 있을 때
-  bool get canPost => status == ManitoPostStatus.saved && hasContent;
-
-  // 편집 가능 여부: 전송 중이거나 완료 상태가 아닐 때
-  bool get canEdit =>
-      status != ManitoPostStatus.posting && status != ManitoPostStatus.posted;
-
-  ManitoPostState setLoading() {
-    return copyWith(status: ManitoPostStatus.loading, error: null);
-  }
-
-  ManitoPostState setLoaded(ManitoPost post) {
-    return copyWith(
-      post: post,
-      description: post.description ?? '',
-      existingImageUrls: post.imageUrlList ?? [],
-      status: ManitoPostStatus.saved, // 기존 데이터는 저장된 상태
-      error: null,
-    );
-  }
-
-  // 앨범에서 선택했던 사진 삭제
-  ManitoPostState removeSelectedImage(int index) {
-    final newList = List<AssetEntity>.from(selectedImages)..removeAt(index);
-    return copyWith(selectedImages: newList, status: ManitoPostStatus.editing);
-  }
-
-  // 서버에 저장했던 사진 삭제
-  ManitoPostState removeExistingImage(int index) {
-    final newList = List<String>.from(existingImageUrls)..removeAt(index);
-    return copyWith(
-      existingImageUrls: newList,
-      status: ManitoPostStatus.editing,
-    );
-  }
-
-  ManitoPostState addSelectedImage(List<AssetEntity> images) {
-    return copyWith(selectedImages: images, status: ManitoPostStatus.editing);
-  }
-
-  // Content modifications
-  ManitoPostState updateDescription(String desc) {
-    return copyWith(description: desc, status: ManitoPostStatus.editing);
-  }
-
-  ManitoPostState setSaving() {
-    return copyWith(status: ManitoPostStatus.saving, error: null);
-  }
-
-  ManitoPostState setSaved(List<String> uploadedImageUrls) {
-    return copyWith(
-      status: ManitoPostStatus.saved,
-      selectedImages: [],
-      existingImageUrls: uploadedImageUrls,
-      error: null,
-    );
-  }
-
-  ManitoPostState setPosting() {
-    return copyWith(status: ManitoPostStatus.posting, error: null);
-  }
-
-  ManitoPostState setPosted() {
-    return copyWith(status: ManitoPostStatus.posted, error: null);
-  }
-
-  ManitoPostState setError(String errorMessage) {
-    return copyWith(status: ManitoPostStatus.error, error: errorMessage);
-  }
 
   ManitoPostState copyWith({
     ManitoAccept? manitoAccept,
     ManitoPost? post,
-    List<AssetEntity>? selectedImages,
-    List<String>? existingImageUrls,
     ManitoPostStatus? status,
     String? description,
-    String? error,
+    List<String>? existingImageUrls,
+    List<AssetEntity>? selectedImages,
   }) {
     return ManitoPostState(
       manitoAccept: manitoAccept ?? this.manitoAccept,
       post: post ?? this.post,
-      selectedImages: selectedImages ?? this.selectedImages,
-      existingImageUrls: existingImageUrls ?? this.existingImageUrls,
       status: status ?? this.status,
       description: description ?? this.description,
-      error: error ?? this.error,
+      existingImageUrls: existingImageUrls ?? this.existingImageUrls,
+      selectedImages: selectedImages ?? this.selectedImages,
     );
   }
 }
 
 enum ManitoPostStatus {
-  initial, // 초기 상태
-  loading, // 데이터 로딩 중
-  loaded, // 데이터 로드 완료
   editing, // 편집 중 (저장되지 않음)
   saving, // 저장 중
   saved, // 저장 완료
   posting, // 전송 중
   posted, // 전송 완료
-  error, // 에러
 }

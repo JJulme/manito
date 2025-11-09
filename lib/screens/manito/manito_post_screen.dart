@@ -32,6 +32,14 @@ class _ManitoPostScreenState extends ConsumerState<ManitoPostScreen> {
     _descController = TextEditingController();
   }
 
+  // 설명 동기화
+  void initDescription(ManitoPostState state) {
+    if (state.description != _descController.text &&
+        !_descController.selection.isValid) {
+      _descController.text = state.description;
+    }
+  }
+
   // 앨범 이동
   void _toAlbumScreen() async {
     await context.push('/album', extra: widget.manitoAccept);
@@ -47,6 +55,7 @@ class _ManitoPostScreenState extends ConsumerState<ManitoPostScreen> {
     }
   }
 
+  // 설명 입력시 스테이트에 추가
   void _handleDescription(String description) {
     final notifier = ref.read(manitoPostProvider(widget.manitoAccept).notifier);
     notifier.updateDescription(description);
@@ -55,27 +64,26 @@ class _ManitoPostScreenState extends ConsumerState<ManitoPostScreen> {
   // 버튼 동작
   void _handleBottomButton(ManitoPostState state) async {
     // 저장중, 미션 종료중
-    if (state.isSaving || state.isPosting) {
+    if (state.status == ManitoPostStatus.saving ||
+        state.status == ManitoPostStatus.posting) {
       null;
     }
     // 미션 종료 가능할 때
-    else if (state.canPost) {
-      DialogHelper.showConfirmDialog(
+    else if (state.status == ManitoPostStatus.saved) {
+      final result = await DialogHelper.showConfirmDialog(
         context,
         title: '미션 종료',
         message: '미션을 종료하시겠습니까?',
       );
-      final notifier = ref.read(
-        manitoPostProvider(widget.manitoAccept).notifier,
-      );
-      await notifier.completePost();
+      if (result!) {
+        await ref
+            .read(manitoPostProvider(widget.manitoAccept).notifier)
+            .completePost();
+      }
     }
     // 설명 글자수가 5글자 보다 많을 때 저장 가능
     else if (_descController.text.length >= 5) {
-      final notifier = ref.read(
-        manitoPostProvider(widget.manitoAccept).notifier,
-      );
-      await notifier.savePost();
+      ref.read(manitoPostProvider(widget.manitoAccept).notifier).savePost();
     }
     // 글자 수 부족
     else {
@@ -85,69 +93,73 @@ class _ManitoPostScreenState extends ConsumerState<ManitoPostScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(manitoPostProvider(widget.manitoAccept));
-    final notifier = ref.read(manitoPostProvider(widget.manitoAccept).notifier);
-
-    // 설명 동기화
-    if (state.description != _descController.text &&
-        !_descController.selection.isValid) {
-      _descController.text = state.description;
-    }
+    final postAsync = ref.watch(manitoPostProvider(widget.manitoAccept));
 
     ref.listen(manitoPostProvider(widget.manitoAccept), (previous, next) {
-      if (next.status == ManitoPostStatus.posted) {
-        context.pop(true);
-        ref
-            .read(manitoListProvider.notifier)
-            .refreshAll(context.locale.languageCode);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("manito_post_screen.complete_success").tr()),
-        );
-      } else if (previous?.status == ManitoPostStatus.saving &&
-          next.status == ManitoPostStatus.saved) {
-        customToast(msg: '저장성공');
-      } else if (next.error != null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: ${next.error}')));
-      }
+      next.whenOrNull(
+        data: (state) {
+          // 미션종료가 완료되면 실행
+          if (state.status == ManitoPostStatus.posted) {
+            context.pop(true);
+            customToast(msg: '미션 완료! 친구의 추측을 기다려보세요!');
+            ref
+                .read(manitoListProvider.notifier)
+                .refreshAll(context.locale.languageCode);
+          }
+          // 임시저장 성공하면 실행
+          else if (previous?.value?.status == ManitoPostStatus.saving &&
+              state.status == ManitoPostStatus.saved) {
+            customToast(msg: '저장 성공');
+          }
+        },
+      );
     });
 
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        appBar: SubAppbar(
-          title: Row(
-            children: [
-              Text('미션 기록하기'),
-              SizedBox(width: width * 0.02),
-              TimerWidget(
-                targetDateTime: widget.manitoAccept.deadline,
-                fontSize: width * 0.063,
+    return postAsync.when(
+      loading: () => Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (error, stackTrace) => Center(child: Text(error.toString())),
+      data: (state) {
+        initDescription(state);
+        return GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Scaffold(
+            appBar: SubAppbar(
+              title: Row(
+                children: [
+                  Text('미션 기록하기'),
+                  SizedBox(width: width * 0.02),
+                  TimerWidget(
+                    targetDateTime: widget.manitoAccept.deadline,
+                    fontSize: width * 0.063,
+                  ),
+                ],
               ),
-            ],
+            ),
+            body: _buildBody(state),
+            bottomNavigationBar: _buildBottomButton(state),
           ),
-        ),
-        body: _buildBody(state, notifier),
-        bottomNavigationBar: _buildBottomButton(state),
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildBody(ManitoPostState state, ManitoPostNotifier notifier) {
+  // 바디
+  Widget _buildBody(ManitoPostState state) {
     return SafeArea(
       child: Stack(
         children: [
           SingleChildScrollView(
             child: Column(
               children: [
-                _buildImageSection(state, notifier),
+                _buildImageSection(state),
                 _buildDescriptionSection(),
                 _buildWarningMessage(),
               ],
             ),
           ),
-          if (state.isSaving || state.isPosting)
+          // 로딩 시 입력 불가
+          if (state.status == ManitoPostStatus.saving ||
+              state.status == ManitoPostStatus.posting)
             ModalBarrier(
               dismissible: false,
               color: Colors.black.withAlpha((0.5 * 255).round()),
@@ -157,17 +169,15 @@ class _ManitoPostScreenState extends ConsumerState<ManitoPostScreen> {
     );
   }
 
-  Widget _buildImageSection(
-    ManitoPostState state,
-    ManitoPostNotifier notifier,
-  ) {
+  // 이미지
+  Widget _buildImageSection(ManitoPostState state) {
     // 서버에 저장된 이미지가 있는 경우
     if (state.existingImageUrls.isNotEmpty) {
-      return _buildImageContent(state.existingImageUrls, notifier);
+      return _buildImageContent(state.existingImageUrls);
     }
     // 앨범에서 선택된 이미지가 있는 경우
     else if (state.selectedImages.isNotEmpty) {
-      return _buildImageContent(state.selectedImages, notifier);
+      return _buildImageContent(state.selectedImages);
     }
     // 이미지가 없는 경우
     else {
@@ -176,12 +186,12 @@ class _ManitoPostScreenState extends ConsumerState<ManitoPostScreen> {
   }
 
   // 이미지가 있을 때
-  Widget _buildImageContent(List<dynamic> images, ManitoPostNotifier notifier) {
+  Widget _buildImageContent(List<dynamic> images) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // _ImageRow(images: images, addPressed: () {}, delPressed: () {}),
-        _buildImageRow(images, notifier),
+        _buildImageRow(images),
         SizedBox(height: width * 0.01),
         ImageSlider(images: images),
         SizedBox(height: width * 0.01),
@@ -212,7 +222,7 @@ class _ManitoPostScreenState extends ConsumerState<ManitoPostScreen> {
   }
 
   // 이미지 추가 버튼, 이미지 목록
-  Widget _buildImageRow(List<dynamic> images, ManitoPostNotifier notifier) {
+  Widget _buildImageRow(List<dynamic> images) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
@@ -282,14 +292,16 @@ class _ManitoPostScreenState extends ConsumerState<ManitoPostScreen> {
         child: ElevatedButton(
           onPressed: () => _handleBottomButton(state),
           child:
-              state.isSaving || state.isPosting
+              state.status == ManitoPostStatus.saving ||
+                      state.status == ManitoPostStatus.posting
                   ? const CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   )
                   : Text(
-                    state.canPost
+                    state.status == ManitoPostStatus.saved
                         ? context.tr("manito_post_screen.btn_complete_mission")
                         : context.tr("manito_post_screen.btn_safe_draft"),
+
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
         ),
