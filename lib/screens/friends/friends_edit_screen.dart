@@ -51,7 +51,7 @@ class _FriendsEditScreenState extends ConsumerState<FriendsEditScreen> {
           .updateFriendName(friendId, friendName);
 
       if (result) {
-        await ref.read(friendProfilesProvider.notifier).fetchFriendList();
+        await ref.read(friendProfilesProvider.notifier).refreash();
         if (!mounted) return;
         Navigator.pop(context);
         Navigator.pop(context);

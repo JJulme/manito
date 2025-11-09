@@ -26,17 +26,17 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
   @override
   bool get wantKeepAlive => true;
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // 친구목록 데이터가 없을 경우
-      final friendListState = ref.read(friendProfilesProvider);
-      if (friendListState.isLoading || friendListState.friendList.isEmpty) {
-        ref.read(friendProfilesProvider.notifier).fetchFriendList();
-      }
-    });
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     // 친구목록 데이터가 없을 경우
+  //     final friendListState = ref.read(friendProfilesProvider);
+  //     if (friendListState.isLoading || friendListState.friendList.isEmpty) {
+  //       ref.read(friendProfilesProvider.notifier).fetchFriendList();
+  //     }
+  //   });
+  // }
 
   // 친구 상세 화면 이동
   void _toFriendsDetail(dynamic friendProfile) {
@@ -46,33 +46,31 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final friendProfilesState = ref.watch(friendProfilesProvider);
+    // final friendProfilesState = ref.watch(friendProfilesProvider);
+    final friendProfilesAsync = ref.watch(friendProfilesProvider);
+    final notifier = ref.read(friendProfilesProvider.notifier);
 
-    // 에러 감지
-    ref.listen<FriendProfilesState>(friendProfilesProvider, (previous, next) {
-      if (next.error != null && previous?.error != next.error) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('오류')));
-      }
-    });
     return Scaffold(
       appBar: MainAppbar(text: '친구', actions: [_buildPopupMenu()]),
       body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh:
-              () =>
-                  ref.read(friendProfilesProvider.notifier).refreshFriendList(),
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Column(
-              children: [
-                _buildBannerAd(),
-                SizedBox(height: width * 0.03),
-                _buildFriendsList(friendProfilesState),
-              ],
-            ),
-          ),
+        child: friendProfilesAsync.when(
+          loading: () => Center(child: CircularProgressIndicator()),
+          error: (error, stackTrace) => Center(child: Text('$error')),
+          data: (state) {
+            return RefreshIndicator(
+              onRefresh: () => notifier.refreash(),
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  children: [
+                    _buildBannerAd(),
+                    SizedBox(height: width * 0.03),
+                    _buildFriendsList(state),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -124,30 +122,27 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
 
   // 광고
   Widget _buildBannerAd() {
-    return BannerAdWidget(
-      borderRadius: width * 0.02,
-      androidAdId: dotenv.env['BANNER_FRIENDS_ANDROID']!,
-      iosAdId: dotenv.env['BANNER_FRIENDS_IOS']!,
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: width * 0.03),
+      child: BannerAdWidget(
+        borderRadius: width * 0.02,
+        androidAdId: dotenv.env['BANNER_FRIENDS_ANDROID']!,
+        iosAdId: dotenv.env['BANNER_FRIENDS_IOS']!,
+      ),
     );
   }
 
   // 친구 목록
-  Widget _buildFriendsList(FriendProfilesState friendProfilesState) {
-    if (!friendProfilesState.isLoading &&
-        friendProfilesState.friendList.isEmpty) {
+  Widget _buildFriendsList(FriendProfilesState state) {
+    if (state.friendList.isEmpty) {
       return SizedBox(height: width, child: Center(child: Text('친구를 추가해보세요!')));
     } else {
-      friendProfilesState.friendList.sort(
-        (a, b) => a.displayName.compareTo(b.displayName),
-      );
       return ListView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        itemCount: friendProfilesState.friendList.length,
-
+        itemCount: state.friendList.length,
         itemBuilder:
-            (context, index) =>
-                _buildFriendItem(friendProfilesState.friendList[index]),
+            (context, index) => _buildFriendItem(state.friendList[index]),
       );
     }
   }

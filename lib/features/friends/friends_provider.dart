@@ -149,7 +149,7 @@ class FriendRequestNotifier extends StateNotifier<FriendRequestState> {
       );
 
       await fetchFriendRequest();
-      await _ref.read(friendProfilesProvider.notifier).fetchFriendList();
+      await _ref.read(friendProfilesProvider.notifier).refreash();
       return 'request_accept';
     } catch (e) {
       debugPrint('FriendRequestNotifier.acceptFriendRequest Error: $e');

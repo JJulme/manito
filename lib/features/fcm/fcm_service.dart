@@ -143,7 +143,7 @@ class FCMService {
   /// 마니또가 미션 수락
   Future<void> _handleMissionProgress(String missionId) async {
     // 데이터 새로고침
-    await _ref.read(missionListProvider.notifier).fetchMyMissions();
+    await _ref.read(missionListProvider.notifier).refresh();
     // 뱃지 증가
     _ref
         .read(badgeProvider.notifier)
@@ -155,7 +155,7 @@ class FCMService {
   /// 마니또가 미션 완료
   Future<void> _handleMissionGuess(String missionId) async {
     // 데이터 새로고침
-    await _ref.read(missionListProvider.notifier).fetchMyMissions();
+    await _ref.read(missionListProvider.notifier).refresh();
     // 뱃지 증가
     _ref
         .read(badgeProvider.notifier)

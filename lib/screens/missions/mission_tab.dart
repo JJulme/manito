@@ -6,6 +6,7 @@ import 'package:manito/features/badge/badge_provider.dart';
 import 'package:manito/features/missions/mission.dart';
 import 'package:manito/features/missions/mission_provider.dart';
 import 'package:manito/features/posts/post_provider.dart';
+import 'package:manito/features/profiles/profile_provider.dart';
 import 'package:manito/main.dart';
 import 'package:manito/share/constants.dart';
 import 'package:manito/share/custom_badge.dart';
@@ -29,14 +30,6 @@ class _MissionTabState extends ConsumerState<MissionTab>
   @override
   bool get wantKeepAlive => true;
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(missionListProvider.notifier).fetchMyMissions();
-    });
-  }
-
   // 추측화면으로 이동
   void _toGuessScreen(MyMission mission) async {
     final result = await context.push('/mission_guess', extra: mission);
@@ -46,58 +39,66 @@ class _MissionTabState extends ConsumerState<MissionTab>
         ref
             .read(badgeProvider.notifier)
             .resetBadgeCount('mission_guess', typeId: mission.id),
-        ref.read(missionListProvider.notifier).fetchMyMissions(),
+        ref.read(missionListProvider.notifier).refresh(),
         ref.read(postsProvider.notifier).fetchPosts(),
       ]);
+    }
+  }
+
+  // 플로팅 버튼 동작
+  Future<void> _handleFloatingButton(MyMissionState state) async {
+    if (state.allMissions.length >= 3) {
+      customToast(msg: '미션은 최대 3개까지 생성 가능합니다.');
+    } else {
+      final result = await context.push('/mission_create');
+      if (result == true) ref.read(missionListProvider.notifier).refresh();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final state = ref.watch(missionListProvider);
+    final missionListAsync = ref.watch(missionListProvider);
     final notifier = ref.read(missionListProvider.notifier);
-    if (state.isLoading) {
-      return Center(child: CircularProgressIndicator());
-    } else if (state.allMissions.isEmpty) {
-      return Scaffold(
-        body: RefreshIndicator(
-          onRefresh: () => notifier.fetchMyMissions(),
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: SizedBox(
-              height: width,
-              child: Center(child: Text('미션을 만들어 보세요!')),
+    return missionListAsync.when(
+      loading: () => Center(child: CircularProgressIndicator()),
+      error: (error, stackTrace) => Center(child: Text('$error')),
+      data: (state) {
+        return Scaffold(
+          floatingActionButton: _buildFloatingActionButton(state),
+          body: RefreshIndicator(
+            onRefresh: () => notifier.refresh(),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: _buildBody(state),
             ),
           ),
-        ),
-        floatingActionButton: _buildFloatingActionButton(state, notifier),
-      );
-    }
-    return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: () => notifier.fetchMyMissions(),
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            children: [
-              SizedBox(height: width * 0.03),
-              _buildCompleteMissionList(state.completeMyMissions),
-              _buildAcceptMissionList(state.acceptMyMissions),
-              _buildPendingMissionList(state.pendingMyMissions),
-            ],
-          ),
-        ),
-      ),
-      floatingActionButton: _buildFloatingActionButton(state, notifier),
+        );
+      },
     );
   }
 
+  // 바디
+  Widget _buildBody(MyMissionState state) {
+    if (state.allMissions.isEmpty) {
+      return SizedBox(
+        height: width,
+        child: Center(child: Text('미션을 만들어 보세요!')),
+      );
+    } else {
+      return Column(
+        children: [
+          SizedBox(height: width * 0.03),
+          _buildCompleteMissionList(state.completeMyMissions),
+          _buildAcceptMissionList(state.acceptMyMissions),
+          _buildPendingMissionList(state.pendingMyMissions),
+        ],
+      );
+    }
+  }
+
   // 미션 생성 버튼
-  Widget _buildFloatingActionButton(
-    MyMissionState state,
-    MissionListNotifier notifier,
-  ) {
+  Widget _buildFloatingActionButton(MyMissionState state) {
     return FloatingActionButton(
       elevation: 2,
       shape: const CircleBorder(),
@@ -107,14 +108,7 @@ class _MissionTabState extends ConsumerState<MissionTab>
         width: width * 0.075,
         colorFilter: ColorFilter.mode(Colors.grey.shade900, BlendMode.srcIn),
       ),
-      onPressed: () async {
-        if (state.allMissions.length >= 3) {
-          customToast(msg: '미션은 최대 3개까지 생성 가능합니다.');
-        } else {
-          final result = await context.push('/mission_create');
-          if (result == true) notifier.fetchMyMissions();
-        }
-      },
+      onPressed: () => _handleFloatingButton(state),
     );
   }
 
@@ -199,8 +193,7 @@ class _MissionTabState extends ConsumerState<MissionTab>
               targetDateTime: mission.acceptDeadline!,
               fontSize: width * 0.07,
               onTimerComplete:
-                  () =>
-                      ref.read(missionListProvider.notifier).fetchMyMissions(),
+                  () => ref.read(missionListProvider.notifier).refresh(),
             ),
           ],
         ),
@@ -267,10 +260,7 @@ class _MissionTabState extends ConsumerState<MissionTab>
                   targetDateTime: mission.deadline,
                   fontSize: width * 0.07,
                   onTimerComplete:
-                      () =>
-                          ref
-                              .read(missionListProvider.notifier)
-                              .fetchMyMissions(),
+                      () => ref.read(missionListProvider.notifier).refresh(),
                 ),
               ],
             ),

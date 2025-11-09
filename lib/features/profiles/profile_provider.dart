@@ -25,11 +25,16 @@ final userProfileProvider =
 //   UserProfileNotifier2.new,
 // );
 
+// final friendProfilesProvider =
+//     StateNotifierProvider<FriendProfilesNotifier, FriendProfilesState>((ref) {
+//       final service = ref.watch(profileServiceProvider);
+//       return FriendProfilesNotifier(ref, service);
+//     });
+
 final friendProfilesProvider =
-    StateNotifierProvider<FriendProfilesNotifier, FriendProfilesState>((ref) {
-      final service = ref.watch(profileServiceProvider);
-      return FriendProfilesNotifier(ref, service);
-    });
+    AsyncNotifierProvider<FriendProfileNotifier2, FriendProfilesState>(
+      FriendProfileNotifier2.new,
+    );
 
 final profileEditServiceProvider = Provider.autoDispose<ProfileEditService>((
   ref,
@@ -99,39 +104,108 @@ class UserProfileNotifier2 extends AsyncNotifier<UserProfile> {
   }
 }
 
-class FriendProfilesNotifier extends StateNotifier<FriendProfilesState> {
-  final Ref _ref;
-  final ProfileService _service;
-  FriendProfilesNotifier(this._ref, this._service)
-    : super(const FriendProfilesState.initial());
+// class FriendProfilesNotifier extends StateNotifier<FriendProfilesState> {
+//   final Ref _ref;
+//   final ProfileService _service;
+//   FriendProfilesNotifier(this._ref, this._service)
+//     : super(const FriendProfilesState.initial());
 
-  Future<void> fetchFriendList() async {
+//   Future<void> fetchFriendList() async {
+//     try {
+//       state = state.copyWith(isLoading: true);
+//       final friendList = await _service.fetchFriendList();
+
+//       // ✅ 정렬을 먼저 하고 상태 업데이트
+//       final sortedList = List<FriendProfile>.from(friendList)
+//         ..sort((a, b) => a.displayName.compareTo(b.displayName));
+
+//       state = state.copyWith(
+//         friendList: sortedList,
+//         isLoading: false,
+//         error: null,
+//       );
+//     } catch (e) {
+//       debugPrint('FriendProfilesNotifier.fetchFriendList error: $e');
+//       state = state.copyWith(isLoading: false, error: e.toString());
+//     }
+//   }
+
+//   Future<void> refreshFriendList() async {
+//     await fetchFriendList();
+//   }
+
+//   // ID 로 친구 검색 - 한명
+//   FriendProfile? searchFriendProfile(String friendId) {
+//     try {
+//       final userProfile = _ref.read(userProfileProvider).userProfile;
+//       // 사용자의 id가 들어오면 사용자의 id를 반환
+//       if (userProfile != null && userProfile.id == friendId) {
+//         return FriendProfile(
+//           id: userProfile.id,
+//           nickname: userProfile.nickname,
+//           statusMessage: userProfile.statusMessage,
+//           profileImageUrl: userProfile.profileImageUrl,
+//         );
+//       }
+//       final friendProfile = state.friendList.firstWhere(
+//         (friend) => friend.id == friendId,
+//         orElse:
+//             () =>
+//                 FriendProfile(id: '', nickname: 'unknown', profileImageUrl: ''),
+//       );
+
+//       return friendProfile;
+//     } catch (e) {
+//       debugPrint('FriendProfilesNotifier.searchFriendProfile error: $e');
+//       return null;
+//     }
+//   }
+
+//   // ID 로 친구 검색 - 여러명
+//   List<FriendProfile> searchFriendProfiles(List<String> ids) {
+//     List<FriendProfile> friendProfiles = [];
+//     try {
+//       for (String id in ids) {
+//         final friendProfile = searchFriendProfile(id);
+//         if (friendProfile != null) {
+//           friendProfiles.add(friendProfile);
+//         }
+//       }
+//     } catch (e) {
+//       debugPrint('FriendProfilesNotifier.searchFriendProfiles error: $e');
+//     }
+//     return friendProfiles;
+//   }
+// }
+
+class FriendProfileNotifier2 extends AsyncNotifier<FriendProfilesState> {
+  @override
+  FutureOr<FriendProfilesState> build() async {
     try {
-      state = state.copyWith(isLoading: true);
-      final friendList = await _service.fetchFriendList();
-
-      state = state.copyWith(
-        friendList: friendList,
-        isLoading: false,
-        error: null,
-      );
-      // 이름 순서 정렬
-      state.friendList.sort((a, b) => a.displayName.compareTo(b.displayName));
+      final service = ref.read(profileServiceProvider);
+      final friendList = await service.fetchFriendList();
+      final sortedList = List<FriendProfile>.from(friendList)
+        ..sort((a, b) => a.displayName.compareTo(b.displayName));
+      return FriendProfilesState(friendList: sortedList);
     } catch (e) {
-      debugPrint('FriendProfilesNotifier.fetchFriendList error: $e');
-      state = state.copyWith(isLoading: false, error: e.toString());
+      ref
+          .read(errorProvider.notifier)
+          .setError('FriendProfileNotifier2 Error: $e');
+      return FriendProfilesState(friendList: []);
     }
   }
 
-  Future<void> refreshFriendList() async {
-    await fetchFriendList();
+  // 새로고침
+  Future<void> refreash() async {
+    ref.invalidateSelf();
+    await future;
   }
 
+  // ========== 로컬 상태 변경 ==========
   // ID 로 친구 검색 - 한명
-  FriendProfile? searchFriendProfile(String friendId) {
+  FriendProfile searchFriendProfile(String friendId) {
     try {
-      final userProfile = _ref.read(userProfileProvider).userProfile;
-      // 사용자의 id가 들어오면 사용자의 id를 반환
+      final userProfile = ref.read(userProfileProvider).userProfile;
       if (userProfile != null && userProfile.id == friendId) {
         return FriendProfile(
           id: userProfile.id,
@@ -140,17 +214,16 @@ class FriendProfilesNotifier extends StateNotifier<FriendProfilesState> {
           profileImageUrl: userProfile.profileImageUrl,
         );
       }
-      final friendProfile = state.friendList.firstWhere(
+      final friendProfile = state.value!.friendList.firstWhere(
         (friend) => friend.id == friendId,
-        orElse:
-            () =>
-                FriendProfile(id: '', nickname: 'unknown', profileImageUrl: ''),
+        orElse: () => FriendProfile(id: '', nickname: 'unknown'),
       );
-
       return friendProfile;
     } catch (e) {
-      debugPrint('FriendProfilesNotifier.searchFriendProfile error: $e');
-      return null;
+      ref
+          .read(errorProvider.notifier)
+          .setError('searchFriendProfile Error: $e');
+      return FriendProfile(id: '', nickname: 'unknown');
     }
   }
 
@@ -160,12 +233,12 @@ class FriendProfilesNotifier extends StateNotifier<FriendProfilesState> {
     try {
       for (String id in ids) {
         final friendProfile = searchFriendProfile(id);
-        if (friendProfile != null) {
-          friendProfiles.add(friendProfile);
-        }
+        friendProfiles.add(friendProfile);
       }
     } catch (e) {
-      debugPrint('FriendProfilesNotifier.searchFriendProfiles error: $e');
+      ref
+          .read(errorProvider.notifier)
+          .setError('searchFriendProfiles Error: $e');
     }
     return friendProfiles;
   }

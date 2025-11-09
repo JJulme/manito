@@ -6,8 +6,9 @@ class MissionService {
   MissionService(this._supabase);
 
   /// 내가 생성한 미션 데이터 가져오기
-  Future<List<Map<String, dynamic>>> fetchMyMissionsData(String userId) async {
+  Future<List<Map<String, dynamic>>> fetchMyMissionsData() async {
     try {
+      final userId = _supabase.auth.currentUser!.id;
       final List<dynamic> missionsData = await _supabase
           .from('missions')
           .select(

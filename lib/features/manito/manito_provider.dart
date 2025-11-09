@@ -65,9 +65,7 @@ class ManitoListNotifier extends AsyncNotifier<ManitoListState> {
           .read(friendProfilesProvider.notifier)
           .searchFriendProfile(creatorId);
 
-      if (creatorProfile != null) {
-        acceptList.add(ManitoAccept.fromJson(acceptData, creatorProfile));
-      }
+      acceptList.add(ManitoAccept.fromJson(acceptData, creatorProfile));
     }
     return acceptList;
   }
@@ -81,9 +79,7 @@ class ManitoListNotifier extends AsyncNotifier<ManitoListState> {
           .read(friendProfilesProvider.notifier)
           .searchFriendProfile(creatorId);
 
-      if (creatorProfile != null) {
-        guessList.add(ManitoGuess.fromJson(guessData, creatorProfile));
-      }
+      guessList.add(ManitoGuess.fromJson(guessData, creatorProfile));
     }
     return guessList;
   }
@@ -217,6 +213,7 @@ class ManitoPostNotifier
                 : ManitoPostStatus.saved,
       );
     } catch (e) {
+      ref.read(errorProvider.notifier).setError('ManitoPostNotifier Error: $e');
       return ManitoPostState(
         manitoAccept: arg,
         status: ManitoPostStatus.editing,

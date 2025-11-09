@@ -61,16 +61,12 @@ class MyMissionState {
   final List<MyMission> pendingMyMissions;
   final List<MyMission> acceptMyMissions;
   final List<MyMission> completeMyMissions;
-  final bool isLoading;
-  final String? error;
 
   MyMissionState({
     this.allMissions = const [],
     this.pendingMyMissions = const [],
     this.acceptMyMissions = const [],
     this.completeMyMissions = const [],
-    this.isLoading = false,
-    this.error,
   });
 
   MyMissionState copyWith({
@@ -86,8 +82,6 @@ class MyMissionState {
       pendingMyMissions: pendingMyMissions ?? this.pendingMyMissions,
       acceptMyMissions: acceptMyMissions ?? this.acceptMyMissions,
       completeMyMissions: completeMyMissions ?? this.completeMyMissions,
-      isLoading: isLoading ?? this.isLoading,
-      error: error,
     );
   }
 }

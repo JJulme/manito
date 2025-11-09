@@ -271,11 +271,11 @@ class BadgeNotifier extends AsyncNotifier<BadgeState> {
               break;
             case 'mission_accept':
               // 미션 수락 처리
-              ref.read(missionListProvider.notifier).fetchMyMissions();
+              ref.read(missionListProvider.notifier).refresh();
               break;
             case 'mission_guess':
               // 미션 추측 처리
-              ref.read(missionListProvider.notifier).fetchMyMissions();
+              ref.read(missionListProvider.notifier).refresh();
               break;
             case 'post_comment':
               debugPrint('새로운 댓글: missionId=$typeId');

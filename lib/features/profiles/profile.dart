@@ -132,30 +132,13 @@ class UserProfileState {
 
 class FriendProfilesState {
   final List<FriendProfile> friendList;
-  final bool isLoading;
-  final String? error;
 
-  const FriendProfilesState({
-    required this.friendList,
-    required this.isLoading,
-    this.error,
-  });
+  const FriendProfilesState({required this.friendList});
 
-  const FriendProfilesState.initial()
-    : friendList = const [],
-      isLoading = false,
-      error = null;
+  const FriendProfilesState.initial() : friendList = const [];
 
-  FriendProfilesState copyWith({
-    List<FriendProfile>? friendList,
-    bool? isLoading,
-    String? error,
-  }) {
-    return FriendProfilesState(
-      friendList: friendList ?? this.friendList,
-      isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
-    );
+  FriendProfilesState copyWith({List<FriendProfile>? friendList}) {
+    return FriendProfilesState(friendList: friendList ?? this.friendList);
   }
 }
 

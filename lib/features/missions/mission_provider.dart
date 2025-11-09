@@ -1,12 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/providers.dart';
+import 'package:manito/features/error/error_provider.dart';
 import 'package:manito/features/missions/mission.dart';
 import 'package:manito/features/missions/mission_service.dart';
 import 'package:manito/features/profiles/profile.dart';
 import 'package:manito/features/profiles/profile_provider.dart';
 
-// ========== Provider ==========
+// ========== Service Provider ==========
 final missionServiceProvider = Provider<MissionService>((ref) {
   final supabase = ref.watch(supabaseProvider);
   return MissionService(supabase);
@@ -22,11 +25,12 @@ final missionGuessServiceProvider = Provider<MissionGuessService>((ref) {
   return MissionGuessService(supabase);
 });
 
+// ========== Notifier Provider ==========
+
 final missionListProvider =
-    StateNotifierProvider<MissionListNotifier, MyMissionState>((ref) {
-      final service = ref.watch(missionServiceProvider);
-      return MissionListNotifier(ref, service);
-    });
+    AsyncNotifierProvider<MissionListNotifier, MyMissionState>(
+      MissionListNotifier.new,
+    );
 
 final missionCreateProvider = StateNotifierProvider.autoDispose<
   MissionCreateNotifier,
@@ -45,85 +49,47 @@ final missionGuessProvider =
     });
 
 // ========== Notifier ==========
-class MissionListNotifier extends StateNotifier<MyMissionState> {
-  final Ref _ref;
-  final MissionService _service;
-  MissionListNotifier(this._ref, this._service) : super(MyMissionState());
-
-  String get _currentUserId => _ref.read(currentUserProvider)!.id;
-
-  /// 내가 생성한 미션 리스트 가져오기 - 대기, 진행중, 완료
-  Future<void> fetchMyMissions() async {
-    state = state.copyWith(isLoading: true, error: null);
-
+class MissionListNotifier extends AsyncNotifier<MyMissionState> {
+  @override
+  FutureOr<MyMissionState> build() async {
     try {
-      // Friends Provider에서 친구 목록 가져오기
-      final friendsState = _ref.read(friendProfilesProvider);
-      if (!friendsState.isLoading && friendsState.friendList.isEmpty) {
-        await _ref.read(friendProfilesProvider.notifier).fetchFriendList();
-      }
-      int attempts = 0;
-      while (_ref.read(friendProfilesProvider).isLoading && attempts < 20) {
-        await Future.delayed(const Duration(microseconds: 500));
-        attempts++;
-      }
-
-      final updatedFriendState = _ref.read(friendProfilesProvider);
-      if (updatedFriendState.friendList.isEmpty) {
-        state = state.copyWith(
-          allMissions: [],
-          pendingMyMissions: [],
-          acceptMyMissions: [],
-          completeMyMissions: [],
-          isLoading: false,
-          error: null,
-        );
-        debugPrint('친구가 없어서 미션을 가져올 수 없습니다.');
-        return;
-      }
-
-      // 미션 데이터 가져오기
-      final missionsData = await _service.fetchMyMissionsData(_currentUserId);
-
-      // 각 미션에 친구 프로필 추가
-      final List<MyMission> allMissions = [];
-      for (var missionData in missionsData) {
-        final List<String> friendIds = List<String>.from(
-          missionData['friend_ids'] ?? [],
-        );
-
-        // 친구 프로필 검색
-        final List<FriendProfile> friendProfiles = _ref
-            .read(friendProfilesProvider.notifier)
-            .searchFriendProfiles(friendIds);
-
-        final myMission = MyMission.fromJson(missionData, friendProfiles);
-        allMissions.add(myMission);
-      }
-
-      // 상태별로 미션 분류
-      final pendingMissions =
-          allMissions.where((mission) => mission.status == 'pending').toList();
-
-      final acceptMissions =
-          allMissions
-              .where((mission) => mission.status == 'progressing')
-              .toList();
-
-      final completeMissions =
-          allMissions.where((mission) => mission.status == 'guessing').toList();
-
-      state = state.copyWith(
-        allMissions: allMissions,
-        pendingMyMissions: pendingMissions,
-        acceptMyMissions: acceptMissions,
-        completeMyMissions: completeMissions,
-        isLoading: false,
-      );
+      final friendsState = ref.watch(friendProfilesProvider);
+      final friendList = friendsState.value?.friendList;
+      if (friendList == null || friendList.isEmpty) return MyMissionState();
+      return await _fetchMyMissions(friendList);
     } catch (e) {
-      debugPrint('MissionListNotifier.fetchMyMissions Error: $e');
-      state = state.copyWith(isLoading: false, error: e.toString());
+      ref.read(errorProvider.notifier).setError('fetchMyMissions Error: $e');
+      return MyMissionState();
     }
+  }
+
+  // 미션 목록 가져오기
+  Future<MyMissionState> _fetchMyMissions(List<FriendProfile> friends) async {
+    final service = ref.read(missionServiceProvider);
+    final missionsData = await service.fetchMyMissionsData();
+    final allMissions = <MyMission>[];
+    for (var missionData in missionsData) {
+      final friendIds = List<String>.from(missionData['friend_ids'] ?? []);
+      final friendProfiles =
+          friends.where((f) => friendIds.contains(f.id)).toList();
+      allMissions.add(MyMission.fromJson(missionData, friendProfiles));
+    }
+
+    return MyMissionState(
+      allMissions: allMissions,
+      pendingMyMissions:
+          allMissions.where((m) => m.status == 'pending').toList(),
+      acceptMyMissions:
+          allMissions.where((m) => m.status == 'progressing').toList(),
+      completeMyMissions:
+          allMissions.where((m) => m.status == 'guessing').toList(),
+    );
+  }
+
+  // 새로고침
+  Future<void> refresh() async {
+    ref.invalidateSelf();
+    await future;
   }
 }
 

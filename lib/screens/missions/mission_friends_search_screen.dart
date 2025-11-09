@@ -45,7 +45,7 @@ class _MissionFriendsSearchScreenState
   Widget build(BuildContext context) {
     final state = ref.watch(missionCreateProvider);
     final notifier = ref.read(missionCreateProvider.notifier);
-    final friendsState = ref.watch(friendProfilesProvider);
+    final friendsState = ref.watch(friendProfilesProvider).value;
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -56,7 +56,7 @@ class _MissionFriendsSearchScreenState
               children: [
                 SizedBox(height: width * 0.05),
                 _buildSelectedFriendList(state, notifier),
-                _buildAllFriendList(friendsState, notifier),
+                _buildAllFriendList(friendsState!, notifier),
               ],
             ),
           ),

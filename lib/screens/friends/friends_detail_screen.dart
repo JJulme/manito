@@ -57,7 +57,7 @@ class _FriendsDetailScreenState extends ConsumerState<FriendsDetailScreen> {
       final userId = ref.read(currentUserProvider)!.id;
       final friendId = widget.friendProfile!.id;
       await ref.read(blacklistServiceProvider).blockFriend(userId, friendId);
-      ref.read(friendProfilesProvider.notifier).fetchFriendList();
+      ref.read(friendProfilesProvider.notifier).refreash();
       if (!mounted) return;
       Navigator.pop(context);
     }
@@ -167,14 +167,12 @@ class _FriendsDetailScreenState extends ConsumerState<FriendsDetailScreen> {
 
   // 포스트 아이템
   Widget _buildPostItem(Post post) {
-    final FriendProfile manitoProfile =
-        ref
-            .read(friendProfilesProvider.notifier)
-            .searchFriendProfile(post.manitoId!)!;
-    final FriendProfile creatorProfile =
-        ref
-            .read(friendProfilesProvider.notifier)
-            .searchFriendProfile(post.creatorId!)!;
+    final FriendProfile manitoProfile = ref
+        .read(friendProfilesProvider.notifier)
+        .searchFriendProfile(post.manitoId!);
+    final FriendProfile creatorProfile = ref
+        .read(friendProfilesProvider.notifier)
+        .searchFriendProfile(post.creatorId!);
     final int badgeCount = ref.watch(specificBadgeProvider(post.id!));
 
     return PostItem(

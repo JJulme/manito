@@ -24,7 +24,6 @@ class _PostScreenState extends ConsumerState<PostScreen>
   static const double _horizontalPadding = 0.03;
   static const double _verticalSpacing = 0.02;
   static const double _borderRadius = 0.02;
-  static const double _bannerPadding = 0.06;
 
   @override
   void initState() {
@@ -32,11 +31,11 @@ class _PostScreenState extends ConsumerState<PostScreen>
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       ref.read(postsProvider.notifier).fetchPosts();
-      // 친구 목록 데이터가 없을경우
-      final friendListState = ref.read(friendProfilesProvider);
-      if (friendListState.isLoading || friendListState.friendList.isEmpty) {
-        ref.read(friendProfilesProvider.notifier).fetchFriendList();
-      }
+      // // 친구 목록 데이터가 없을경우
+      // final friendListState = ref.read(friendProfilesProvider);
+      // if (friendListState.isLoading || friendListState.friendList.isEmpty) {
+      //   ref.read(friendProfilesProvider.notifier).fetchFriendList();
+      // }
     });
   }
 
@@ -54,10 +53,10 @@ class _PostScreenState extends ConsumerState<PostScreen>
   Widget build(BuildContext context) {
     super.build(context);
     final postState = ref.watch(postsProvider);
-    final friendProfilesState = ref.watch(friendProfilesProvider);
+    final friendProfilesState = ref.watch(friendProfilesProvider).value;
     return Scaffold(
       appBar: MainAppbar(text: '기록'),
-      body: SafeArea(child: _buildBody(postState, friendProfilesState)),
+      body: SafeArea(child: _buildBody(postState, friendProfilesState!)),
     );
   }
 
@@ -67,7 +66,7 @@ class _PostScreenState extends ConsumerState<PostScreen>
     FriendProfilesState friendProfilesState,
   ) {
     // 로딩
-    if (postState.isLoading || friendProfilesState.isLoading) {
+    if (postState.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
     // 오류
@@ -121,14 +120,12 @@ class _PostScreenState extends ConsumerState<PostScreen>
 
   // 포스트 아이템
   Widget _buildPostItem(Post post) {
-    final FriendProfile manitoProfile =
-        ref
-            .read(friendProfilesProvider.notifier)
-            .searchFriendProfile(post.manitoId!)!;
-    final FriendProfile creatorProfile =
-        ref
-            .read(friendProfilesProvider.notifier)
-            .searchFriendProfile(post.creatorId!)!;
+    final FriendProfile manitoProfile = ref
+        .read(friendProfilesProvider.notifier)
+        .searchFriendProfile(post.manitoId!);
+    final FriendProfile creatorProfile = ref
+        .read(friendProfilesProvider.notifier)
+        .searchFriendProfile(post.creatorId!);
     final int badgeCount = ref.watch(
       specificBadgeByIdProvider((type: 'post_comment', typeId: post.id!)),
     );
