@@ -6,6 +6,7 @@ import 'package:manito/features/missions/mission.dart';
 import 'package:manito/features/missions/mission_provider.dart';
 import 'package:manito/main.dart';
 import 'package:manito/share/constants.dart';
+import 'package:manito/share/custom_toast.dart';
 import 'package:manito/share/sub_appbar.dart';
 import 'package:manito/widgets/friend_grid_list.dart';
 
@@ -30,40 +31,31 @@ class _MissionGuessScreenState extends ConsumerState<MissionGuessScreen> {
     return null;
   }
 
-  void _updateMissionGuess(MissionGuessNotifier notifier) async {
+  // 추측 업데이트 동작
+  Future<void> _handelUpdateMissionGuess() async {
     if (_formKey.currentState!.validate()) {
-      await notifier.updateMissionGuess(
-        widget.mission.id,
-        guessController.text,
-      );
+      await ref
+          .read(missionGuessProvider.notifier)
+          .updateMissionGuess(widget.mission.id, guessController.text);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(missionGuessProvider);
-    final notifier = ref.watch(missionGuessProvider.notifier);
+    final missionGuessAsync = ref.watch(missionGuessProvider);
 
-    ref.listen(missionGuessProvider, (previous, next) {
-      if (previous?.isLoading == true &&
-          next.isLoading == false &&
-          next.error == null) {
+    // 업데이트 성공시
+    ref.listen(missionGuessProvider, (prev, next) {
+      if (next.hasValue && (prev!.isLoading == true)) {
         context.pop(true);
-      }
-      if (next.error != null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: ${next.error}')));
+        customToast(msg: '마니또를 확인해보세요!');
       }
     });
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        appBar: SubAppbar(
-          title: Text("mission_guess_screen.title").tr(),
-          // actions: [_appbarAction(width)],
-        ),
+        appBar: SubAppbar(title: Text("mission_guess_screen.title").tr()),
         body: SafeArea(
           child: Column(
             children: [
@@ -81,7 +73,7 @@ class _MissionGuessScreenState extends ConsumerState<MissionGuessScreen> {
                   ),
                 ),
               ),
-              _buildBottomButton(state, notifier),
+              _buildBottomButton(missionGuessAsync),
             ],
           ),
         ),
@@ -140,10 +132,7 @@ class _MissionGuessScreenState extends ConsumerState<MissionGuessScreen> {
   }
 
   // 바텀 버튼
-  Widget _buildBottomButton(
-    MissionGuessState state,
-    MissionGuessNotifier notifier,
-  ) {
+  Widget _buildBottomButton(AsyncValue<void> state) {
     return Container(
       width: double.infinity,
       height: width * 0.13,
@@ -152,7 +141,7 @@ class _MissionGuessScreenState extends ConsumerState<MissionGuessScreen> {
         horizontal: width * 0.04,
       ),
       child: ElevatedButton(
-        onPressed: state.isLoading ? null : () => _updateMissionGuess(notifier),
+        onPressed: state.isLoading ? null : () => _handelUpdateMissionGuess(),
         child:
             state.isLoading
                 ? CircularProgressIndicator()

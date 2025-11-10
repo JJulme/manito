@@ -113,16 +113,3 @@ class MissionCreateState {
     );
   }
 }
-
-class MissionGuessState {
-  final bool isLoading;
-  final String? error;
-  MissionGuessState({this.isLoading = false, this.error});
-
-  MissionGuessState copyWith({bool? isLoading, String? error}) {
-    return MissionGuessState(
-      isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
-    );
-  }
-}

@@ -40,13 +40,9 @@ final missionCreateProvider = StateNotifierProvider.autoDispose<
   return MissionCreateNotifier(ref, service);
 });
 
-final missionGuessProvider =
-    StateNotifierProvider.autoDispose<MissionGuessNotifier, MissionGuessState>((
-      ref,
-    ) {
-      final service = ref.watch(missionGuessServiceProvider);
-      return MissionGuessNotifier(service);
-    });
+final missionGuessProvider = AsyncNotifierProvider<MissionGuessNotifier, void>(
+  MissionGuessNotifier.new,
+);
 
 // ========== Notifier ==========
 class MissionListNotifier extends AsyncNotifier<MyMissionState> {
@@ -174,18 +170,23 @@ class MissionCreateNotifier extends StateNotifier<MissionCreateState> {
   }
 }
 
-class MissionGuessNotifier extends StateNotifier<MissionGuessState> {
-  final MissionGuessService _service;
-  MissionGuessNotifier(this._service) : super(MissionGuessState());
+class MissionGuessNotifier extends AsyncNotifier<void> {
+  @override
+  FutureOr<void> build() {
+    return null;
+  }
 
+  // 추측 업데이트
   Future<void> updateMissionGuess(String missionId, String text) async {
+    state = const AsyncValue.loading();
     try {
-      state = state.copyWith(isLoading: true, error: null);
-      await _service.updateMissionGuess(missionId, text);
-      state = state.copyWith(isLoading: false);
+      state = await AsyncValue.guard(() async {
+        final service = ref.read(missionGuessServiceProvider);
+        await service.updateMissionGuess(missionId, text);
+      });
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-      debugPrint('MissionGuessNotifier.updateMissionGuess: $e');
+      ref.read(errorProvider.notifier).setError('updateMissionGuess Error: $e');
+      rethrow;
     }
   }
 }
