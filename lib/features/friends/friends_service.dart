@@ -46,8 +46,9 @@ class FriendRequestService {
   FriendRequestService(this._supabase);
 
   // 친구 요청 목록 가져오기
-  Future<List<UserProfile>> fetchFriendRequest(String userId) async {
+  Future<List<UserProfile>> fetchFriendRequest() async {
     try {
+      final userId = _supabase.auth.currentUser!.id;
       final data = await _supabase
           .from('friend_requests')
           .select('''
@@ -69,11 +70,9 @@ class FriendRequestService {
   }
 
   /// 친구 수락
-  Future<void> acceptFriendRequest({
-    required String senderId,
-    required String receiverId,
-  }) async {
+  Future<void> acceptFriendRequest(String senderId) async {
     try {
+      final receiverId = _supabase.auth.currentUser!.id;
       await _supabase.rpc(
         'accept_friend_request',
         params: {'req_sender_id': senderId, 'req_receiver_id': receiverId},
@@ -85,11 +84,9 @@ class FriendRequestService {
   }
 
   /// 친구 거절
-  Future<void> rejectFriendRequest({
-    required String senderId,
-    required String receiverId,
-  }) async {
+  Future<void> rejectFriendRequest(String senderId) async {
     try {
+      final receiverId = _supabase.auth.currentUser!.id;
       await _supabase.rpc(
         'reject_friend_request',
         params: {'req_sender_id': senderId, 'req_receiver_id': receiverId},

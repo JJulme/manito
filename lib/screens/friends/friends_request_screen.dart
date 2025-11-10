@@ -22,7 +22,13 @@ class _FriendsRequestScreenState extends ConsumerState<FriendsRequestScreen> {
   static const Color _acceptColor = Colors.green;
   static const Color _rejectColor = Colors.red;
 
-  Future<void> _acceptRequest(String senderId) async {
+  // 새로고침
+  Future<void> _handleRefeash() async {
+    await ref.read(friendRequestProvider.notifier).refresh();
+  }
+
+  // 수락 다이얼로그
+  Future<void> _handleAcceptRequest(String senderId) async {
     final result = await DialogHelper.showConfirmDialog(
       context,
       message: '친구 요청을 수락하시겠습니까?',
@@ -32,8 +38,8 @@ class _FriendsRequestScreenState extends ConsumerState<FriendsRequestScreen> {
     }
   }
 
-  /// 거절 함수
-  Future<void> _rejectRequest(String senderId) async {
+  // 거절 다이얼로그
+  Future<void> _handleRejectRequest(String senderId) async {
     final result = await DialogHelper.showConfirmDialog(
       context,
       message: '친구 요청을 거절하시겠습니까?',
@@ -45,7 +51,7 @@ class _FriendsRequestScreenState extends ConsumerState<FriendsRequestScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(friendRequestProvider);
+    final requestAsync = ref.watch(friendRequestProvider);
     return Scaffold(
       appBar: SubAppbar(
         title:
@@ -54,23 +60,42 @@ class _FriendsRequestScreenState extends ConsumerState<FriendsRequestScreen> {
               style: Theme.of(context).textTheme.headlineMedium,
             ).tr(),
       ),
-      body: _buildBody(state),
+      body: requestAsync.when(
+        loading: () => Center(child: CircularProgressIndicator()),
+        error: (error, stackTrace) => Center(child: Text('$error')),
+        data: (state) {
+          return RefreshIndicator(
+            onRefresh: () => _handleRefeash(),
+            child: SingleChildScrollView(
+              physics: AlwaysScrollableScrollPhysics(),
+              child: _buildBody(state),
+            ),
+          );
+        },
+      ),
     );
   }
 
+  // 바디
   Widget _buildBody(FriendRequestState state) {
-    if (state.isLoading) {
-      return Center(child: CircularProgressIndicator());
-    } else if (state.isLoading == false && state.requestUserList.isEmpty) {
-      return Center(
+    // 친구 요청이 없을 때
+    if (state.requestUserList.isEmpty) {
+      return Container(
+        width: width,
+        height: width,
+        alignment: Alignment.center,
         child:
             Text(
               'friends_request_screen.empty_request',
               style: Theme.of(context).textTheme.bodyMedium,
             ).tr(),
       );
-    } else {
+    }
+    // 친구요청이 있을 때
+    else {
       return ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
         itemCount: state.requestUserList.length,
         itemBuilder: (context, index) {
           final userProfile = state.requestUserList[index];
@@ -80,6 +105,7 @@ class _FriendsRequestScreenState extends ConsumerState<FriendsRequestScreen> {
     }
   }
 
+  // 친구 신청 아이템
   Widget _buildRequestItem(UserProfile userProfile) {
     return Container(
       padding: EdgeInsets.symmetric(
@@ -129,17 +155,19 @@ class _FriendsRequestScreenState extends ConsumerState<FriendsRequestScreen> {
     );
   }
 
+  // 수락 버튼
   Widget _buildAcceptButton(UserProfile userProfile) {
     return IconButton(
       icon: Icon(Icons.check_rounded, color: _acceptColor, size: width * 0.08),
-      onPressed: () => _acceptRequest(userProfile.id),
+      onPressed: () => _handleAcceptRequest(userProfile.id),
     );
   }
 
+  // 거절 버튼
   Widget _buildRejectButton(UserProfile userProfile) {
     return IconButton(
       icon: Icon(Icons.close_rounded, color: _rejectColor, size: width * 0.08),
-      onPressed: () => _rejectRequest(userProfile.id),
+      onPressed: () => _handleRejectRequest(userProfile.id),
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/providers.dart';
@@ -35,13 +37,10 @@ final friendSearchProvider =
       FriendSearchNotifier.new,
     );
 
-final friendRequestProvider = StateNotifierProvider.autoDispose<
-  FriendRequestNotifier,
-  FriendRequestState
->((ref) {
-  final service = ref.watch(friendRequestServiceProvider);
-  return FriendRequestNotifier(ref, service);
-});
+final friendRequestProvider =
+    AsyncNotifierProvider<FriendRequestNotifier, FriendRequestState>(
+      FriendRequestNotifier.new,
+    );
 
 final blacklistProvider =
     StateNotifierProvider.autoDispose<BlacklistNotifier, BlacklistState>((ref) {
@@ -118,58 +117,58 @@ class FriendSearchNotifier extends AsyncNotifier<FriendSearchState> {
   }
 }
 
-class FriendRequestNotifier extends StateNotifier<FriendRequestState> {
-  final Ref _ref;
-  final FriendRequestService _service;
-  FriendRequestNotifier(this._ref, this._service)
-    : super(FriendRequestState()) {
-    fetchFriendRequest();
-  }
-
-  String get _currentUserId => _ref.read(currentUserProvider)!.id;
-
-  // 친구요청 가져오기
-  Future<void> fetchFriendRequest() async {
-    state = state.copyWith(isLoading: true);
+class FriendRequestNotifier extends AsyncNotifier<FriendRequestState> {
+  @override
+  FutureOr<FriendRequestState> build() async {
     try {
-      final requestList = await _service.fetchFriendRequest(_currentUserId);
-      state = state.copyWith(requestUserList: requestList, isLoading: false);
+      final service = ref.read(friendRequestServiceProvider);
+      final requestList = await service.fetchFriendRequest();
+      return FriendRequestState(requestUserList: requestList);
     } catch (e) {
-      debugPrint('FriendRequestNotifier.fetchFriendRequest Error: $e');
-      state = state.copyWith(isLoading: false, error: e.toString());
+      ref
+          .read(errorProvider.notifier)
+          .setError('FriendRequestNotifier Error: $e');
+      return FriendRequestState();
     }
   }
 
-  /// 친구 수락
-  Future<String> acceptFriendRequest(String senderId) async {
-    try {
-      await _service.acceptFriendRequest(
-        senderId: senderId,
-        receiverId: _currentUserId,
-      );
+  // 새로고침
+  Future<void> refresh() async {
+    ref.invalidateSelf();
+    await future;
+  }
 
-      await fetchFriendRequest();
-      await _ref.read(friendProfilesProvider.notifier).refreash();
-      return 'request_accept';
+  // 친구 수락
+  Future<void> acceptFriendRequest(senderId) async {
+    try {
+      final service = ref.read(friendRequestServiceProvider);
+      await service.acceptFriendRequest(senderId);
+      // 신청목록 새로고침
+      await refresh();
+      // 친구목록 새로고침
+      await ref.read(friendProfilesProvider.notifier).refreash();
     } catch (e) {
-      debugPrint('FriendRequestNotifier.acceptFriendRequest Error: $e');
-      return 'request_accept_error';
+      ref
+          .read(errorProvider.notifier)
+          .setError('acceptFriendRequest Error: $e');
+      rethrow;
     }
   }
 
-  /// 친구 거절
-  Future<String> rejectFriendRequest(String senderId) async {
+  // 친구 거절
+  Future<void> rejectFriendRequest(senderId) async {
     try {
-      await _service.rejectFriendRequest(
-        senderId: senderId,
-        receiverId: _currentUserId,
-      );
-
-      await fetchFriendRequest();
-      return 'request_reject';
+      final service = ref.read(friendRequestServiceProvider);
+      await service.rejectFriendRequest(senderId);
+      // 신청목록 새로고침
+      await refresh();
+      // 친구목록 새로고침
+      await ref.read(friendProfilesProvider.notifier).refreash();
     } catch (e) {
-      debugPrint('FriendRequestNotifier.rejectFriendRequest Error: $e');
-      return 'request_reject_error';
+      ref
+          .read(errorProvider.notifier)
+          .setError('rejectFriendRequest Error: $e');
+      rethrow;
     }
   }
 }

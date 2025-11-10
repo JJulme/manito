@@ -28,23 +28,11 @@ class FriendSearchState {
 
 class FriendRequestState {
   final List<UserProfile> requestUserList;
-  final bool isLoading;
-  final String? error;
-  FriendRequestState({
-    this.requestUserList = const [],
-    this.isLoading = false,
-    this.error,
-  });
+  FriendRequestState({this.requestUserList = const []});
 
-  FriendRequestState copyWith({
-    List<UserProfile>? requestUserList,
-    bool? isLoading,
-    String? error,
-  }) {
+  FriendRequestState copyWith({List<UserProfile>? requestUserList}) {
     return FriendRequestState(
       requestUserList: requestUserList ?? this.requestUserList,
-      isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
     );
   }
 }
