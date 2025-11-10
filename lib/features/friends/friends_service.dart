@@ -160,12 +160,9 @@ class FriendEditService {
   final SupabaseClient _supabase;
   FriendEditService(this._supabase);
 
-  Future<void> updateFriendName(
-    String userId,
-    String friendId,
-    String name,
-  ) async {
+  Future<void> updateFriendName(String friendId, String name) async {
     try {
+      final userId = _supabase.auth.currentUser!.id;
       await _supabase
           .from('friends')
           .update({'friend_nickname': name})

@@ -46,16 +46,3 @@ class BlacklistState {
     return BlacklistState(blackList: blackList ?? this.blackList);
   }
 }
-
-class FriendEditState {
-  final bool isLoading;
-  final String? error;
-  FriendEditState({this.isLoading = false, this.error});
-
-  FriendEditState copyWith({bool? isLoading, String? error}) {
-    return FriendEditState(
-      isLoading: isLoading ?? this.isLoading,
-      error: error,
-    );
-  }
-}

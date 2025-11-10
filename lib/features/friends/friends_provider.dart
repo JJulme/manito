@@ -1,7 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
-
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/providers.dart';
 import 'package:manito/features/error/error_provider.dart';
@@ -48,13 +45,9 @@ final blacklistProvider =
       BlacklistNotifier.new,
     );
 
-final friendEditProvider =
-    StateNotifierProvider.autoDispose<FriendEditNotifier, FriendEditState>((
-      ref,
-    ) {
-      final service = ref.watch(friendEditServiceProvider);
-      return FriendEditNotifier(ref, service);
-    });
+final friendEditProvider = AsyncNotifierProvider<FriendEditNotifier, void>(
+  FriendEditNotifier.new,
+);
 
 // ========== Notifier ==========
 class FriendSearchNotifier extends AsyncNotifier<FriendSearchState> {
@@ -217,23 +210,27 @@ class BlacklistNotifier extends AsyncNotifier<BlacklistState> {
   }
 }
 
-class FriendEditNotifier extends StateNotifier<FriendEditState> {
-  final Ref _ref;
-  final FriendEditService _service;
-  FriendEditNotifier(this._ref, this._service) : super(FriendEditState());
+class FriendEditNotifier extends AsyncNotifier<void> {
+  @override
+  FutureOr<void> build() {
+    return null;
+  }
 
-  String get _currentUserId => _ref.read(currentUserProvider)!.id;
-
-  Future<bool> updateFriendName(String friendId, String name) async {
-    state = state.copyWith(isLoading: true, error: null);
+  // 친구 이름 사용자 수정
+  Future<void> updateFriendName(String friendId, String name) async {
+    state = const AsyncValue.loading();
     try {
-      await _service.updateFriendName(_currentUserId, friendId, name);
-      state = state.copyWith(isLoading: false);
-      return true;
+      state = await AsyncValue.guard(() async {
+        final service = ref.read(friendEditServiceProvider);
+        // 서버 업데이트
+        await service.updateFriendName(friendId, name);
+        // 로컬 업데이트
+        ref
+            .read(friendProfilesProvider.notifier)
+            .updateFriendNameInList(friendId, name);
+      });
     } catch (e) {
-      debugPrint('FriendEditNotifier.updateFriendName Error: $e');
-      state = state.copyWith(isLoading: false, error: e.toString());
-      return false;
+      ref.read(errorProvider.notifier).setError('updateFriendName Error: $e');
     }
   }
 }

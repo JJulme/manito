@@ -32,8 +32,8 @@ final userProfileProvider =
 //     });
 
 final friendProfilesProvider =
-    AsyncNotifierProvider<FriendProfileNotifier2, FriendProfilesState>(
-      FriendProfileNotifier2.new,
+    AsyncNotifierProvider<FriendProfileNotifier, FriendProfilesState>(
+      FriendProfileNotifier.new,
     );
 
 final profileEditServiceProvider = Provider.autoDispose<ProfileEditService>((
@@ -104,81 +104,7 @@ class UserProfileNotifier2 extends AsyncNotifier<UserProfile> {
   }
 }
 
-// class FriendProfilesNotifier extends StateNotifier<FriendProfilesState> {
-//   final Ref _ref;
-//   final ProfileService _service;
-//   FriendProfilesNotifier(this._ref, this._service)
-//     : super(const FriendProfilesState.initial());
-
-//   Future<void> fetchFriendList() async {
-//     try {
-//       state = state.copyWith(isLoading: true);
-//       final friendList = await _service.fetchFriendList();
-
-//       // ✅ 정렬을 먼저 하고 상태 업데이트
-//       final sortedList = List<FriendProfile>.from(friendList)
-//         ..sort((a, b) => a.displayName.compareTo(b.displayName));
-
-//       state = state.copyWith(
-//         friendList: sortedList,
-//         isLoading: false,
-//         error: null,
-//       );
-//     } catch (e) {
-//       debugPrint('FriendProfilesNotifier.fetchFriendList error: $e');
-//       state = state.copyWith(isLoading: false, error: e.toString());
-//     }
-//   }
-
-//   Future<void> refreshFriendList() async {
-//     await fetchFriendList();
-//   }
-
-//   // ID 로 친구 검색 - 한명
-//   FriendProfile? searchFriendProfile(String friendId) {
-//     try {
-//       final userProfile = _ref.read(userProfileProvider).userProfile;
-//       // 사용자의 id가 들어오면 사용자의 id를 반환
-//       if (userProfile != null && userProfile.id == friendId) {
-//         return FriendProfile(
-//           id: userProfile.id,
-//           nickname: userProfile.nickname,
-//           statusMessage: userProfile.statusMessage,
-//           profileImageUrl: userProfile.profileImageUrl,
-//         );
-//       }
-//       final friendProfile = state.friendList.firstWhere(
-//         (friend) => friend.id == friendId,
-//         orElse:
-//             () =>
-//                 FriendProfile(id: '', nickname: 'unknown', profileImageUrl: ''),
-//       );
-
-//       return friendProfile;
-//     } catch (e) {
-//       debugPrint('FriendProfilesNotifier.searchFriendProfile error: $e');
-//       return null;
-//     }
-//   }
-
-//   // ID 로 친구 검색 - 여러명
-//   List<FriendProfile> searchFriendProfiles(List<String> ids) {
-//     List<FriendProfile> friendProfiles = [];
-//     try {
-//       for (String id in ids) {
-//         final friendProfile = searchFriendProfile(id);
-//         if (friendProfile != null) {
-//           friendProfiles.add(friendProfile);
-//         }
-//       }
-//     } catch (e) {
-//       debugPrint('FriendProfilesNotifier.searchFriendProfiles error: $e');
-//     }
-//     return friendProfiles;
-//   }
-// }
-
-class FriendProfileNotifier2 extends AsyncNotifier<FriendProfilesState> {
+class FriendProfileNotifier extends AsyncNotifier<FriendProfilesState> {
   @override
   FutureOr<FriendProfilesState> build() async {
     try {
@@ -202,6 +128,21 @@ class FriendProfileNotifier2 extends AsyncNotifier<FriendProfilesState> {
   }
 
   // ========== 로컬 상태 변경 ==========
+  void updateFriendNameInList(String id, String newName) {
+    if (!state.hasValue) return;
+    final currentState = state.value!;
+    final currentList = currentState.friendList;
+    final updateList =
+        currentList.map((friend) {
+          if (friend.id == id) {
+            return friend.copyWith(nickname: newName);
+          }
+          return friend;
+        }).toList();
+    final updateData = currentState.copyWith(friendList: updateList);
+    state = AsyncValue.data(updateData);
+  }
+
   // ID 로 친구 검색 - 한명
   FriendProfile searchFriendProfile(String friendId) {
     try {

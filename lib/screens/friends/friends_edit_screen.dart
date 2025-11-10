@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:manito/features/friends/friends.dart';
 import 'package:manito/features/friends/friends_provider.dart';
 import 'package:manito/features/profiles/profile.dart';
@@ -27,11 +28,7 @@ class _FriendsEditScreenState extends ConsumerState<FriendsEditScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.friendProfile!.friendNickname != null) {
-      _nameController.text = widget.friendProfile!.friendNickname!;
-    } else {
-      _nameController.text = widget.friendProfile!.nickname;
-    }
+    _nameController.text = widget.friendProfile!.displayName;
   }
 
   /// 이름 입력 검증 함수
@@ -43,27 +40,25 @@ class _FriendsEditScreenState extends ConsumerState<FriendsEditScreen> {
     return null;
   }
 
-  Future<void> _updateFriendName(String friendId) async {
+  Future<void> _handleUpdateFriendName() async {
     if (_formKey.currentState!.validate()) {
       final friendName = _nameController.text.trim();
-      final result = await ref
+      await ref
           .read(friendEditProvider.notifier)
-          .updateFriendName(friendId, friendName);
-
-      if (result) {
-        await ref.read(friendProfilesProvider.notifier).refreash();
-        if (!mounted) return;
-        Navigator.pop(context);
-        Navigator.pop(context);
-      } else {
-        customToast(msg: '오류 발생');
-      }
+          .updateFriendName(widget.friendProfile!.id, friendName);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(friendEditProvider);
+    final editAsync = ref.watch(friendEditProvider);
+    ref.listen(friendEditProvider, (prev, next) {
+      if (next.hasValue && (prev!.isLoading == true)) {
+        ref.read(friendProfilesProvider.notifier).refreash();
+        context.pop();
+        context.pop();
+      }
+    });
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -73,7 +68,7 @@ class _FriendsEditScreenState extends ConsumerState<FriendsEditScreen> {
                 "friends_modify_screen.title",
                 style: Theme.of(context).textTheme.titleMedium,
               ).tr(),
-          actions: [_buildUpdateBtn(state)],
+          actions: [_buildUpdateBtn(editAsync)],
         ),
         body: SafeArea(
           child: Stack(
@@ -86,7 +81,7 @@ class _FriendsEditScreenState extends ConsumerState<FriendsEditScreen> {
                   _buildCurrentName(),
                 ],
               ),
-              if (state.isLoading) _buildLoadingOverlay(),
+              if (editAsync.isLoading) _buildLoadingOverlay(),
             ],
           ),
         ),
@@ -94,7 +89,8 @@ class _FriendsEditScreenState extends ConsumerState<FriendsEditScreen> {
     );
   }
 
-  IconButton _buildUpdateBtn(FriendEditState state) {
+  // 변경 버튼
+  IconButton _buildUpdateBtn(AsyncValue<void> state) {
     if (state.isLoading) {
       return IconButton(
         onPressed: null,
@@ -105,7 +101,7 @@ class _FriendsEditScreenState extends ConsumerState<FriendsEditScreen> {
     }
     return IconButton(
       icon: Icon(Icons.check, color: Colors.green, size: width * 0.08),
-      onPressed: () => _updateFriendName(widget.friendProfile!.id),
+      onPressed: () => _handleUpdateFriendName(),
     );
   }
 
