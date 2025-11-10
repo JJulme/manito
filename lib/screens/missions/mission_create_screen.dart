@@ -34,6 +34,7 @@ class _MissionCreateScreenState extends ConsumerState<MissionCreateScreen> {
     } else {
       final result = await DialogHelper.showConfirmDialog(
         context,
+        title: context.tr("mission_create_screen.dialog_title"),
         message: context.tr("mission_create_screen.dialog_message"),
       );
       if (result == true) {
