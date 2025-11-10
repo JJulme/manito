@@ -3,12 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:manito/features/friends/friends.dart';
 import 'package:manito/features/friends/friends_provider.dart';
 import 'package:manito/features/profiles/profile.dart';
 import 'package:manito/features/profiles/profile_provider.dart';
 import 'package:manito/main.dart';
-import 'package:manito/share/custom_toast.dart';
 import 'package:manito/share/sub_appbar.dart';
 
 class FriendsEditScreen extends ConsumerStatefulWidget {
@@ -40,6 +38,7 @@ class _FriendsEditScreenState extends ConsumerState<FriendsEditScreen> {
     return null;
   }
 
+  // 이름 수정 업데이트 동작
   Future<void> _handleUpdateFriendName() async {
     if (_formKey.currentState!.validate()) {
       final friendName = _nameController.text.trim();
@@ -52,6 +51,7 @@ class _FriendsEditScreenState extends ConsumerState<FriendsEditScreen> {
   @override
   Widget build(BuildContext context) {
     final editAsync = ref.watch(friendEditProvider);
+    // 수정 성공시
     ref.listen(friendEditProvider, (prev, next) {
       if (next.hasValue && (prev!.isLoading == true)) {
         ref.read(friendProfilesProvider.notifier).refreash();
