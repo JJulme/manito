@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -43,10 +44,9 @@ final friendRequestProvider =
     );
 
 final blacklistProvider =
-    StateNotifierProvider.autoDispose<BlacklistNotifier, BlacklistState>((ref) {
-      final service = ref.watch(blacklistServiceProvider);
-      return BlacklistNotifier(ref, service);
-    });
+    AsyncNotifierProvider<BlacklistNotifier, BlacklistState>(
+      BlacklistNotifier.new,
+    );
 
 final friendEditProvider =
     StateNotifierProvider.autoDispose<FriendEditNotifier, FriendEditState>((
@@ -173,53 +173,45 @@ class FriendRequestNotifier extends AsyncNotifier<FriendRequestState> {
   }
 }
 
-class BlacklistNotifier extends StateNotifier<BlacklistState> {
-  final Ref _ref;
-  final BlacklistService _service;
-
-  BlacklistNotifier(this._ref, this._service) : super(BlacklistState()) {
-    fetchBlacklist();
-  }
-
-  String get _currentUserId => _ref.read(currentUserProvider)!.id;
-
-  /// 차단 목록 가져오기
-  Future<void> fetchBlacklist() async {
-    state = state.copyWith(isLoading: true, error: null);
+class BlacklistNotifier extends AsyncNotifier<BlacklistState> {
+  @override
+  FutureOr<BlacklistState> build() async {
     try {
-      final blackList = await _service.fetchBlacklist(_currentUserId);
-      state = state.copyWith(blackList: blackList, isLoading: false);
+      final service = ref.read(blacklistServiceProvider);
+      final blackList = await service.fetchBlacklist();
+      return BlacklistState(blackList: blackList);
     } catch (e) {
-      debugPrint('BlacklistNotifier.fetchBlacklist Error: $e');
-      state = state.copyWith(isLoading: false, error: e.toString());
+      ref.read(errorProvider.notifier).setError('BlacklistNotifier Error: $e');
+      return BlacklistState();
     }
   }
 
-  /// 차단 해제
-  Future<String> unblackUser(String blackUserId) async {
-    try {
-      await _service.unblackUser(
-        userId: _currentUserId,
-        blackUserId: blackUserId,
-      );
-      // 목록에서 제거 (UI 즉시 업데이트)
-      state = state.copyWith(
-        blackList:
-            state.blackList.where((user) => user.id != blackUserId).toList(),
-      );
-      return 'unblack_success';
-    } catch (e) {
-      debugPrint('BlacklistNotifier.unblackUser Error: $e');
-      return 'unblack_error';
-    }
+  // 새로고침
+  Future<void> refresh() async {
+    ref.invalidateSelf();
+    await future;
   }
 
-  /// 친구 차단
+  // 친구 차단 - 친구 상세 화면에서 사용
   Future<void> blockFriend(String friendId) async {
     try {
-      await _service.blockFriend(_currentUserId, friendId);
+      final service = ref.read(blacklistServiceProvider);
+      await service.blockFriend(friendId);
+      await ref.read(friendProfilesProvider.notifier).refreash();
     } catch (e) {
-      debugPrint('BlacklistNotifier.blockFriend Error: $e');
+      ref.read(errorProvider.notifier).setError('blockFriend Error: $e');
+      rethrow;
+    }
+  }
+
+  // 차단 해제 - 차단 목록에서 사용
+  Future<void> unblockUser(String blackUserId) async {
+    try {
+      final service = ref.read(blacklistServiceProvider);
+      await service.unblackUser(blackUserId);
+      await refresh();
+    } catch (e) {
+      ref.read(errorProvider.notifier).setError('unblockUser Error: $e');
       rethrow;
     }
   }

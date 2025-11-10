@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:manito/core/providers.dart';
 import 'package:manito/features/badge/badge_provider.dart';
 import 'package:manito/features/friends/friends_provider.dart';
 import 'package:manito/features/posts/post.dart';
@@ -54,9 +53,8 @@ class _FriendsDetailScreenState extends ConsumerState<FriendsDetailScreen> {
       message: context.tr("friends_detail_screen.dialog_message"),
     );
     if (result == true) {
-      final userId = ref.read(currentUserProvider)!.id;
       final friendId = widget.friendProfile!.id;
-      await ref.read(blacklistServiceProvider).blockFriend(userId, friendId);
+      await ref.read(blacklistServiceProvider).blockFriend(friendId);
       ref.read(friendProfilesProvider.notifier).refreash();
       if (!mounted) return;
       Navigator.pop(context);

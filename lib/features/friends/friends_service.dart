@@ -103,8 +103,9 @@ class BlacklistService {
   BlacklistService(this._supabase);
 
   /// 차단 목록 가져오기
-  Future<List<UserProfile>> fetchBlacklist(String userId) async {
+  Future<List<UserProfile>> fetchBlacklist() async {
     try {
+      final userId = _supabase.auth.currentUser!.id;
       final data = await _supabase
           .from('blacklist')
           .select('''
@@ -127,11 +128,9 @@ class BlacklistService {
   }
 
   /// 차단 해제
-  Future<void> unblackUser({
-    required String userId,
-    required String blackUserId,
-  }) async {
+  Future<void> unblackUser(String blackUserId) async {
     try {
+      final userId = _supabase.auth.currentUser!.id;
       await _supabase.from('blacklist').delete().match({
         'user_id': userId,
         'black_user_id': blackUserId,
@@ -143,8 +142,9 @@ class BlacklistService {
   }
 
   /// 친구 차단
-  Future<void> blockFriend(String userId, String friendId) async {
+  Future<void> blockFriend(String friendId) async {
     try {
+      final userId = _supabase.auth.currentUser!.id;
       await _supabase.rpc(
         'block_friend',
         params: {'p_user_id': userId, 'p_friend_id': friendId},

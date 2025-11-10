@@ -19,19 +19,25 @@ class FriendsBlacklistScreen extends ConsumerStatefulWidget {
 
 class _FriendsBlacklistScreenState
     extends ConsumerState<FriendsBlacklistScreen> {
-  Future<void> _unblackUser(String blackUserId) async {
+  // 목록 새로고침
+  Future<void> _handleRefresh() async {
+    await ref.read(blacklistProvider.notifier).refresh();
+  }
+
+  // 차단 해제
+  Future<void> _handleUnblackUser(String blackUserId) async {
     final result = await DialogHelper.showConfirmDialog(
       context,
       message: context.tr("friends_blacklist_screen.dialog_message"),
     );
     if (result == true) {
-      ref.read(blacklistProvider.notifier).unblackUser(blackUserId);
+      ref.read(blacklistProvider.notifier).unblockUser(blackUserId);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(blacklistProvider);
+    final blackListAsync = ref.watch(blacklistProvider);
     return Scaffold(
       appBar: SubAppbar(
         title:
@@ -40,17 +46,29 @@ class _FriendsBlacklistScreenState
               style: Theme.of(context).textTheme.headlineMedium,
             ).tr(),
       ),
-      body: _buildBody(state),
+      body: blackListAsync.when(
+        loading: () => Center(child: CircularProgressIndicator()),
+        error: (error, stackTrace) => Center(child: Text('$error')),
+        data: (state) {
+          return RefreshIndicator(
+            onRefresh: () => _handleRefresh(),
+            child: SingleChildScrollView(
+              physics: AlwaysScrollableScrollPhysics(),
+              child: _buildBody(state),
+            ),
+          );
+        },
+      ),
     );
   }
 
+  // 바디
   Widget _buildBody(BlacklistState state) {
-    if (state.isLoading) {
-      return Center(child: CircularProgressIndicator());
-    } else if (state.error != null) {
-      return Center(child: Text(state.error.toString()));
-    } else if (!state.isLoading && state.blackList.isEmpty) {
-      return Center(
+    if (state.blackList.isEmpty) {
+      return Container(
+        width: width,
+        height: width,
+        alignment: Alignment.center,
         child:
             Text(
               'friends_blacklist_screen.empty_blacklist',
@@ -68,6 +86,7 @@ class _FriendsBlacklistScreenState
     }
   }
 
+  // 블랙리스트 아이템
   Widget _buildBlacklistItem(UserProfile userProfile) {
     return Container(
       padding: EdgeInsets.symmetric(
@@ -90,7 +109,7 @@ class _FriendsBlacklistScreenState
           ),
           OutlinedButton(
             child: Text("friends_blacklist_screen.unblack_btn").tr(),
-            onPressed: () => _unblackUser(userProfile.id),
+            onPressed: () => _handleUnblackUser(userProfile.id),
           ),
         ],
       ),

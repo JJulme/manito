@@ -39,25 +39,11 @@ class FriendRequestState {
 
 class BlacklistState {
   final List<UserProfile> blackList;
-  final bool isLoading;
-  final String? error;
 
-  BlacklistState({
-    this.blackList = const [],
-    this.isLoading = false,
-    this.error,
-  });
+  BlacklistState({this.blackList = const []});
 
-  BlacklistState copyWith({
-    List<UserProfile>? blackList,
-    bool? isLoading,
-    String? error,
-  }) {
-    return BlacklistState(
-      blackList: blackList ?? this.blackList,
-      isLoading: isLoading ?? this.isLoading,
-      error: error,
-    );
+  BlacklistState copyWith({List<UserProfile>? blackList}) {
+    return BlacklistState(blackList: blackList ?? this.blackList);
   }
 }
 
