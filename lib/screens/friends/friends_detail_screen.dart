@@ -19,8 +19,8 @@ import 'package:manito/widgets/profile_item.dart';
 import 'package:manito/widgets/banner_ad_widget.dart';
 
 class FriendsDetailScreen extends ConsumerStatefulWidget {
-  final FriendProfile? friendProfile;
-  const FriendsDetailScreen({super.key, required this.friendProfile});
+  final String friendId;
+  const FriendsDetailScreen({super.key, required this.friendId});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -43,8 +43,8 @@ class _FriendsDetailScreenState extends ConsumerState<FriendsDetailScreen> {
     });
   }
 
-  void _toFriendEdit() {
-    context.push('/friends_edit', extra: widget.friendProfile);
+  void _toFriendEdit(FriendProfile friendProfile) {
+    context.push('/friends_edit', extra: friendProfile);
   }
 
   Future<void> _handleBlackFriend() async {
@@ -53,7 +53,7 @@ class _FriendsDetailScreenState extends ConsumerState<FriendsDetailScreen> {
       message: context.tr("friends_detail_screen.dialog_message"),
     );
     if (result == true) {
-      final friendId = widget.friendProfile!.id;
+      final friendId = widget.friendId;
       await ref.read(blacklistServiceProvider).blockFriend(friendId);
       ref.read(friendProfilesProvider.notifier).refreash();
       if (!mounted) return;
@@ -75,20 +75,27 @@ class _FriendsDetailScreenState extends ConsumerState<FriendsDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final friendProfile = ref.watch(friendDetailProvider(widget.friendId));
     final postsState = ref.watch(postsProvider);
+    if (friendProfile == null) {
+      return Scaffold(
+        appBar: SubAppbar(title: Text('')),
+        body: Center(child: Text('친구정보를 찾을 수 없습니다.')),
+      );
+    }
     return Scaffold(
       appBar: SubAppbar(
-        title: Text(widget.friendProfile!.nickname),
-        actions: [_buildPopupMenu()],
+        title: Text(friendProfile.nickname),
+        actions: [_buildPopupMenu(friendProfile)],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
               ProfileItem(
-                profileImageUrl: widget.friendProfile!.profileImageUrl!,
-                name: widget.friendProfile!.displayName,
-                statusMessage: widget.friendProfile!.statusMessage!,
+                profileImageUrl: friendProfile.profileImageUrl!,
+                name: friendProfile.displayName,
+                statusMessage: friendProfile.statusMessage!,
               ),
               SizedBox(height: width * 0.03),
               _buildBannerAd(),
@@ -101,7 +108,7 @@ class _FriendsDetailScreenState extends ConsumerState<FriendsDetailScreen> {
     );
   }
 
-  Widget _buildPopupMenu() {
+  Widget _buildPopupMenu(FriendProfile friendProfile) {
     return Padding(
       padding: EdgeInsets.only(right: width * 0.02),
       child: PopupMenuButton(
@@ -112,7 +119,7 @@ class _FriendsDetailScreenState extends ConsumerState<FriendsDetailScreen> {
                 icon: Icon(Icons.edit),
                 text: '이름 수정',
                 value: '',
-                onTap: _toFriendEdit,
+                onTap: () => _toFriendEdit(friendProfile),
               ),
               CustomPopupMenuItem(
                 icon: Icon(Icons.no_accounts_rounded),
@@ -147,7 +154,7 @@ class _FriendsDetailScreenState extends ConsumerState<FriendsDetailScreen> {
   Widget _buildPostList(PostsState postsState) {
     final postList = ref
         .read(postsProvider.notifier)
-        .getPostsWithFriend(widget.friendProfile!.id);
+        .getPostsWithFriend(widget.friendId);
     if (postsState.isLoading) {
       return const Center(child: CircularProgressIndicator());
     } else if (postsState.error != null && postsState.postList.isEmpty) {

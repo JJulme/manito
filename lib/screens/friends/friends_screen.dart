@@ -39,8 +39,11 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
   // }
 
   // 친구 상세 화면 이동
-  void _toFriendsDetail(dynamic friendProfile) {
-    context.push('/friends_detail', extra: friendProfile);
+  void _toFriendsDetail(FriendProfile friendProfile) {
+    context.pushNamed(
+      'friendsDetail',
+      pathParameters: {'friendId': friendProfile.id},
+    );
   }
 
   @override

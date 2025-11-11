@@ -37,7 +37,7 @@ final missionCreateProvider = StateNotifierProvider.autoDispose<
   MissionCreateState
 >((ref) {
   final service = ref.watch(missionCreateServiceProvider);
-  return MissionCreateNotifier(ref, service);
+  return MissionCreateNotifier(service);
 });
 
 final missionGuessProvider = AsyncNotifierProvider<MissionGuessNotifier, void>(
@@ -90,11 +90,9 @@ class MissionListNotifier extends AsyncNotifier<MyMissionState> {
 }
 
 class MissionCreateNotifier extends StateNotifier<MissionCreateState> {
-  final Ref _ref;
   final MissionCreateService _service;
 
-  MissionCreateNotifier(this._ref, this._service) : super(MissionCreateState());
-  String get _currentUserId => _ref.read(currentUserProvider)!.id;
+  MissionCreateNotifier(this._service) : super(MissionCreateState());
 
   /// 체크 상태 토글 함수
   void toggleSelection(FriendProfile friendProfile) {
@@ -130,7 +128,7 @@ class MissionCreateNotifier extends StateNotifier<MissionCreateState> {
   }
 
   // 미션 생성
-  Future<String> createMission(int selectedType, int selectedPeriod) async {
+  Future<void> createMission(int selectedType, int selectedPeriod) async {
     state = state.copyWith(isLoading: true, error: null);
     final List<String> friendIds =
         state.confirmedFriends.map((friend) => friend.id).toList();
@@ -153,21 +151,52 @@ class MissionCreateNotifier extends StateNotifier<MissionCreateState> {
     String deadlineType = selectedPeriod == 0 ? 'day' : 'week';
 
     try {
-      final result = await _service.createMission(
-        creatorId: _currentUserId,
+      await _service.createMission(
         friendIds: friendIds,
         contentType: contentType,
         deadlineType: deadlineType,
       );
 
       state = state.copyWith(isLoading: false);
-      return result;
     } catch (e) {
       debugPrint('MissionCreateNotifier.createMission: $e');
       state = state.copyWith(isLoading: false, error: e.toString());
-      return e.toString();
     }
   }
+}
+
+class MissionCreateNotifier2 extends AsyncNotifier<MissionCreateState> {
+  @override
+  FutureOr<MissionCreateState> build() {
+    return MissionCreateState();
+  }
+
+  // // 미션 생성
+  // Future<void> createMission(int selectedType, int selectedPeriod) async {
+  //   state = const AsyncLoading();
+  //   try {
+  //     final confirmedFriends = state.value!.confirmedFriends;
+  //     final friendIds = confirmedFriends.map((friend) => friend.id).toList();
+  //     final contentType = switch (selectedType) {
+  //       0 => 'daily',
+  //       1 => 'school',
+  //       2 => 'work',
+  //       _ => 'daily',
+  //     };
+  //     String deadlineType = selectedPeriod == 0 ? 'day' : 'week';
+  //     final service = ref.read(missionCreateServiceProvider);
+  //     state = await AsyncValue.guard(() async {
+  //       await service.createMission(
+  //         friendIds: friendIds,
+  //         contentType: contentType,
+  //         deadlineType: deadlineType,
+  //       );
+  //       return MissionCreateState();
+  //     });
+  //   } catch (e) {
+  //     ref.read(errorProvider.notifier).setError('createMission Error: $e');
+  //   }
+  // }
 }
 
 class MissionGuessNotifier extends AsyncNotifier<void> {

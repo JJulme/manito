@@ -56,7 +56,6 @@ class _FriendsEditScreenState extends ConsumerState<FriendsEditScreen> {
       if (next.hasValue && (prev!.isLoading == true)) {
         ref.read(friendProfilesProvider.notifier).refreash();
         context.pop();
-        context.pop();
       }
     });
     return GestureDetector(

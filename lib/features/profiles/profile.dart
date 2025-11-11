@@ -132,13 +132,19 @@ class UserProfileState {
 
 class FriendProfilesState {
   final List<FriendProfile> friendList;
+  final Map<String, FriendProfile> friendListMap;
 
-  const FriendProfilesState({required this.friendList});
-
-  const FriendProfilesState.initial() : friendList = const [];
+  FriendProfilesState({
+    this.friendList = const [],
+    Map<String, FriendProfile>? friendListMap,
+  }) : friendListMap = friendListMap ?? {for (var f in friendList) f.id: f};
 
   FriendProfilesState copyWith({List<FriendProfile>? friendList}) {
-    return FriendProfilesState(friendList: friendList ?? this.friendList);
+    final newFriendList = friendList ?? this.friendList;
+    return FriendProfilesState(
+      friendList: newFriendList,
+      friendListMap: {for (var f in newFriendList) f.id: f},
+    );
   }
 }
 

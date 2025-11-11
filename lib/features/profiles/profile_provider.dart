@@ -36,6 +36,15 @@ final friendProfilesProvider =
       FriendProfileNotifier.new,
     );
 
+final friendDetailProvider = Provider.autoDispose
+    .family<FriendProfile?, String>((ref, friendId) {
+      return ref.watch(
+        friendProfilesProvider.select((async) {
+          return async.valueOrNull?.friendListMap[friendId];
+        }),
+      );
+    });
+
 final profileEditServiceProvider = Provider.autoDispose<ProfileEditService>((
   ref,
 ) {

@@ -189,35 +189,22 @@ final routerProvider = Provider<GoRouter>((ref) {
           return FriendsEditScreen(friendProfile: friendProfile);
         },
       ),
+      // GoRoute(
+      //   path: '/friends_detail',
+      //   name: 'friendsDetail',
+      //   builder: (context, state) {
+      //     final FriendProfile friendProfile = state.extra as FriendProfile;
+      //     return FriendsDetailScreen(friendProfile: friendProfile);
+      //   },
+      // ),
       GoRoute(
-        path: '/friends_detail',
+        path: '/friends_detail/:friendId',
         name: 'friendsDetail',
         builder: (context, state) {
-          final FriendProfile friendProfile = state.extra as FriendProfile;
-          return FriendsDetailScreen(friendProfile: friendProfile);
+          final friendId = state.pathParameters['friendId']!;
+          return FriendsDetailScreen(friendId: friendId);
         },
       ),
     ],
   );
 });
-
-// 헬퍼 함수
-String? _handleAuthenticatedRedirect(GoRouterState state, bool isLoggedIn) {
-  FlutterNativeSplash.remove();
-
-  final location = state.matchedLocation;
-
-  if (isLoggedIn) {
-    // 로그인된 사용자: 보호된 화면 접근 가능
-    if (location == '/splash' || location == '/login') {
-      return '/bottom_nav'; // 스플래시/로그인에서 벗어남
-    }
-    return null; // 다른 화면은 유지
-  } else {
-    // 미로그인 사용자: 로그인 관련 화면만 접근 가능
-    if (location == '/login' || location == '/kakao_login') {
-      return null; // 로그인 화면 유지
-    }
-    return '/login'; // 다른 화면은 로그인으로
-  }
-}

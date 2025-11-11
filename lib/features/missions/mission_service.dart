@@ -30,14 +30,14 @@ class MissionCreateService {
   MissionCreateService(this._supabase);
 
   /// 미션 생성
-  Future<String> createMission({
-    required String creatorId,
+  Future<void> createMission({
     required List<String> friendIds,
     required String contentType,
     required String deadlineType,
   }) async {
     try {
-      final String result = await _supabase.rpc(
+      final creatorId = _supabase.auth.currentUser!.id;
+      await _supabase.rpc(
         'create_mission',
         params: {
           'creator_id': creatorId,
@@ -46,8 +46,6 @@ class MissionCreateService {
           'deadline_type': deadlineType,
         },
       );
-
-      return result;
     } catch (e) {
       debugPrint('MissionCreateService.createMission Error: $e');
       rethrow;
