@@ -85,7 +85,7 @@ class _FriendsDetailScreenState extends ConsumerState<FriendsDetailScreen> {
     }
     return Scaffold(
       appBar: SubAppbar(
-        title: Text(friendProfile.nickname),
+        title: SizedBox.shrink(),
         actions: [_buildPopupMenu(friendProfile)],
       ),
       body: SafeArea(

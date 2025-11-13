@@ -137,7 +137,7 @@ class FriendProfilesState {
   FriendProfilesState({
     this.friendList = const [],
     Map<String, FriendProfile>? friendListMap,
-  }) : friendListMap = friendListMap ?? {for (var f in friendList) f.id: f};
+  }) : friendListMap = {for (var f in friendList) f.id: f};
 
   FriendProfilesState copyWith({List<FriendProfile>? friendList}) {
     final newFriendList = friendList ?? this.friendList;

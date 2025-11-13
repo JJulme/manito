@@ -99,7 +99,7 @@ class PostItem extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Text(
-              '${manitoProfile.nickname} & ${creatorProfile.nickname}',
+              '${manitoProfile.displayName} & ${creatorProfile.displayName}',
               style: Theme.of(context).textTheme.bodyMedium,
               overflow: TextOverflow.ellipsis,
             ),
