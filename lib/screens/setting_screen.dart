@@ -10,6 +10,7 @@ import 'package:manito/features/manito/manito_provider.dart';
 import 'package:manito/features/missions/mission_provider.dart';
 import 'package:manito/features/posts/post_provider.dart';
 import 'package:manito/features/profiles/profile_provider.dart';
+import 'package:manito/features/theme/theme_provider.dart';
 import 'package:manito/main.dart';
 import 'package:manito/share/common_dialog.dart';
 import 'package:manito/share/custom_toast.dart';
@@ -38,6 +39,17 @@ class SettingScreen extends ConsumerWidget {
       ref.invalidate(missionListProvider);
       ref.invalidate(manitoListProvider);
       ref.invalidate(postsProvider);
+    }
+
+    void _toggleTheme() {
+      final currentTheme = ref.watch(themeProvider);
+      if (currentTheme == ThemeMode.light) {
+        ref.read(themeProvider.notifier).setTheme(ThemeMode.dark);
+      } else if (currentTheme == ThemeMode.dark) {
+        ref.read(themeProvider.notifier).setTheme(ThemeMode.light);
+      } else {
+        ref.read(themeProvider.notifier).setTheme(ThemeMode.dark);
+      }
     }
 
     // 로그아웃
@@ -168,6 +180,12 @@ class SettingScreen extends ConsumerWidget {
       body: SafeArea(
         child: ListView(
           children: [
+            _buildSettingItem(
+              context: context,
+              icon: Icons.logout_outlined,
+              title: '테마 변경',
+              onTap: _toggleTheme,
+            ),
             // 로그아웃
             _buildSettingItem(
               context: context,
