@@ -28,14 +28,7 @@ class PostItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // 게시물 상세페이지 이동
     void toPostDetailScreen() {
-      context.push(
-        '/post_detail',
-        extra: {
-          'post': post,
-          'manitoProfile': manitoProfile,
-          'creatorProfile': creatorProfile,
-        },
-      );
+      context.pushNamed('postDetail', pathParameters: {'postId': post.id!});
       // 뱃지 제거
       ref
           .read(badgeProvider.notifier)

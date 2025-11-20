@@ -6,8 +6,9 @@ class ReportService {
   ReportService(this._supabase);
 
   // 유저 신고하기
-  Future<String> reportUser(String userId, String reportType) async {
+  Future<String> reportUser(String reportType) async {
     try {
+      final userId = _supabase.auth.currentUser!.id;
       Map<String, dynamic> data = {
         "reporter_user_id": _supabase.auth.currentUser!.id,
         "reported_user_id": userId,
@@ -29,12 +30,9 @@ class ReportService {
   }
 
   // 게시물 신고하기
-  Future<String> reportPost(
-    String userId,
-    String postId,
-    String reportType,
-  ) async {
+  Future<String> reportPost(String postId, String reportType) async {
     try {
+      final userId = _supabase.auth.currentUser!.id;
       Map<String, dynamic> data = {
         "reporter_user_id": _supabase.auth.currentUser!.id,
         "reported_user_id": userId,

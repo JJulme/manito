@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/providers.dart';
@@ -32,17 +31,21 @@ final missionListProvider =
       MissionListNotifier.new,
     );
 
-final missionCreateProvider = StateNotifierProvider.autoDispose<
-  MissionCreateNotifier,
+// 새로 생성하는 프로바이더
+final missionCreateSelectionProvider = NotifierProvider.autoDispose<
+  MissionCreateSelectionNotifier,
   MissionCreateState
->((ref) {
-  final service = ref.watch(missionCreateServiceProvider);
-  return MissionCreateNotifier(service);
-});
+>(MissionCreateSelectionNotifier.new);
 
-final missionGuessProvider = AsyncNotifierProvider<MissionGuessNotifier, void>(
-  MissionGuessNotifier.new,
-);
+final missionCreationActionProvider =
+    AsyncNotifierProvider.autoDispose<MissionCreationActionNotifier, void>(
+      MissionCreationActionNotifier.new,
+    );
+
+final missionGuessProvider =
+    AsyncNotifierProvider.autoDispose<MissionGuessNotifier, void>(
+      MissionGuessNotifier.new,
+    );
 
 // ========== Notifier ==========
 class MissionListNotifier extends AsyncNotifier<MyMissionState> {
@@ -54,7 +57,7 @@ class MissionListNotifier extends AsyncNotifier<MyMissionState> {
       if (friendList == null || friendList.isEmpty) return MyMissionState();
       return await _fetchMyMissions(friendList);
     } catch (e) {
-      ref.read(errorProvider.notifier).setError('fetchMyMissions Error: $e');
+      debugPrint('MissionListNotifier.build Error: $e');
       return MyMissionState();
     }
   }
@@ -89,21 +92,21 @@ class MissionListNotifier extends AsyncNotifier<MyMissionState> {
   }
 }
 
-class MissionCreateNotifier extends StateNotifier<MissionCreateState> {
-  final MissionCreateService _service;
+class MissionCreateSelectionNotifier
+    extends AutoDisposeNotifier<MissionCreateState> {
+  @override
+  MissionCreateState build() {
+    return MissionCreateState();
+  }
 
-  MissionCreateNotifier(this._service) : super(MissionCreateState());
-
-  /// 체크 상태 토글 함수
+  // 체크 상태 토글 함수
   void toggleSelection(FriendProfile friendProfile) {
     final currentSelected = List<FriendProfile>.from(state.selectedFriends);
-
     if (currentSelected.contains(friendProfile)) {
       currentSelected.remove(friendProfile);
     } else {
       currentSelected.add(friendProfile);
     }
-
     state = state.copyWith(selectedFriends: currentSelected);
   }
 
@@ -126,80 +129,36 @@ class MissionCreateNotifier extends StateNotifier<MissionCreateState> {
   void clearSelection() {
     state = state.copyWith(selectedFriends: [], confirmedFriends: []);
   }
+}
+
+class MissionCreationActionNotifier extends AutoDisposeAsyncNotifier<void> {
+  @override
+  FutureOr<void> build() {
+    return null;
+  }
 
   // 미션 생성
   Future<void> createMission(int selectedType, int selectedPeriod) async {
-    state = state.copyWith(isLoading: true, error: null);
+    final createSelectionState = ref.read(missionCreateSelectionProvider);
+    final service = ref.read(missionCreateServiceProvider);
     final List<String> friendIds =
-        state.confirmedFriends.map((friend) => friend.id).toList();
-
+        createSelectionState.confirmedFriends.map((f) => f.id).toList();
     String contentType;
-    switch (selectedType) {
-      case 0:
-        contentType = 'daily';
-        break;
-      case 1:
-        contentType = 'school';
-        break;
-      case 2:
-        contentType = 'work';
-        break;
-      default:
-        contentType = 'work';
-        break;
-    }
+    contentType =
+        selectedType == 0 ? 'daily' : (selectedType == 1 ? 'school' : 'work');
     String deadlineType = selectedPeriod == 0 ? 'day' : 'week';
-
-    try {
-      await _service.createMission(
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      await service.createMission(
         friendIds: friendIds,
         contentType: contentType,
         deadlineType: deadlineType,
       );
-
-      state = state.copyWith(isLoading: false);
-    } catch (e) {
-      debugPrint('MissionCreateNotifier.createMission: $e');
-      state = state.copyWith(isLoading: false, error: e.toString());
-    }
+    });
   }
 }
 
-class MissionCreateNotifier2 extends AsyncNotifier<MissionCreateState> {
-  @override
-  FutureOr<MissionCreateState> build() {
-    return MissionCreateState();
-  }
-
-  // // 미션 생성
-  // Future<void> createMission(int selectedType, int selectedPeriod) async {
-  //   state = const AsyncLoading();
-  //   try {
-  //     final confirmedFriends = state.value!.confirmedFriends;
-  //     final friendIds = confirmedFriends.map((friend) => friend.id).toList();
-  //     final contentType = switch (selectedType) {
-  //       0 => 'daily',
-  //       1 => 'school',
-  //       2 => 'work',
-  //       _ => 'daily',
-  //     };
-  //     String deadlineType = selectedPeriod == 0 ? 'day' : 'week';
-  //     final service = ref.read(missionCreateServiceProvider);
-  //     state = await AsyncValue.guard(() async {
-  //       await service.createMission(
-  //         friendIds: friendIds,
-  //         contentType: contentType,
-  //         deadlineType: deadlineType,
-  //       );
-  //       return MissionCreateState();
-  //     });
-  //   } catch (e) {
-  //     ref.read(errorProvider.notifier).setError('createMission Error: $e');
-  //   }
-  // }
-}
-
-class MissionGuessNotifier extends AsyncNotifier<void> {
+class MissionGuessNotifier extends AutoDisposeAsyncNotifier<void> {
   @override
   FutureOr<void> build() {
     return null;
@@ -208,14 +167,9 @@ class MissionGuessNotifier extends AsyncNotifier<void> {
   // 추측 업데이트
   Future<void> updateMissionGuess(String missionId, String text) async {
     state = const AsyncValue.loading();
-    try {
-      state = await AsyncValue.guard(() async {
-        final service = ref.read(missionGuessServiceProvider);
-        await service.updateMissionGuess(missionId, text);
-      });
-    } catch (e) {
-      ref.read(errorProvider.notifier).setError('updateMissionGuess Error: $e');
-      rethrow;
-    }
+    state = await AsyncValue.guard(() async {
+      final service = ref.read(missionGuessServiceProvider);
+      await service.updateMissionGuess(missionId, text);
+    });
   }
 }

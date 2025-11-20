@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/providers.dart';
-import 'package:manito/features/error/error_provider.dart';
 import 'package:manito/features/profiles/profile.dart';
 import 'package:manito/features/profiles/profile_service.dart';
 
@@ -13,23 +12,18 @@ final profileServiceProvider = Provider<ProfileService>((ref) {
   return ProfileService(supabase);
 });
 
+final profileEditServiceProvider = Provider.autoDispose<ProfileEditService>((
+  ref,
+) {
+  final supabase = ref.read(supabaseProvider);
+  return ProfileEditService(supabase);
+});
+
 // ========== Notifier Provider ==========
 final userProfileProvider =
-    StateNotifierProvider<UserProfileNotifier, UserProfileState>((ref) {
-      final service = ref.watch(profileServiceProvider);
-      return UserProfileNotifier(service);
-    });
-
-// final userProfileProvider =
-//     AsyncNotifierProvider<UserProfileNotifier2, UserProfile?>(
-//   UserProfileNotifier2.new,
-// );
-
-// final friendProfilesProvider =
-//     StateNotifierProvider<FriendProfilesNotifier, FriendProfilesState>((ref) {
-//       final service = ref.watch(profileServiceProvider);
-//       return FriendProfilesNotifier(ref, service);
-//     });
+    AsyncNotifierProvider<UserProfileNotifier, UserProfileState>(
+      UserProfileNotifier.new,
+    );
 
 final friendProfilesProvider =
     AsyncNotifierProvider<FriendProfileNotifier, FriendProfilesState>(
@@ -45,71 +39,34 @@ final friendDetailProvider = Provider.autoDispose
       );
     });
 
-final profileEditServiceProvider = Provider.autoDispose<ProfileEditService>((
-  ref,
-) {
-  final supabase = ref.read(supabaseProvider);
-  return ProfileEditService(supabase);
-});
+final profileImageProvider =
+    NotifierProvider<ProfileImageNotifier, ProfileImageState>(
+      ProfileImageNotifier.new,
+    );
 
 final profileEditProvider =
-    StateNotifierProvider.autoDispose<ProfileEditNotifier, ProfileEditState>((
-      ref,
-    ) {
-      final service = ref.watch(profileEditServiceProvider);
-      return ProfileEditNotifier(service);
-    });
+    AsyncNotifierProvider<ProfileEditNotifier, ProfileEditState>(
+      ProfileEditNotifier.new,
+    );
 
 // ========== Notifier ==========
-class UserProfileNotifier extends StateNotifier<UserProfileState> {
-  final ProfileService _service;
-  UserProfileNotifier(this._service) : super(const UserProfileState.initial());
-
-  // 프로필 가져오기
-  Future<void> getProfile() async {
-    try {
-      state = state.copyWith(isLoading: true);
-      final userProfie = await _service.getProfile();
-      state = state.copyWith(
-        userProfile: userProfie,
-        isLoading: false,
-        error: null,
-      );
-    } catch (e) {
-      debugPrint('UserProfileNotifier.getProfile error: $e');
-      state = state.copyWith(isLoading: false, error: e.toString());
-    }
-  }
-
-  // 프로필 새로고침
-  Future<void> refreshProfile() async {
-    await getProfile();
-  }
-}
-
-class UserProfileNotifier2 extends AsyncNotifier<UserProfile> {
-  late final ProfileService _service;
+class UserProfileNotifier extends AsyncNotifier<UserProfileState> {
   @override
-  FutureOr<UserProfile> build() async {
+  FutureOr<UserProfileState> build() async {
     try {
-      _service = ref.read(profileServiceProvider);
-      return await _service.getProfile();
+      final service = ref.read(profileServiceProvider);
+      final userProfile = await service.getProfile();
+      return UserProfileState(userProfile: userProfile);
     } catch (e) {
-      ref.read(errorProvider.notifier).setError('profile load error: $e');
+      debugPrint('UserProfileNotifier.build Error: $e');
       rethrow;
     }
   }
 
-  Future<void> refreshProfile() async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      try {
-        return await _service.getProfile();
-      } catch (e) {
-        ref.read(errorProvider.notifier).setError('profile refresh error: $e');
-        rethrow;
-      }
-    });
+  // 새로고침
+  Future<void> refresh() async {
+    ref.invalidateSelf();
+    await future;
   }
 }
 
@@ -123,9 +80,7 @@ class FriendProfileNotifier extends AsyncNotifier<FriendProfilesState> {
         ..sort((a, b) => a.displayName.compareTo(b.displayName));
       return FriendProfilesState(friendList: sortedList);
     } catch (e) {
-      ref
-          .read(errorProvider.notifier)
-          .setError('FriendProfileNotifier2 Error: $e');
+      debugPrint('FriendProfileNotifier.build Error: $e');
       return FriendProfilesState(friendList: []);
     }
   }
@@ -155,7 +110,7 @@ class FriendProfileNotifier extends AsyncNotifier<FriendProfilesState> {
   // ID 로 친구 검색 - 한명
   FriendProfile searchFriendProfile(String friendId) {
     try {
-      final userProfile = ref.read(userProfileProvider).userProfile;
+      final userProfile = ref.read(userProfileProvider).value!.userProfile;
       if (userProfile != null && userProfile.id == friendId) {
         return FriendProfile(
           id: userProfile.id,
@@ -170,9 +125,7 @@ class FriendProfileNotifier extends AsyncNotifier<FriendProfilesState> {
       );
       return friendProfile;
     } catch (e) {
-      ref
-          .read(errorProvider.notifier)
-          .setError('searchFriendProfile Error: $e');
+      debugPrint('FriendProfileNotifier.searchFriendProfile Error: $e');
       return FriendProfile(id: '', nickname: 'unknown');
     }
   }
@@ -186,85 +139,85 @@ class FriendProfileNotifier extends AsyncNotifier<FriendProfilesState> {
         friendProfiles.add(friendProfile);
       }
     } catch (e) {
-      ref
-          .read(errorProvider.notifier)
-          .setError('searchFriendProfiles Error: $e');
+      debugPrint('FriendProfileNotifier.searchFriendProfiles Error: $e');
     }
     return friendProfiles;
   }
 }
 
-class ProfileEditNotifier extends StateNotifier<ProfileEditState> {
-  final ProfileEditService _service;
-  ProfileEditNotifier(this._service) : super(ProfileEditState.initial());
-
-  // 프로필 수정하기
-  Future<void> updateProfile({
-    required String nickname,
-    required String statusMessage,
-    required String autoReply,
-  }) async {
-    state = state.copyWith(isLoading: true);
+class ProfileImageNotifier extends Notifier<ProfileImageState> {
+  @override
+  ProfileImageState build() {
     try {
-      await _service.updateProfile(
-        nickname: nickname,
-        statusMessage: statusMessage,
-        autoReply: autoReply,
-        selectedImage: state.selectedImage,
-        profileImageUrl: state.profileImageUrl,
+      final userProfile = ref.read(userProfileProvider).value!.userProfile;
+      final profileImageUrl = userProfile!.profileImageUrl!;
+      return ProfileImageState(
+        selectedImage: null,
+        profileImageUrl: profileImageUrl,
       );
-      state = state.copyWith(isLoading: false);
     } catch (e) {
-      debugPrint('ProfileImageNotifier.updateProfile error: $e');
-      state = state.copyWith(error: e.toString(), isLoading: false);
+      debugPrint('ProfileImageNotifier.build Error: $e');
+      return ProfileImageState();
     }
   }
 
-  // 이미지 선택하기
+  // 이미지 선택
   Future<void> pickImage() async {
-    final File? file = await _service.pickImage();
+    final service = ref.read(profileEditServiceProvider);
+    final File? file = await service.pickImage();
     if (file != null) {
       state = state.copyWith(selectedImage: file);
     }
   }
 
-  void setInitialProfileImage(String profileImageUrl) {
-    state = state.copyWith(
-      selectedImage: null,
-      profileImageUrl: profileImageUrl,
-      isLoading: false,
-    );
-  }
-
-  void selectedImage(File image) {
-    state = state.copyWith(selectedImage: image, error: null);
-  }
-
+  // 이미지 삭제
   void deleteImage() {
-    state = state.copyWith(
-      clearSelectedImage: true,
-      profileImageUrl: '',
-      error: null,
-    );
+    state = state.copyWith(selectedImage: null, profileImageUrl: '');
+  }
+}
+
+class ProfileEditNotifier extends AsyncNotifier<ProfileEditState> {
+  @override
+  FutureOr<ProfileEditState> build() {
+    try {
+      final userProfile = ref.read(userProfileProvider).value!.userProfile!;
+      return ProfileEditState(
+        nickname: userProfile.nickname,
+        statusMessage: userProfile.statusMessage!,
+        autoReply: userProfile.autoReply!,
+      );
+    } catch (e) {
+      debugPrint('ProfileEditNotifier.build Error: $e');
+      return ProfileEditState();
+    }
   }
 
-  void updateProfileImageUrl(String newUrl) {
-    state = state.copyWith(
-      profileImageUrl: newUrl,
-      clearSelectedImage: true,
-      error: null,
-    );
-  }
-
-  void setLoading(bool loading) {
-    state = state.copyWith(isLoading: loading);
-  }
-
-  void setError(String error) {
-    state = state.copyWith(error: error, isLoading: false);
-  }
-
-  void clearError() {
-    state = state.copyWith(error: null);
+  Future<void> updateProfile({
+    required String nickname,
+    required String statusMessage,
+    required String autoReply,
+  }) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      try {
+        final imageState = ref.read(profileImageProvider);
+        final service = ref.read(profileEditServiceProvider);
+        await service.updateProfile(
+          nickname: nickname,
+          statusMessage: statusMessage,
+          autoReply: autoReply,
+          selectedImage: imageState.selectedImage,
+          profileImageUrl: imageState.profileImageUrl,
+        );
+        return ProfileEditState(
+          nickname: nickname,
+          statusMessage: statusMessage,
+          autoReply: autoReply,
+        );
+      } catch (e) {
+        debugPrint('ProfileEditNotifier.updateProfile Error: $e');
+        rethrow;
+      }
+    });
   }
 }

@@ -173,31 +173,11 @@ class Comment {
 // ========== States ==========
 class PostsState {
   final List<Post> postList;
-  final bool isLoading;
-  final String? error;
 
-  const PostsState({
-    required this.postList,
-    required this.isLoading,
-    this.error,
-  });
+  const PostsState({this.postList = const []});
 
-  const PostsState.initial()
-    : isLoading = false,
-      postList = const [],
-      error = null;
-
-  const PostsState.loading()
-    : isLoading = true,
-      postList = const [],
-      error = null;
-
-  PostsState copyWith({List<Post>? postList, bool? isLoading, String? error}) {
-    return PostsState(
-      postList: postList ?? this.postList,
-      isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
-    );
+  PostsState copyWith({List<Post>? postList}) {
+    return PostsState(postList: postList ?? this.postList);
   }
 
   int creatorPostCount(String userId) {
@@ -211,39 +191,20 @@ class PostsState {
 
 class PostDetailState {
   final Post? postDetail;
+
+  const PostDetailState({this.postDetail});
+
+  PostDetailState copyWith({Post? postDetail}) {
+    return PostDetailState(postDetail: postDetail ?? this.postDetail);
+  }
+}
+
+class PostCommentState {
   final List<Comment> commentList;
-  final bool isLoading;
-  final bool commentLoading;
-  final String? error;
 
-  const PostDetailState({
-    this.postDetail,
-    required this.commentList,
-    required this.isLoading,
-    required this.commentLoading,
-    this.error,
-  });
+  const PostCommentState({this.commentList = const []});
 
-  const PostDetailState.initial()
-    : postDetail = null,
-      commentList = const [],
-      isLoading = false,
-      commentLoading = false,
-      error = null;
-
-  PostDetailState copyWith({
-    Post? postDetail,
-    List<Comment>? commentList,
-    bool? isLoading,
-    bool? commentLoading,
-    String? error,
-  }) {
-    return PostDetailState(
-      postDetail: postDetail ?? this.postDetail,
-      commentList: commentList ?? this.commentList,
-      isLoading: isLoading ?? this.isLoading,
-      commentLoading: commentLoading ?? this.commentLoading,
-      error: error ?? this.error,
-    );
+  PostCommentState copyWith({List<Comment>? commentList}) {
+    return PostCommentState(commentList: commentList ?? this.commentList);
   }
 }

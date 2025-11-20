@@ -6,21 +6,15 @@ import 'package:manito/features/report/report_provider.dart';
 import 'package:manito/main.dart';
 
 class ReportBottomsheet extends ConsumerWidget {
-  final String userId;
   final String reportIdType;
   final String? postId;
 
-  const ReportBottomsheet({
-    super.key,
-    required this.userId,
-    required this.reportIdType,
-    this.postId,
-  });
+  const ReportBottomsheet({super.key, required this.reportIdType, this.postId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(reportNotifierProvider);
-    final notifier = ref.read(reportNotifierProvider.notifier);
+    final state = ref.watch(reportProvider);
+    final notifier = ref.read(reportProvider.notifier);
 
     return SafeArea(
       child: Padding(
@@ -47,7 +41,7 @@ class ReportBottomsheet extends ConsumerWidget {
                       style: Theme.of(context).textTheme.bodyLarge,
                     ).tr(),
                 value: type,
-                groupValue: state.selectedReportType,
+                groupValue: state.value!.selectedReportType,
                 onChanged: (value) {
                   if (value != null) notifier.selectReportType(value);
                 },
@@ -59,14 +53,15 @@ class ReportBottomsheet extends ConsumerWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed:
-                    state.selectedReportType == null || state.isLoading
+                    state.value!.selectedReportType == null || state.isLoading
                         ? null
                         : () async {
                           final navigator = Navigator.of(context);
                           final result = await notifier.submitReport(
-                            userId: userId,
                             postId: reportIdType == 'post' ? postId : null,
                           );
+
+                          if (!context.mounted) return;
                           await showDialog(
                             context: context,
                             builder: (context) {

@@ -15,15 +15,8 @@ import 'package:manito/widgets/profile_image_view.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class PostDetailScreen extends ConsumerStatefulWidget {
-  final Post post;
-  final FriendProfile manitoProfile;
-  final FriendProfile creatorProfile;
-  const PostDetailScreen({
-    super.key,
-    required this.post,
-    required this.manitoProfile,
-    required this.creatorProfile,
-  });
+  final String postId;
+  const PostDetailScreen({super.key, required this.postId});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -31,42 +24,36 @@ class PostDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
-  late final StateNotifierProvider<PostDetailNotifier, PostDetailState>
-  _postDetailProvider;
   final commentController = TextEditingController();
-  @override
-  void initState() {
-    super.initState();
-    _postDetailProvider = createPostDetailProvider(widget.post);
+
+  // 댓글 달기
+  void _handleMessageBar() {
+    if (commentController.text.trim().isNotEmpty) {
+      ref
+          .read(postCommentProvider(widget.postId).notifier)
+          .insertComment(widget.postId, commentController.text);
+      commentController.clear();
+    }
   }
 
-  // late final provider = createPostDetailProvider(widget.post);
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(_postDetailProvider);
-    final notifier = ref.read(_postDetailProvider.notifier);
-    ref.listen<PostDetailState>(_postDetailProvider, (previous, next) {
-      if (next.error != null && previous?.error != next.error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              next.error!,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            backgroundColor: Colors.red,
-            action: SnackBarAction(
-              label: '다시 시도',
-              onPressed: () => notifier.init(),
-            ),
-          ),
-        );
-      }
-    });
+    final postAsync = ref.watch(postDetailProvider(widget.postId));
+    final commentAsync = ref.watch(postCommentProvider(widget.postId));
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        appBar: _buildAppBar(),
-        body: SafeArea(child: _buildBody(state, notifier)),
+      child: postAsync.when(
+        loading:
+            () => Scaffold(body: Center(child: CircularProgressIndicator())),
+        error:
+            (error, stackTrace) =>
+                Scaffold(body: Center(child: Text('Error: $error'))),
+        data: (state) {
+          return Scaffold(
+            appBar: _buildAppBar(state),
+            body: SafeArea(child: _buildBody(state, commentAsync)),
+          );
+        },
       ),
     );
   }
@@ -75,24 +62,20 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     await showModalBottomSheet(
       context: context,
       builder: (context) {
-        return ReportBottomsheet(
-          userId: ref.read(userProfileProvider).userProfile!.id,
-          reportIdType: 'post',
-          postId: widget.post.id,
-        );
+        return ReportBottomsheet(reportIdType: 'post', postId: widget.postId);
       },
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
+  PreferredSizeWidget _buildAppBar(PostDetailState state) {
     return SubAppbar(
       title: Row(
         children: [
-          Icon(iconMap[widget.post.contentType], color: Colors.grey[800]),
+          Icon(iconMap[state.postDetail!.contentType], color: Colors.grey[800]),
           SizedBox(width: width * 0.02),
           Expanded(
             child: AutoSizeText(
-              widget.post.content!,
+              state.postDetail!.content!,
               minFontSize: 7,
               maxLines: 1,
             ),
@@ -130,38 +113,43 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   }
 
   // 전체, 댓글창
-  Widget _buildBody(PostDetailState state, PostDetailNotifier notifier) {
+  Widget _buildBody(
+    PostDetailState postState,
+    AsyncValue<PostCommentState> commentAsync,
+  ) {
     return Column(
       children: [
-        Expanded(child: _buildContent(state)),
-        _buildMessageBar(notifier),
+        Expanded(child: _buildContent(postState, commentAsync)),
+        _buildMessageBar(),
       ],
     );
   }
 
   // 마니또 활동, 생성자 추측, 댓글 목록
-  Widget _buildContent(PostDetailState state) {
-    if (state.isLoading || state.postDetail == null) {
-      return Center(child: CircularProgressIndicator());
-    } else if (state.error != null && state.postDetail == null) {
-      return Center(
-        child: Text('오류 발생', style: Theme.of(context).textTheme.bodyMedium),
-      );
-    }
+  Widget _buildContent(
+    PostDetailState postState,
+    AsyncValue<PostCommentState> commentAsync,
+  ) {
+    final manitoProfile = ref
+        .read(friendProfilesProvider.notifier)
+        .searchFriendProfile(postState.postDetail!.manitoId!);
+    final creatorProfile = ref
+        .read(friendProfilesProvider.notifier)
+        .searchFriendProfile(postState.postDetail!.creatorId!);
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildProfile(widget.manitoProfile),
+          _buildProfile(manitoProfile),
           SizedBox(height: width * 0.03),
-          _buildImageSection(state),
-          _buildTextSection(state.postDetail!.description!),
+          _buildImageSection(postState),
+          _buildTextSection(postState.postDetail!.description!),
           Divider(),
-          _buildProfile(widget.creatorProfile),
+          _buildProfile(creatorProfile),
           SizedBox(height: width * 0.03),
-          _buildTextSection(state.postDetail!.guess!),
+          _buildTextSection(postState.postDetail!.guess!),
           Divider(),
-          _buildCommentSection(state),
+          _buildCommentSection(commentAsync),
           SizedBox(height: width * 0.05),
         ],
       ),
@@ -208,35 +196,51 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   }
 
   // 댓글 리스트
-  Widget _buildCommentSection(PostDetailState state) {
-    if (state.commentList.isEmpty) {
-      return Center(
-        child: Text(
-          '댓글을 작성해 주세요',
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-      );
-    }
-    return Align(
-      alignment: Alignment.topCenter,
-      child: ListView.builder(
-        reverse: true,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        padding: EdgeInsets.zero,
-        itemCount: state.commentList.length,
-        itemBuilder:
-            (context, index) => _buildCommentItem(
-              state.commentList[index].userId,
-              state.commentList[index],
+  Widget _buildCommentSection(AsyncValue<PostCommentState> commentAsync) {
+    return commentAsync.when(
+      loading:
+          () => Container(
+            height: width * 0.2,
+            alignment: Alignment.center,
+            child: CircularProgressIndicator(),
+          ),
+      error:
+          (error, stackTrace) => Container(
+            height: width * 0.2,
+            alignment: Alignment.center,
+            child: Text('Error: $error'),
+          ),
+      data: (state) {
+        if (state.commentList.isEmpty) {
+          return Center(
+            child: Text(
+              '댓글을 작성해 주세요',
+              style: Theme.of(context).textTheme.bodySmall,
             ),
-      ),
+          );
+        }
+        return Align(
+          alignment: Alignment.topCenter,
+          child: ListView.builder(
+            reverse: true,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.zero,
+            itemCount: state.commentList.length,
+            itemBuilder:
+                (context, index) => _buildCommentItem(
+                  state.commentList[index].userId,
+                  state.commentList[index],
+                ),
+          ),
+        );
+      },
     );
   }
 
   // 댓글 아이템
   Widget _buildCommentItem(String userId, Comment comment) {
-    final FriendProfile? profile = ref
+    final FriendProfile profile = ref
         .read(friendProfilesProvider.notifier)
         .searchFriendProfile(userId);
     return Container(
@@ -248,7 +252,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
           // 프로필 이미지
           ProfileImageView(
             size: width * 0.11,
-            profileImageUrl: profile!.profileImageUrl!,
+            profileImageUrl: profile.profileImageUrl!,
           ),
           SizedBox(width: width * 0.03),
           Expanded(
@@ -286,7 +290,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   }
 
   // 댓글창
-  Widget _buildMessageBar(PostDetailNotifier notifier) {
+  Widget _buildMessageBar() {
     return Padding(
       padding: EdgeInsets.all(width * 0.02),
       child: Row(
@@ -318,12 +322,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
               shape: const CircleBorder(),
               padding: EdgeInsets.zero,
             ),
-            onPressed: () {
-              if (commentController.text.trim().isNotEmpty) {
-                notifier.insertComment(commentController.text);
-                commentController.clear();
-              }
-            },
+            onPressed: () => _handleMessageBar(),
           ),
         ],
       ),

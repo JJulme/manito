@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:manito/features/profiles/profile.dart';
 import 'package:manito/features/profiles/profile_provider.dart';
 import 'package:manito/main.dart';
@@ -28,22 +29,10 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   @override
   void initState() {
     super.initState();
-    final profileState = ref.read(userProfileProvider);
-    _nameController = TextEditingController(
-      text: profileState.userProfile!.nickname,
-    );
-    _statusController = TextEditingController(
-      text: profileState.userProfile!.statusMessage,
-    );
-    _replyController = TextEditingController(
-      text: profileState.userProfile!.autoReply,
-    );
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(profileEditProvider.notifier)
-          .setInitialProfileImage(profileState.userProfile!.profileImageUrl!);
-    });
+    final userProfile = ref.read(userProfileProvider).value!.userProfile!;
+    _nameController = TextEditingController(text: userProfile.nickname);
+    _statusController = TextEditingController(text: userProfile.statusMessage);
+    _replyController = TextEditingController(text: userProfile.autoReply);
   }
 
   @override
@@ -80,39 +69,49 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     return null;
   }
 
+  void _handlePickImage() {
+    ref.read(profileImageProvider.notifier).pickImage();
+  }
+
+  void _handleDeleteImage() {
+    ref.read(profileImageProvider.notifier).deleteImage();
+  }
+
   // 프로필 정보 업데이트
-  Future<void> _handleButton(
-    ProfileEditState state,
-    ProfileEditNotifier notifier,
-  ) async {
+  Future<void> _handleButton(ProfileEditState state) async {
     if ((_nameFormKey.currentState?.validate() ?? false) &&
         (_replyFormKey.currentState?.validate() ?? false)) {
-      await notifier.updateProfile(
-        nickname: _nameController.text,
-        statusMessage: _statusController.text,
-        autoReply: _replyController.text,
-      );
-      if (!mounted) return;
-      if (state.error != null) {
-        Navigator.pop(context, false);
-        customToast(msg: state.error.toString());
-      } else {
-        ref.read(userProfileProvider.notifier).getProfile();
-        Navigator.pop(context, true);
-      }
+      await ref
+          .read(profileEditProvider.notifier)
+          .updateProfile(
+            nickname: _nameController.text,
+            statusMessage: _statusController.text,
+            autoReply: _replyController.text,
+          );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(profileEditProvider);
-    final notifier = ref.read(profileEditProvider.notifier);
+    final imageState = ref.watch(profileImageProvider);
+    final editAsync = ref.watch(profileEditProvider);
+    ref.listen<AsyncValue<ProfileEditState>>(profileEditProvider, (prev, next) {
+      if ((prev?.isLoading == true) &&
+          (next.hasError == false) &&
+          next.hasValue) {
+        ref.read(userProfileProvider.notifier).refresh();
+        context.pop();
+      } else if (next.hasError) {
+        context.pop();
+        customToast(msg: '프로필 수정 실패: ${next.error.toString()}');
+      }
+    });
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: SubAppbar(
           title: Text('프로필 수정'),
-          actions: [_buildUpdateBtn(state, notifier)],
+          actions: [_buildUpdateBtn(editAsync)],
         ),
         body: SafeArea(
           child: Stack(
@@ -122,7 +121,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                   padding: EdgeInsets.symmetric(horizontal: width * 0.05),
                   child: Column(
                     children: [
-                      _buildProfileImageSection(state, notifier),
+                      _buildProfileImageSection(imageState),
                       SizedBox(height: width * 0.06),
                       _buildNameField(_nameController),
                       SizedBox(height: width * 0.06),
@@ -135,7 +134,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                   ),
                 ),
               ),
-              if (state.isLoading) _buildLoadingOverlay(),
+              if (editAsync.isLoading) _buildLoadingOverlay(),
             ],
           ),
         ),
@@ -144,29 +143,34 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   }
 
   // 아이콘 버튼
-  IconButton _buildUpdateBtn(
-    ProfileEditState state,
-    ProfileEditNotifier notifier,
-  ) {
-    return IconButton(
-      icon:
-          state.isLoading
-              ? const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation(Colors.grey),
-              )
-              : Icon(Icons.check, color: Colors.green, size: width * 0.08),
-      onPressed: () => _handleButton(state, notifier),
+  IconButton _buildUpdateBtn(AsyncValue<ProfileEditState> editAsync) {
+    return editAsync.when(
+      loading: () {
+        return IconButton(
+          icon: const CircularProgressIndicator(),
+          onPressed: null,
+        );
+      },
+      error: (error, stackTrace) {
+        return IconButton(
+          icon: Icon(Icons.check, color: Theme.of(context).disabledColor),
+          onPressed: null,
+        );
+      },
+      data: (state) {
+        return IconButton(
+          icon: Icon(Icons.check, color: Colors.green),
+          onPressed: () => _handleButton(state),
+        );
+      },
     );
   }
 
   // 프로필 이미지 화면
-  Widget _buildProfileImageSection(
-    ProfileEditState state,
-    ProfileEditNotifier notifier,
-  ) {
+  Widget _buildProfileImageSection(ProfileImageState state) {
     return GestureDetector(
-      onTap: () => notifier.pickImage(),
-      onLongPress: () => notifier.deleteImage(),
+      onTap: _handlePickImage,
+      onLongPress: _handleDeleteImage,
       child: Stack(
         children: [
           _buildProfileImage(width * 0.3, state),
@@ -181,7 +185,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   }
 
   // 프로필 이미지
-  Widget _buildProfileImage(double imageSize, ProfileEditState state) {
+  Widget _buildProfileImage(double imageSize, ProfileImageState state) {
     // 앨범에서 선택한 이미지가 있을 때
     if (state.selectedImage != null) {
       return Container(

@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/providers.dart';
-import 'package:manito/features/error/error_provider.dart';
 import 'package:manito/features/friends/friends.dart';
 import 'package:manito/features/friends/friends_service.dart';
 import 'package:manito/features/profiles/profile_provider.dart';
@@ -50,6 +50,7 @@ final friendEditProvider = AsyncNotifierProvider<FriendEditNotifier, void>(
 );
 
 // ========== Notifier ==========
+// 분리 필요
 class FriendSearchNotifier extends AsyncNotifier<FriendSearchState> {
   @override
   Future<FriendSearchState> build() async {
@@ -63,18 +64,9 @@ class FriendSearchNotifier extends AsyncNotifier<FriendSearchState> {
     state = const AsyncValue.loading();
 
     state = await AsyncValue.guard(() async {
-      try {
-        final service = ref.read(friendSearchServiceProvider);
-        final profile = await service.searchEmail(email);
-
-        return FriendSearchState(query: email, friendProfile: profile);
-      } catch (e) {
-        // 에러를 글로벌로 전달
-        ref.read(errorProvider.notifier).setError('친구 검색 실패: $e');
-
-        // 검색 실패 시에도 query는 유지
-        return FriendSearchState(query: email, friendProfile: null);
-      }
+      final service = ref.read(friendSearchServiceProvider);
+      final profile = await service.searchEmail(email);
+      return FriendSearchState(query: email, friendProfile: profile);
     });
   }
 
@@ -83,10 +75,7 @@ class FriendSearchNotifier extends AsyncNotifier<FriendSearchState> {
     final currentState = state.valueOrNull;
     final profile = currentState?.friendProfile;
 
-    if (profile == null) {
-      ref.read(errorProvider.notifier).setError('검색된 친구가 없습니다');
-      return '';
-    }
+    if (profile == null) return '';
 
     try {
       final service = ref.read(friendSearchServiceProvider);
@@ -99,7 +88,7 @@ class FriendSearchNotifier extends AsyncNotifier<FriendSearchState> {
 
       return result;
     } catch (e) {
-      ref.read(errorProvider.notifier).setError('친구 신청 실패: $e');
+      debugPrint('FriendSearchNotifier.sendFriendRequest Error: $e');
       return '';
     }
   }
@@ -118,9 +107,7 @@ class FriendRequestNotifier extends AsyncNotifier<FriendRequestState> {
       final requestList = await service.fetchFriendRequest();
       return FriendRequestState(requestUserList: requestList);
     } catch (e) {
-      ref
-          .read(errorProvider.notifier)
-          .setError('FriendRequestNotifier Error: $e');
+      debugPrint('FriendRequestNotifier.build Error: $e');
       return FriendRequestState();
     }
   }
@@ -141,9 +128,7 @@ class FriendRequestNotifier extends AsyncNotifier<FriendRequestState> {
       // 친구목록 새로고침
       await ref.read(friendProfilesProvider.notifier).refreash();
     } catch (e) {
-      ref
-          .read(errorProvider.notifier)
-          .setError('acceptFriendRequest Error: $e');
+      debugPrint('FriendRequestNotifier.acceptFriendRequest Error: $e');
       rethrow;
     }
   }
@@ -158,9 +143,7 @@ class FriendRequestNotifier extends AsyncNotifier<FriendRequestState> {
       // 친구목록 새로고침
       await ref.read(friendProfilesProvider.notifier).refreash();
     } catch (e) {
-      ref
-          .read(errorProvider.notifier)
-          .setError('rejectFriendRequest Error: $e');
+      debugPrint('FriendRequestNotifier.rejectFriendRequest Error: $e');
       rethrow;
     }
   }
@@ -174,7 +157,7 @@ class BlacklistNotifier extends AsyncNotifier<BlacklistState> {
       final blackList = await service.fetchBlacklist();
       return BlacklistState(blackList: blackList);
     } catch (e) {
-      ref.read(errorProvider.notifier).setError('BlacklistNotifier Error: $e');
+      debugPrint('BlacklistNotifier.build Error: $e');
       return BlacklistState();
     }
   }
@@ -192,7 +175,7 @@ class BlacklistNotifier extends AsyncNotifier<BlacklistState> {
       await service.blockFriend(friendId);
       await ref.read(friendProfilesProvider.notifier).refreash();
     } catch (e) {
-      ref.read(errorProvider.notifier).setError('blockFriend Error: $e');
+      debugPrint('BlacklistNotifier.blockFriend Error: $e');
       rethrow;
     }
   }
@@ -204,7 +187,7 @@ class BlacklistNotifier extends AsyncNotifier<BlacklistState> {
       await service.unblackUser(blackUserId);
       await refresh();
     } catch (e) {
-      ref.read(errorProvider.notifier).setError('unblockUser Error: $e');
+      debugPrint('BlacklistNotifier.unblockUser Error: $e');
       rethrow;
     }
   }
@@ -219,18 +202,14 @@ class FriendEditNotifier extends AsyncNotifier<void> {
   // 친구 이름 사용자 수정
   Future<void> updateFriendName(String friendId, String name) async {
     state = const AsyncValue.loading();
-    try {
-      state = await AsyncValue.guard(() async {
-        final service = ref.read(friendEditServiceProvider);
-        // 서버 업데이트
-        await service.updateFriendName(friendId, name);
-        // 로컬 업데이트
-        ref
-            .read(friendProfilesProvider.notifier)
-            .updateFriendNameInList(friendId, name);
-      });
-    } catch (e) {
-      ref.read(errorProvider.notifier).setError('updateFriendName Error: $e');
-    }
+    state = await AsyncValue.guard(() async {
+      final service = ref.read(friendEditServiceProvider);
+      // 서버 업데이트
+      await service.updateFriendName(friendId, name);
+      // 로컬 업데이트
+      ref
+          .read(friendProfilesProvider.notifier)
+          .updateFriendNameInList(friendId, name);
+    });
   }
 }

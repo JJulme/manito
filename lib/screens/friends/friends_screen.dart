@@ -26,18 +26,6 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
   @override
   bool get wantKeepAlive => true;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //     // 친구목록 데이터가 없을 경우
-  //     final friendListState = ref.read(friendProfilesProvider);
-  //     if (friendListState.isLoading || friendListState.friendList.isEmpty) {
-  //       ref.read(friendProfilesProvider.notifier).fetchFriendList();
-  //     }
-  //   });
-  // }
-
   // 친구 상세 화면 이동
   void _toFriendsDetail(FriendProfile friendProfile) {
     context.pushNamed(

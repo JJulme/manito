@@ -103,30 +103,11 @@ class FriendProfile {
 // ==========Status==========
 class UserProfileState {
   final UserProfile? userProfile;
-  final bool isLoading;
-  final String? error;
 
-  const UserProfileState({
-    this.userProfile,
-    required this.isLoading,
-    this.error,
-  });
+  const UserProfileState({this.userProfile});
 
-  const UserProfileState.initial()
-    : userProfile = null,
-      isLoading = false,
-      error = null;
-
-  UserProfileState copyWith({
-    UserProfile? userProfile,
-    bool? isLoading,
-    String? error,
-  }) {
-    return UserProfileState(
-      userProfile: userProfile ?? this.userProfile,
-      isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
-    );
+  UserProfileState copyWith({UserProfile? userProfile}) {
+    return UserProfileState(userProfile: userProfile ?? this.userProfile);
   }
 }
 
@@ -149,39 +130,76 @@ class FriendProfilesState {
 }
 
 // 사용자의 프로필 이미지 수정 할 때 사용되는 상태
-class ProfileEditState {
+// class ProfileEditState {
+//   final File? selectedImage;
+//   final String profileImageUrl;
+//   final bool isLoading;
+//   final String? error;
+//   const ProfileEditState({
+//     this.selectedImage,
+//     required this.profileImageUrl,
+//     required this.isLoading,
+//     this.error,
+//   });
+
+//   bool get hasImage => selectedImage != null || profileImageUrl.isNotEmpty;
+
+//   const ProfileEditState.initial()
+//     : selectedImage = null,
+//       profileImageUrl = '',
+//       isLoading = false,
+//       error = null;
+
+//   ProfileEditState copyWith({
+//     File? selectedImage,
+//     String? profileImageUrl,
+//     bool? isLoading,
+//     String? error,
+//     bool clearSelectedImage = false,
+//   }) {
+//     return ProfileEditState(
+//       selectedImage:
+//           clearSelectedImage ? null : (selectedImage ?? this.selectedImage),
+//       profileImageUrl: profileImageUrl ?? this.profileImageUrl,
+//       isLoading: isLoading ?? this.isLoading,
+//       error: error ?? this.error,
+//     );
+//   }
+// }
+
+class ProfileImageState {
   final File? selectedImage;
   final String profileImageUrl;
-  final bool isLoading;
-  final String? error;
+  const ProfileImageState({this.selectedImage, this.profileImageUrl = ''});
+
+  ProfileImageState copyWith({File? selectedImage, String? profileImageUrl}) {
+    return ProfileImageState(
+      selectedImage: selectedImage ?? this.selectedImage,
+      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
+    );
+  }
+}
+
+class ProfileEditState {
+  final String nickname;
+  final String statusMessage;
+  final String autoReply;
+
   const ProfileEditState({
-    this.selectedImage,
-    required this.profileImageUrl,
-    required this.isLoading,
-    this.error,
+    this.nickname = '',
+    this.statusMessage = '',
+    this.autoReply = '',
   });
 
-  bool get hasImage => selectedImage != null || profileImageUrl.isNotEmpty;
-
-  const ProfileEditState.initial()
-    : selectedImage = null,
-      profileImageUrl = '',
-      isLoading = false,
-      error = null;
-
   ProfileEditState copyWith({
-    File? selectedImage,
-    String? profileImageUrl,
-    bool? isLoading,
-    String? error,
-    bool clearSelectedImage = false,
+    String? nickname,
+    String? statusMessage,
+    String? autoReply,
   }) {
     return ProfileEditState(
-      selectedImage:
-          clearSelectedImage ? null : (selectedImage ?? this.selectedImage),
-      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
-      isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
+      nickname: nickname ?? this.nickname,
+      statusMessage: statusMessage ?? this.statusMessage,
+      autoReply: autoReply ?? this.autoReply,
     );
   }
 }

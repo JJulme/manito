@@ -6,7 +6,6 @@ import 'package:manito/features/badge/badge_provider.dart';
 import 'package:manito/features/missions/mission.dart';
 import 'package:manito/features/missions/mission_provider.dart';
 import 'package:manito/features/posts/post_provider.dart';
-import 'package:manito/features/profiles/profile_provider.dart';
 import 'package:manito/main.dart';
 import 'package:manito/share/constants.dart';
 import 'package:manito/share/custom_badge.dart';
@@ -40,7 +39,7 @@ class _MissionTabState extends ConsumerState<MissionTab>
             .read(badgeProvider.notifier)
             .resetBadgeCount('mission_guess', typeId: mission.id),
         ref.read(missionListProvider.notifier).refresh(),
-        ref.read(postsProvider.notifier).fetchPosts(),
+        ref.read(postsProvider.notifier).refresh(),
       ]);
     }
   }

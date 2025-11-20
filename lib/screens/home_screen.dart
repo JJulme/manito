@@ -28,64 +28,64 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   @override
   bool get wantKeepAlive => true;
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(userProfileProvider.notifier).getProfile();
-    });
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   // WidgetsBinding.instance.addPostFrameCallback((_) {
+  //   //   ref.read(userProfileProvider.notifier).getProfile();
+  //   // });
+  // }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final userProfileState = ref.watch(userProfileProvider);
+    final userAsync = ref.watch(userProfileProvider);
     final badgeMissionCount = ref.watch(badgeMissionCountProvider);
     final badgeManitoCount = ref.watch(badgeManitoCountProvider);
 
-    if (userProfileState.isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    } else if (userProfileState.userProfile != null) {
-      final userProfile = userProfileState.userProfile;
-      return SafeArea(
-        child: DefaultTabController(
-          length: 2,
-          child: Scaffold(
-            appBar: MainAppbar(text: 'manito', actions: [_buildPopupMenu()]),
-            body: Column(
-              children: [
-                // 프로필 사진, 이름, 상태메시지
-                ProfileItem(
-                  profileImageUrl: userProfile!.profileImageUrl!,
-                  name: userProfile.nickname,
-                  statusMessage: userProfile.statusMessage!,
-                ),
-                SizedBox(height: width * 0.03),
-                _buildBannerAd(),
-                SizedBox(height: width * 0.03),
-                TabBar(
-                  tabs: [
-                    customBadgeIconWithLabel(
-                      badgeMissionCount,
-                      child: Tab(text: '보낸미션'),
-                    ),
-                    customBadgeIconWithLabel(
-                      badgeManitoCount,
-                      child: Tab(text: '받은미션'),
-                    ),
-                  ],
-                ),
-                Expanded(
-                  child: TabBarView(children: [MissionTab(), ManitoTab()]),
-                ),
-              ],
+    return userAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stackTrace) => Center(child: Text('Error: $error')),
+      data: (state) {
+        final profile = state.userProfile;
+        return SafeArea(
+          child: DefaultTabController(
+            length: 2,
+            child: Scaffold(
+              appBar: MainAppbar(text: 'manito', actions: [_buildPopupMenu()]),
+              body: Column(
+                children: [
+                  // 프로필 사진, 이름, 상태메시지
+                  ProfileItem(
+                    profileImageUrl: profile!.profileImageUrl!,
+                    name: profile.nickname,
+                    statusMessage: profile.statusMessage!,
+                  ),
+                  SizedBox(height: width * 0.03),
+                  _buildBannerAd(),
+                  SizedBox(height: width * 0.03),
+                  TabBar(
+                    tabs: [
+                      customBadgeIconWithLabel(
+                        badgeMissionCount,
+                        child: Tab(text: '보낸미션'),
+                      ),
+                      customBadgeIconWithLabel(
+                        badgeManitoCount,
+                        child: Tab(text: '받은미션'),
+                      ),
+                    ],
+                  ),
+                  Expanded(
+                    child: TabBarView(children: [MissionTab(), ManitoTab()]),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      );
-    } else {
-      return Center(child: Text('Error: ${userProfileState.error}'));
-    }
+        );
+      },
+    );
   }
 
   // 앱바 팝업 버튼

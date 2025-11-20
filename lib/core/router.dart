@@ -9,7 +9,6 @@ import 'package:manito/features/manito/manito.dart';
 import 'package:manito/screens/manito/album_screen.dart';
 import 'package:manito/screens/manito/manito_post_screen.dart';
 import 'package:manito/features/missions/mission.dart';
-import 'package:manito/features/posts/post.dart';
 import 'package:manito/features/profiles/profile.dart';
 import 'package:manito/screens/bottom_nav.dart';
 import 'package:manito/screens/friends/friends_blacklist_screen.dart';
@@ -117,19 +116,27 @@ final routerProvider = Provider<GoRouter>((ref) {
           return ProfileEditScreen(canGoback: canGoBack);
         },
       ),
+      // GoRoute(
+      //   path: '/post_detail',
+      //   name: 'postDetail',
+      //   builder: (context, state) {
+      //     final args = state.extra as Map<String, dynamic>;
+      //     final Post post = args['post'];
+      //     final FriendProfile manitoProfile = args['manitoProfile'];
+      //     final FriendProfile creatorProfile = args['creatorProfile'];
+      //     return PostDetailScreen(
+      //       post: post,
+      //       manitoProfile: manitoProfile,
+      //       creatorProfile: creatorProfile,
+      //     );
+      //   },
+      // ),
       GoRoute(
-        path: '/post_detail',
+        path: '/post/:postId',
         name: 'postDetail',
         builder: (context, state) {
-          final args = state.extra as Map<String, dynamic>;
-          final Post post = args['post'];
-          final FriendProfile manitoProfile = args['manitoProfile'];
-          final FriendProfile creatorProfile = args['creatorProfile'];
-          return PostDetailScreen(
-            post: post,
-            manitoProfile: manitoProfile,
-            creatorProfile: creatorProfile,
-          );
+          final postId = state.pathParameters['postId']!;
+          return PostDetailScreen(postId: postId);
         },
       ),
       GoRoute(

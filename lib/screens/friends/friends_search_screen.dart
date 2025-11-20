@@ -82,7 +82,7 @@ class _FriendsSearchScreenState extends ConsumerState<FriendsSearchScreen> {
   @override
   Widget build(BuildContext context) {
     final searchState = ref.watch(friendSearchProvider); // ✅ AsyncValue
-    final userProfileState = ref.watch(userProfileProvider);
+    final userProfileState = ref.watch(userProfileProvider).value!.userProfile;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -93,7 +93,7 @@ class _FriendsSearchScreenState extends ConsumerState<FriendsSearchScreen> {
             children: [
               _buildSearchForm(),
               SizedBox(height: width * 0.03),
-              _buildMyEmailSection(userProfileState.userProfile!.email),
+              _buildMyEmailSection(userProfileState!.email),
               SizedBox(height: width * 0.03),
               // ✅ AsyncValue.when 사용
               _buildProfileSection(searchState),

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/providers.dart';
 import 'package:manito/features/error/error_provider.dart';
@@ -6,7 +7,6 @@ import 'package:manito/features/image/image_service.dart';
 import 'package:manito/features/manito/manito.dart';
 import 'package:manito/features/manito/manito_service.dart';
 import 'package:manito/features/profiles/profile_provider.dart';
-import 'package:manito/share/custom_toast.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 // ========== Service Provider ==========
@@ -52,7 +52,7 @@ class ManitoListNotifier extends AsyncNotifier<ManitoListState> {
       final languageCode = ref.read(languageCodeProvider);
       return _fetchAll(languageCode);
     } catch (e) {
-      ref.read(errorProvider.notifier).setError('마니또 목록 가져오기 실패: $e');
+      debugPrint('ManitoListNotifier.build Error: $e');
       return ManitoListState();
     }
   }
@@ -143,8 +143,8 @@ class ManitoListNotifier extends AsyncNotifier<ManitoListState> {
 
   /// 모든 목록 새로고침
   Future<void> refreshAll(String languageCode) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => _fetchAll(languageCode));
+    ref.invalidateSelf();
+    await future;
   }
 }
 
@@ -159,19 +159,14 @@ class ManitoProposeNotifier
   Future<ManitoProposeState> _getProposeDetail(String proposeId) async {
     state = const AsyncValue.loading();
     final nextState = await AsyncValue.guard(() async {
-      try {
-        final service = ref.read(manitoProposeServiceProvider);
-        final languageCode = ref.read(languageCodeProvider);
-        final proposeDetail = await service.getManitoPropose2(
-          languageCode,
-          proposeId,
-        );
+      final service = ref.read(manitoProposeServiceProvider);
+      final languageCode = ref.read(languageCodeProvider);
+      final proposeDetail = await service.getManitoPropose2(
+        languageCode,
+        proposeId,
+      );
 
-        return ManitoProposeState(propose: proposeDetail);
-      } catch (e) {
-        ref.read(errorProvider.notifier).setError('마니또 제안 가져오기 실패: $e');
-        return ManitoProposeState();
-      }
+      return ManitoProposeState(propose: proposeDetail);
     });
     state = nextState;
     return nextState.requireValue;
@@ -191,7 +186,7 @@ class ManitoProposeNotifier
       );
       state = AsyncValue.data(currentState.copyWith(isAccepting: false));
     } catch (e) {
-      ref.read(errorProvider.notifier).setError('제안 수락 실패: $e');
+      debugPrint('ManitoProposeNotifier.acceptPropose Error: $e');
       state = AsyncValue.data(currentState.copyWith(isAccepting: false));
     }
   }
@@ -214,7 +209,7 @@ class ManitoPostNotifier
                 : ManitoPostStatus.saved,
       );
     } catch (e) {
-      ref.read(errorProvider.notifier).setError('ManitoPostNotifier Error: $e');
+      debugPrint('ManitoPostNotifier.build Error: $e');
       return ManitoPostState(
         manitoAccept: arg,
         status: ManitoPostStatus.editing,
@@ -303,10 +298,10 @@ class ManitoPostNotifier
         ),
       );
     } catch (e) {
+      debugPrint('ManitoPostNotifier.savePost Error: $e');
       state = AsyncValue.data(
         currentState.copyWith(status: ManitoPostStatus.editing),
       );
-      ref.read(errorProvider.notifier).setError('게시물 저장 실패: $e');
     }
   }
 
@@ -327,10 +322,10 @@ class ManitoPostNotifier
         currentState.copyWith(status: ManitoPostStatus.posted),
       );
     } catch (e) {
+      debugPrint('ManitoPostNotifier.completePost Error: $e');
       state = AsyncValue.data(
         currentState.copyWith(status: ManitoPostStatus.saved),
       );
-      ref.read(errorProvider.notifier).setError('completePost Error: $e');
     }
   }
 }

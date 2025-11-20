@@ -24,11 +24,14 @@ class _MissionCreateScreenState extends ConsumerState<MissionCreateScreen> {
   int _selectedType = 0;
   int _selectedPeriod = 0;
 
+  // 친구 선택 화면 이동
+  void _toMissionFriendSearch() {
+    ref.read(missionCreateSelectionProvider.notifier).updateSelectedFriends();
+    context.push('/mission_friends_search');
+  }
+
   // 미선 생성 다이얼로그
-  void _showMissionCreationDialog(
-    MissionCreateState state,
-    MissionCreateNotifier notifier,
-  ) async {
+  void _showMissionCreationDialog(MissionCreateState state) async {
     if (state.confirmedFriends.length < 2) {
       customToast(msg: '친구를 2명 이상 선택해 주세요.');
     } else {
@@ -38,7 +41,9 @@ class _MissionCreateScreenState extends ConsumerState<MissionCreateScreen> {
         message: context.tr("mission_create_screen.dialog_message"),
       );
       if (result == true) {
-        await notifier.createMission(_selectedType, _selectedPeriod);
+        await ref
+            .read(missionCreationActionProvider.notifier)
+            .createMission(_selectedType, _selectedPeriod);
         if (!mounted) return;
         context.pop(true);
       }
@@ -47,28 +52,33 @@ class _MissionCreateScreenState extends ConsumerState<MissionCreateScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(missionCreateProvider);
-    final notifier = ref.read(missionCreateProvider.notifier);
+    final selectionState = ref.watch(missionCreateSelectionProvider);
+    final actionState = ref.watch(missionCreationActionProvider);
     return Scaffold(
       appBar: SubAppbar(
         title: Text('미션 만들기'),
-        actions: [_appbarActions(state, notifier)],
+        actions: [_appbarActions(selectionState, actionState)],
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildSectionTitle('타입'),
-              _buildTypeToggle(),
-              Divider(),
-              _buildSectionTitle('기간'),
-              _buildPeriodToggle(),
-              Divider(),
-              _buildSectionTitle('친구'),
-              _buildSelectedFriends(state, notifier),
-            ],
-          ),
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSectionTitle('타입'),
+                  _buildTypeToggle(),
+                  Divider(),
+                  _buildSectionTitle('기간'),
+                  _buildPeriodToggle(),
+                  Divider(),
+                  _buildSectionTitle('친구'),
+                  _buildSelectedFriends(selectionState),
+                ],
+              ),
+            ),
+            if (actionState.isLoading) _buildLoadingOverlay(),
+          ],
         ),
       ),
     );
@@ -77,12 +87,16 @@ class _MissionCreateScreenState extends ConsumerState<MissionCreateScreen> {
   // 미션 생성 버튼
   Widget _appbarActions(
     MissionCreateState state,
-    MissionCreateNotifier notifier,
+    AsyncValue<void> actionState,
   ) {
-    return TextButton(
-      child: Text('완료', style: TextTheme.of(context).bodyMedium),
-      onPressed: () => _showMissionCreationDialog(state, notifier),
-    );
+    if (actionState.isLoading) {
+      return TextButton(onPressed: null, child: CircularProgressIndicator());
+    } else {
+      return TextButton(
+        onPressed: () => _showMissionCreationDialog(state),
+        child: Text('완료', style: TextTheme.of(context).bodyMedium),
+      );
+    }
   }
 
   // 타이틀 위젯
@@ -171,17 +185,11 @@ class _MissionCreateScreenState extends ConsumerState<MissionCreateScreen> {
   }
 
   // 친구 선택, 친구 목록
-  Widget _buildSelectedFriends(
-    MissionCreateState state,
-    MissionCreateNotifier notifier,
-  ) {
+  Widget _buildSelectedFriends(MissionCreateState state) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: width * 0.04),
       child: InkWell(
-        onTap: () {
-          notifier.updateSelectedFriends();
-          context.push('/mission_friends_search');
-        },
+        onTap: _toMissionFriendSearch,
         child:
             state.confirmedFriends.isEmpty
                 ? Container(
@@ -210,6 +218,14 @@ class _MissionCreateScreenState extends ConsumerState<MissionCreateScreen> {
                 )
                 : FriendGridList(friends: state.confirmedFriends),
       ),
+    );
+  }
+
+  // 로딩중 입력 방지
+  Widget _buildLoadingOverlay() {
+    return ModalBarrier(
+      dismissible: false,
+      color: Colors.black.withAlpha((0.5 * 255).round()),
     );
   }
 }

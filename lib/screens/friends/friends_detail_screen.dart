@@ -37,8 +37,8 @@ class _FriendsDetailScreenState extends ConsumerState<FriendsDetailScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // 포스트를 가져온적 없는 경우
       final postsState = ref.read(postsProvider);
-      if (postsState.isLoading || postsState.postList.isEmpty) {
-        ref.read(postsProvider.notifier).fetchPosts();
+      if (postsState.isLoading || postsState.value!.postList.isEmpty) {
+        ref.read(postsProvider.notifier).refresh();
       }
     });
   }
@@ -65,10 +65,7 @@ class _FriendsDetailScreenState extends ConsumerState<FriendsDetailScreen> {
     await showModalBottomSheet(
       context: context,
       builder: (context) {
-        return ReportBottomsheet(
-          userId: ref.read(userProfileProvider).userProfile!.id,
-          reportIdType: 'user',
-        );
+        return ReportBottomsheet(reportIdType: 'user');
       },
     );
   }
@@ -151,22 +148,25 @@ class _FriendsDetailScreenState extends ConsumerState<FriendsDetailScreen> {
   }
 
   // 포스트 리스트뷰
-  Widget _buildPostList(PostsState postsState) {
+  Widget _buildPostList(AsyncValue<PostsState> postsState) {
     final postList = ref
         .read(postsProvider.notifier)
         .getPostsWithFriend(widget.friendId);
-    if (postsState.isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    } else if (postsState.error != null && postsState.postList.isEmpty) {
-      return const Center(child: Text('게시물을 불러올 수 없습니다'));
-    } else if (postList.isEmpty) {
-      return const Center(child: Text('게시물이 없습니다'));
-    }
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: postList.length,
-      itemBuilder: (context, index) => _buildPostItem(postList[index]),
+    return postsState.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error:
+          (error, stackTrace) => const Center(child: Text('게시물을 불러올 수 없습니다')),
+      data: (state) {
+        if (state.postList.isEmpty) {
+          return const Center(child: Text('게시물이 없습니다'));
+        }
+        return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: postList.length,
+          itemBuilder: (context, index) => _buildPostItem(postList[index]),
+        );
+      },
     );
   }
 

@@ -132,6 +132,29 @@ class TimerNotifier extends StateNotifier<TimerState> {
   }
 }
 
+/// 새로운 코드
+// class TimerNotifier extends Notifier<TimerState> {
+//   late final DateTime _targetDateTime;
+//   Future<void> Function()? _onTimerComplete;
+//   Timer? _timer;
+//   bool _callbackExecuted = false;
+
+//   @override
+//   TimerState build() {
+//     return const TimerState(
+//       remainingTime: Duration.zero,
+//       isCountdownRunning: false,
+//       isCompleted: false,
+//     );
+//   }
+
+//   void initialize(DateTime targetDateTime, {Future<void> Function()? onTimerComplete}) {
+//     _targetDateTime = targetDateTime;
+//     _onTimerComplete = onTimerComplete;
+
+//   }
+// }
+
 /// TimerWidget 클래스: 카운트다운을 표시하는 위젯
 class TimerWidget extends ConsumerStatefulWidget {
   final DateTime targetDateTime;

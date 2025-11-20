@@ -29,14 +29,6 @@ class _PostScreenState extends ConsumerState<PostScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      ref.read(postsProvider.notifier).fetchPosts();
-      // // 친구 목록 데이터가 없을경우
-      // final friendListState = ref.read(friendProfilesProvider);
-      // if (friendListState.isLoading || friendListState.friendList.isEmpty) {
-      //   ref.read(friendProfilesProvider.notifier).fetchFriendList();
-      // }
-    });
   }
 
   @override
@@ -52,47 +44,42 @@ class _PostScreenState extends ConsumerState<PostScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final postState = ref.watch(postsProvider);
+    final postAsync = ref.watch(postsProvider);
     final friendProfilesState = ref.watch(friendProfilesProvider).value;
     return Scaffold(
       appBar: MainAppbar(text: '기록'),
-      body: SafeArea(child: _buildBody(postState, friendProfilesState!)),
+      body: SafeArea(child: _buildBody(postAsync, friendProfilesState!)),
     );
   }
 
   // 바디
   Widget _buildBody(
-    PostsState postState,
+    AsyncValue<PostsState> postAsync,
     FriendProfilesState friendProfilesState,
   ) {
-    // 로딩
-    if (postState.isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    // 오류
-    else if (postState.error != null && postState.postList.isEmpty) {
-      return const Center(child: Text('게시물을 불러올 수 없습니다'));
-    }
-    // 게시물이 없음
-    else if (postState.postList.isEmpty) {
-      return const Center(child: Text('게시물이 없습니다'));
-    }
-    //
-    else {
-      return RefreshIndicator(
-        onRefresh: () => ref.read(postsProvider.notifier).fetchPosts(),
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            children: [
-              _buildBannerAd(),
-              SizedBox(height: width * _verticalSpacing),
-              _buildPostList(postState),
-            ],
+    return postAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error:
+          (error, stackTrace) => const Center(child: Text('게시물을 불러올 수 없습니다')),
+      data: (state) {
+        if (state.postList.isEmpty) {
+          return const Center(child: Text('게시물이 없습니다'));
+        }
+        return RefreshIndicator(
+          onRefresh: () => ref.read(postsProvider.notifier).refresh(),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              children: [
+                _buildBannerAd(),
+                SizedBox(height: width * _verticalSpacing),
+                _buildPostList(state),
+              ],
+            ),
           ),
-        ),
-      );
-    }
+        );
+      },
+    );
   }
 
   // 광고

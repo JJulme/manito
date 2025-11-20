@@ -1,7 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/providers.dart';
 import 'package:manito/features/auth/auth_service.dart';
-import 'package:manito/features/error/error_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 // AuthService 제공하는 프로바이더
@@ -13,11 +13,6 @@ final authServiceProvider = Provider<AuthService>((ref) {
 final authStateChangesProvider = StreamProvider<AuthState>((ref) {
   return Supabase.instance.client.auth.onAuthStateChange;
 });
-
-//
-// final authNotifierProvider = StateNotifierProvider<AuthNotifier, bool>((ref) {
-//   return AuthNotifier(ref);
-// });
 
 final authProvider = AsyncNotifierProvider<AuthNotifier, AuthState>(
   AuthNotifier.new,
@@ -35,7 +30,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
         session,
       );
     } catch (e) {
-      ref.read(errorProvider.notifier).setError('인증 상태 확인 실패: $e');
+      debugPrint('AuthNotifier Error: $e');
       return AuthState(AuthChangeEvent.signedOut, null);
     }
   }

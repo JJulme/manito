@@ -32,30 +32,34 @@ class _MissionFriendsSearchScreenState
     });
   }
 
-  void _onDone(MissionCreateState state, MissionCreateNotifier notifier) {
+  void _toggleFriends(FriendProfile friend) {
+    ref.read(missionCreateSelectionProvider.notifier).toggleSelection(friend);
+  }
+
+  void _onDone(MissionCreateState state) {
     if (state.selectedFriends.length < 2) {
       customToast(msg: '2명 이상의 친구를 선택해 주세요');
     } else {
-      notifier.confirmSelection();
+      ref.read(missionCreateSelectionProvider.notifier).confirmSelection();
       Navigator.pop(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(missionCreateProvider);
-    final notifier = ref.read(missionCreateProvider.notifier);
+    final selectionState = ref.watch(missionCreateSelectionProvider);
+    final notifier = ref.read(missionCreateSelectionProvider.notifier);
     final friendsState = ref.watch(friendProfilesProvider).value;
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        appBar: _buildAppBar(state, notifier),
+        appBar: _buildAppBar(selectionState),
         body: SafeArea(
           child: SingleChildScrollView(
             child: Column(
               children: [
                 SizedBox(height: width * 0.05),
-                _buildSelectedFriendList(state, notifier),
+                _buildSelectedFriendList(selectionState),
                 _buildAllFriendList(friendsState!, notifier),
               ],
             ),
@@ -66,10 +70,7 @@ class _MissionFriendsSearchScreenState
   }
 
   // 앱바
-  AppBar _buildAppBar(
-    MissionCreateState state,
-    MissionCreateNotifier notifier,
-  ) {
+  AppBar _buildAppBar(MissionCreateState state) {
     return AppBar(
       centerTitle: false,
       title: Text('친구 선택', style: Theme.of(context).textTheme.headlineMedium),
@@ -78,7 +79,7 @@ class _MissionFriendsSearchScreenState
         Padding(
           padding: EdgeInsets.only(right: width * 0.02),
           child: TextButton(
-            onPressed: () => _onDone(state, notifier),
+            onPressed: () => _onDone(state),
             child: Text("완료", style: Theme.of(context).textTheme.bodyMedium),
           ),
         ),
@@ -121,10 +122,7 @@ class _MissionFriendsSearchScreenState
   }
 
   // 선택된 친구 리스트
-  Widget _buildSelectedFriendList(
-    MissionCreateState state,
-    MissionCreateNotifier notifier,
-  ) {
+  Widget _buildSelectedFriendList(MissionCreateState state) {
     return Container(
       height: width * 0.25,
       alignment: Alignment.centerLeft,
@@ -143,7 +141,8 @@ class _MissionFriendsSearchScreenState
                   final friend = state.selectedFriends[index];
                   return _selectedFriendItem(
                     friend,
-                    () => notifier.toggleSelection(friend),
+                    // () => notifier.toggleSelection(friend),
+                    () => _toggleFriends(friend),
                   );
                 },
               ),
@@ -185,7 +184,7 @@ class _MissionFriendsSearchScreenState
   // 전체 친구 목록
   Widget _buildAllFriendList(
     FriendProfilesState friendStates,
-    MissionCreateNotifier notifier,
+    MissionCreateSelectionNotifier notifier,
   ) {
     // 친구 없을 때
     final List<FriendProfile> friendList = friendStates.friendList;
@@ -215,7 +214,7 @@ class _MissionFriendsSearchScreenState
   // 친구 리스트 아이템
   Widget _friendListItem(
     FriendProfile profile,
-    MissionCreateNotifier notifier,
+    MissionCreateSelectionNotifier notifier,
   ) {
     return ListTile(
       contentPadding: EdgeInsets.symmetric(

@@ -89,27 +89,19 @@ class MyMissionState {
 class MissionCreateState {
   final List<FriendProfile> selectedFriends;
   final List<FriendProfile> confirmedFriends;
-  final bool isLoading;
-  final String? error;
 
   MissionCreateState({
     this.selectedFriends = const [],
     this.confirmedFriends = const [],
-    this.isLoading = false,
-    this.error,
   });
 
   MissionCreateState copyWith({
     List<FriendProfile>? selectedFriends,
     List<FriendProfile>? confirmedFriends,
-    bool? isLoading,
-    String? error,
   }) {
     return MissionCreateState(
       selectedFriends: selectedFriends ?? this.selectedFriends,
       confirmedFriends: confirmedFriends ?? this.confirmedFriends,
-      isLoading: isLoading ?? this.isLoading,
-      error: error,
     );
   }
 }

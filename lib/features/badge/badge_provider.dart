@@ -60,7 +60,7 @@ class BadgeNotifier extends AsyncNotifier<BadgeState> {
       // 앱 시작 시 뱃지 데이터 자동 로드
       return await _fetchBadgesInternal();
     } catch (e) {
-      ref.read(errorProvider.notifier).setError('뱃지 로드 실패: $e');
+      debugPrint('BadgeNotifier.build Error: $e');
       return const BadgeState();
     }
   }
@@ -125,8 +125,8 @@ class BadgeNotifier extends AsyncNotifier<BadgeState> {
 
   /// 뱃지 새로고침
   Future<void> refresh() async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => _fetchBadgesInternal());
+    ref.invalidateSelf();
+    await future;
   }
 
   /// 로컬 상태에서만 +1 - FirebaseMessaging.onMessage.listen
@@ -196,7 +196,7 @@ class BadgeNotifier extends AsyncNotifier<BadgeState> {
       final service = ref.read(badgeServiceProvider);
       await service.resetBadgeCount(type, typeId: typeId);
     } catch (e) {
-      ref.read(errorProvider.notifier).setError('뱃지 초기화 실패: $e');
+      debugPrint('BadgeNotifier.resetBadgeCount Error: $e');
       rethrow;
     }
   }

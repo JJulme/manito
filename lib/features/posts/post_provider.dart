@@ -1,120 +1,117 @@
-import 'package:flutter/rendering.dart';
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/providers.dart';
+import 'package:manito/features/error/error_provider.dart';
 import 'package:manito/features/posts/post.dart';
 import 'package:manito/features/posts/post_service.dart';
 
-// Provider
+// ========== Service Provider ==========
 final postsServiceProvider = Provider<PostsService>((ref) {
   final supabase = ref.read(supabaseProvider);
   return PostsService(supabase);
 });
 
-final postsProvider = StateNotifierProvider<PostsNotifier, PostsState>((ref) {
-  final service = ref.watch(postsServiceProvider);
-  return PostsNotifier(ref, service);
-});
+// ========== Notifier Provider ==========
+final postsProvider = AsyncNotifierProvider<PostsNotifier, PostsState>(
+  PostsNotifier.new,
+);
 
-// 각 포스트 마다 독립적인 프로바이더 생성
-StateNotifierProvider<PostDetailNotifier, PostDetailState>
-createPostDetailProvider(Post originalPost) {
-  return StateNotifierProvider<PostDetailNotifier, PostDetailState>((ref) {
-    final service = ref.watch(postsServiceProvider);
-    final notifier = PostDetailNotifier(ref, service, originalPost);
-    // ref.onDispose(() {});
-    Future.microtask(() => notifier.init());
-    return notifier;
-  });
-}
+final postDetailProvider =
+    AsyncNotifierProvider.family<PostDetailNotifier, PostDetailState, String>(
+      PostDetailNotifier.new,
+    );
+final postCommentProvider =
+    AsyncNotifierProvider.family<PostCommentNotifier, PostCommentState, String>(
+      PostCommentNotifier.new,
+    );
 
-// Notifier
-class PostsNotifier extends StateNotifier<PostsState> {
-  final Ref _ref;
-  final PostsService _service;
-  PostsNotifier(this._ref, this._service) : super(const PostsState.initial());
-
-  // 게시물 목록 가져오기
-  Future<void> fetchPosts() async {
+// ========== Notifier ==========
+class PostsNotifier extends AsyncNotifier<PostsState> {
+  @override
+  FutureOr<PostsState> build() async {
     try {
-      state = state.copyWith(isLoading: true);
-
-      final languageCode = _ref.read(languageCodeProvider);
-      final posts = await _service.fetchPosts(languageCode);
-
-      state = state.copyWith(postList: posts, isLoading: false, error: null);
+      final languageCode = ref.read(languageCodeProvider);
+      final service = ref.read(postsServiceProvider);
+      final posts = await service.fetchPosts(languageCode);
+      return PostsState(postList: posts);
     } catch (e) {
-      debugPrint('PostNotifier.fetchPosts Error: $e');
-      state = state.copyWith(isLoading: false, error: e.toString());
+      ref.read(errorProvider.notifier).setError('PostsNotifier Error: $e');
+      return PostsState();
     }
   }
 
-  // 친구와 게시물
+  Post getPostDetail(String postId) {
+    final currentState = state.value;
+    if (currentState == null) return Post();
+    return currentState.postList.where((p) => p.id == postId).single;
+  }
+
+  // 친구와의 게시물
   List<Post> getPostsWithFriend(String friendId) {
-    return state.postList
-        .where(
-          (post) => post.creatorId == friendId || post.manitoId == friendId,
-        )
-        .toList();
+    final currentState = state.value;
+    if (currentState == null) return [];
+    return currentState.postList.where((p) => p.creatorId == friendId).toList();
+  }
+
+  Future<void> refresh() async {
+    ref.invalidateSelf();
+    await future;
   }
 }
 
-class PostDetailNotifier extends StateNotifier<PostDetailState> {
-  final Ref _ref;
-  final PostsService _service;
-  final Post originalPost;
-  PostDetailNotifier(this._ref, this._service, this.originalPost)
-    : super(const PostDetailState.initial());
-
-  Future<void> init() async {
+class PostDetailNotifier extends FamilyAsyncNotifier<PostDetailState, String> {
+  @override
+  FutureOr<PostDetailState> build(String postId) async {
     try {
-      state = state.copyWith(isLoading: true);
-      await Future.wait([getPostDetail(), fetchComments()]);
-      state = state.copyWith(isLoading: false);
-    } catch (e) {
-      debugPrint('PostDetailNotifier.init Error: $e');
-      state = state.copyWith(isLoading: false, error: e.toString());
-    }
-  }
-
-  // 단일 게시물 가져오기
-  Future<void> getPostDetail() async {
-    try {
-      final detailPost = await _service.getPost(originalPost.id!);
+      final service = ref.read(postsServiceProvider);
+      final originPost = ref.read(postsProvider.notifier).getPostDetail(postId);
+      final detailPost = await service.getPost(postId);
       final mergedPost = detailPost.copyWith(
-        id: originalPost.id,
-        completeAt: originalPost.completeAt,
-        contentType: originalPost.contentType,
-        content: originalPost.content,
+        id: postId,
+        manitoId: originPost.manitoId,
+        creatorId: originPost.creatorId,
+        completeAt: originPost.completeAt,
+        contentType: originPost.contentType,
+        content: originPost.content,
       );
-
-      state = state.copyWith(postDetail: mergedPost);
+      return PostDetailState(postDetail: mergedPost);
     } catch (e) {
-      debugPrint('PostDetailNotifier.getPostDetail Error: $e');
-      state = state.copyWith(error: e.toString());
+      ref.read(errorProvider.notifier).setError('PostDetailNotifier Error: $e');
+      return PostDetailState();
+    }
+  }
+}
+
+class PostCommentNotifier
+    extends FamilyAsyncNotifier<PostCommentState, String> {
+  @override
+  FutureOr<PostCommentState> build(String postId) async {
+    try {
+      final service = ref.read(postsServiceProvider);
+      final comments = await service.fetchComments(postId);
+      return PostCommentState(commentList: comments);
+    } catch (e) {
+      ref
+          .read(errorProvider.notifier)
+          .setError('PostCommentNotifier Error: $e');
+      return PostCommentState();
     }
   }
 
-  // 댓글 목록 가져오기
-  Future<void> fetchComments() async {
+  // 댓글 삽입
+  Future<void> insertComment(String postId, String comment) async {
     try {
-      state = state.copyWith(commentLoading: true);
-      final comments = await _service.fetchComments(originalPost.id!);
-      state = state.copyWith(commentList: comments, commentLoading: false);
+      final service = ref.read(postsServiceProvider);
+      await service.insertComment(postId, comment);
+      refresh();
     } catch (e) {
-      debugPrint('PostDetailNotifier.fetchComments Error: $e');
-      state = state.copyWith(commentLoading: false, error: e.toString());
+      ref.read(errorProvider.notifier).setError('insertComment Error: $e');
     }
   }
 
-  // 댓글 삽압
-  Future<void> insertComment(String comment) async {
-    try {
-      final currentUser = _ref.read(currentUserProvider);
-      await _service.insertComment(originalPost.id!, currentUser!.id, comment);
-      await fetchComments();
-    } catch (e) {
-      debugPrint('PostDetailNotifier.insertComment Error: $e');
-      state = state.copyWith(error: e.toString());
-    }
+  // 새로고침
+  Future<void> refresh() async {
+    ref.invalidateSelf();
+    await future;
   }
 }

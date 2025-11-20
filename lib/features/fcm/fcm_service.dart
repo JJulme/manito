@@ -168,7 +168,7 @@ class FCMService {
   Future<void> _handleMissionComplete(String missionId) async {
     // 데이터 새로고침
     await _ref.read(manitoListProvider.notifier).fetchGuessList();
-    await _ref.read(postsProvider.notifier).fetchPosts();
+    await _ref.read(postsProvider.notifier).refresh();
     // 뱃지 증가
     _ref
         .read(badgeProvider.notifier)

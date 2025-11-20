@@ -74,12 +74,9 @@ class PostsService {
   }
 
   // 댓글 달기
-  Future<void> insertComment(
-    String missionId,
-    String userId,
-    String comment,
-  ) async {
+  Future<void> insertComment(String missionId, String comment) async {
     try {
+      final userId = _supabase.auth.currentUser!.id;
       await _supabase.from('comments').insert({
         "mission_id": missionId,
         "user_id": userId,
