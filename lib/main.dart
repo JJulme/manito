@@ -115,8 +115,10 @@ class _ManitoState extends ConsumerState<Manito> {
       // 디버깅 배너 숨기기
       debugShowCheckedModeBanner: false,
       // 테마 설정
-      theme: themeLight,
-      darkTheme: themeDark,
+      // theme: themeLight,
+      // darkTheme: themeDark,
+      theme: lightTheme,
+      darkTheme: darkTheme,
       themeMode: themeMode,
     );
   }

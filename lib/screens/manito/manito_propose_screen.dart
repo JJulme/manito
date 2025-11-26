@@ -7,6 +7,7 @@ import 'package:manito/features/manito/manito.dart';
 import 'package:manito/features/manito/manito_provider.dart';
 import 'package:manito/features/profiles/profile.dart';
 import 'package:manito/features/profiles/profile_provider.dart';
+import 'package:manito/features/theme/theme.dart';
 import 'package:manito/main.dart';
 import 'package:manito/share/common_dialog.dart';
 import 'package:manito/share/constants.dart';
@@ -42,7 +43,7 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
       title: '미션 수락',
       message: '미션을 수락하시겠습니까?',
     );
-    if (result!) {
+    if (result == true) {
       await ref
           .read(manitoProposeProvider(widget.propose.id).notifier)
           .acceptPropose(selectedContent!);
@@ -55,7 +56,7 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
   Widget build(BuildContext context) {
     // final state = ref.watch(_manitoProposeProvider);
     final proposeAsync = ref.watch(manitoProposeProvider(widget.propose.id));
-    final FriendProfile? profile = ref
+    final FriendProfile profile = ref
         .read(friendProfilesProvider.notifier)
         .searchFriendProfile(widget.propose.creatorId);
 
@@ -63,9 +64,9 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
       appBar: SubAppbar(
         title: Text(
           "mission_propose_screen.title",
-          style: Theme.of(context).textTheme.headlineMedium,
+          style: TextTheme.of(context).headlineSmall,
           overflow: TextOverflow.ellipsis,
-        ).tr(namedArgs: {"nickname": profile!.displayName}),
+        ).tr(namedArgs: {"nickname": profile.displayName}),
       ),
       body: proposeAsync.when(
         loading: () => Center(child: CircularProgressIndicator()),
@@ -124,9 +125,11 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
           Container(
             height: width * 0.15,
             decoration: BoxDecoration(
-              color: Colors.white70,
+              color: Theme.of(context).colorScheme.onPrimary,
               borderRadius: BorderRadius.circular(0.02 * width),
-              border: Border.all(color: Colors.grey),
+              border: Border.all(
+                color: ColorScheme.of(context).onSurface.withAlpha(150),
+              ),
             ),
             child: Row(
               children: [
@@ -135,7 +138,7 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
                   child: Center(
                     child: Text(
                       '유 형',
-                      style: Theme.of(context).textTheme.titleSmall,
+                      style: TextTheme.of(context).titleMedium,
                     ),
                   ),
                 ),
@@ -152,9 +155,11 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
           Container(
             height: width * 0.15,
             decoration: BoxDecoration(
-              color: Colors.white70,
+              color: Theme.of(context).colorScheme.onPrimary,
               borderRadius: BorderRadius.circular(0.02 * width),
-              border: Border.all(color: Colors.grey),
+              border: Border.all(
+                color: ColorScheme.of(context).onSurface.withAlpha(150),
+              ),
             ),
             child: Row(
               children: [
@@ -163,7 +168,7 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
                   child: Center(
                     child: Text(
                       '기 간',
-                      style: Theme.of(context).textTheme.titleSmall,
+                      style: TextTheme.of(context).titleMedium,
                     ),
                   ),
                 ),
@@ -172,7 +177,7 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
                   child: Center(
                     child: Text(
                       '~ $deadline',
-                      style: Theme.of(context).textTheme.bodySmall,
+                      style: Theme.of(context).textTheme.bodyLarge,
                     ),
                   ),
                 ),
@@ -186,9 +191,13 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
 
   // 선택할 미션 아이템
   Widget _buildMissionItem(String text, bool isSelected, VoidCallback onTap) {
-    final textColor = isSelected ? Colors.black : Colors.grey.shade400;
-    final iconColor = isSelected ? Colors.black : Colors.white70;
-    final borderColor = isSelected ? Colors.grey : Colors.grey.shade400;
+    final colors = ColorScheme.of(context);
+    // final textColor = isSelected ? Colors.black : Colors.grey.shade400;
+    final onColor = ColorScheme.of(context).onSurface;
+    final offColor = ColorScheme.of(context).onSurfaceVariant.withAlpha(80);
+    final textColor = isSelected ? onColor : offColor;
+    final iconColor = isSelected ? onColor : colors.surface;
+    final borderColor = isSelected ? onColor.withAlpha(150) : offColor;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -200,7 +209,7 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
           0.03 * width,
         ),
         decoration: BoxDecoration(
-          color: Colors.white70,
+          color: Theme.of(context).colorScheme.onPrimary,
           borderRadius: BorderRadius.circular(0.02 * width),
           border: Border.all(color: borderColor),
         ),
@@ -224,7 +233,7 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
                   minFontSize: 10,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 0.05 * width, color: textColor),
+                  style: TextStyle(fontSize: 0.04 * width, color: textColor),
                 ),
               ),
             ),
@@ -244,7 +253,6 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
         horizontal: width * 0.04,
       ),
       child: ElevatedButton(
-        // onPressed: state.isLoading ? null : () => _updateMissionGuess(notifier),
         onPressed: () => _showAcceptMissionDialog(),
         child:
             state.isAccepting
@@ -254,7 +262,10 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
                   children: [
                     Text(
                       "mission_propose_screen.accept_btn",
-                      style: Theme.of(context).textTheme.titleMedium,
+                      style: TextStyle(
+                        color: kOffBlack,
+                        fontSize: TextTheme.of(context).titleLarge!.fontSize,
+                      ),
                     ).tr(),
                     TimerWidget(
                       targetDateTime: widget.propose.acceptDeadline,

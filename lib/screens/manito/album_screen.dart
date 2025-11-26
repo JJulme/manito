@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/features/manito/manito.dart';
 import 'package:manito/features/manito/manito_provider.dart';
+import 'package:manito/features/theme/theme.dart';
 import 'package:manito/main.dart';
 import 'package:manito/share/custom_toast.dart';
-import 'package:manito/core/constants.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class AlbumScreen extends ConsumerStatefulWidget {
@@ -173,10 +173,10 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen> {
           onPressed: _selectedOrder.isEmpty ? null : _onComplete,
           child:
               _selectedOrder.isEmpty
-                  ? Text('선택', style: Theme.of(context).textTheme.labelLarge)
+                  ? Text('선택', style: TextTheme.of(context).bodyMedium)
                   : Text(
                     '${_selectedOrder.length} 선택',
-                    style: Theme.of(context).textTheme.bodySmall,
+                    style: TextTheme.of(context).bodyMedium,
                   ),
         ),
       ],

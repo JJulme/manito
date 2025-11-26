@@ -25,7 +25,8 @@ class UserProfile {
       nickname: json['nickname'] as String,
       statusMessage: json['status_message'] as String,
       profileImageUrl: json['profile_image_url'] as String,
-      autoReply: json['auto_reply'] as String,
+      autoReply:
+          json['auto_reply'] != null ? json['auto_reply'] as String : null,
     );
   }
 

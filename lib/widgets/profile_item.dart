@@ -33,7 +33,7 @@ class ProfileItem extends StatelessWidget {
                   children: [
                     Text(
                       name,
-                      style: Theme.of(context).textTheme.titleSmall,
+                      style: TextTheme.of(context).titleLarge,
                       overflow: TextOverflow.ellipsis,
                     ),
                     SizedBox(width: width * 0.09),
@@ -48,10 +48,13 @@ class ProfileItem extends StatelessWidget {
                     vertical: width * 0.015,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.grey[200],
+                    color: Theme.of(context).colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(width * 0.01),
                   ),
-                  child: Text(statusMessage),
+                  child: Text(
+                    statusMessage,
+                    style: TextTheme.of(context).bodyMedium,
+                  ),
                 ),
               ],
             ),

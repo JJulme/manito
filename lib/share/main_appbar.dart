@@ -15,7 +15,7 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: Theme.of(context).colorScheme.surface,
       centerTitle: false,
       titleSpacing: width * 0.07,
-      title: Text(text, style: Theme.of(context).textTheme.headlineLarge),
+      title: Text(text, style: Theme.of(context).textTheme.headlineSmall),
       actions: actions,
     );
   }

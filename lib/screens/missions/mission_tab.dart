@@ -6,12 +6,12 @@ import 'package:manito/features/badge/badge_provider.dart';
 import 'package:manito/features/missions/mission.dart';
 import 'package:manito/features/missions/mission_provider.dart';
 import 'package:manito/features/posts/post_provider.dart';
+import 'package:manito/features/theme/theme.dart';
 import 'package:manito/main.dart';
 import 'package:manito/share/constants.dart';
 import 'package:manito/share/custom_badge.dart';
 import 'package:manito/share/custom_toast.dart';
 import 'package:manito/widgets/tab_container.dart';
-import 'package:manito/core/constants.dart';
 import 'package:manito/core/custom_icons.dart';
 import 'package:manito/widgets/custom_slide.dart';
 import 'package:manito/widgets/timer.dart';
@@ -105,7 +105,7 @@ class _MissionTabState extends ConsumerState<MissionTab>
       child: SvgPicture.asset(
         'assets/icons/star_add2.svg',
         width: width * 0.075,
-        colorFilter: ColorFilter.mode(Colors.grey.shade900, BlendMode.srcIn),
+        colorFilter: ColorFilter.mode(kOffBlack, BlendMode.srcIn),
       ),
       onPressed: () => _handleFloatingButton(state),
     );
@@ -153,12 +153,12 @@ class _MissionTabState extends ConsumerState<MissionTab>
             onTap: () => _toGuessScreen(mission),
             child: Row(
               children: [
-                Icon(Icons.check_circle_sharp, color: Colors.green),
+                Icon(Icons.check_circle_sharp, color: kSuccess),
                 SizedBox(width: width * 0.02),
                 Expanded(
                   child: Text(
                     '마니또 미션 완료!',
-                    style: Theme.of(context).textTheme.titleSmall,
+                    style: TextTheme.of(context).titleMedium,
                   ),
                 ),
               ],
@@ -182,9 +182,9 @@ class _MissionTabState extends ConsumerState<MissionTab>
       mainWidget: TabContainer(
         child: Row(
           children: [
-            Icon(Icons.help_sharp, size: width * 0.07, color: Colors.amber),
+            Icon(Icons.help_sharp, size: width * 0.07, color: kYellow),
             SizedBox(width: width * 0.02),
-            Text('수락 대기중 미션', style: Theme.of(context).textTheme.titleSmall),
+            Text('수락 대기중 미션', style: TextTheme.of(context).titleMedium),
             Spacer(),
             Icon(CustomIcons.hourglass, size: width * 0.055),
             SizedBox(width: width * 0.01),
@@ -203,7 +203,7 @@ class _MissionTabState extends ConsumerState<MissionTab>
             Icon(
               iconMap[mission.contentType],
               size: width * 0.07,
-              color: Colors.grey.shade800,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
             SizedBox(width: width * 0.03),
             ListView.separated(
@@ -245,13 +245,9 @@ class _MissionTabState extends ConsumerState<MissionTab>
           TabContainer(
             child: Row(
               children: [
-                Icon(
-                  Icons.error_sharp,
-                  size: width * 0.07,
-                  color: Colors.deepOrange,
-                ),
+                Icon(Icons.error_sharp, size: width * 0.07, color: kDeepOrange),
                 SizedBox(width: width * 0.02),
-                Text('진행중 미션', style: Theme.of(context).textTheme.titleSmall),
+                Text('진행중 미션', style: TextTheme.of(context).titleMedium),
                 Spacer(),
                 Icon(CustomIcons.hourglass, size: width * 0.055),
                 SizedBox(width: width * 0.01),
@@ -280,7 +276,7 @@ class _MissionTabState extends ConsumerState<MissionTab>
             Icon(
               iconMap[mission.contentType],
               size: width * 0.07,
-              color: Colors.grey.shade800,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
             SizedBox(width: width * 0.03),
             ListView.separated(

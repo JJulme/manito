@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/providers.dart';
-import 'package:manito/features/error/error_provider.dart';
 import 'package:manito/features/missions/mission.dart';
 import 'package:manito/features/missions/mission_service.dart';
 import 'package:manito/features/profiles/profile.dart';

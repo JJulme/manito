@@ -36,7 +36,7 @@ class FriendGridList extends StatelessWidget {
               Text(
                 profile.displayName,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall,
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
           ),

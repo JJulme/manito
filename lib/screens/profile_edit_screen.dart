@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:manito/features/profiles/profile.dart';
 import 'package:manito/features/profiles/profile_provider.dart';
+import 'package:manito/features/theme/theme.dart';
 import 'package:manito/main.dart';
 import 'package:manito/share/custom_toast.dart';
 import 'package:manito/share/sub_appbar.dart';
@@ -159,7 +160,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       },
       data: (state) {
         return IconButton(
-          icon: Icon(Icons.check, color: Colors.green),
+          icon: Icon(Icons.check, color: kSuccess, size: width * 0.07),
           onPressed: () => _handleButton(state),
         );
       },
@@ -219,7 +220,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       width: buttonSize,
       height: buttonSize,
       decoration: BoxDecoration(
-        color: Colors.grey[300],
+        color: ColorScheme.of(context).primaryContainer,
         shape: BoxShape.circle,
       ),
       child: const Icon(Icons.camera_alt_rounded),

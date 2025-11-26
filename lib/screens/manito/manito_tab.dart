@@ -7,6 +7,7 @@ import 'package:manito/features/badge/badge_provider.dart';
 import 'package:manito/features/manito/manito.dart';
 import 'package:manito/features/manito/manito_provider.dart';
 import 'package:manito/features/profiles/profile.dart';
+import 'package:manito/features/theme/theme.dart';
 import 'package:manito/main.dart';
 import 'package:manito/share/custom_badge.dart';
 import 'package:manito/widgets/tab_container.dart';
@@ -148,14 +149,10 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
             onTap: () => _toProposeScreen(manitoPropose),
             child: Row(
               children: [
-                Icon(
-                  Icons.error_sharp,
-                  size: width * 0.07,
-                  color: Colors.amber,
-                ),
+                Icon(Icons.error_sharp, size: width * 0.07, color: kYellow),
                 Text(
                   "manito_screen.propose",
-                  style: Theme.of(context).textTheme.titleSmall,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ).tr(),
                 Spacer(),
                 TimerWidget(
@@ -215,10 +212,10 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
             Icon(
               Icons.run_circle_sharp,
               size: width * 0.07,
-              color: Colors.deepOrange,
+              color: kDeepOrange,
             ),
             SizedBox(width: width * 0.02),
-            Text('진행중 미션', style: Theme.of(context).textTheme.titleSmall),
+            Text('진행중 미션', style: Theme.of(context).textTheme.titleMedium),
             Spacer(),
             Icon(CustomIcons.hourglass, size: width * 0.055),
             SizedBox(width: width * 0.01),
@@ -250,7 +247,7 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
               child: AutoSizeText(
                 manitoAccept.content,
                 maxLines: 2,
-                style: Theme.of(context).textTheme.titleSmall,
+                style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
             IconButton(

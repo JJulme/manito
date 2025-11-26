@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:manito/features/friends/friends_provider.dart';
 import 'package:manito/features/profiles/profile.dart';
 import 'package:manito/features/profiles/profile_provider.dart';
+import 'package:manito/features/theme/theme.dart';
 import 'package:manito/main.dart';
 import 'package:manito/share/sub_appbar.dart';
 
@@ -65,7 +66,7 @@ class _FriendsEditScreenState extends ConsumerState<FriendsEditScreen> {
           title:
               Text(
                 "friends_modify_screen.title",
-                style: Theme.of(context).textTheme.titleMedium,
+                style: Theme.of(context).textTheme.headlineSmall,
               ).tr(),
           actions: [_buildUpdateBtn(editAsync)],
         ),
@@ -99,7 +100,7 @@ class _FriendsEditScreenState extends ConsumerState<FriendsEditScreen> {
       );
     }
     return IconButton(
-      icon: Icon(Icons.check, color: Colors.green, size: width * 0.08),
+      icon: Icon(Icons.check, color: kSuccess, size: width * 0.07),
       onPressed: () => _handleUpdateFriendName(),
     );
   }

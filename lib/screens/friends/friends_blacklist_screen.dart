@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:manito/features/friends/friends.dart';
 import 'package:manito/features/friends/friends_provider.dart';
 import 'package:manito/features/profiles/profile.dart';
@@ -29,6 +28,7 @@ class _FriendsBlacklistScreenState
   Future<void> _handleUnblackUser(String blackUserId) async {
     final result = await DialogHelper.showConfirmDialog(
       context,
+      title: context.tr("friends_blacklist_screen.dialog_title"),
       message: context.tr("friends_blacklist_screen.dialog_message"),
     );
     if (result == true) {
@@ -44,7 +44,7 @@ class _FriendsBlacklistScreenState
         title:
             Text(
               'friends_blacklist_screen.title',
-              style: Theme.of(context).textTheme.headlineMedium,
+              style: Theme.of(context).textTheme.headlineSmall,
             ).tr(),
       ),
       body: blackListAsync.when(
@@ -78,6 +78,8 @@ class _FriendsBlacklistScreenState
       );
     } else {
       return ListView.builder(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
         itemCount: state.blackList.length,
         itemBuilder: (context, index) {
           final userProfile = state.blackList[index];

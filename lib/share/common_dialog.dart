@@ -15,7 +15,7 @@ class CommonDialog extends StatelessWidget {
   final bool barrierDismissible;
 
   const CommonDialog({
-    Key? key,
+    super.key,
     this.title,
     required this.message,
     this.confirmText,
@@ -24,7 +24,7 @@ class CommonDialog extends StatelessWidget {
     this.onCancel,
     this.confirmColor,
     this.barrierDismissible = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +48,7 @@ class CommonDialog extends StatelessWidget {
           child: Text(
             confirmText ?? '확인',
             style: TextStyle(
-              color: confirmColor ?? Theme.of(context).primaryColor,
+              color: confirmColor ?? ColorScheme.of(context).primary,
               fontWeight: FontWeight.bold,
             ),
           ),

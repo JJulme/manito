@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:manito/features/missions/mission.dart';
 import 'package:manito/features/missions/mission_provider.dart';
+import 'package:manito/features/theme/theme.dart';
 import 'package:manito/main.dart';
 import 'package:manito/share/constants.dart';
 import 'package:manito/share/custom_toast.dart';
@@ -102,7 +103,7 @@ class _MissionGuessScreenState extends ConsumerState<MissionGuessScreen> {
           SizedBox(width: width * 0.02),
           Text(
             '$createdAt ~ $deadline',
-            style: Theme.of(context).textTheme.bodySmall,
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
           SizedBox(width: width * 0.08),
         ],
@@ -147,7 +148,11 @@ class _MissionGuessScreenState extends ConsumerState<MissionGuessScreen> {
                 ? CircularProgressIndicator()
                 : Text(
                   "mission_guess_screen.bottom_btn",
-                  style: Theme.of(context).textTheme.titleMedium,
+                  // style: Theme.of(context).textTheme.titleMedium,
+                  style: TextStyle(
+                    color: kOffBlack,
+                    fontSize: TextTheme.of(context).titleMedium!.fontSize,
+                  ),
                 ).tr(),
       ),
     );

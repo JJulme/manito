@@ -20,7 +20,7 @@ class TabContainer extends StatelessWidget {
         bottom: width * 0.03,
       ),
       decoration: BoxDecoration(
-        color: Colors.grey[200],
+        color: Theme.of(context).colorScheme.primaryContainer,
         borderRadius: BorderRadius.circular(width * 0.02),
       ),
       child: child,

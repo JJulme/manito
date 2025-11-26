@@ -71,7 +71,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     return SubAppbar(
       title: Row(
         children: [
-          Icon(iconMap[state.postDetail!.contentType], color: Colors.grey[800]),
+          Icon(iconMap[state.postDetail!.contentType]),
           SizedBox(width: width * 0.02),
           Expanded(
             child: AutoSizeText(
@@ -167,7 +167,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
             profileImageUrl: profile.profileImageUrl!,
           ),
           SizedBox(width: width * 0.03),
-          Text(profile.nickname, style: Theme.of(context).textTheme.bodySmall),
+          Text(profile.nickname, style: TextTheme.of(context).bodyLarge),
         ],
       ),
     );
@@ -215,7 +215,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
           return Center(
             child: Text(
               '댓글을 작성해 주세요',
-              style: Theme.of(context).textTheme.bodySmall,
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           );
         }
@@ -264,7 +264,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                     // 이름
                     Text(
                       profile.nickname,
-                      style: Theme.of(context).textTheme.bodySmall,
+                      style: TextTheme.of(context).bodyLarge,
                     ),
                     SizedBox(width: width * 0.02),
                     // 작성일

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:manito/features/manito/manito.dart';
 import 'package:manito/features/manito/manito_provider.dart';
+import 'package:manito/features/theme/theme.dart';
 import 'package:manito/main.dart';
 import 'package:manito/share/common_dialog.dart';
 import 'package:manito/share/custom_toast.dart';
@@ -209,7 +210,7 @@ class _ManitoPostScreenState extends ConsumerState<ManitoPostScreen> {
           width: width - (width * 0.04),
           height: width - (width * 0.04),
           margin: EdgeInsets.all(width * 0.02),
-          color: Colors.grey[200],
+          color: ColorScheme.of(context).primaryContainer,
           alignment: Alignment.center,
           child:
               Text(
@@ -288,7 +289,8 @@ class _ManitoPostScreenState extends ConsumerState<ManitoPostScreen> {
   Widget _buildBottomButton(ManitoPostState state) {
     return BottomAppBar(
       child: Container(
-        margin: EdgeInsets.all(width * 0.03),
+        // margin: EdgeInsets.all(width * 0.03),
+        margin: EdgeInsets.all(0),
         child: ElevatedButton(
           onPressed: () => _handleBottomButton(state),
           child:
@@ -301,8 +303,10 @@ class _ManitoPostScreenState extends ConsumerState<ManitoPostScreen> {
                     state.status == ManitoPostStatus.saved
                         ? context.tr("manito_post_screen.btn_complete_mission")
                         : context.tr("manito_post_screen.btn_safe_draft"),
-
-                    style: Theme.of(context).textTheme.titleLarge,
+                    style: TextStyle(
+                      color: kOffBlack,
+                      fontSize: TextTheme.of(context).titleLarge!.fontSize,
+                    ),
                   ),
         ),
       ),

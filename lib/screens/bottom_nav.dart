@@ -100,6 +100,7 @@ class _BottomNavState extends ConsumerState<BottomNav>
         currentIndex: _selectedIndex,
         showSelectedLabels: false,
         showUnselectedLabels: false,
+        selectedItemColor: ColorScheme.of(context).onSurface,
         onTap: _onItemTapped,
         items: [
           BottomNavigationBarItem(

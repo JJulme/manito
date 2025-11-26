@@ -7,6 +7,7 @@ import 'package:get/get_utils/src/get_utils/get_utils.dart';
 import 'package:manito/features/friends/friends.dart';
 import 'package:manito/features/friends/friends_provider.dart';
 import 'package:manito/features/profiles/profile_provider.dart';
+import 'package:manito/features/theme/theme.dart';
 import 'package:manito/main.dart';
 import 'package:manito/share/custom_toast.dart';
 import 'package:manito/share/sub_appbar.dart';
@@ -223,7 +224,7 @@ class _FriendsSearchScreenState extends ConsumerState<FriendsSearchScreen> {
             alignment: Alignment.center,
             padding: EdgeInsets.all(width * 0.06),
             decoration: BoxDecoration(
-              color: Colors.grey[200],
+              color: ColorScheme.of(context).primaryContainer,
               borderRadius: BorderRadius.circular(width * 0.02),
             ),
             child: Column(
@@ -245,7 +246,10 @@ class _FriendsSearchScreenState extends ConsumerState<FriendsSearchScreen> {
                   child:
                       Text(
                         "friends_search_screen.request_btn",
-                        style: Theme.of(context).textTheme.bodySmall,
+                        style: TextStyle(
+                          color: kOffBlack,
+                          fontSize: TextTheme.of(context).bodyMedium!.fontSize,
+                        ),
                       ).tr(),
                 ),
               ],

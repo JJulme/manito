@@ -28,14 +28,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   @override
   bool get wantKeepAlive => true;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   // WidgetsBinding.instance.addPostFrameCallback((_) {
-  //   //   ref.read(userProfileProvider.notifier).getProfile();
-  //   // });
-  // }
-
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -93,7 +85,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     return Padding(
       padding: EdgeInsets.only(right: width * 0.02),
       child: PopupMenuButton(
-        icon: Icon(Icons.more_vert, size: width * 0.06),
+        icon: Icon(Icons.more_vert),
         position: PopupMenuPosition.under,
         onSelected: (value) => context.push(value),
         itemBuilder:

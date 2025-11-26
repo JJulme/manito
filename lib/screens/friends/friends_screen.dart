@@ -10,7 +10,6 @@ import 'package:manito/main.dart';
 import 'package:manito/share/custom_badge.dart';
 import 'package:manito/share/custom_popup_menu_item.dart';
 import 'package:manito/share/main_appbar.dart';
-import 'package:manito/core/constants.dart';
 import 'package:manito/widgets/banner_ad_widget.dart';
 import 'package:manito/widgets/profile_image_view.dart';
 
@@ -75,7 +74,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
       child: PopupMenuButton(
         icon: customBadgeIconWithLabel(
           badgeCount,
-          child: Icon(Icons.more_vert, size: width * 0.06),
+          child: Icon(Icons.more_vert),
         ),
         position: PopupMenuPosition.under,
         onSelected: (value) {
@@ -170,7 +169,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
       children: [
         Text(
           friendProfile.displayName,
-          style: Theme.of(context).textTheme.bodyMedium,
+          style: Theme.of(context).textTheme.bodyLarge,
           overflow: TextOverflow.ellipsis,
         ),
         friendProfile.statusMessage == ''
@@ -195,7 +194,9 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
           'assets/icons/star.svg',
           width: width * 0.08,
           colorFilter: ColorFilter.mode(
-            count == 0 ? Colors.grey.shade400 : kYellow,
+            count == 0
+                ? Theme.of(context).colorScheme.primaryContainer
+                : Theme.of(context).colorScheme.tertiary,
             BlendMode.srcIn,
           ),
         ),
@@ -203,7 +204,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
           child: Text(
             count.toString(),
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white, fontSize: width * 0.045),
+            // style: TextStyle(color: Colors.white, fontSize: width * 0.045),
           ),
         ),
       ],

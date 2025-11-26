@@ -31,7 +31,7 @@ final friendEditServiceProvider = Provider<FriendEditService>((ref) {
 
 // ========== Notifier Provider ==========
 final friendSearchProvider =
-    AsyncNotifierProvider<FriendSearchNotifier, FriendSearchState>(
+    AsyncNotifierProvider.autoDispose<FriendSearchNotifier, FriendSearchState>(
       FriendSearchNotifier.new,
     );
 
@@ -51,7 +51,7 @@ final friendEditProvider = AsyncNotifierProvider<FriendEditNotifier, void>(
 
 // ========== Notifier ==========
 // 분리 필요
-class FriendSearchNotifier extends AsyncNotifier<FriendSearchState> {
+class FriendSearchNotifier extends AutoDisposeAsyncNotifier<FriendSearchState> {
   @override
   Future<FriendSearchState> build() async {
     // 초기 상태 (비어있음)

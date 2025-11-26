@@ -157,8 +157,12 @@ class _FriendsDetailScreenState extends ConsumerState<FriendsDetailScreen> {
       error:
           (error, stackTrace) => const Center(child: Text('게시물을 불러올 수 없습니다')),
       data: (state) {
-        if (state.postList.isEmpty) {
-          return const Center(child: Text('게시물이 없습니다'));
+        if (postList.isEmpty) {
+          return Container(
+            height: width,
+            alignment: Alignment.center,
+            child: Text('게시물이 없습니다'),
+          );
         }
         return ListView.builder(
           shrinkWrap: true,

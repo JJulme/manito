@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/features/report/report.dart';
 import 'package:manito/features/report/report_provider.dart';
+import 'package:manito/features/theme/theme.dart';
 import 'package:manito/main.dart';
 
 class ReportBottomsheet extends ConsumerWidget {
@@ -60,7 +61,6 @@ class ReportBottomsheet extends ConsumerWidget {
                           final result = await notifier.submitReport(
                             postId: reportIdType == 'post' ? postId : null,
                           );
-
                           if (!context.mounted) return;
                           await showDialog(
                             context: context,
@@ -106,7 +106,14 @@ class ReportBottomsheet extends ConsumerWidget {
                 child:
                     state.isLoading
                         ? const CircularProgressIndicator()
-                        : const Text("신고하기"),
+                        : Text(
+                          "신고하기",
+                          style: TextStyle(
+                            color: kOffBlack,
+                            fontSize:
+                                TextTheme.of(context).titleLarge!.fontSize,
+                          ),
+                        ),
               ),
             ),
           ],

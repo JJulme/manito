@@ -93,7 +93,7 @@ class PostItem extends ConsumerWidget {
           children: [
             Text(
               '${manitoProfile.displayName} & ${creatorProfile.displayName}',
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: Theme.of(context).textTheme.bodyLarge,
               overflow: TextOverflow.ellipsis,
             ),
           ],
@@ -105,7 +105,7 @@ class PostItem extends ConsumerWidget {
             horizontal: width * 0.04,
           ),
           decoration: BoxDecoration(
-            color: Colors.grey[300],
+            color: Theme.of(context).colorScheme.primaryContainer,
             borderRadius: BorderRadius.circular(50),
           ),
           child: Row(
@@ -114,7 +114,7 @@ class PostItem extends ConsumerWidget {
               Icon(
                 iconMap[post.contentType],
                 size: width * 0.05,
-                color: Colors.grey[800],
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               SizedBox(width: width * 0.01),
               Expanded(

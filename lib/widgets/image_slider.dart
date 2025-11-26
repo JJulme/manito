@@ -13,7 +13,7 @@ class ImageSlider extends StatefulWidget {
   const ImageSlider({
     super.key,
     required this.images,
-    this.boxFit = BoxFit.cover,
+    this.boxFit = BoxFit.contain,
   });
 
   @override
@@ -34,7 +34,7 @@ class _ImageSliderState extends State<ImageSlider> {
             return Container(
               width: width,
               height: width,
-              color: Colors.grey[100],
+              color: ColorScheme.of(context).primaryContainer,
               margin: EdgeInsets.all(0.01 * width),
               child: _buildImageItem(image, widget.boxFit),
             );

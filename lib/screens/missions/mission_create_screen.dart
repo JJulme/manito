@@ -94,7 +94,7 @@ class _MissionCreateScreenState extends ConsumerState<MissionCreateScreen> {
     } else {
       return TextButton(
         onPressed: () => _showMissionCreationDialog(state),
-        child: Text('완료', style: TextTheme.of(context).bodyMedium),
+        child: Text('완료', style: TextTheme.of(context).bodyLarge),
       );
     }
   }
@@ -103,7 +103,7 @@ class _MissionCreateScreenState extends ConsumerState<MissionCreateScreen> {
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: EdgeInsets.all(width * 0.05),
-      child: Text(title, style: Theme.of(context).textTheme.titleLarge),
+      child: Text(title, style: TextTheme.of(context).titleLarge),
     );
   }
 
@@ -174,10 +174,12 @@ class _MissionCreateScreenState extends ConsumerState<MissionCreateScreen> {
           Text(
             "mission_create_screen.toggle_btn_day",
             textAlign: TextAlign.center,
+            style: TextTheme.of(context).bodyLarge,
           ).tr(),
           Text(
             "mission_create_screen.toggle_btn_week",
             textAlign: TextAlign.center,
+            style: TextTheme.of(context).bodyLarge,
           ).tr(),
         ],
       ),
@@ -211,7 +213,7 @@ class _MissionCreateScreenState extends ConsumerState<MissionCreateScreen> {
                       SizedBox(width: width * 0.04),
                       Text(
                         "mission_create_screen.empty_select_friends",
-                        style: Theme.of(context).textTheme.bodySmall,
+                        style: TextTheme.of(context).bodyMedium,
                       ).tr(),
                     ],
                   ),

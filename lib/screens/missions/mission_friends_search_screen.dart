@@ -5,9 +5,9 @@ import 'package:manito/features/missions/mission.dart';
 import 'package:manito/features/missions/mission_provider.dart';
 import 'package:manito/features/profiles/profile.dart';
 import 'package:manito/features/profiles/profile_provider.dart';
+import 'package:manito/features/theme/theme.dart';
 import 'package:manito/main.dart';
 import 'package:manito/share/custom_toast.dart';
-import 'package:manito/core/constants.dart';
 import 'package:manito/widgets/profile_image_view.dart';
 
 class MissionFriendsSearchScreen extends ConsumerStatefulWidget {
@@ -73,14 +73,14 @@ class _MissionFriendsSearchScreenState
   AppBar _buildAppBar(MissionCreateState state) {
     return AppBar(
       centerTitle: false,
-      title: Text('친구 선택', style: Theme.of(context).textTheme.headlineMedium),
+      title: Text('친구 선택', style: Theme.of(context).textTheme.headlineSmall),
       bottom: _buildSearchForm(),
       actions: [
         Padding(
           padding: EdgeInsets.only(right: width * 0.02),
           child: TextButton(
             onPressed: () => _onDone(state),
-            child: Text("완료", style: Theme.of(context).textTheme.bodyMedium),
+            child: Text("완료", style: TextTheme.of(context).bodyLarge),
           ),
         ),
       ],
@@ -131,7 +131,7 @@ class _MissionFriendsSearchScreenState
               ? Center(
                 child: Text(
                   '친구를 선택해 주세요.',
-                  style: Theme.of(context).textTheme.bodySmall,
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
               )
               : ListView.builder(
@@ -141,7 +141,6 @@ class _MissionFriendsSearchScreenState
                   final friend = state.selectedFriends[index];
                   return _selectedFriendItem(
                     friend,
-                    // () => notifier.toggleSelection(friend),
                     () => _toggleFriends(friend),
                   );
                 },
@@ -164,16 +163,19 @@ class _MissionFriendsSearchScreenState
                   profileImageUrl: profile.profileImageUrl!,
                 ),
               ),
-              const Positioned(
+              Positioned(
                 top: 0,
                 right: 0,
-                child: Icon(Icons.remove_circle_rounded, color: kGrey),
+                child: Icon(
+                  Icons.remove_circle_rounded,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
           ),
           Text(
             profile.displayName,
-            style: Theme.of(context).textTheme.bodySmall,
+            style: TextTheme.of(context).bodyLarge,
             overflow: TextOverflow.ellipsis,
           ),
         ],
@@ -246,7 +248,7 @@ class _MissionFriendsSearchScreenState
             children: [
               Text(
                 profile.displayName,
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: Theme.of(context).textTheme.bodyLarge,
               ),
               profile.statusMessage == ''
                   ? SizedBox.shrink()

@@ -41,14 +41,17 @@ class SettingScreen extends ConsumerWidget {
       ref.invalidate(postsProvider);
     }
 
-    void _toggleTheme() {
+    void toggleTheme() {
       final currentTheme = ref.watch(themeProvider);
       if (currentTheme == ThemeMode.light) {
         ref.read(themeProvider.notifier).setTheme(ThemeMode.dark);
+        customToast(msg: 'Dart theme');
       } else if (currentTheme == ThemeMode.dark) {
+        ref.read(themeProvider.notifier).setTheme(ThemeMode.system);
+        customToast(msg: 'System theme');
+      } else if (currentTheme == ThemeMode.system) {
         ref.read(themeProvider.notifier).setTheme(ThemeMode.light);
-      } else {
-        ref.read(themeProvider.notifier).setTheme(ThemeMode.dark);
+        customToast(msg: 'Light theme');
       }
     }
 
@@ -174,7 +177,7 @@ class SettingScreen extends ConsumerWidget {
         title:
             Text(
               'setting_screen.title',
-              style: Theme.of(context).textTheme.headlineLarge,
+              style: Theme.of(context).textTheme.headlineSmall,
             ).tr(),
       ),
       body: SafeArea(
@@ -182,9 +185,9 @@ class SettingScreen extends ConsumerWidget {
           children: [
             _buildSettingItem(
               context: context,
-              icon: Icons.logout_outlined,
+              icon: Icons.brightness_4,
               title: '테마 변경',
-              onTap: _toggleTheme,
+              onTap: toggleTheme,
             ),
             // 로그아웃
             _buildSettingItem(
@@ -247,7 +250,7 @@ class SettingScreen extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title),
+                      Text(title, style: Theme.of(context).textTheme.bodyLarge),
                       if (subtitle != null) ...[
                         SizedBox(height: 4),
                         Text(

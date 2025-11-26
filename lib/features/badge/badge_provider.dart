@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/providers.dart';
 import 'package:manito/features/badge/badge.dart';
 import 'package:manito/features/badge/badge_service.dart';
-import 'package:manito/features/error/error_provider.dart';
 import 'package:manito/features/manito/manito_provider.dart';
 import 'package:manito/features/missions/mission_provider.dart';
 

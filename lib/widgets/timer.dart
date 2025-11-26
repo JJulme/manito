@@ -159,14 +159,12 @@ class TimerNotifier extends StateNotifier<TimerState> {
 class TimerWidget extends ConsumerStatefulWidget {
   final DateTime targetDateTime;
   final double fontSize;
-  final Color color;
   final Future<void> Function()? onTimerComplete;
 
   const TimerWidget({
     super.key,
     required this.targetDateTime,
     required this.fontSize,
-    this.color = Colors.black,
     this.onTimerComplete,
   });
 
@@ -210,28 +208,17 @@ class _TimerWidgetState extends ConsumerState<TimerWidget> {
         // '일'과 시간, 분을 표시하는 텍스트 위젯들
         Text(
           textList[0],
-          style: TextStyle(
-            fontFamily: 'Digital',
-            fontSize: widget.fontSize,
-            color: widget.color,
-          ),
+          style: TextStyle(fontFamily: 'Digital', fontSize: widget.fontSize),
         ),
         if (textList.length > 1) // 일 수가 0보다 클 때만 "일" 표시
           Text(
             "timer.day",
-            style: TextStyle(
-              fontSize: widget.fontSize * 0.83,
-              color: widget.color,
-            ),
+            style: TextStyle(fontSize: widget.fontSize * 0.83),
           ).tr(),
         if (textList.length > 1) // 일 수가 0보다 클 때만 시간 표시
           Text(
             textList[1],
-            style: TextStyle(
-              fontFamily: 'Digital',
-              fontSize: widget.fontSize,
-              color: widget.color,
-            ),
+            style: TextStyle(fontFamily: 'Digital', fontSize: widget.fontSize),
           ),
       ],
     );

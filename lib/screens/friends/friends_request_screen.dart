@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:manito/features/friends/friends.dart';
 import 'package:manito/features/friends/friends_provider.dart';
 import 'package:manito/features/profiles/profile.dart';
@@ -32,6 +31,7 @@ class _FriendsRequestScreenState extends ConsumerState<FriendsRequestScreen> {
   Future<void> _handleAcceptRequest(String senderId) async {
     final result = await DialogHelper.showConfirmDialog(
       context,
+      title: '친구 수락',
       message: '친구 요청을 수락하시겠습니까?',
     );
     if (result == true) {
@@ -43,6 +43,7 @@ class _FriendsRequestScreenState extends ConsumerState<FriendsRequestScreen> {
   Future<void> _handleRejectRequest(String senderId) async {
     final result = await DialogHelper.showConfirmDialog(
       context,
+      title: '친구 거절',
       message: '친구 요청을 거절하시겠습니까?',
     );
     if (result == true) {
@@ -58,7 +59,7 @@ class _FriendsRequestScreenState extends ConsumerState<FriendsRequestScreen> {
         title:
             Text(
               'friends_request_screen.title',
-              style: Theme.of(context).textTheme.headlineMedium,
+              style: Theme.of(context).textTheme.headlineSmall,
             ).tr(),
       ),
       body: requestAsync.when(
@@ -127,13 +128,13 @@ class _FriendsRequestScreenState extends ConsumerState<FriendsRequestScreen> {
               children: [
                 Text(
                   userProfile.nickname,
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: Theme.of(context).textTheme.bodyLarge,
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (userProfile.statusMessage?.isNotEmpty ?? false)
                   Text(
                     userProfile.statusMessage!,
-                    style: Theme.of(context).textTheme.bodyMedium,
+                    style: Theme.of(context).textTheme.labelSmall,
                     overflow: TextOverflow.ellipsis,
                   ),
               ],
