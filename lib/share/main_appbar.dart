@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:manito/main.dart';
 
 class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
-  final String text;
+  final Widget title;
   final List<Widget>? actions;
-  const MainAppbar({super.key, required this.text, this.actions});
+  const MainAppbar({super.key, required this.title, this.actions});
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -15,7 +15,8 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: Theme.of(context).colorScheme.surface,
       centerTitle: false,
       titleSpacing: width * 0.07,
-      title: Text(text, style: Theme.of(context).textTheme.headlineSmall),
+      // title: Text(text, style: Theme.of(context).textTheme.headlineSmall),
+      title: title,
       actions: actions,
     );
   }

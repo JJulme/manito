@@ -114,9 +114,10 @@ class _FriendsSearchScreenState extends ConsumerState<FriendsSearchScreen> {
         child: TextFormField(
           controller: emailController,
           validator: _emailValidator,
-          keyboardType: TextInputType.emailAddress,
-          textInputAction: TextInputAction.search,
           onFieldSubmitted: (_) => _searchEmail(),
+          textInputAction: TextInputAction.search,
+          keyboardType: TextInputType.emailAddress,
+          textAlignVertical: TextAlignVertical.center,
           decoration: InputDecoration(
             labelStyle: Theme.of(context).textTheme.bodyLarge,
             hintText: context.tr("friends_search_screen.hint"),

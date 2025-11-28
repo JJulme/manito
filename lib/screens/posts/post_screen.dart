@@ -47,7 +47,9 @@ class _PostScreenState extends ConsumerState<PostScreen>
     final postAsync = ref.watch(postsProvider);
     final friendProfilesState = ref.watch(friendProfilesProvider).value;
     return Scaffold(
-      appBar: MainAppbar(text: '기록'),
+      appBar: MainAppbar(
+        title: Text('기록', style: Theme.of(context).textTheme.headlineSmall),
+      ),
       body: SafeArea(child: _buildBody(postAsync, friendProfilesState!)),
     );
   }

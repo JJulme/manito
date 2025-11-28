@@ -22,6 +22,7 @@ class ProfileEditScreen extends ConsumerStatefulWidget {
 
 class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   final _nameFormKey = GlobalKey<FormState>();
+  final _statusFormKey = GlobalKey<FormState>();
   final _replyFormKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _statusController;
@@ -57,6 +58,19 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     return null;
   }
 
+  /// 소개 입력 검증 함수
+  String? _validateStatus(String? value) {
+    // 값이 비어있는지 확인
+    if (value == null || value.isEmpty) {
+      return '5글자 이상 입력해주세요.';
+    }
+    final String trimmedValue = value.trim();
+    if (trimmedValue.isEmpty) {
+      return '5글자 이상 입력해주세요.';
+    }
+    return null;
+  }
+
   /// 자동응답 입력 검증 함수
   String? _validateReply(String? value) {
     // 값이 비어있는지 확인
@@ -70,25 +84,36 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     return null;
   }
 
+  // 프로필 이미지 선택
   void _handlePickImage() {
     ref.read(profileImageProvider.notifier).pickImage();
   }
 
+  // 프로필 이미지 삭제
   void _handleDeleteImage() {
     ref.read(profileImageProvider.notifier).deleteImage();
   }
 
   // 프로필 정보 업데이트
-  Future<void> _handleButton(ProfileEditState state) async {
-    if ((_nameFormKey.currentState?.validate() ?? false) &&
-        (_replyFormKey.currentState?.validate() ?? false)) {
-      await ref
-          .read(profileEditProvider.notifier)
-          .updateProfile(
-            nickname: _nameController.text,
-            statusMessage: _statusController.text,
-            autoReply: _replyController.text,
-          );
+  Future<void> _handleButton(ProfileImageState imageState) async {
+    // 프로필 이미지가 있으면
+    if (imageState.selectedImage != null ||
+        imageState.profileImageUrl.isNotEmpty) {
+      if ((_nameFormKey.currentState?.validate() ?? false) &&
+          (_replyFormKey.currentState?.validate() ?? false) &&
+          (_statusFormKey.currentState?.validate() ?? false)) {
+        await ref
+            .read(profileEditProvider.notifier)
+            .updateProfile(
+              nickname: _nameController.text,
+              statusMessage: _statusController.text,
+              autoReply: _replyController.text,
+            );
+      }
+    }
+    // 프로필 이미지가 없으면
+    else {
+      customToast(msg: '프로필 이미지를 추가해주세요');
     }
   }
 
@@ -107,36 +132,39 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
         customToast(msg: '프로필 수정 실패: ${next.error.toString()}');
       }
     });
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        appBar: SubAppbar(
-          title: Text('프로필 수정'),
-          actions: [_buildUpdateBtn(editAsync)],
-        ),
-        body: SafeArea(
-          child: Stack(
-            children: [
-              SingleChildScrollView(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: width * 0.05),
-                  child: Column(
-                    children: [
-                      _buildProfileImageSection(imageState),
-                      SizedBox(height: width * 0.06),
-                      _buildNameField(_nameController),
-                      SizedBox(height: width * 0.06),
-                      _buildStatusField(_statusController),
-                      SizedBox(height: width * 0.06),
-                      _buildReplyField(_replyController),
-                      SizedBox(height: width * 0.02),
-                      _buildReplyInfo(),
-                    ],
+    return PopScope(
+      canPop: widget.canGoback,
+      child: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Scaffold(
+          appBar: SubAppbar(
+            title: Text('프로필 수정'),
+            actions: [_buildUpdateBtn(editAsync, imageState)],
+          ),
+          body: SafeArea(
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: width * 0.05),
+                    child: Column(
+                      children: [
+                        _buildProfileImageSection(imageState),
+                        SizedBox(height: width * 0.06),
+                        _buildNameField(_nameController),
+                        SizedBox(height: width * 0.06),
+                        _buildStatusField(_statusController),
+                        SizedBox(height: width * 0.06),
+                        _buildReplyField(_replyController),
+                        SizedBox(height: width * 0.02),
+                        _buildReplyInfo(),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              if (editAsync.isLoading) _buildLoadingOverlay(),
-            ],
+                if (editAsync.isLoading) _buildLoadingOverlay(),
+              ],
+            ),
           ),
         ),
       ),
@@ -144,7 +172,10 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   }
 
   // 아이콘 버튼
-  IconButton _buildUpdateBtn(AsyncValue<ProfileEditState> editAsync) {
+  IconButton _buildUpdateBtn(
+    AsyncValue<ProfileEditState> editAsync,
+    ProfileImageState imageState,
+  ) {
     return editAsync.when(
       loading: () {
         return IconButton(
@@ -161,7 +192,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       data: (state) {
         return IconButton(
           icon: Icon(Icons.check, color: kSuccess, size: width * 0.07),
-          onPressed: () => _handleButton(state),
+          onPressed: () => _handleButton(imageState),
         );
       },
     );
@@ -252,22 +283,26 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
 
   // 상태메시지 입력창
   Widget _buildStatusField(TextEditingController statusController) {
-    return TextFormField(
-      minLines: 1,
-      maxLines: 2,
-      maxLength: 30,
-      controller: statusController,
-      inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[\n]'))],
-      decoration: InputDecoration(
-        labelText: context.tr("modify_screen.status_message"),
+    return Form(
+      key: _statusFormKey,
+      child: TextFormField(
+        minLines: 1,
+        maxLines: 2,
+        maxLength: 30,
+        controller: statusController,
+        validator: (value) => _validateStatus(value),
+        inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[\n]'))],
+        decoration: InputDecoration(
+          labelText: context.tr("modify_screen.status_message"),
+        ),
+        buildCounter:
+            (
+              context, {
+              required currentLength,
+              required isFocused,
+              required maxLength,
+            }) => null,
       ),
-      buildCounter:
-          (
-            context, {
-            required currentLength,
-            required isFocused,
-            required maxLength,
-          }) => null,
     );
   }
 

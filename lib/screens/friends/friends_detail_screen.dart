@@ -50,6 +50,7 @@ class _FriendsDetailScreenState extends ConsumerState<FriendsDetailScreen> {
   Future<void> _handleBlackFriend() async {
     final result = await DialogHelper.showConfirmDialog(
       context,
+      title: context.tr("friends_detail_screen.dialog_title"),
       message: context.tr("friends_detail_screen.dialog_message"),
     );
     if (result == true) {

@@ -109,8 +109,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SettingScreen(),
       ),
       GoRoute(
-        path: '/profile_modify',
-        name: 'profileModify',
+        path: '/profile_edit',
+        name: 'profileEdit',
         builder: (context, state) {
           final canGoBack = state.extra as bool? ?? true;
           return ProfileEditScreen(canGoback: canGoBack);

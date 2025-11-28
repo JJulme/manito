@@ -26,7 +26,6 @@ class ProfileService {
               )
               .eq('id', userId)
               .single();
-      print(data);
       final userProfile = UserProfile.fromJson(data);
       // 캐시 비우기
       if (userProfile.profileImageUrl != null) {

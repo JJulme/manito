@@ -35,6 +35,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final badgeMissionCount = ref.watch(badgeMissionCountProvider);
     final badgeManitoCount = ref.watch(badgeManitoCountProvider);
 
+    ref.listen(userProfileProvider, (prev, next) {
+      if (prev!.isLoading && !next.value!.isProfileComplete) {
+        context.push('/profile_edit', extra: false);
+      }
+    });
+
     return userAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stackTrace) => Center(child: Text('Error: $error')),
@@ -44,7 +50,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           child: DefaultTabController(
             length: 2,
             child: Scaffold(
-              appBar: MainAppbar(text: 'manito', actions: [_buildPopupMenu()]),
+              appBar: MainAppbar(
+                title: Text(
+                  'manito',
+                  style: TextStyle(
+                    fontFamily: 'CookieRun',
+                    fontStyle: FontStyle.italic,
+                    fontSize: TextTheme.of(context).headlineSmall!.fontSize,
+                  ),
+                ),
+                actions: [_buildPopupMenu()],
+              ),
               body: Column(
                 children: [
                   // 프로필 사진, 이름, 상태메시지
@@ -60,11 +76,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     tabs: [
                       customBadgeIconWithLabel(
                         badgeMissionCount,
-                        child: Tab(text: '보낸미션'),
+                        // child: Tab(text: '보낸미션'),
+                        child: Tab(
+                          child: Text(
+                            '보낸미션',
+                            style: TextTheme.of(context).titleMedium,
+                          ),
+                        ),
                       ),
                       customBadgeIconWithLabel(
                         badgeManitoCount,
-                        child: Tab(text: '받은미션'),
+                        // child: Tab(text: '받은미션'),
+                        child: Tab(
+                          child: Text(
+                            '받은미션',
+                            style: TextTheme.of(context).titleMedium,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -93,7 +121,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
               CustomPopupMenuItem(
                 icon: Icon(Icons.edit),
                 text: '프로필 수정',
-                value: '/profile_modify',
+                value: '/profile_edit',
               ),
               CustomPopupMenuItem(
                 icon: Icon(Icons.settings_rounded),

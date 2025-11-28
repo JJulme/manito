@@ -36,12 +36,14 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    // final friendProfilesState = ref.watch(friendProfilesProvider);
     final friendProfilesAsync = ref.watch(friendProfilesProvider);
     final notifier = ref.read(friendProfilesProvider.notifier);
 
     return Scaffold(
-      appBar: MainAppbar(text: '친구', actions: [_buildPopupMenu()]),
+      appBar: MainAppbar(
+        title: Text('친구', style: Theme.of(context).textTheme.headlineSmall),
+        actions: [_buildPopupMenu()],
+      ),
       body: SafeArea(
         child: friendProfilesAsync.when(
           loading: () => Center(child: CircularProgressIndicator()),

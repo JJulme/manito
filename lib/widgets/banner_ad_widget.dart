@@ -44,6 +44,7 @@ class _AdmobBannerState extends State<BannerAdWidget> {
   @override
   void dispose() {
     _bannerAd?.dispose();
+    _bannerAd = null;
     super.dispose();
   }
 
@@ -130,7 +131,9 @@ class _AdmobBannerState extends State<BannerAdWidget> {
             return Container(
               width: width,
               height: _height,
-              decoration: BoxDecoration(color: Colors.grey[200]),
+              decoration: BoxDecoration(
+                color: ColorScheme.of(context).primaryContainer,
+              ),
             );
           }
         },

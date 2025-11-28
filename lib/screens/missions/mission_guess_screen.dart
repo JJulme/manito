@@ -151,7 +151,7 @@ class _MissionGuessScreenState extends ConsumerState<MissionGuessScreen> {
                   // style: Theme.of(context).textTheme.titleMedium,
                   style: TextStyle(
                     color: kOffBlack,
-                    fontSize: TextTheme.of(context).titleMedium!.fontSize,
+                    fontSize: TextTheme.of(context).titleLarge!.fontSize,
                   ),
                 ).tr(),
       ),

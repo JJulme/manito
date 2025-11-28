@@ -107,6 +107,14 @@ class UserProfileState {
 
   const UserProfileState({this.userProfile});
 
+  bool get isProfileComplete {
+    if (userProfile == null) return false;
+    return userProfile!.profileImageUrl!.isNotEmpty &&
+        userProfile!.nickname.isNotEmpty &&
+        userProfile!.statusMessage!.isNotEmpty &&
+        userProfile!.autoReply!.isNotEmpty;
+  }
+
   UserProfileState copyWith({UserProfile? userProfile}) {
     return UserProfileState(userProfile: userProfile ?? this.userProfile);
   }

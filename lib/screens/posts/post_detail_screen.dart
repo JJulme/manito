@@ -298,16 +298,25 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
           // 입력창
           Expanded(
             child: TextField(
-              controller: commentController,
               minLines: 1,
               maxLines: 3,
               maxLength: 99,
+              controller: commentController,
               keyboardType: TextInputType.multiline,
               decoration: InputDecoration(
                 hintText: '댓글 입력',
                 hintStyle: Theme.of(context).textTheme.labelLarge,
+                filled: true,
+                fillColor: ColorScheme.of(context).primaryContainer,
                 counterText: '',
-                contentPadding: EdgeInsets.all(width * 0.025),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: width * 0.045,
+                  vertical: width * 0.03,
+                ),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.circular(width * 0.07),
+                ),
               ),
             ),
           ),

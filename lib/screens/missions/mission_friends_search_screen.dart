@@ -101,10 +101,11 @@ class _MissionFriendsSearchScreenState
           key: _formKey,
           child: TextFormField(
             controller: _searchController,
+            textAlignVertical: TextAlignVertical.center,
             decoration: InputDecoration(
               isDense: true,
-              labelStyle: Theme.of(context).textTheme.bodySmall,
               hintText: "검색",
+              labelStyle: Theme.of(context).textTheme.bodySmall,
               prefixIcon: Icon(Icons.search_rounded, size: width * 0.06),
               suffixIcon: IconButton(
                 padding: EdgeInsets.zero,
