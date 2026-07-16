@@ -17,6 +17,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:manito/features/fcm/firebase_options.dart';
 
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
+
 late double width;
 
 void main() async {
@@ -92,7 +95,7 @@ class _ManitoState extends ConsumerState<Manito> {
     // ✅ errorProvider 감시 - 어디서든 에러가 발생하면 여기서 감지
     ref.listen(errorProvider, (previous, next) {
       if (next != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        scaffoldMessengerKey.currentState?.showSnackBar(
           SnackBar(
             content: Text(next),
             backgroundColor: Colors.red,
@@ -107,6 +110,7 @@ class _ManitoState extends ConsumerState<Manito> {
     });
 
     return MaterialApp.router(
+      scaffoldMessengerKey: scaffoldMessengerKey,
       routerConfig: ref.read(routerProvider),
       // 다국어 설정
       localizationsDelegates: context.localizationDelegates,
@@ -115,8 +119,6 @@ class _ManitoState extends ConsumerState<Manito> {
       // 디버깅 배너 숨기기
       debugShowCheckedModeBanner: false,
       // 테마 설정
-      // theme: themeLight,
-      // darkTheme: themeDark,
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: themeMode,

@@ -62,11 +62,15 @@ class _FriendsSearchScreenState extends ConsumerState<FriendsSearchScreen> {
   // ✅ 친구 신청 처리 (개선)
   Future<void> _handleFriendRequest(String friendId) async {
     // 이미 친구인지 확인
+    // final isFriend = ref
+    //     .read(friendProfilesProvider.notifier)
+    //     .findFriendById(friendId);
+
     final isFriend = ref
         .read(friendProfilesProvider.notifier)
         .searchFriendProfile(friendId);
 
-    if (isFriend == 'unknown') {
+    if (isFriend.id != 'unknown') {
       customToast(msg: '이미 친구입니다');
       return;
     }
@@ -83,7 +87,7 @@ class _FriendsSearchScreenState extends ConsumerState<FriendsSearchScreen> {
   @override
   Widget build(BuildContext context) {
     final searchState = ref.watch(friendSearchProvider); // ✅ AsyncValue
-    final userProfileState = ref.watch(userProfileProvider).value!.userProfile;
+    final userProfileState = ref.watch(myProfileProvider).value;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),

@@ -31,11 +31,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final userAsync = ref.watch(userProfileProvider);
+    final userAsync = ref.watch(myProfileProvider);
     final badgeMissionCount = ref.watch(badgeMissionCountProvider);
     final badgeManitoCount = ref.watch(badgeManitoCountProvider);
 
-    ref.listen(userProfileProvider, (prev, next) {
+    ref.listen(myProfileProvider, (prev, next) {
       if (prev!.isLoading && !next.value!.isProfileComplete) {
         context.push('/profile_edit', extra: false);
       }
@@ -44,8 +44,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     return userAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stackTrace) => Center(child: Text('Error: $error')),
-      data: (state) {
-        final profile = state.userProfile;
+      data: (profile) {
         return SafeArea(
           child: DefaultTabController(
             length: 2,
@@ -65,7 +64,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 children: [
                   // 프로필 사진, 이름, 상태메시지
                   ProfileItem(
-                    profileImageUrl: profile!.profileImageUrl!,
+                    profileImageUrl: profile.profileImageUrl!,
                     name: profile.nickname,
                     statusMessage: profile.statusMessage!,
                   ),

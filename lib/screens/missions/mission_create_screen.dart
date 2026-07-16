@@ -6,7 +6,7 @@ import 'package:manito/core/custom_icons.dart';
 import 'package:manito/features/missions/mission.dart';
 import 'package:manito/features/missions/mission_provider.dart';
 import 'package:manito/main.dart';
-import 'package:manito/share/common_dialog.dart';
+import 'package:manito/core/widget/common_dialog.dart';
 import 'package:manito/share/custom_toast.dart';
 import 'package:manito/share/sub_appbar.dart';
 import 'package:manito/widgets/friend_grid_list.dart';
@@ -21,6 +21,7 @@ class MissionCreateScreen extends ConsumerStatefulWidget {
 
 class _MissionCreateScreenState extends ConsumerState<MissionCreateScreen> {
   // 토글 버튼
+  int _selectedScale = 0;
   int _selectedType = 0;
   int _selectedPeriod = 0;
 
@@ -32,8 +33,8 @@ class _MissionCreateScreenState extends ConsumerState<MissionCreateScreen> {
 
   // 미선 생성 다이얼로그
   void _showMissionCreationDialog(MissionCreateState state) async {
-    if (state.confirmedFriends.length < 2) {
-      customToast(msg: '친구를 2명 이상 선택해 주세요.');
+    if (state.confirmedFriends.isEmpty) {
+      customToast(msg: '친구를 1명 이상 선택해 주세요.');
     } else {
       final result = await DialogHelper.showConfirmDialog(
         context,
@@ -43,7 +44,7 @@ class _MissionCreateScreenState extends ConsumerState<MissionCreateScreen> {
       if (result == true) {
         await ref
             .read(missionCreationActionProvider.notifier)
-            .createMission(_selectedType, _selectedPeriod);
+            .createMission(_selectedScale, _selectedPeriod, _selectedType);
         if (!mounted) return;
         context.pop(true);
       }
@@ -66,14 +67,18 @@ class _MissionCreateScreenState extends ConsumerState<MissionCreateScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSectionTitle('타입'),
-                  _buildTypeToggle(),
-                  Divider(),
+                  // _buildSectionTitle('규모'),
+                  // _buildScaleToggle(),
+                  // Divider(),
                   _buildSectionTitle('기간'),
                   _buildPeriodToggle(),
                   Divider(),
+                  _buildSectionTitle('타입'),
+                  _buildTypeToggle(),
+                  Divider(),
                   _buildSectionTitle('친구'),
                   _buildSelectedFriends(selectionState),
+                  SizedBox(height: width * 0.12),
                 ],
               ),
             ),
@@ -107,15 +112,55 @@ class _MissionCreateScreenState extends ConsumerState<MissionCreateScreen> {
     );
   }
 
+  // 규모 토글 버튼
+  Widget _buildScaleToggle() {
+    return Container(
+      width: double.infinity,
+      alignment: Alignment.center,
+      child: ToggleButtons(
+        borderRadius: BorderRadius.circular(width * 0.01),
+        constraints: BoxConstraints(
+          minHeight: width * 0.25,
+          minWidth: (width - width * 0.1) / 2,
+        ),
+        isSelected: [_selectedScale == 0, _selectedScale == 1],
+        onPressed: (index) => setState(() => _selectedScale = index),
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.person),
+              Text(
+                "싱글",
+                textAlign: TextAlign.center,
+                style: TextTheme.of(context).bodyLarge,
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.group),
+              Text(
+                "그룹",
+                textAlign: TextAlign.center,
+                style: TextTheme.of(context).bodyLarge,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   // 타입 토글 버튼
   Widget _buildTypeToggle() {
     return Container(
       width: double.infinity,
       alignment: Alignment.center,
       child: ToggleButtons(
-        fillColor: Colors.yellowAccent[300],
-        selectedColor: Colors.yellowAccent[900],
-        selectedBorderColor: Colors.yellowAccent[900],
         borderRadius: BorderRadius.circular(width * 0.01),
         constraints: BoxConstraints(
           minHeight: width * 0.25,

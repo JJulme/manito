@@ -7,7 +7,7 @@ import 'package:manito/features/manito/manito.dart';
 import 'package:manito/features/manito/manito_provider.dart';
 import 'package:manito/features/theme/theme.dart';
 import 'package:manito/main.dart';
-import 'package:manito/share/common_dialog.dart';
+import 'package:manito/core/widget/common_dialog.dart';
 import 'package:manito/share/custom_toast.dart';
 import 'package:manito/share/sub_appbar.dart';
 import 'package:manito/widgets/image_slider.dart';

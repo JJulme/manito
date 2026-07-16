@@ -1,4 +1,8 @@
 <resources>
+    <!-- 알림 채널 아이디-->
+    <string name="default_notification_channel_id">default_notification_channel</string>
+    <!-- 앱 이름 -->
+    <string name="app_name">manito</string>
     <!-- 친구 신청 -->
     <string name="FRIEND_REQUEST_TITLE">New Friend Request</string>
     <string name="FRIEND_REQUEST_BODY">%s sent you a friend request.</string>

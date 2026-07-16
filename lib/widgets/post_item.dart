@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:manito/features/badge/badge_provider.dart';
 import 'package:manito/features/posts/post.dart';
 import 'package:manito/features/profiles/profile.dart';
+import 'package:manito/features/profiles/profile_provider.dart';
 import 'package:manito/main.dart';
 import 'package:manito/share/constants.dart';
 import 'package:manito/share/custom_badge.dart';
@@ -12,15 +13,15 @@ import 'package:timeago/timeago.dart' as timeago;
 
 class PostItem extends ConsumerWidget {
   final Post post;
-  final FriendProfile manitoProfile;
-  final FriendProfile creatorProfile;
+  final String manitoId;
+  final String creatorId;
   final int badgeCount;
 
   const PostItem({
     super.key,
     required this.post,
-    required this.manitoProfile,
-    required this.creatorProfile,
+    required this.manitoId,
+    required this.creatorId,
     required this.badgeCount,
   });
 
@@ -35,27 +36,38 @@ class PostItem extends ConsumerWidget {
           .resetBadgeCount('post_comment', typeId: post.id!);
     }
 
-    return InkWell(
-      onTap: toPostDetailScreen,
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: 0.02 * width,
-          horizontal: 0.04 * width,
-        ),
-        child: Row(
-          children: [
-            _buildProfileStack(manitoProfile, creatorProfile),
+    final combinedAsync = ref.watch(
+      combinedProfileProvider((manitoId: manitoId, creatorId: creatorId)),
+    );
 
-            SizedBox(width: 0.04 * width),
-
-            // Mission Details
-            Expanded(child: _buildMissionDetails(context, post)),
-
-            // Timestamp and Badge
-            _buildTimestampAndBadge(context, post),
-          ],
-        ),
-      ),
+    return combinedAsync.when(
+      loading: () => SizedBox.shrink(),
+      error: (error, stackTrace) => SizedBox.shrink(),
+      data: (profile) {
+        final manito = profile.manito;
+        final creator = profile.creator;
+        return InkWell(
+          onTap: toPostDetailScreen,
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: 0.02 * width,
+              horizontal: 0.04 * width,
+            ),
+            child: Row(
+              children: [
+                _buildProfileStack(manito, creator),
+                SizedBox(width: 0.04 * width),
+                // Mission Details
+                Expanded(
+                  child: _buildMissionDetails(context, post, manito, creator),
+                ),
+                // Timestamp and Badge
+                _buildTimestampAndBadge(context, post),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -84,7 +96,12 @@ class PostItem extends ConsumerWidget {
     );
   }
 
-  Widget _buildMissionDetails(BuildContext context, Post post) {
+  Widget _buildMissionDetails(
+    BuildContext context,
+    Post post,
+    UserProfile manito,
+    UserProfile creator,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -92,7 +109,7 @@ class PostItem extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Text(
-              '${manitoProfile.displayName} & ${creatorProfile.displayName}',
+              '${manito.displayName} & ${creator.displayName}',
               style: Theme.of(context).textTheme.bodyLarge,
               overflow: TextOverflow.ellipsis,
             ),

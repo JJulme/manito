@@ -6,23 +6,26 @@ import 'package:manito/features/auth/auth_provider.dart';
 import 'package:manito/features/auth/kakao_login_webview.dart';
 import 'package:manito/features/fcm/fcm_provider.dart';
 import 'package:manito/features/manito/manito.dart';
+import 'package:manito/features_new/friends/presentation/screens/blocked_users_screen.dart';
+import 'package:manito/features_new/friends/presentation/screens/edit_friend_nickname_screen.dart';
+import 'package:manito/features_new/friends/presentation/screens/friend_requests_screen.dart';
+import 'package:manito/features_new/friends/presentation/screens/user_detail_sceen.dart';
+import 'package:manito/features_new/friends/presentation/screens/user_search_screen.dart';
+import 'package:manito/features_new/profile/domain/entities/user_profile_entity.dart';
+import 'package:manito/features_new/profile/presentation/screens/edit_profile_screen.dart';
+import 'package:manito/presentation/main/main_screen.dart';
 import 'package:manito/screens/manito/album_screen.dart';
 import 'package:manito/screens/manito/manito_post_screen.dart';
 import 'package:manito/features/missions/mission.dart';
-import 'package:manito/features/profiles/profile.dart';
-import 'package:manito/screens/bottom_nav.dart';
-import 'package:manito/screens/friends/friends_blacklist_screen.dart';
-import 'package:manito/screens/friends/friends_detail_screen.dart';
-import 'package:manito/screens/friends/friends_edit_screen.dart';
-import 'package:manito/screens/friends/friends_request_screen.dart';
-import 'package:manito/screens/friends/friends_search_screen.dart';
 import 'package:manito/screens/login_screen.dart';
 import 'package:manito/screens/manito/manito_propose_screen.dart';
 import 'package:manito/screens/missions/mission_create_screen.dart';
 import 'package:manito/screens/missions/mission_friends_search_screen.dart';
+import 'package:manito/screens/missions/mission_group_create_screen.dart';
+import 'package:manito/screens/missions/mission_group_screen.dart';
 import 'package:manito/screens/missions/mission_guess_screen.dart';
+import 'package:manito/screens/missions/mission_search_screen.dart';
 import 'package:manito/screens/posts/post_detail_screen.dart';
-import 'package:manito/screens/profile_edit_screen.dart';
 import 'package:manito/screens/setting_screen.dart';
 import 'package:manito/screens/splash_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -40,6 +43,9 @@ final goRouterRefreshProvider = Provider<GoRouterRefreshNotifier>((ref) {
   ref.listen<AsyncValue<AuthState>>(authStateChangesProvider, (prev, next) {
     Future.microtask(() => notifier.refresh()); // ✅ public 메서드 호출
   });
+  // ref.listen(userProfileProvider2, (prev, next) {
+  //   Future.microtask(() => notifier.refresh());
+  // });
 
   return notifier;
 });
@@ -56,9 +62,31 @@ final routerProvider = Provider<GoRouter>((ref) {
           FlutterNativeSplash.remove();
           final isLoggedIn = auth.session?.user != null;
           final location = state.matchedLocation;
+          // final userAsync = ref.read(userProfileProvider2);
+          // print('userAsync.value: ${userAsync.value}');
+          // return userAsync.when(
+          //   loading: () {
+          //     print('=====loading=====');
+          //     return location == '/splash' ? null : '/splash';
+          //   },
+          //   error: (error, stackTrace) {
+          //     print('=====error=====');
+          //     return '/login';
+          //   },
+          //   data: (userProfile) {
+          //     print('=====data=====');
+          //     print(userProfile);
+          //     // _handleRedirect(
+          //     //   location,
+          //     //   isLoggedIn: isLoggedIn,
+          //     //   hasUserProfile: userProfile != null,
+          //     //   isProfileComplete: userProfile.isProfileComplete,
+          //     // );
+          //   },
+          // );
           if (isLoggedIn) {
             if (location == '/splash' || location == '/login') {
-              return '/bottom_nav';
+              return '/bottom_nav2';
             }
             return null;
           } else {
@@ -80,10 +108,15 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: 'splash',
         builder: (context, state) => const SplashScreen(),
       ),
+      // GoRoute(
+      //   path: '/bottom_nav',
+      //   name: 'bottom_nav',
+      //   builder: (context, state) => const BottomNav(),
+      // ),
       GoRoute(
-        path: '/bottom_nav',
-        name: 'bottom_nav',
-        builder: (context, state) => const BottomNav(),
+        path: '/bottom_nav2',
+        name: 'bottom_nav2',
+        builder: (context, state) => const MainScreen(),
       ),
       GoRoute(
         path: '/login',
@@ -108,12 +141,20 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: 'setting',
         builder: (context, state) => const SettingScreen(),
       ),
+      // GoRoute(
+      //   path: '/profile_edit',
+      //   name: 'profileEdit',
+      //   builder: (context, state) {
+      //     final canGoBack = state.extra as bool? ?? true;
+      //     return ProfileEditScreen(canGoback: canGoBack);
+      //   },
+      // ),
       GoRoute(
-        path: '/profile_edit',
-        name: 'profileEdit',
+        path: '/edit_profile',
+        name: 'editProfile',
         builder: (context, state) {
           final canGoBack = state.extra as bool? ?? true;
-          return ProfileEditScreen(canGoback: canGoBack);
+          return EditProfileScreen(canGoBack: canGoBack);
         },
       ),
       // GoRoute(
@@ -145,6 +186,24 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const MissionCreateScreen(),
       ),
       GoRoute(
+        path: '/mission_group_create',
+        name: 'missionGroupCreate',
+        builder: (context, state) => const MissionGroupCreateScreen(),
+      ),
+      GoRoute(
+        path: '/mission_group_room/:roomId',
+        name: 'missionGroupRoom',
+        builder: (context, state) {
+          final roomId = state.pathParameters['roomId']!;
+          return MissionGroupScreen(roomId: roomId);
+        },
+      ),
+      GoRoute(
+        path: '/mission_search',
+        name: 'missionSearch',
+        builder: (context, state) => const MissionSearchScreen(),
+      ),
+      GoRoute(
         path: '/mission_friends_search',
         name: 'missionFriendsSearch',
         builder: (context, state) => const MissionFriendsSearchScreen(),
@@ -173,27 +232,56 @@ final routerProvider = Provider<GoRouter>((ref) {
           return ManitoPostScreen(manitoAccept: manitoAccept);
         },
       ),
+      // GoRoute(
+      //   path: '/friends_search',
+      //   name: 'friendsSearch',
+      //   builder: (context, state) => const FriendsSearchScreen(),
+      // ),
       GoRoute(
-        path: '/friends_search',
-        name: 'friendsSearch',
-        builder: (context, state) => const FriendsSearchScreen(),
+        path: '/user_search',
+        name: 'userSearch',
+        builder: (context, state) => const UserSearchScreen(),
       ),
+      // GoRoute(
+      //   path: '/friends_request',
+      //   name: 'friendsRequest',
+      //   builder: (context, state) => const FriendsRequestScreen(),
+      // ),
       GoRoute(
-        path: '/friends_request',
-        name: 'friendsRequest',
-        builder: (context, state) => const FriendsRequestScreen(),
+        path: '/friend_requests',
+        name: 'friendRequests',
+        builder: (context, state) => const FriendRequestsScreen(),
       ),
+      // GoRoute(
+      //   path: '/friends_blacklist',
+      //   name: 'friendsBlacklist',
+      //   builder: (context, state) => const FriendsBlacklistScreen(),
+      // ),
       GoRoute(
-        path: '/friends_blacklist',
-        name: 'friendsBlacklist',
-        builder: (context, state) => const FriendsBlacklistScreen(),
+        path: '/blocked_users',
+        name: 'blockedUsers',
+        builder: (context, state) => const BlockedUsersScreen(),
       ),
+      // GoRoute(
+      //   path: '/friends_edit',
+      //   name: 'friendsEdit',
+      //   builder: (context, state) {
+      //     final FriendProfile friendProfile = state.extra as FriendProfile;
+      //     return FriendsEditScreen(friendProfile: friendProfile);
+      //   },
+      // ),
       GoRoute(
-        path: '/friends_edit',
-        name: 'friendsEdit',
+        path: '/edit-nickname/:userId',
+        name: 'editNickname',
         builder: (context, state) {
-          final FriendProfile friendProfile = state.extra as FriendProfile;
-          return FriendsEditScreen(friendProfile: friendProfile);
+          final userId = state.pathParameters['userId']!;
+          // extra로 전달된 모델을 캐스팅합니다.
+          final user = state.extra as UserEntity;
+
+          return EditFriendNicknameScreen(
+            userId: userId,
+            profile: user, // 모델 내부의 필드 사용
+          );
         },
       ),
       // GoRoute(
@@ -204,14 +292,62 @@ final routerProvider = Provider<GoRouter>((ref) {
       //     return FriendsDetailScreen(friendProfile: friendProfile);
       //   },
       // ),
+      // GoRoute(
+      //   path: '/friends_detail/:friendId',
+      //   name: 'friendsDetail',
+      //   builder: (context, state) {
+      //     final friendId = state.pathParameters['friendId']!;
+      //     return FriendsDetailScreen(friendId: friendId);
+      //   },
+      // ),
       GoRoute(
-        path: '/friends_detail/:friendId',
-        name: 'friendsDetail',
+        path: '/user_detail/:userId',
+        name: 'userDetail',
         builder: (context, state) {
-          final friendId = state.pathParameters['friendId']!;
-          return FriendsDetailScreen(friendId: friendId);
+          final userId = state.pathParameters['userId']!;
+          return UserDetailSceen(userId: userId);
         },
       ),
     ],
   );
 });
+
+// String? _handleRedirect(
+//   String location, {
+//   required bool isLoggedIn,
+//   required bool hasUserProfile,
+//   required bool isProfileComplete,
+// }) {
+//   // 로그인 안 됨
+//   if (!isLoggedIn) {
+//     if (location == '/login' || location == '/splash') {
+//       return null; // 현재 위치 유지
+//     }
+//     return '/login'; // 로그인 화면으로
+//   }
+
+//   // 로그인은 됐는데 사용자 정보 없음
+//   if (!hasUserProfile) {
+//     if (location == '/profile_edit') {
+//       return null;
+//     }
+//     return '/profile_edit'; // 프로필 설정 화면으로
+//   }
+
+//   // 로그인 + 사용자 정보 있음 + 프로필 불완전
+//   if (!isProfileComplete) {
+//     if (location == '/profile_edit') {
+//       return null;
+//     }
+//     return '/profile_edit';
+//   }
+
+//   // 모든 조건 만족 (로그인 + 정보 있음 + 프로필 완성)
+//   if (location == '/splash' ||
+//       location == '/login' ||
+//       location == '/profile_edit') {
+//     return '/bottom_nav'; // 홈으로
+//   }
+
+//   return null; // 현재 위치 유지
+// }

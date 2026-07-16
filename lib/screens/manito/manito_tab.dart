@@ -92,16 +92,22 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
         } else {
           return RefreshIndicator(
             onRefresh: () => notifier.refreshAll(context.locale.languageCode),
-            child: SingleChildScrollView(
-              physics: AlwaysScrollableScrollPhysics(),
-              child: Column(
-                children: [
-                  SizedBox(height: width * 0.03),
-                  _buildProposeList(data.proposeList),
-                  _buildGuessList(data.guessList),
-                  _buildAcceptList(data.acceptList),
-                ],
-              ),
+            child: Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: AlwaysScrollableScrollPhysics(),
+                    child: Column(
+                      children: [
+                        SizedBox(height: width * 0.03),
+                        _buildProposeList(data.proposeList),
+                        _buildGuessList(data.guessList),
+                        _buildAcceptList(data.acceptList),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           );
         }

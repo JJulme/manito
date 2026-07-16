@@ -130,22 +130,30 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     PostDetailState postState,
     AsyncValue<PostCommentState> commentAsync,
   ) {
-    final manitoProfile = ref
-        .read(friendProfilesProvider.notifier)
-        .searchFriendProfile(postState.postDetail!.manitoId!);
-    final creatorProfile = ref
-        .read(friendProfilesProvider.notifier)
-        .searchFriendProfile(postState.postDetail!.creatorId!);
+    // final manitoProfile = ref
+    //     .read(friendProfilesProvider.notifier)
+    //     .searchFriendProfile(postState.postDetail!.manitoId!);
+    // final creatorProfile = ref
+    //     .read(friendProfilesProvider.notifier)
+    //     .searchFriendProfile(postState.postDetail!.creatorId!);
+    final manitoProfileAsync = ref.read(
+      getProfileProvider(postState.postDetail!.manitoId!),
+    );
+    final creatorProfileAsync = ref.read(
+      getProfileProvider(postState.postDetail!.creatorId!),
+    );
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildProfile(manitoProfile),
+          // _buildProfile(manitoProfile),
+          _buildProfile(manitoProfileAsync),
           SizedBox(height: width * 0.03),
           _buildImageSection(postState),
           _buildTextSection(postState.postDetail!.description!),
           Divider(),
-          _buildProfile(creatorProfile),
+          // _buildProfile(creatorProfile),
+          _buildProfile(creatorProfileAsync),
           SizedBox(height: width * 0.03),
           _buildTextSection(postState.postDetail!.guess!),
           Divider(),
@@ -157,19 +165,25 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   }
 
   // 생성자, 마니또 프로필
-  Widget _buildProfile(FriendProfile profile) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: width * 0.05),
-      child: Row(
-        children: [
-          ProfileImageView(
-            size: width * 0.15,
-            profileImageUrl: profile.profileImageUrl!,
+  Widget _buildProfile(AsyncValue<UserProfile> profileAsync) {
+    return profileAsync.when(
+      loading: () => SizedBox(height: width * 0.15),
+      error: (error, stackTrace) => SizedBox(height: width * 0.15),
+      data: (profile) {
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: width * 0.05),
+          child: Row(
+            children: [
+              ProfileImageView(
+                size: width * 0.15,
+                profileImageUrl: profile.profileImageUrl!,
+              ),
+              SizedBox(width: width * 0.03),
+              Text(profile.nickname, style: TextTheme.of(context).bodyLarge),
+            ],
           ),
-          SizedBox(width: width * 0.03),
-          Text(profile.nickname, style: TextTheme.of(context).bodyLarge),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -240,52 +254,59 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
 
   // 댓글 아이템
   Widget _buildCommentItem(String userId, Comment comment) {
-    final FriendProfile profile = ref
-        .read(friendProfilesProvider.notifier)
-        .searchFriendProfile(userId);
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: width * 0.04, vertical: 0.03),
-      padding: EdgeInsets.symmetric(vertical: width * 0.015),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 프로필 이미지
-          ProfileImageView(
-            size: width * 0.11,
-            profileImageUrl: profile.profileImageUrl!,
+    final profileAsync = ref.read(getProfileProvider(userId));
+    return profileAsync.when(
+      loading: () => SizedBox.shrink(),
+      error: (error, stackTrace) => SizedBox.shrink(),
+      data: (profile) {
+        return Container(
+          margin: EdgeInsets.symmetric(
+            horizontal: width * 0.04,
+            vertical: 0.03,
           ),
-          SizedBox(width: width * 0.03),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+          padding: EdgeInsets.symmetric(vertical: width * 0.015),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 프로필 이미지
+              ProfileImageView(
+                size: width * 0.11,
+                profileImageUrl: profile.profileImageUrl!,
+              ),
+              SizedBox(width: width * 0.03),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 이름
-                    Text(
-                      profile.nickname,
-                      style: TextTheme.of(context).bodyLarge,
+                    Row(
+                      children: [
+                        // 이름
+                        Text(
+                          profile.nickname,
+                          style: TextTheme.of(context).bodyLarge,
+                        ),
+                        SizedBox(width: width * 0.02),
+                        // 작성일
+                        Text(
+                          timeago.format(comment.createdAt, locale: 'en_short'),
+                          style: Theme.of(context).textTheme.labelSmall,
+                        ),
+                      ],
                     ),
-                    SizedBox(width: width * 0.02),
-                    // 작성일
+                    SizedBox(height: width * 0.015),
+                    // 댓글 내용
                     Text(
-                      timeago.format(comment.createdAt, locale: 'en_short'),
-                      style: Theme.of(context).textTheme.labelSmall,
+                      comment.comment,
+                      softWrap: true,
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
                 ),
-                SizedBox(height: width * 0.015),
-                // 댓글 내용
-                Text(
-                  comment.comment,
-                  softWrap: true,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

@@ -51,16 +51,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
           data: (state) {
             return RefreshIndicator(
               onRefresh: () => notifier.refreash(),
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                child: Column(
-                  children: [
-                    _buildBannerAd(),
-                    SizedBox(height: width * 0.03),
-                    _buildFriendsList(state),
-                  ],
-                ),
-              ),
+              child: _buildFriendsList(state),
             );
           },
         ),
@@ -129,12 +120,27 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
     if (state.friendList.isEmpty) {
       return SizedBox(height: width, child: Center(child: Text('친구를 추가해보세요!')));
     } else {
-      return ListView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: state.friendList.length,
-        itemBuilder:
-            (context, index) => _buildFriendItem(state.friendList[index]),
+      return Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              shrinkWrap: false,
+              itemCount: state.friendList.length,
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return Column(
+                    children: [
+                      _buildBannerAd(),
+                      SizedBox(height: width * 0.03),
+                      _buildFriendItem(state.friendList[index]),
+                    ],
+                  );
+                }
+                return _buildFriendItem(state.friendList[index]);
+              },
+            ),
+          ),
+        ],
       );
     }
   }

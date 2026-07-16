@@ -9,7 +9,7 @@ import 'package:manito/features/profiles/profile.dart';
 import 'package:manito/features/profiles/profile_provider.dart';
 import 'package:manito/features/theme/theme.dart';
 import 'package:manito/main.dart';
-import 'package:manito/share/common_dialog.dart';
+import 'package:manito/core/widget/common_dialog.dart';
 import 'package:manito/share/constants.dart';
 import 'package:manito/share/custom_toast.dart';
 import 'package:manito/share/sub_appbar.dart';
@@ -54,11 +54,11 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // final state = ref.watch(_manitoProposeProvider);
     final proposeAsync = ref.watch(manitoProposeProvider(widget.propose.id));
     final FriendProfile profile = ref
         .read(friendProfilesProvider.notifier)
         .searchFriendProfile(widget.propose.creatorId);
+    // final profileAsync = ref.read(getProfileProvider(widget.propose.creatorId));
 
     return Scaffold(
       appBar: SubAppbar(
@@ -68,12 +68,14 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
           overflow: TextOverflow.ellipsis,
         ).tr(namedArgs: {"nickname": profile.displayName}),
       ),
-      body: proposeAsync.when(
-        loading: () => Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(child: Text(error.toString())),
-        data: (state) {
-          return _buildBody(profile, state);
-        },
+      body: SafeArea(
+        child: proposeAsync.when(
+          loading: () => Center(child: CircularProgressIndicator()),
+          error: (error, stackTrace) => Center(child: Text(error.toString())),
+          data: (state) {
+            return _buildBody(profile, state);
+          },
+        ),
       ),
     );
   }

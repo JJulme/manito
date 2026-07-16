@@ -1,7 +1,7 @@
 // ==========Model==========
 import 'dart:io';
 
-class UserProfile {
+class MyProfile {
   final String id;
   final String email;
   final String nickname;
@@ -9,7 +9,7 @@ class UserProfile {
   final String? profileImageUrl;
   final String? autoReply;
 
-  UserProfile({
+  MyProfile({
     required this.id,
     required this.email,
     required this.nickname,
@@ -18,8 +18,15 @@ class UserProfile {
     this.autoReply,
   });
 
-  factory UserProfile.fromJson(Map<String, dynamic> json) {
-    return UserProfile(
+  bool get isProfileComplete {
+    return profileImageUrl!.isNotEmpty &&
+        nickname.isNotEmpty &&
+        statusMessage!.isNotEmpty &&
+        autoReply!.isNotEmpty;
+  }
+
+  factory MyProfile.fromJson(Map<String, dynamic> json) {
+    return MyProfile(
       id: json['id'] as String,
       email: json['email'] as String,
       nickname: json['nickname'] as String,
@@ -29,22 +36,44 @@ class UserProfile {
           json['auto_reply'] != null ? json['auto_reply'] as String : null,
     );
   }
+}
 
-  UserProfile copyWith({
-    String? id,
-    String? email,
-    String? nickname,
-    String? statusMessage,
-    String? profileImageUrl,
-    String? autoReply,
-  }) {
+class UserProfile {
+  final String id;
+  final String nickname;
+  final String? statusMessage;
+  final String? profileImageUrl;
+  final String? friendNickname;
+  final bool isUnknown;
+
+  UserProfile({
+    required this.id,
+    required this.nickname,
+    this.statusMessage,
+    this.profileImageUrl,
+    this.friendNickname,
+    this.isUnknown = false,
+  });
+  String get displayName {
+    return friendNickname?.isNotEmpty == true ? friendNickname! : nickname;
+  }
+
+  // '알 수 없는 사용자' 상태를 표현하는 팩토리 생성자
+  factory UserProfile.unknown(String unknownId) {
     return UserProfile(
-      id: id ?? this.id,
-      email: email ?? this.email,
-      nickname: nickname ?? this.nickname,
-      statusMessage: statusMessage ?? this.statusMessage,
-      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
-      autoReply: autoReply ?? this.autoReply,
+      id: unknownId,
+      nickname: 'unknown',
+      profileImageUrl: '', // 기본 아바타
+      isUnknown: true,
+    );
+  }
+
+  factory UserProfile.fromJson(Map<String, dynamic> json) {
+    return UserProfile(
+      id: json['id'] as String,
+      nickname: json['nickname'] as String,
+      statusMessage: json['status_message'] as String,
+      profileImageUrl: json['profile_image_url'] as String,
     );
   }
 }
@@ -102,23 +131,37 @@ class FriendProfile {
 }
 
 // ==========Status==========
-class UserProfileState {
-  final UserProfile? userProfile;
+// class MyProfileState {
+//   final MyProfile? myProfile;
 
-  const UserProfileState({this.userProfile});
+//   const MyProfileState({this.myProfile});
 
-  bool get isProfileComplete {
-    if (userProfile == null) return false;
-    return userProfile!.profileImageUrl!.isNotEmpty &&
-        userProfile!.nickname.isNotEmpty &&
-        userProfile!.statusMessage!.isNotEmpty &&
-        userProfile!.autoReply!.isNotEmpty;
-  }
+//   bool get isProfileComplete {
+//     if (myProfile == null) return false;
+//     return myProfile!.profileImageUrl!.isNotEmpty &&
+//         myProfile!.nickname.isNotEmpty &&
+//         myProfile!.statusMessage!.isNotEmpty &&
+//         myProfile!.autoReply!.isNotEmpty;
+//   }
 
-  UserProfileState copyWith({UserProfile? userProfile}) {
-    return UserProfileState(userProfile: userProfile ?? this.userProfile);
-  }
-}
+//   MyProfileState copyWith({MyProfile? myProfile}) {
+//     return MyProfileState(myProfile: myProfile ?? this.myProfile);
+//   }
+// }
+
+// class UserProfileState {
+//   final UserProfile? userProfile;
+
+//   const UserProfileState({this.userProfile});
+
+//   bool get isProfileComplete {
+//     if (userProfile == null) return false;
+//     return userProfile!.profileImageUrl!.isNotEmpty &&
+//         userProfile!.nickname.isNotEmpty &&
+//         userProfile!.statusMessage!.isNotEmpty &&
+//         userProfile!.autoReply!.isNotEmpty;
+//   }
+// }
 
 class FriendProfilesState {
   final List<FriendProfile> friendList;
@@ -137,44 +180,6 @@ class FriendProfilesState {
     );
   }
 }
-
-// 사용자의 프로필 이미지 수정 할 때 사용되는 상태
-// class ProfileEditState {
-//   final File? selectedImage;
-//   final String profileImageUrl;
-//   final bool isLoading;
-//   final String? error;
-//   const ProfileEditState({
-//     this.selectedImage,
-//     required this.profileImageUrl,
-//     required this.isLoading,
-//     this.error,
-//   });
-
-//   bool get hasImage => selectedImage != null || profileImageUrl.isNotEmpty;
-
-//   const ProfileEditState.initial()
-//     : selectedImage = null,
-//       profileImageUrl = '',
-//       isLoading = false,
-//       error = null;
-
-//   ProfileEditState copyWith({
-//     File? selectedImage,
-//     String? profileImageUrl,
-//     bool? isLoading,
-//     String? error,
-//     bool clearSelectedImage = false,
-//   }) {
-//     return ProfileEditState(
-//       selectedImage:
-//           clearSelectedImage ? null : (selectedImage ?? this.selectedImage),
-//       profileImageUrl: profileImageUrl ?? this.profileImageUrl,
-//       isLoading: isLoading ?? this.isLoading,
-//       error: error ?? this.error,
-//     );
-//   }
-// }
 
 class ProfileImageState {
   final File? selectedImage;

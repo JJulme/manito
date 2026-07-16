@@ -10,7 +10,7 @@ import 'package:manito/features/posts/post_provider.dart';
 import 'package:manito/features/profiles/profile.dart';
 import 'package:manito/features/profiles/profile_provider.dart';
 import 'package:manito/main.dart';
-import 'package:manito/share/common_dialog.dart';
+import 'package:manito/core/widget/common_dialog.dart';
 import 'package:manito/share/custom_popup_menu_item.dart';
 import 'package:manito/share/report_bottomsheet.dart';
 import 'package:manito/share/sub_appbar.dart';
@@ -177,18 +177,12 @@ class _FriendsDetailScreenState extends ConsumerState<FriendsDetailScreen> {
 
   // 포스트 아이템
   Widget _buildPostItem(Post post) {
-    final FriendProfile manitoProfile = ref
-        .read(friendProfilesProvider.notifier)
-        .searchFriendProfile(post.manitoId!);
-    final FriendProfile creatorProfile = ref
-        .read(friendProfilesProvider.notifier)
-        .searchFriendProfile(post.creatorId!);
     final int badgeCount = ref.watch(specificBadgeProvider(post.id!));
 
     return PostItem(
       post: post,
-      manitoProfile: manitoProfile,
-      creatorProfile: creatorProfile,
+      manitoId: post.manitoId!,
+      creatorId: post.creatorId!,
       badgeCount: badgeCount,
     );
   }

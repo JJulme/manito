@@ -10,7 +10,6 @@ class CustomPopupMenuItem extends PopupMenuItem<String> {
     super.onTap,
   }) : super(
          value: value,
-         //  padding: EdgeInsets.zero,
          child: Row(
            mainAxisSize: MainAxisSize.min,
            mainAxisAlignment: MainAxisAlignment.start,

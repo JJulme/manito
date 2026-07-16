@@ -22,8 +22,11 @@ class ProfileItem extends StatelessWidget {
       child: Row(
         children: [
           // 프로필 이미지
-          ProfileImageView(size: width * 0.3, profileImageUrl: profileImageUrl),
-          SizedBox(width: width * 0.06),
+          ProfileImageView(
+            size: width * 0.27,
+            profileImageUrl: profileImageUrl,
+          ),
+          SizedBox(width: width * 0.03),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

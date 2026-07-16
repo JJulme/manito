@@ -160,7 +160,7 @@ class ManitoProposeNotifier
     final nextState = await AsyncValue.guard(() async {
       final service = ref.read(manitoProposeServiceProvider);
       final languageCode = ref.read(languageCodeProvider);
-      final proposeDetail = await service.getManitoPropose2(
+      final proposeDetail = await service.getManitoPropose(
         languageCode,
         proposeId,
       );

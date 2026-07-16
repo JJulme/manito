@@ -22,7 +22,6 @@ class _PostScreenState extends ConsumerState<PostScreen>
     with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
   // Constants
   static const double _horizontalPadding = 0.03;
-  static const double _verticalSpacing = 0.02;
   static const double _borderRadius = 0.02;
 
   @override
@@ -69,16 +68,7 @@ class _PostScreenState extends ConsumerState<PostScreen>
         }
         return RefreshIndicator(
           onRefresh: () => ref.read(postsProvider.notifier).refresh(),
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Column(
-              children: [
-                _buildBannerAd(),
-                SizedBox(height: width * _verticalSpacing),
-                _buildPostList(state),
-              ],
-            ),
-          ),
+          child: _buildPostList(state),
         );
       },
     );
@@ -98,31 +88,40 @@ class _PostScreenState extends ConsumerState<PostScreen>
 
   // 포스트 리스트뷰
   Widget _buildPostList(PostsState postState) {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: postState.postList.length,
-      itemBuilder:
-          (context, index) => _buildPostItem(postState.postList[index]),
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            shrinkWrap: false,
+            itemCount: postState.postList.length,
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return Column(
+                  children: [
+                    _buildBannerAd(),
+                    SizedBox(height: width * 0.02),
+                    _buildPostItem(postState.postList[index]),
+                  ],
+                );
+              }
+              return _buildPostItem(postState.postList[index]);
+            },
+          ),
+        ),
+      ],
     );
   }
 
   // 포스트 아이템
   Widget _buildPostItem(Post post) {
-    final FriendProfile manitoProfile = ref
-        .read(friendProfilesProvider.notifier)
-        .searchFriendProfile(post.manitoId!);
-    final FriendProfile creatorProfile = ref
-        .read(friendProfilesProvider.notifier)
-        .searchFriendProfile(post.creatorId!);
     final int badgeCount = ref.watch(
       specificBadgeByIdProvider((type: 'post_comment', typeId: post.id!)),
     );
 
     return PostItem(
       post: post,
-      manitoProfile: manitoProfile,
-      creatorProfile: creatorProfile,
+      manitoId: post.manitoId!,
+      creatorId: post.creatorId!,
       badgeCount: badgeCount,
     );
   }

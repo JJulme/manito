@@ -29,29 +29,106 @@ class MissionCreateService {
   final SupabaseClient _supabase;
   MissionCreateService(this._supabase);
 
-  /// 미션 생성
-  Future<void> createMission({
+  // 싱글 미션 생성
+  Future<void> createSingleMission({
     required List<String> friendIds,
     required String contentType,
-    required String deadlineType,
+    required DateTime acceptDeadline,
+    required DateTime deadline,
   }) async {
     try {
       final creatorId = _supabase.auth.currentUser!.id;
-      await _supabase.rpc(
-        'create_mission',
+      await _supabase.from('missions').insert({
+        "creator_id": creatorId,
+        "friend_ids": friendIds,
+        "accept_deadline": acceptDeadline.toIso8601String(),
+        "deadline": deadline.toIso8601String(),
+        "content_type": contentType,
+      });
+    } catch (e) {
+      debugPrint('MissionCreateService.createSingleMission Error: $e');
+      rethrow;
+    }
+  }
+
+  // 그룹 미션 생성
+  Future<void> createGroupMission({
+    required List<String> friendIds,
+    required String contentType,
+    required DateTime deadline,
+  }) async {
+    try {
+      final creatorId = _supabase.auth.currentUser!.id;
+      friendIds.add(creatorId);
+      final data = await _supabase.rpc(
+        'create_group_room',
         params: {
-          'creator_id': creatorId,
-          'friend_ids': friendIds,
-          'content_type': contentType,
-          'deadline_type': deadlineType,
+          "p_user_ids": friendIds,
+          "p_content_type": contentType,
+          "p_deadline": deadline.toIso8601String(),
         },
       );
+      print(data);
+
+      ///
+      /// 미션 만들고 보낸미션, 받은미션 가져옴
+      ///
+      ///
     } catch (e) {
-      debugPrint('MissionCreateService.createMission Error: $e');
+      debugPrint('MissionCreateService.createGroupMission Error: $e');
       rethrow;
     }
   }
 }
+
+class MissionGroupCreateService {
+  final SupabaseClient _supabase;
+  MissionGroupCreateService(this._supabase);
+
+  Future<String> createGroupRoom({
+    required String title,
+    required String contentType,
+    required String limitTime,
+  }) async {
+    try {
+      final creatorId = _supabase.auth.currentUser!.id;
+      final data =
+          await _supabase
+              .from('group_rooms')
+              .insert({
+                "creator_id": creatorId,
+                "title": title,
+                "content_type": contentType,
+                "limit_time": limitTime,
+              })
+              .select('id')
+              .single();
+      return data['id'];
+    } catch (e) {
+      debugPrint('MissionGroupCreateService.createGroupMissionRoom Error: $e');
+      rethrow;
+    }
+  }
+}
+
+// class MissionGroupSearchService {
+//   final SupabaseClient _supabase;
+//   MissionGroupSearchService(this._supabase);
+
+//   Future<String?> searchCode(String code) async {
+//     try {
+//       final result =
+//           await _supabase
+//               .from("group_room_codes")
+//               .select("group_rooms(*)")
+//               .eq('code', code)
+//               .maybeSingle();
+//       // return result;
+//     } catch (e) {
+//       debugPrint('MissionGroupSearchService.searchCode Error: $e');
+//     }
+//   }
+// }
 
 class MissionGuessService {
   final SupabaseClient _supabase;

@@ -35,19 +35,20 @@ final friendSearchProvider =
       FriendSearchNotifier.new,
     );
 
-final friendRequestProvider =
-    AsyncNotifierProvider<FriendRequestNotifier, FriendRequestState>(
-      FriendRequestNotifier.new,
-    );
+final friendRequestProvider = AsyncNotifierProvider.autoDispose<
+  FriendRequestNotifier,
+  FriendRequestState
+>(FriendRequestNotifier.new);
 
 final blacklistProvider =
-    AsyncNotifierProvider<BlacklistNotifier, BlacklistState>(
+    AsyncNotifierProvider.autoDispose<BlacklistNotifier, BlacklistState>(
       BlacklistNotifier.new,
     );
 
-final friendEditProvider = AsyncNotifierProvider<FriendEditNotifier, void>(
-  FriendEditNotifier.new,
-);
+final friendEditProvider =
+    AsyncNotifierProvider.autoDispose<FriendEditNotifier, void>(
+      FriendEditNotifier.new,
+    );
 
 // ========== Notifier ==========
 // 분리 필요
@@ -99,7 +100,8 @@ class FriendSearchNotifier extends AutoDisposeAsyncNotifier<FriendSearchState> {
   }
 }
 
-class FriendRequestNotifier extends AsyncNotifier<FriendRequestState> {
+class FriendRequestNotifier
+    extends AutoDisposeAsyncNotifier<FriendRequestState> {
   @override
   FutureOr<FriendRequestState> build() async {
     try {
@@ -149,7 +151,7 @@ class FriendRequestNotifier extends AsyncNotifier<FriendRequestState> {
   }
 }
 
-class BlacklistNotifier extends AsyncNotifier<BlacklistState> {
+class BlacklistNotifier extends AutoDisposeAsyncNotifier<BlacklistState> {
   @override
   FutureOr<BlacklistState> build() async {
     try {
@@ -193,7 +195,7 @@ class BlacklistNotifier extends AsyncNotifier<BlacklistState> {
   }
 }
 
-class FriendEditNotifier extends AsyncNotifier<void> {
+class FriendEditNotifier extends AutoDisposeAsyncNotifier<void> {
   @override
   FutureOr<void> build() {
     return null;

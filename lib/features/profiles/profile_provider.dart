@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collection/collection.dart';
 import 'package:manito/core/providers.dart';
 import 'package:manito/features/profiles/profile.dart';
 import 'package:manito/features/profiles/profile_service.dart';
@@ -20,10 +21,9 @@ final profileEditServiceProvider = Provider.autoDispose<ProfileEditService>((
 });
 
 // ========== Notifier Provider ==========
-final userProfileProvider =
-    AsyncNotifierProvider<UserProfileNotifier, UserProfileState>(
-      UserProfileNotifier.new,
-    );
+final myProfileProvider = AsyncNotifierProvider<MyProfileNotifier, MyProfile>(
+  MyProfileNotifier.new,
+);
 
 final friendProfilesProvider =
     AsyncNotifierProvider<FriendProfileNotifier, FriendProfilesState>(
@@ -40,23 +40,59 @@ final friendDetailProvider = Provider.autoDispose
     });
 
 final profileImageProvider =
-    NotifierProvider<ProfileImageNotifier, ProfileImageState>(
+    NotifierProvider.autoDispose<ProfileImageNotifier, ProfileImageState>(
       ProfileImageNotifier.new,
     );
 
 final profileEditProvider =
-    AsyncNotifierProvider<ProfileEditNotifier, ProfileEditState>(
+    AsyncNotifierProvider.autoDispose<ProfileEditNotifier, ProfileEditState>(
       ProfileEditNotifier.new,
     );
 
+final getProfileProvider =
+    AsyncNotifierProvider.family<GetProfileNotifier, UserProfile, String>(
+      GetProfileNotifier.new,
+    );
+
+final combinedProfileProvider = Provider.family<
+  AsyncValue<({UserProfile manito, UserProfile creator})>,
+  ({String manitoId, String creatorId})
+>((ref, ids) {
+  final manitoAsync = ref.watch(getProfileProvider(ids.manitoId));
+  final creatorAsync = ref.watch(getProfileProvider(ids.creatorId));
+
+  // 둘 다 로딩 중
+  if (manitoAsync.isLoading || creatorAsync.isLoading) {
+    return const AsyncValue.loading();
+  }
+
+  // 둘 중 하나라도 에러
+  if (manitoAsync.hasError) {
+    return AsyncValue.error(manitoAsync.error!, manitoAsync.stackTrace!);
+  }
+  if (creatorAsync.hasError) {
+    return AsyncValue.error(creatorAsync.error!, creatorAsync.stackTrace!);
+  }
+
+  // 둘 다 성공
+  if (manitoAsync.hasValue && creatorAsync.hasValue) {
+    return AsyncValue.data((
+      manito: manitoAsync.value!,
+      creator: creatorAsync.value!,
+    ));
+  }
+
+  return const AsyncValue.loading();
+});
+
 // ========== Notifier ==========
-class UserProfileNotifier extends AsyncNotifier<UserProfileState> {
+class MyProfileNotifier extends AsyncNotifier<MyProfile> {
   @override
-  FutureOr<UserProfileState> build() async {
+  FutureOr<MyProfile> build() async {
     try {
       final service = ref.read(profileServiceProvider);
-      final userProfile = await service.getProfile();
-      return UserProfileState(userProfile: userProfile);
+      final myProfile = await service.getMyProfile();
+      return myProfile;
     } catch (e) {
       debugPrint('UserProfileNotifier.build Error: $e');
       rethrow;
@@ -107,21 +143,27 @@ class FriendProfileNotifier extends AsyncNotifier<FriendProfilesState> {
     state = AsyncValue.data(updateData);
   }
 
+  FriendProfile? findFriendById(String id) {
+    final currentState = state.valueOrNull;
+    if (currentState == null) return null;
+    return currentState.friendList.firstWhereOrNull((f) => f.id == id);
+  }
+
   // ID 로 친구 검색 - 한명
   FriendProfile searchFriendProfile(String friendId) {
     try {
-      final userProfile = ref.read(userProfileProvider).value!.userProfile;
-      if (userProfile != null && userProfile.id == friendId) {
+      final myProfile = ref.read(myProfileProvider).value!;
+      if (myProfile.id == friendId) {
         return FriendProfile(
-          id: userProfile.id,
-          nickname: userProfile.nickname,
-          statusMessage: userProfile.statusMessage,
-          profileImageUrl: userProfile.profileImageUrl,
+          id: myProfile.id,
+          nickname: myProfile.nickname,
+          statusMessage: myProfile.statusMessage,
+          profileImageUrl: myProfile.profileImageUrl,
         );
       }
       final friendProfile = state.value!.friendList.firstWhere(
         (friend) => friend.id == friendId,
-        orElse: () => FriendProfile(id: '', nickname: 'unknown'),
+        orElse: () => FriendProfile(id: 'unknown', nickname: 'unknown'),
       );
       return friendProfile;
     } catch (e) {
@@ -145,12 +187,12 @@ class FriendProfileNotifier extends AsyncNotifier<FriendProfilesState> {
   }
 }
 
-class ProfileImageNotifier extends Notifier<ProfileImageState> {
+class ProfileImageNotifier extends AutoDisposeNotifier<ProfileImageState> {
   @override
   ProfileImageState build() {
     try {
-      final userProfile = ref.read(userProfileProvider).value!.userProfile;
-      final profileImageUrl = userProfile!.profileImageUrl!;
+      final myProfile = ref.read(myProfileProvider).value;
+      final profileImageUrl = myProfile!.profileImageUrl!;
       return ProfileImageState(
         selectedImage: null,
         profileImageUrl: profileImageUrl,
@@ -176,15 +218,15 @@ class ProfileImageNotifier extends Notifier<ProfileImageState> {
   }
 }
 
-class ProfileEditNotifier extends AsyncNotifier<ProfileEditState> {
+class ProfileEditNotifier extends AutoDisposeAsyncNotifier<ProfileEditState> {
   @override
   FutureOr<ProfileEditState> build() {
     try {
-      final userProfile = ref.read(userProfileProvider).value!.userProfile!;
+      final myProfile = ref.read(myProfileProvider).value!;
       return ProfileEditState(
-        nickname: userProfile.nickname,
-        statusMessage: userProfile.statusMessage!,
-        autoReply: userProfile.autoReply!,
+        nickname: myProfile.nickname,
+        statusMessage: myProfile.statusMessage!,
+        autoReply: myProfile.autoReply!,
       );
     } catch (e) {
       debugPrint('ProfileEditNotifier.build Error: $e');
@@ -219,5 +261,38 @@ class ProfileEditNotifier extends AsyncNotifier<ProfileEditState> {
         rethrow;
       }
     });
+  }
+}
+
+class GetProfileNotifier extends FamilyAsyncNotifier<UserProfile, String> {
+  @override
+  FutureOr<UserProfile> build(String id) async {
+    final myProfile = ref.watch(myProfileProvider).value;
+    if (myProfile!.id == id) {
+      return UserProfile(
+        id: id,
+        nickname: myProfile.nickname,
+        statusMessage: myProfile.statusMessage,
+        profileImageUrl: myProfile.profileImageUrl,
+      );
+    }
+    final friendList =
+        ref.watch(friendProfilesProvider).value?.friendList ?? [];
+    final cashedUser = friendList.firstWhereOrNull((u) => u.id == id);
+    if (cashedUser != null) {
+      return UserProfile(
+        id: id,
+        nickname: cashedUser.nickname,
+        statusMessage: cashedUser.statusMessage,
+        profileImageUrl: cashedUser.profileImageUrl,
+        friendNickname: cashedUser.friendNickname,
+      );
+    }
+    try {
+      return ref.read(profileServiceProvider).getUserProfile(id);
+    } catch (e) {
+      debugPrint('GetProfileNotifier.build Error: $e');
+      return UserProfile.unknown(id);
+    }
   }
 }

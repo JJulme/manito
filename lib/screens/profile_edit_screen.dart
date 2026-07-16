@@ -31,7 +31,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   @override
   void initState() {
     super.initState();
-    final userProfile = ref.read(userProfileProvider).value!.userProfile!;
+    final userProfile = ref.read(myProfileProvider).value!;
     _nameController = TextEditingController(text: userProfile.nickname);
     _statusController = TextEditingController(text: userProfile.statusMessage);
     _replyController = TextEditingController(text: userProfile.autoReply);
@@ -125,7 +125,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       if ((prev?.isLoading == true) &&
           (next.hasError == false) &&
           next.hasValue) {
-        ref.read(userProfileProvider.notifier).refresh();
+        ref.read(myProfileProvider.notifier).refresh();
         context.pop();
       } else if (next.hasError) {
         context.pop();

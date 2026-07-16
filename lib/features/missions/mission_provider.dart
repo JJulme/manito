@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/providers.dart';
+import 'package:manito/features/calculator/calculator_service.dart';
 import 'package:manito/features/missions/mission.dart';
 import 'package:manito/features/missions/mission_service.dart';
 import 'package:manito/features/profiles/profile.dart';
@@ -16,6 +17,11 @@ final missionServiceProvider = Provider<MissionService>((ref) {
 final missionCreateServiceProvider = Provider<MissionCreateService>((ref) {
   final supabase = ref.watch(supabaseProvider);
   return MissionCreateService(supabase);
+});
+
+final missionGroupCreateService = Provider<MissionGroupCreateService>((ref) {
+  final supabase = ref.watch(supabaseProvider);
+  return MissionGroupCreateService(supabase);
 });
 
 final missionGuessServiceProvider = Provider<MissionGuessService>((ref) {
@@ -40,6 +46,12 @@ final missionCreationActionProvider =
     AsyncNotifierProvider.autoDispose<MissionCreationActionNotifier, void>(
       MissionCreationActionNotifier.new,
     );
+
+final missionGroupRoomCreationActionProvider =
+    AsyncNotifierProvider.autoDispose<
+      MissionGroupRoomCreationActionNotifier,
+      String
+    >(MissionGroupRoomCreationActionNotifier.new);
 
 final missionGuessProvider =
     AsyncNotifierProvider.autoDispose<MissionGuessNotifier, void>(
@@ -137,22 +149,76 @@ class MissionCreationActionNotifier extends AutoDisposeAsyncNotifier<void> {
   }
 
   // 미션 생성
-  Future<void> createMission(int selectedType, int selectedPeriod) async {
+  Future<void> createMission(
+    int selectedScale,
+    int selectedPeriod,
+    int selectedType,
+  ) async {
     final createSelectionState = ref.read(missionCreateSelectionProvider);
     final service = ref.read(missionCreateServiceProvider);
     final List<String> friendIds =
         createSelectionState.confirmedFriends.map((f) => f.id).toList();
-    String contentType;
-    contentType =
+    String contentType =
         selectedType == 0 ? 'daily' : (selectedType == 1 ? 'school' : 'work');
-    String deadlineType = selectedPeriod == 0 ? 'day' : 'week';
+
+    DateTime acceptDeadline;
+    DateTime deadline;
+    if (selectedPeriod == 0) {
+      acceptDeadline = DeadlineCalculator.calculateFutureTime(
+        Duration(hours: 1),
+      );
+      deadline = DeadlineCalculator.calculateFutureTime(Duration(days: 1));
+    } else {
+      acceptDeadline = DeadlineCalculator.calculateFutureTime(
+        Duration(hours: 3),
+      );
+      deadline = DeadlineCalculator.calculateFutureTime(Duration(days: 7));
+    }
+
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      await service.createMission(
-        friendIds: friendIds,
+      if (selectedScale == 0) {
+        await service.createSingleMission(
+          friendIds: friendIds,
+          contentType: contentType,
+          acceptDeadline: acceptDeadline,
+          deadline: deadline,
+        );
+      } else {
+        await service.createGroupMission(
+          friendIds: friendIds,
+          contentType: contentType,
+          deadline: deadline,
+        );
+      }
+    });
+  }
+}
+
+class MissionGroupRoomCreationActionNotifier
+    extends AutoDisposeAsyncNotifier<String> {
+  @override
+  FutureOr<String> build() {
+    return '';
+  }
+
+  Future<void> createGroupRoom(
+    String title,
+    int selectedType,
+    int selectedPeriod,
+  ) async {
+    final service = ref.read(missionGroupCreateService);
+    String contentType =
+        selectedType == 0 ? 'daily' : (selectedType == 1 ? 'school' : 'work');
+    String limitTime = selectedPeriod == 0 ? '1' : '3';
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final roomId = await service.createGroupRoom(
+        title: title,
         contentType: contentType,
-        deadlineType: deadlineType,
+        limitTime: limitTime,
       );
+      return roomId;
     });
   }
 }

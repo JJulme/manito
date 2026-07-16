@@ -224,6 +224,25 @@ final ColorScheme darkColorScheme = const ColorScheme(
   onSecondaryContainer: Color(0xFFEFEFEF),
 );
 
+// Material 3 기반의 기본 폰트 크기 정의
+const Map<String, double> kBaseFontSizes = {
+  'displayLarge': 57.0,
+  'displayMedium': 45.0,
+  'displaySmall': 36.0,
+  'headlineLarge': 32.0,
+  'headlineMedium': 28.0,
+  'headlineSmall': 24.0,
+  'titleLarge': 22.0,
+  'titleMedium': 16.0,
+  'titleSmall': 14.0,
+  'bodyLarge': 16.0,
+  'bodyMedium': 14.0,
+  'bodySmall': 12.0,
+  'labelLarge': 14.0,
+  'labelMedium': 12.0,
+  'labelSmall': 11.0,
+};
+
 ThemeData lightTheme = commonStyle(
   ThemeData(brightness: Brightness.light, colorScheme: lightColorScheme),
 );
@@ -233,6 +252,18 @@ ThemeData darkTheme = commonStyle(
 );
 
 ThemeData commonStyle(ThemeData baseTheme) {
+  // 기본 스타일을 복사하여 모든 폰트 크기에 scaleFactor를 적용합니다.
+  TextStyle getScaledTextStyle(
+    double baseSize, {
+    FontWeight fontWeight = FontWeight.normal,
+  }) {
+    return TextStyle(
+      color: baseTheme.colorScheme.onSurface,
+      fontSize: baseSize * width / 400, // 너비에 따른 스케일링이 적용 (기준 너비 400)
+      fontWeight: fontWeight,
+    );
+  }
+
   return baseTheme.copyWith(
     dividerTheme: DividerThemeData(
       space: 0.12 * width,
@@ -258,6 +289,27 @@ ThemeData commonStyle(ThemeData baseTheme) {
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: baseTheme.colorScheme.primaryContainer,
+    ),
+    textTheme: TextTheme(
+      displayLarge: getScaledTextStyle(kBaseFontSizes['displayLarge']!),
+      displayMedium: getScaledTextStyle(kBaseFontSizes['displayMedium']!),
+      displaySmall: getScaledTextStyle(kBaseFontSizes['displaySmall']!),
+
+      headlineLarge: getScaledTextStyle(kBaseFontSizes['headlineLarge']!),
+      headlineMedium: getScaledTextStyle(kBaseFontSizes['headlineMedium']!),
+      headlineSmall: getScaledTextStyle(kBaseFontSizes['headlineSmall']!),
+
+      titleLarge: getScaledTextStyle(kBaseFontSizes['titleLarge']!),
+      titleMedium: getScaledTextStyle(kBaseFontSizes['titleMedium']!),
+      titleSmall: getScaledTextStyle(kBaseFontSizes['titleSmall']!),
+
+      bodyLarge: getScaledTextStyle(kBaseFontSizes['bodyLarge']!),
+      bodyMedium: getScaledTextStyle(kBaseFontSizes['bodyMedium']!),
+      bodySmall: getScaledTextStyle(kBaseFontSizes['bodySmall']!),
+
+      labelLarge: getScaledTextStyle(kBaseFontSizes['labelLarge']!),
+      labelMedium: getScaledTextStyle(kBaseFontSizes['labelMedium']!),
+      labelSmall: getScaledTextStyle(kBaseFontSizes['labelSmall']!),
     ),
   );
 }

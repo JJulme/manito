@@ -15,7 +15,7 @@ class ProfileService {
   ProfileService(this._supabase);
 
   // 사용자 프로필 정보 가져오기
-  Future<UserProfile> getProfile() async {
+  Future<MyProfile> getMyProfile() async {
     try {
       final userId = _supabase.auth.currentUser!.id;
       final data =
@@ -26,16 +26,40 @@ class ProfileService {
               )
               .eq('id', userId)
               .single();
-      final userProfile = UserProfile.fromJson(data);
+      final myProfile = MyProfile.fromJson(data);
+      // 캐시 비우기
+      if (myProfile.profileImageUrl != null) {
+        await CachedNetworkImage.evictFromCache(myProfile.profileImageUrl!);
+      }
+
+      return myProfile;
+    } catch (e) {
+      debugPrint('ProfileService.getMyProfile error: $e');
+      rethrow;
+    }
+  }
+
+  // 본인, 친구 아닌 사용자 프로필 정보 가져오기
+  Future<UserProfile> getUserProfile(String unknownId) async {
+    try {
+      final userId = _supabase.auth.currentUser!.id;
+      final data = await _supabase.rpc(
+        'get_user_profile_safe',
+        params: {'p_my_id': userId, 'p_unknown_id': unknownId},
+      );
+      // 결과값이 없을 경우 unknown
+      if (data.isEmpty) {
+        return UserProfile.unknown(unknownId);
+      }
+      final userProfile = UserProfile.fromJson(data[0]); // List<Map> 형식 처리
       // 캐시 비우기
       if (userProfile.profileImageUrl != null) {
         await CachedNetworkImage.evictFromCache(userProfile.profileImageUrl!);
       }
-
       return userProfile;
     } catch (e) {
-      debugPrint('ProfileService.getProfile error: $e');
-      rethrow;
+      debugPrint('ProfileService.getUserProfile error: $e');
+      return UserProfile.unknown(unknownId);
     }
   }
 

@@ -37,8 +37,8 @@ class _MissionFriendsSearchScreenState
   }
 
   void _onDone(MissionCreateState state) {
-    if (state.selectedFriends.length < 2) {
-      customToast(msg: '2명 이상의 친구를 선택해 주세요');
+    if (state.selectedFriends.isEmpty) {
+      customToast(msg: '1명 이상의 친구를 선택해 주세요');
     } else {
       ref.read(missionCreateSelectionProvider.notifier).confirmSelection();
       Navigator.pop(context);

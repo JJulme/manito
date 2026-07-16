@@ -54,6 +54,26 @@ class _MissionTabState extends ConsumerState<MissionTab>
     }
   }
 
+  // // 플로팅 버튼 동작
+  // Future<void> _handleFloatingButton2(MyMissionState state) async {
+  //   if (state.allMissions.length >= 3) {
+  //     customToast(msg: '미션은 최대 3개까지 생성 가능합니다.');
+  //   } else {
+  //     final result = await context.push('/mission_group_create');
+  //     if (result == true) ref.read(missionListProvider.notifier).refresh();
+  //   }
+  // }
+
+  // // 플로팅 버튼 동작
+  // Future<void> _handleFloatingButton3(MyMissionState state) async {
+  //   if (state.allMissions.length >= 3) {
+  //     customToast(msg: '미션은 최대 3개까지 생성 가능합니다.');
+  //   } else {
+  //     final result = await context.push('/mission_search');
+  //     if (result == true) ref.read(missionListProvider.notifier).refresh();
+  //   }
+  // }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -64,12 +84,19 @@ class _MissionTabState extends ConsumerState<MissionTab>
       error: (error, stackTrace) => Center(child: Text('$error')),
       data: (state) {
         return Scaffold(
+          // floatingActionButton: _buildFloatingActionButton(state),
           floatingActionButton: _buildFloatingActionButton(state),
           body: RefreshIndicator(
             onRefresh: () => notifier.refresh(),
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: _buildBody(state),
+            child: Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: _buildBody(state),
+                  ),
+                ),
+              ],
             ),
           ),
         );
@@ -110,6 +137,43 @@ class _MissionTabState extends ConsumerState<MissionTab>
       onPressed: () => _handleFloatingButton(state),
     );
   }
+
+  // // new
+  // Widget _buildFloatingActionButton2(MyMissionState state) {
+  //   return SpeedDial(
+  //     spacing: 3,
+  //     elevation: 2,
+  //     activeIcon: Icons.close,
+  //     backgroundColor: kYellow,
+  //     iconTheme: IconThemeData(color: kOffBlack),
+  //     childPadding: EdgeInsets.all(width * 0.01),
+  //     children: [
+  //       SpeedDialChild(
+  //         elevation: 2,
+  //         child: Icon(Icons.add),
+  //         label: '생성하기',
+  //         onTap: () => _handleFloatingButton(state),
+  //       ),
+  //       SpeedDialChild(
+  //         elevation: 2,
+  //         child: Icon(Icons.add),
+  //         label: '생성하기2',
+  //         onTap: () => _handleFloatingButton2(state),
+  //       ),
+  //       SpeedDialChild(
+  //         elevation: 2,
+  //         child: Icon(Icons.search_rounded),
+  //         label: '참여하기',
+  //         onTap: () => _handleFloatingButton3(state),
+  //       ),
+  //     ],
+  //     child: SvgPicture.asset(
+  //       'assets/icons/star_add2.svg',
+  //       width: width * 0.075,
+  //       colorFilter: ColorFilter.mode(kOffBlack, BlendMode.srcIn),
+  //     ),
+  //   );
+  // }
 
   // 완료 미션 리스트
   Widget _buildCompleteMissionList(List<MyMission> missions) {

@@ -12,7 +12,7 @@ import 'package:manito/features/posts/post_provider.dart';
 import 'package:manito/features/profiles/profile_provider.dart';
 import 'package:manito/features/theme/theme_provider.dart';
 import 'package:manito/main.dart';
-import 'package:manito/share/common_dialog.dart';
+import 'package:manito/core/widget/common_dialog.dart';
 import 'package:manito/share/custom_toast.dart';
 import 'package:manito/share/sub_appbar.dart';
 import 'package:restart_app/restart_app.dart';
@@ -32,7 +32,7 @@ class SettingScreen extends ConsumerWidget {
       ref.invalidate(badgeProvider);
 
       // 사용자 정보 관련
-      ref.invalidate(userProfileProvider);
+      ref.invalidate(myProfileProvider);
       ref.invalidate(friendProfilesProvider);
 
       // 데이터 관련
