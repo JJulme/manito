@@ -2,9 +2,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:manito/features/missions/mission.dart';
-import 'package:manito/features/missions/mission_provider.dart';
-import 'package:manito/features/theme/theme.dart';
+import 'package:manito/features_new/missions/domain/entities/mission_entity.dart';
+import 'package:manito/features_new/missions/presentation/providers/missions_provider.dart';
+import 'package:manito/core/theme/domain/entities/app_theme.dart';
 import 'package:manito/main.dart';
 import 'package:manito/share/constants.dart';
 import 'package:manito/share/custom_toast.dart';
@@ -12,7 +12,7 @@ import 'package:manito/share/sub_appbar.dart';
 import 'package:manito/widgets/friend_grid_list.dart';
 
 class MissionGuessScreen extends ConsumerStatefulWidget {
-  final MyMission mission;
+  final MyMissionEntity mission;
   const MissionGuessScreen({super.key, required this.mission});
 
   @override

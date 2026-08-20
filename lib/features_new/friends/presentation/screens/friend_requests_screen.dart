@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/widget/common_error_widget.dart';
 import 'package:manito/core/widget/common_loading_widget.dart';
 import 'package:manito/core/widget/profile_image_view.dart';
-import 'package:manito/features/theme/theme.dart';
+import 'package:manito/core/theme/domain/entities/app_theme.dart';
 import 'package:manito/features_new/friends/presentation/providers/friend_requests_provider.dart';
 import 'package:manito/features_new/profile/domain/entities/user_profile_entity.dart';
 import 'package:manito/main.dart';

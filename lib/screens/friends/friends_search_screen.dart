@@ -4,10 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get_utils/src/get_utils/get_utils.dart';
-import 'package:manito/features/friends/friends.dart';
-import 'package:manito/features/friends/friends_provider.dart';
-import 'package:manito/features/profiles/profile_provider.dart';
-import 'package:manito/features/theme/theme.dart';
+import 'package:manito/features_new/friends/presentation/providers/user_search_provider.dart';
+import 'package:manito/features_new/profile/presentation/providers/my_profile_provider.dart';
+import 'package:manito/core/theme/domain/entities/app_theme.dart';
 import 'package:manito/main.dart';
 import 'package:manito/share/custom_toast.dart';
 import 'package:manito/share/sub_appbar.dart';
@@ -41,15 +40,15 @@ class _FriendsSearchScreenState extends ConsumerState<FriendsSearchScreen> {
   // 입력값 지우기
   void _clearText() {
     emailController.clear();
-    ref.read(friendSearchProvider.notifier).clear();
+    ref.read(userSearchProvider.notifier).clearSearch();
   }
 
   // 검색버튼 동작 함수
   Future<void> _searchEmail() async {
     if (_formKey.currentState!.validate()) {
       await ref
-          .read(friendSearchProvider.notifier)
-          .searchEmail(emailController.text);
+          .read(userSearchProvider.notifier)
+          .searchUser(emailController.text);
     }
   }
 
@@ -61,32 +60,20 @@ class _FriendsSearchScreenState extends ConsumerState<FriendsSearchScreen> {
 
   // ✅ 친구 신청 처리 (개선)
   Future<void> _handleFriendRequest(String friendId) async {
-    // 이미 친구인지 확인
-    // final isFriend = ref
-    //     .read(friendProfilesProvider.notifier)
-    //     .findFriendById(friendId);
-
-    final isFriend = ref
-        .read(friendProfilesProvider.notifier)
-        .searchFriendProfile(friendId);
-
-    if (isFriend.id != 'unknown') {
-      customToast(msg: '이미 친구입니다');
-      return;
-    }
-
-    // 친구 신청
-    final result =
-        await ref.read(friendSearchProvider.notifier).sendFriendRequest();
-
-    if (result.isNotEmpty) {
-      customToast(msg: context.tr("friends_search_screen.$result"));
+    try {
+      final result =
+          await ref.read(userSearchProvider.notifier).requestFriend(friendId);
+      if (result.isNotEmpty) {
+        customToast(msg: context.tr("friends_search_screen.$result"));
+      }
+    } catch (e) {
+      customToast(msg: '요청 실패');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final searchState = ref.watch(friendSearchProvider); // ✅ AsyncValue
+    final searchState = ref.watch(userSearchProvider);
     final userProfileState = ref.watch(myProfileProvider).value;
 
     return GestureDetector(
@@ -173,95 +160,66 @@ class _FriendsSearchScreenState extends ConsumerState<FriendsSearchScreen> {
     );
   }
 
-  // ✅ AsyncValue.when 패턴으로 변경
-  Widget _buildProfileSection(AsyncValue<FriendSearchState> searchState) {
-    return searchState.when(
-      // 로딩 중
-      loading:
-          () => Container(
-            height: width * 0.53,
-            alignment: Alignment.center,
-            child: CircularProgressIndicator(),
-          ),
+  Widget _buildProfileSection(UserSearchState state) {
+    if (state.isLoading) {
+      return Container(
+        height: width * 0.53,
+        alignment: Alignment.center,
+        child: const CircularProgressIndicator(),
+      );
+    }
 
-      // 에러 발생
-      error:
-          (error, stack) => Container(
-            height: width * 0.53,
-            alignment: Alignment.center,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.error_outline,
-                  size: width * 0.15,
-                  color: Colors.red,
-                ),
-                SizedBox(height: width * 0.03),
-                Text('검색 중 오류가 발생했습니다'),
-                SizedBox(height: width * 0.02),
-                TextButton(onPressed: _clearText, child: Text('다시 시도')),
-              ],
+    if (state.isInitial) {
+      return const SizedBox.shrink();
+    }
+
+    if (state.noResult) {
+      return Container(
+        height: width * 0.53,
+        alignment: Alignment.center,
+        child: const Text('검색결과가 없습니다.'),
+      );
+    }
+
+    final searchedUser = state.searchedUser;
+    if (searchedUser == null) return const SizedBox.shrink();
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: width * 0.05),
+      child: Container(
+        width: double.infinity,
+        alignment: Alignment.center,
+        padding: EdgeInsets.all(width * 0.06),
+        decoration: BoxDecoration(
+          color: ColorScheme.of(context).primaryContainer,
+          borderRadius: BorderRadius.circular(width * 0.02),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ProfileImageView(
+              size: width * 0.3,
+              profileImageUrl: searchedUser.profileImageUrl ?? '',
             ),
-          ),
-
-      // 성공 (데이터 있음)
-      data: (state) {
-        // 검색 전
-        if (state.isEmpty) {
-          return SizedBox.shrink();
-        }
-
-        // 검색 결과 없음
-        if (state.noResult) {
-          return Container(
-            height: width * 0.53,
-            alignment: Alignment.center,
-            child: Text('검색결과가 없습니다.'),
-          );
-        }
-
-        // 검색 결과 있음
-        return Padding(
-          padding: EdgeInsets.symmetric(horizontal: width * 0.05),
-          child: Container(
-            width: double.infinity,
-            alignment: Alignment.center,
-            padding: EdgeInsets.all(width * 0.06),
-            decoration: BoxDecoration(
-              color: ColorScheme.of(context).primaryContainer,
-              borderRadius: BorderRadius.circular(width * 0.02),
+            SizedBox(height: width * 0.03),
+            Text(
+              searchedUser.nickname,
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ProfileImageView(
-                  size: width * 0.3,
-                  profileImageUrl: state.friendProfile!.profileImageUrl!,
+            SizedBox(height: width * 0.02),
+            ElevatedButton(
+              onPressed: () => _handleFriendRequest(searchedUser.id),
+              child: Text(
+                "friends_search_screen.request_btn",
+                style: TextStyle(
+                  color: kOffBlack,
+                  fontSize: TextTheme.of(context).bodyMedium!.fontSize,
                 ),
-                SizedBox(height: width * 0.03),
-                Text(
-                  state.friendProfile!.nickname,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                SizedBox(height: width * 0.02),
-                ElevatedButton(
-                  onPressed:
-                      () => _handleFriendRequest(state.friendProfile!.id),
-                  child:
-                      Text(
-                        "friends_search_screen.request_btn",
-                        style: TextStyle(
-                          color: kOffBlack,
-                          fontSize: TextTheme.of(context).bodyMedium!.fontSize,
-                        ),
-                      ).tr(),
-                ),
-              ],
+              ).tr(),
             ),
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
   }
 }

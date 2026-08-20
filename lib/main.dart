@@ -9,13 +9,14 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:manito/core/providers.dart';
 import 'package:manito/core/router.dart';
-import 'package:manito/features/error/error_provider.dart';
-import 'package:manito/features/theme/theme.dart';
-import 'package:manito/features/theme/theme_provider.dart';
-import 'package:manito/features/theme/theme_service.dart';
+import 'package:manito/core/error/error_provider.dart';
+import 'package:manito/core/theme/data/repositories/theme_repository_impl.dart';
+import 'package:manito/core/theme/domain/entities/app_theme.dart';
+import 'package:manito/core/theme/domain/repositories/repository_provider.dart';
+import 'package:manito/core/theme/presentation/providers/theme_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:timeago/timeago.dart' as timeago;
-import 'package:manito/features/fcm/firebase_options.dart';
+import 'package:manito/core/fcm/firebase_options.dart';
 
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -27,7 +28,7 @@ void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   // Hive 설정
   await Hive.initFlutter();
-  final db = DatabaseService();
+  final db = ThemeRepositoryImpl();
   await db.initTheme();
   // 런처 스플래쉬 화면 설정
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
@@ -59,7 +60,7 @@ void main() async {
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   runApp(
     ProviderScope(
-      overrides: [databaseService.overrideWithValue(db)],
+      overrides: [themeRepositoryProvider.overrideWithValue(db)],
       child: EasyLocalization(
         supportedLocales: const [Locale('ko', 'KR'), Locale('en', 'US')],
         path: 'assets/translations',

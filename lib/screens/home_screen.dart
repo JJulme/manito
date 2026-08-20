@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:manito/features/badge/badge_provider.dart';
-import 'package:manito/features/profiles/profile_provider.dart';
+import 'package:manito/core/badge/presentation/providers/badge_provider.dart';
+import 'package:manito/features_new/profile/presentation/providers/my_profile_provider.dart';
 import 'package:manito/main.dart';
 import 'package:manito/screens/manito/manito_tab.dart';
 import 'package:manito/screens/missions/mission_tab.dart';
@@ -36,7 +36,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final badgeManitoCount = ref.watch(badgeManitoCountProvider);
 
     ref.listen(myProfileProvider, (prev, next) {
-      if (prev!.isLoading && !next.value!.isProfileComplete) {
+      if (prev?.isLoading == true && next.value?.isProfileComplete == false) {
         context.push('/profile_edit', extra: false);
       }
     });
@@ -64,9 +64,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 children: [
                   // 프로필 사진, 이름, 상태메시지
                   ProfileItem(
-                    profileImageUrl: profile.profileImageUrl!,
-                    name: profile.nickname,
-                    statusMessage: profile.statusMessage!,
+                    profileImageUrl: profile?.profileImageUrl ?? '',
+                    name: profile?.nickname ?? '',
+                    statusMessage: profile?.statusMessage ?? '',
                   ),
                   SizedBox(height: width * 0.03),
                   _buildBannerAd(),

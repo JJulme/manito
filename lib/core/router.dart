@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:manito/features/auth/auth_provider.dart';
-import 'package:manito/features/auth/kakao_login_webview.dart';
-import 'package:manito/features/fcm/fcm_provider.dart';
-import 'package:manito/features/manito/manito.dart';
+import 'package:manito/features_new/auth/presentation/providers/auth_provider.dart';
+import 'package:manito/features_new/auth/presentation/screens/kakao_login_webview.dart';
+import 'package:manito/core/fcm/fcm_provider.dart';
+import 'package:manito/features_new/manito/domain/entities/manito_entity.dart';
 import 'package:manito/features_new/friends/presentation/screens/blocked_users_screen.dart';
 import 'package:manito/features_new/friends/presentation/screens/edit_friend_nickname_screen.dart';
 import 'package:manito/features_new/friends/presentation/screens/friend_requests_screen.dart';
@@ -16,7 +16,7 @@ import 'package:manito/features_new/profile/presentation/screens/edit_profile_sc
 import 'package:manito/presentation/main/main_screen.dart';
 import 'package:manito/screens/manito/album_screen.dart';
 import 'package:manito/screens/manito/manito_post_screen.dart';
-import 'package:manito/features/missions/mission.dart';
+import 'package:manito/features_new/missions/domain/entities/mission_entity.dart';
 import 'package:manito/screens/login_screen.dart';
 import 'package:manito/screens/manito/manito_propose_screen.dart';
 import 'package:manito/screens/missions/mission_create_screen.dart';
@@ -25,7 +25,7 @@ import 'package:manito/screens/missions/mission_group_create_screen.dart';
 import 'package:manito/screens/missions/mission_group_screen.dart';
 import 'package:manito/screens/missions/mission_guess_screen.dart';
 import 'package:manito/screens/missions/mission_search_screen.dart';
-import 'package:manito/screens/posts/post_detail_screen.dart';
+import 'package:manito/features_new/posts/presentation/screens/post_detail_screen.dart';
 import 'package:manito/screens/setting_screen.dart';
 import 'package:manito/screens/splash_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -132,7 +132,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/album',
         name: 'album',
         builder: (context, state) {
-          final ManitoAccept manitoAccept = state.extra as ManitoAccept;
+          final ManitoAcceptEntity manitoAccept = state.extra as ManitoAcceptEntity;
           return AlbumScreen(manitoAccept: manitoAccept);
         },
       ),
@@ -212,7 +212,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/mission_guess',
         name: 'missionGuess',
         builder: (context, state) {
-          final MyMission mission = state.extra as MyMission;
+          final MyMissionEntity mission = state.extra as MyMissionEntity;
           return MissionGuessScreen(mission: mission);
         },
       ),
@@ -220,7 +220,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/manito_propose',
         name: 'manitoPropose',
         builder: (context, state) {
-          final ManitoPropose propose = state.extra as ManitoPropose;
+          final ManitoProposeEntity propose = state.extra as ManitoProposeEntity;
           return ManitoProposeScreen(propose: propose);
         },
       ),
@@ -228,7 +228,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/manito_post',
         name: 'manitoPost',
         builder: (context, state) {
-          final ManitoAccept manitoAccept = state.extra as ManitoAccept;
+          final ManitoAcceptEntity manitoAccept = state.extra as ManitoAcceptEntity;
           return ManitoPostScreen(manitoAccept: manitoAccept);
         },
       ),

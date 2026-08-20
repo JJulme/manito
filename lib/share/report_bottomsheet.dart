@@ -1,9 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:manito/features/report/report.dart';
-import 'package:manito/features/report/report_provider.dart';
-import 'package:manito/features/theme/theme.dart';
+import 'package:manito/features_new/report/domain/entities/report_entity.dart';
+import 'package:manito/features_new/report/presentation/providers/report_provider.dart';
+import 'package:manito/core/theme/domain/entities/app_theme.dart';
 import 'package:manito/main.dart';
 
 class ReportBottomsheet extends ConsumerWidget {

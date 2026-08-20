@@ -4,13 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/providers.dart';
-import 'package:manito/features/auth/auth_provider.dart';
-import 'package:manito/features/badge/badge_provider.dart';
-import 'package:manito/features/manito/manito_provider.dart';
-import 'package:manito/features/missions/mission_provider.dart';
-import 'package:manito/features/posts/post_provider.dart';
-import 'package:manito/features/profiles/profile_provider.dart';
-import 'package:manito/features/theme/theme_provider.dart';
+import 'package:manito/features_new/auth/presentation/providers/auth_provider.dart';
+import 'package:manito/core/badge/presentation/providers/badge_provider.dart';
+import 'package:manito/features_new/friends/presentation/providers/friend_list_provider.dart';
+import 'package:manito/features_new/manito/presentation/providers/manito_provider.dart';
+import 'package:manito/features_new/missions/presentation/providers/missions_provider.dart';
+import 'package:manito/features_new/posts/presentation/providers/posts_provider.dart';
+import 'package:manito/features_new/profile/presentation/providers/my_profile_provider.dart';
+import 'package:manito/core/theme/presentation/providers/theme_provider.dart';
 import 'package:manito/main.dart';
 import 'package:manito/core/widget/common_dialog.dart';
 import 'package:manito/share/custom_toast.dart';
@@ -33,7 +34,7 @@ class SettingScreen extends ConsumerWidget {
 
       // 사용자 정보 관련
       ref.invalidate(myProfileProvider);
-      ref.invalidate(friendProfilesProvider);
+      ref.invalidate(friendListProvider);
 
       // 데이터 관련
       ref.invalidate(missionListProvider);

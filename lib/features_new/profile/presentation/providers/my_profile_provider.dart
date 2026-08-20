@@ -44,3 +44,39 @@ final myProfileProvider =
     AsyncNotifierProvider<MyProfileNotifier, MyProfileEntity?>(() {
       return MyProfileNotifier();
     });
+
+final userProfileProvider = FutureProvider.family<UserEntity, String>((ref, userId) {
+  final repository = ref.watch(profileRepositoryProvider);
+  return repository.getUserProfile(userId);
+});
+
+final combinedProfileProvider = Provider.family<
+  AsyncValue<({UserEntity manito, UserEntity creator})>,
+  ({String manitoId, String creatorId})
+>((ref, ids) {
+  final manitoAsync = ref.watch(userProfileProvider(ids.manitoId));
+  final creatorAsync = ref.watch(userProfileProvider(ids.creatorId));
+
+  if (manitoAsync.isLoading || creatorAsync.isLoading) {
+    return const AsyncValue.loading();
+  }
+
+  if (manitoAsync.hasError) {
+    return AsyncValue.error(
+      manitoAsync.error!,
+      manitoAsync.stackTrace ?? StackTrace.current,
+    );
+  }
+
+  if (creatorAsync.hasError) {
+    return AsyncValue.error(
+      creatorAsync.error!,
+      creatorAsync.stackTrace ?? StackTrace.current,
+    );
+  }
+
+  return AsyncValue.data((
+    manito: manitoAsync.value!,
+    creator: creatorAsync.value!,
+  ));
+});

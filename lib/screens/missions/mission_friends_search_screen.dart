@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get_rx/src/rx_workers/utils/debouncer.dart';
-import 'package:manito/features/missions/mission.dart';
-import 'package:manito/features/missions/mission_provider.dart';
-import 'package:manito/features/profiles/profile.dart';
-import 'package:manito/features/profiles/profile_provider.dart';
-import 'package:manito/features/theme/theme.dart';
+import 'package:manito/features_new/missions/domain/entities/mission_entity.dart';
+import 'package:manito/features_new/missions/presentation/providers/missions_provider.dart';
+import 'package:manito/features_new/friends/domain/entities/friend_entity.dart';
+import 'package:manito/features_new/friends/presentation/providers/friend_list_provider.dart';
+import 'package:manito/core/theme/domain/entities/app_theme.dart';
 import 'package:manito/main.dart';
 import 'package:manito/share/custom_toast.dart';
 import 'package:manito/widgets/profile_image_view.dart';
@@ -32,11 +32,11 @@ class _MissionFriendsSearchScreenState
     });
   }
 
-  void _toggleFriends(FriendProfile friend) {
+  void _toggleFriends(FriendProfileEntity friend) {
     ref.read(missionCreateSelectionProvider.notifier).toggleSelection(friend);
   }
 
-  void _onDone(MissionCreateState state) {
+  void _onDone(MissionCreateSelectionEntity state) {
     if (state.selectedFriends.isEmpty) {
       customToast(msg: '1명 이상의 친구를 선택해 주세요');
     } else {
@@ -49,7 +49,7 @@ class _MissionFriendsSearchScreenState
   Widget build(BuildContext context) {
     final selectionState = ref.watch(missionCreateSelectionProvider);
     final notifier = ref.read(missionCreateSelectionProvider.notifier);
-    final friendsState = ref.watch(friendProfilesProvider).value;
+    final friends = ref.watch(friendListProvider).value ?? [];
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -60,7 +60,7 @@ class _MissionFriendsSearchScreenState
               children: [
                 SizedBox(height: width * 0.05),
                 _buildSelectedFriendList(selectionState),
-                _buildAllFriendList(friendsState!, notifier),
+                _buildAllFriendList(friends, notifier),
               ],
             ),
           ),
@@ -70,7 +70,7 @@ class _MissionFriendsSearchScreenState
   }
 
   // 앱바
-  AppBar _buildAppBar(MissionCreateState state) {
+  AppBar _buildAppBar(MissionCreateSelectionEntity state) {
     return AppBar(
       centerTitle: false,
       title: Text('친구 선택', style: Theme.of(context).textTheme.headlineSmall),
@@ -123,7 +123,7 @@ class _MissionFriendsSearchScreenState
   }
 
   // 선택된 친구 리스트
-  Widget _buildSelectedFriendList(MissionCreateState state) {
+  Widget _buildSelectedFriendList(MissionCreateSelectionEntity state) {
     return Container(
       height: width * 0.25,
       alignment: Alignment.centerLeft,
@@ -150,7 +150,7 @@ class _MissionFriendsSearchScreenState
   }
 
   // 선택된 친구 아이템
-  Widget _selectedFriendItem(FriendProfile profile, VoidCallback onTap) {
+  Widget _selectedFriendItem(FriendProfileEntity profile, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -186,17 +186,16 @@ class _MissionFriendsSearchScreenState
 
   // 전체 친구 목록
   Widget _buildAllFriendList(
-    FriendProfilesState friendStates,
+    List<FriendProfileEntity> friendList,
     MissionCreateSelectionNotifier notifier,
   ) {
     // 친구 없을 때
-    final List<FriendProfile> friendList = friendStates.friendList;
     if (friendList.isEmpty) {
       return Center(child: Text('친구가 없습니다'));
     }
     // 친구 있을 때
     else {
-      final List<FriendProfile> filterdList =
+      final List<FriendProfileEntity> filterdList =
           searchText.isEmpty
               ? friendList
               : friendList.where((friend) {
@@ -216,7 +215,7 @@ class _MissionFriendsSearchScreenState
 
   // 친구 리스트 아이템
   Widget _friendListItem(
-    FriendProfile profile,
+    FriendProfileEntity profile,
     MissionCreateSelectionNotifier notifier,
   ) {
     return ListTile(
@@ -235,7 +234,7 @@ class _MissionFriendsSearchScreenState
   }
 
   // 친구 프로필 이미지, 이름, 상태 메시지
-  Widget _friendInfo(FriendProfile profile) {
+  Widget _friendInfo(FriendProfileEntity profile) {
     return Row(
       children: [
         ProfileImageView(

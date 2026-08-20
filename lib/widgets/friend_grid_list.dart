@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:manito/main.dart';
 import 'package:manito/widgets/profile_image_view.dart';
-import 'package:manito/features/profiles/profile.dart';
 
 class FriendGridList extends StatelessWidget {
-  final List<FriendProfile> friends;
+  final List<dynamic> friends;
 
   const FriendGridList({super.key, required this.friends});
 

@@ -1,15 +1,15 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:manito/features/manito/manito.dart';
-import 'package:manito/features/manito/manito_provider.dart';
-import 'package:manito/features/theme/theme.dart';
+import 'package:manito/features_new/manito/domain/entities/manito_entity.dart';
+import 'package:manito/features_new/manito/presentation/providers/manito_provider.dart';
+import 'package:manito/core/theme/domain/entities/app_theme.dart';
 import 'package:manito/main.dart';
 import 'package:manito/share/custom_toast.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class AlbumScreen extends ConsumerStatefulWidget {
-  final ManitoAccept manitoAccept;
+  final ManitoAcceptEntity manitoAccept;
   const AlbumScreen({super.key, required this.manitoAccept});
 
   @override
