@@ -3,9 +3,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:manito/features/badge/badge_provider.dart';
-import 'package:manito/features/profiles/profile.dart';
-import 'package:manito/features/profiles/profile_provider.dart';
+import 'package:manito/core/badge/presentation/providers/badge_provider.dart';
+import 'package:manito/features_new/friends/domain/entities/friend_entity.dart';
+import 'package:manito/features_new/friends/presentation/providers/friend_list_provider.dart';
 import 'package:manito/main.dart';
 import 'package:manito/share/custom_badge.dart';
 import 'package:manito/share/custom_popup_menu_item.dart';
@@ -26,7 +26,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
   bool get wantKeepAlive => true;
 
   // 친구 상세 화면 이동
-  void _toFriendsDetail(FriendProfile friendProfile) {
+  void _toFriendsDetail(FriendProfileEntity friendProfile) {
     context.pushNamed(
       'friendsDetail',
       pathParameters: {'friendId': friendProfile.id},
@@ -36,8 +36,8 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final friendProfilesAsync = ref.watch(friendProfilesProvider);
-    final notifier = ref.read(friendProfilesProvider.notifier);
+    final friendProfilesAsync = ref.watch(friendListProvider);
+    final notifier = ref.read(friendListProvider.notifier);
 
     return Scaffold(
       appBar: MainAppbar(
@@ -50,7 +50,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
           error: (error, stackTrace) => Center(child: Text('$error')),
           data: (state) {
             return RefreshIndicator(
-              onRefresh: () => notifier.refreash(),
+              onRefresh: () => notifier.refresh(),
               child: _buildFriendsList(state),
             );
           },
@@ -116,8 +116,8 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
   }
 
   // 친구 목록
-  Widget _buildFriendsList(FriendProfilesState state) {
-    if (state.friendList.isEmpty) {
+  Widget _buildFriendsList(List<FriendProfileEntity> friendList) {
+    if (friendList.isEmpty) {
       return SizedBox(height: width, child: Center(child: Text('친구를 추가해보세요!')));
     } else {
       return Column(
@@ -125,18 +125,18 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
           Expanded(
             child: ListView.builder(
               shrinkWrap: false,
-              itemCount: state.friendList.length,
+              itemCount: friendList.length,
               itemBuilder: (context, index) {
                 if (index == 0) {
                   return Column(
                     children: [
                       _buildBannerAd(),
                       SizedBox(height: width * 0.03),
-                      _buildFriendItem(state.friendList[index]),
+                      _buildFriendItem(friendList[index]),
                     ],
                   );
                 }
-                return _buildFriendItem(state.friendList[index]);
+                return _buildFriendItem(friendList[index]);
               },
             ),
           ),
@@ -146,7 +146,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
   }
 
   // 친구 항목
-  Widget _buildFriendItem(FriendProfile friendProfile) {
+  Widget _buildFriendItem(FriendProfileEntity friendProfile) {
     return InkWell(
       onTap: () => _toFriendsDetail(friendProfile),
       child: Container(
@@ -158,11 +158,10 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
           children: [
             ProfileImageView(
               size: width * 0.15,
-              profileImageUrl: friendProfile.profileImageUrl!,
+              profileImageUrl: friendProfile.profileImageUrl ?? '',
             ),
             SizedBox(width: width * 0.035),
             Expanded(child: _buildFriendInfo(friendProfile)),
-            _buildMissionBadge(friendProfile.progressMissions),
           ],
         ),
       ),
@@ -170,7 +169,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
   }
 
   // 친구 프로필 사진, 이름, 상태메시지
-  Widget _buildFriendInfo(FriendProfile friendProfile) {
+  Widget _buildFriendInfo(FriendProfileEntity friendProfile) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -180,15 +179,15 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
           style: Theme.of(context).textTheme.bodyLarge,
           overflow: TextOverflow.ellipsis,
         ),
-        friendProfile.statusMessage == ''
-            ? SizedBox.shrink()
-            : Text(
-              friendProfile.statusMessage!,
-              style: Theme.of(context).textTheme.labelMedium,
-              maxLines: 2,
-              softWrap: true,
-              overflow: TextOverflow.ellipsis,
-            ),
+        if (friendProfile.statusMessage != null &&
+            friendProfile.statusMessage!.isNotEmpty)
+          Text(
+            friendProfile.statusMessage!,
+            style: Theme.of(context).textTheme.labelMedium,
+            maxLines: 2,
+            softWrap: true,
+            overflow: TextOverflow.ellipsis,
+          ),
       ],
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:manito/core/util/app_logger.dart';
 import 'package:manito/main.dart';
 
 class BannerAdWidget extends StatefulWidget {
@@ -84,8 +85,7 @@ class _AdmobBannerState extends State<BannerAdWidget> {
         },
         onAdFailedToLoad: (ad, error) {
           ad.dispose();
-          debugPrint(_getAdUnitId());
-          debugPrint('광고 로딩 실패 (Code ${error.code}): ${error.message}');
+          AppLogger.w('광고 로딩 실패 (Code ${error.code}): ${error.message} (UnitID: ${_getAdUnitId()})', tag: 'ADS');
           setState(() {
             _isAdLoaded = false;
             _isAdFailed = true;

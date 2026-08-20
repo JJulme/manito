@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:manito/features/badge/badge_provider.dart';
-import 'package:manito/features/missions/mission.dart';
-import 'package:manito/features/missions/mission_provider.dart';
-import 'package:manito/features/posts/post_provider.dart';
-import 'package:manito/features/theme/theme.dart';
+import 'package:manito/core/badge/presentation/providers/badge_provider.dart';
+import 'package:manito/features_new/missions/domain/entities/mission_entity.dart';
+import 'package:manito/features_new/missions/presentation/providers/missions_provider.dart';
+import 'package:manito/features_new/posts/presentation/providers/posts_provider.dart';
+import 'package:manito/core/theme/domain/entities/app_theme.dart';
 import 'package:manito/main.dart';
 import 'package:manito/share/constants.dart';
 import 'package:manito/share/custom_badge.dart';
@@ -30,7 +30,7 @@ class _MissionTabState extends ConsumerState<MissionTab>
   bool get wantKeepAlive => true;
 
   // 추측화면으로 이동
-  void _toGuessScreen(MyMission mission) async {
+  void _toGuessScreen(MyMissionEntity mission) async {
     final result = await context.push('/mission_guess', extra: mission);
     if (result == true) {
       // 뱃지 초기화, 미션 리스트 새로고침, 포스트 새로고침
@@ -176,7 +176,7 @@ class _MissionTabState extends ConsumerState<MissionTab>
   // }
 
   // 완료 미션 리스트
-  Widget _buildCompleteMissionList(List<MyMission> missions) {
+  Widget _buildCompleteMissionList(List<MyMissionEntity> missions) {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -187,7 +187,7 @@ class _MissionTabState extends ConsumerState<MissionTab>
   }
 
   // 진행중 미션 리스트
-  Widget _buildAcceptMissionList(List<MyMission> missions) {
+  Widget _buildAcceptMissionList(List<MyMissionEntity> missions) {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -197,7 +197,7 @@ class _MissionTabState extends ConsumerState<MissionTab>
   }
 
   // 대기중 미션 리스트
-  Widget _buildPendingMissionList(List<MyMission> missions) {
+  Widget _buildPendingMissionList(List<MyMissionEntity> missions) {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -208,7 +208,7 @@ class _MissionTabState extends ConsumerState<MissionTab>
   }
 
   // 완료 미션 아이템
-  Widget _buildCompleteMissionItem(MyMission mission) {
+  Widget _buildCompleteMissionItem(MyMissionEntity mission) {
     final badgeState = ref.watch(badgeProvider).valueOrNull;
     return Stack(
       children: [
@@ -241,7 +241,7 @@ class _MissionTabState extends ConsumerState<MissionTab>
   }
 
   // 대기중 미션 아이템
-  Widget _buildPendingMissionItem(MyMission mission) {
+  Widget _buildPendingMissionItem(MyMissionEntity mission) {
     return CustomSlide(
       mainWidget: TabContainer(
         child: Row(
@@ -297,7 +297,7 @@ class _MissionTabState extends ConsumerState<MissionTab>
   }
 
   // 진행중 미션 아이템
-  Widget _buildAcceptMissionItem(MyMission mission) {
+  Widget _buildAcceptMissionItem(MyMissionEntity mission) {
     final badgeState = ref.watch(badgeProvider).valueOrNull;
     return CustomSlide(
       onTap:

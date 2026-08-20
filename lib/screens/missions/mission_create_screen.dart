@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:manito/core/custom_icons.dart';
-import 'package:manito/features/missions/mission.dart';
-import 'package:manito/features/missions/mission_provider.dart';
+import 'package:manito/features_new/missions/domain/entities/mission_entity.dart';
+import 'package:manito/features_new/missions/presentation/providers/missions_provider.dart';
 import 'package:manito/main.dart';
 import 'package:manito/core/widget/common_dialog.dart';
 import 'package:manito/share/custom_toast.dart';
@@ -32,7 +32,7 @@ class _MissionCreateScreenState extends ConsumerState<MissionCreateScreen> {
   }
 
   // 미선 생성 다이얼로그
-  void _showMissionCreationDialog(MissionCreateState state) async {
+  void _showMissionCreationDialog(MissionCreateSelectionEntity state) async {
     if (state.confirmedFriends.isEmpty) {
       customToast(msg: '친구를 1명 이상 선택해 주세요.');
     } else {
@@ -91,7 +91,7 @@ class _MissionCreateScreenState extends ConsumerState<MissionCreateScreen> {
 
   // 미션 생성 버튼
   Widget _appbarActions(
-    MissionCreateState state,
+    MissionCreateSelectionEntity state,
     AsyncValue<void> actionState,
   ) {
     if (actionState.isLoading) {
@@ -232,7 +232,7 @@ class _MissionCreateScreenState extends ConsumerState<MissionCreateScreen> {
   }
 
   // 친구 선택, 친구 목록
-  Widget _buildSelectedFriends(MissionCreateState state) {
+  Widget _buildSelectedFriends(MissionCreateSelectionEntity state) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: width * 0.04),
       child: InkWell(

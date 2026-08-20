@@ -9,13 +9,59 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:manito/core/providers.dart';
 import 'package:manito/core/router.dart';
-import 'package:manito/features/error/error_provider.dart';
-import 'package:manito/features/theme/theme.dart';
-import 'package:manito/features/theme/theme_provider.dart';
-import 'package:manito/features/theme/theme_service.dart';
+import 'package:manito/core/error/error_provider.dart';
+import 'package:manito/core/theme/app_theme.dart';
+import 'package:manito/core/theme/data/repositories/theme_repository_impl.dart';
+import 'package:manito/core/theme/domain/repositories/repository_provider.dart';
+import 'package:manito/core/theme/presentation/providers/theme_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:timeago/timeago.dart' as timeago;
-import 'package:manito/features/fcm/firebase_options.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:manito/core/fcm/fcm_provider.dart';
+import 'package:manito/core/fcm/firebase_options.dart';
+
+import 'dart:convert';
+import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
+
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // message.notification이 포함된 FCM 푸시는 Android OS가 백그라운드에서 자동으로 시스템 알림을 표시하므로,
+  // 중복 알림(2개) 방지를 위해 로컬 알림은 순수 data-only 메시지일 때만 생성합니다.
+  if (message.notification != null) {
+    return;
+  }
+
+  try {
+    final title = message.data['title']?.toString() ?? '마니또 알림';
+    final body = message.data['body']?.toString() ?? '';
+
+    if (title.isNotEmpty || body.isNotEmpty) {
+      final flutterLocalNotifications = FlutterLocalNotificationsPlugin();
+      const androidDetails = AndroidNotificationDetails(
+        'default_notification_channel',
+        '마니또 알림',
+        channelDescription: '마니또 초대, 시작 및 미션 관련 알림을 수신합니다.',
+        importance: Importance.max,
+        priority: Priority.high,
+        icon: 'ic_notification',
+        playSound: true,
+        enableVibration: true,
+      );
+      const platformDetails = NotificationDetails(android: androidDetails);
+      final notifId = DateTime.now().millisecondsSinceEpoch & 0x7FFFFFFF;
+      await flutterLocalNotifications.show(
+        notifId,
+        title,
+        body,
+        platformDetails,
+        payload: jsonEncode(message.data),
+      );
+    }
+  } catch (_) {}
+}
 
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -25,14 +71,17 @@ late double width;
 void main() async {
   // 웹바인딩 설정
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  // Timezone 초기화
+  tz.initializeTimeZones();
   // Hive 설정
   await Hive.initFlutter();
-  final db = DatabaseService();
+  final db = ThemeRepositoryImpl();
   await db.initTheme();
   // 런처 스플래쉬 화면 설정
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   // FCM 설정
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   // Admob 설정
   MobileAds.instance.initialize();
   // 다국어 패키지 초기화
@@ -57,9 +106,41 @@ void main() async {
     iOS: darwinInitializationSettings,
   );
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+  // 안드로이드 노티피케이션 채널 생성 (백그라운드/헤드업 알림 수신 보장)
+  const AndroidNotificationChannel defaultChannel = AndroidNotificationChannel(
+    'default_notification_channel',
+    '마니또 알림',
+    description: '마니또 초대, 시작 및 미션 관련 기본 알림을 수신합니다.',
+    importance: Importance.max,
+    playSound: true,
+    enableVibration: true,
+  );
+  const AndroidNotificationChannel generalChannel = AndroidNotificationChannel(
+    'manito_general_channel',
+    '마니또 알림',
+    description: '마니또 초대, 시작 및 미션 관련 알림을 수신합니다.',
+    importance: Importance.max,
+    playSound: true,
+    enableVibration: true,
+  );
+  const AndroidNotificationChannel deadlineChannel = AndroidNotificationChannel(
+    'manito_deadline_channel',
+    '마니또 마감 알림',
+    description: '마니또 게임 마감 전 및 종료 알림을 수신합니다.',
+    importance: Importance.max,
+    playSound: true,
+    enableVibration: true,
+  );
+  final androidPlugin = flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+  await androidPlugin?.createNotificationChannel(defaultChannel);
+  await androidPlugin?.createNotificationChannel(generalChannel);
+  await androidPlugin?.createNotificationChannel(deadlineChannel);
+
   runApp(
     ProviderScope(
-      overrides: [databaseService.overrideWithValue(db)],
+      overrides: [themeRepositoryProvider.overrideWithValue(db)],
       child: EasyLocalization(
         supportedLocales: const [Locale('ko', 'KR'), Locale('en', 'US')],
         path: 'assets/translations',
@@ -92,6 +173,8 @@ class _ManitoState extends ConsumerState<Manito> {
   Widget build(BuildContext context) {
     width = MediaQuery.of(context).size.width;
     final themeMode = ref.watch(themeProvider);
+    // ✅ 전역 FCM 및 Realtime 알림 리스너 활성화
+    ref.watch(fcmListenerProvider);
     // ✅ errorProvider 감시 - 어디서든 에러가 발생하면 여기서 감지
     ref.listen(errorProvider, (previous, next) {
       if (next != null) {
@@ -119,9 +202,17 @@ class _ManitoState extends ConsumerState<Manito> {
       // 디버깅 배너 숨기기
       debugShowCheckedModeBanner: false,
       // 테마 설정
-      theme: lightTheme,
-      darkTheme: darkTheme,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.lightTheme,
       themeMode: themeMode,
+      // 전역 키보드 닫기 및 포커스 해제 (GestureDetector Unfocus)
+      builder: (context, child) {
+        return GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
     );
   }
 }

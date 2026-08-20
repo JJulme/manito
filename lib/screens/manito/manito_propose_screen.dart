@@ -3,11 +3,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:manito/features/manito/manito.dart';
-import 'package:manito/features/manito/manito_provider.dart';
-import 'package:manito/features/profiles/profile.dart';
-import 'package:manito/features/profiles/profile_provider.dart';
-import 'package:manito/features/theme/theme.dart';
+import 'package:manito/features_new/manito/domain/entities/manito_entity.dart';
+import 'package:manito/features_new/manito/presentation/providers/manito_provider.dart';
+import 'package:manito/features_new/profile/domain/entities/user_profile_entity.dart';
+import 'package:manito/features_new/profile/presentation/providers/my_profile_provider.dart';
+import 'package:manito/core/theme/domain/entities/app_theme.dart';
 import 'package:manito/main.dart';
 import 'package:manito/core/widget/common_dialog.dart';
 import 'package:manito/share/constants.dart';
@@ -18,11 +18,12 @@ import 'package:manito/core/custom_icons.dart';
 import 'package:manito/widgets/timer.dart';
 
 class ManitoProposeScreen extends ConsumerStatefulWidget {
-  final ManitoPropose propose;
+  final ManitoProposeEntity propose;
+
   const ManitoProposeScreen({super.key, required this.propose});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
+  ConsumerState<ManitoProposeScreen> createState() =>
       _ManitoProposeScreenState();
 }
 
@@ -38,16 +39,23 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
       customToast(msg: '미션을 선택해 주세요.');
       return;
     }
-    final result = await DialogHelper.showConfirmDialog(
-      context,
-      title: '미션 수락',
-      message: '미션을 수락하시겠습니까?',
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return CommonDialog(
+          title: "mission_propose_screen.dialog_accept_title".tr(),
+          message: "mission_propose_screen.dialog_accept_body".tr(),
+          confirmText: "mission_propose_screen.confirm".tr(),
+          onConfirm: () => Navigator.of(context).pop(true),
+        );
+      },
     );
     if (result == true) {
       await ref
           .read(manitoProposeProvider(widget.propose.id).notifier)
           .acceptPropose(selectedContent!);
       if (!mounted) return;
+      ref.read(manitoListProvider.notifier).fetchProposeList();
       context.pop(true);
     }
   }
@@ -55,33 +63,38 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
   @override
   Widget build(BuildContext context) {
     final proposeAsync = ref.watch(manitoProposeProvider(widget.propose.id));
-    final FriendProfile profile = ref
-        .read(friendProfilesProvider.notifier)
-        .searchFriendProfile(widget.propose.creatorId);
-    // final profileAsync = ref.read(getProfileProvider(widget.propose.creatorId));
+    final creatorProfileAsync = ref.watch(
+      userProfileProvider(widget.propose.creatorId),
+    );
 
-    return Scaffold(
-      appBar: SubAppbar(
-        title: Text(
-          "mission_propose_screen.title",
-          style: TextTheme.of(context).headlineSmall,
-          overflow: TextOverflow.ellipsis,
-        ).tr(namedArgs: {"nickname": profile.displayName}),
-      ),
-      body: SafeArea(
-        child: proposeAsync.when(
-          loading: () => Center(child: CircularProgressIndicator()),
-          error: (error, stackTrace) => Center(child: Text(error.toString())),
-          data: (state) {
-            return _buildBody(profile, state);
-          },
-        ),
-      ),
+    return creatorProfileAsync.when(
+      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (error, stackTrace) => Scaffold(body: Center(child: Text('Error: $error'))),
+      data: (creatorProfile) {
+        return Scaffold(
+          appBar: SubAppbar(
+            title: Text(
+              "mission_propose_screen.title",
+              style: TextTheme.of(context).headlineSmall,
+              overflow: TextOverflow.ellipsis,
+            ).tr(namedArgs: {"nickname": creatorProfile.nickname}),
+          ),
+          body: SafeArea(
+            child: proposeAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, stackTrace) => Center(child: Text(error.toString())),
+              data: (state) {
+                return _buildBody(creatorProfile, state);
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 
   // 바디
-  Widget _buildBody(FriendProfile profile, ManitoProposeState state) {
+  Widget _buildBody(UserEntity profile, ManitoProposeState state) {
     return Stack(
       children: [
         Column(
@@ -89,16 +102,16 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
           children: [
             SizedBox(height: width * 0.03),
             ProfileItem(
-              profileImageUrl: profile.profileImageUrl!,
-              name: profile.displayName,
-              statusMessage: profile.statusMessage!,
+              profileImageUrl: profile.profileImageUrl ?? '',
+              name: profile.nickname,
+              statusMessage: profile.statusMessage ?? '',
             ),
             SizedBox(height: width * 0.03),
             _buildProposeDetail(state),
             SizedBox(height: width * 0.03),
             Wrap(
               children:
-                  state.propose!.randomContents.map((e) {
+                  state.propose!.randomContents!.map((e) {
                     return _buildMissionItem(
                       e.content,
                       selectedContent == e.id,
@@ -119,7 +132,7 @@ class _ManitoProposeScreenState extends ConsumerState<ManitoProposeScreen> {
   Widget _buildProposeDetail(ManitoProposeState state) {
     final String deadline = DateFormat(
       'yy.MM.dd HH:mm',
-    ).format(state.propose!.deadline);
+    ).format(state.propose!.deadline!);
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: width * 0.03),
       child: Column(

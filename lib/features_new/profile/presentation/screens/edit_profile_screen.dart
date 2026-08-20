@@ -9,7 +9,7 @@ import 'package:manito/core/widget/sub_appbar.dart';
 import 'package:manito/features_new/profile/domain/entities/user_profile_entity.dart';
 import 'package:manito/features_new/profile/presentation/providers/my_profile_provider.dart';
 import 'package:manito/features_new/profile/presentation/providers/profile_image_provider.dart';
-import 'package:manito/features/theme/theme.dart';
+import 'package:manito/core/theme/domain/entities/app_theme.dart';
 import 'package:manito/main.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {

@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:manito/core/util/app_logger.dart';
 
 class RewardedAdManager {
   // 생성자 - 테스트 여부만 받음
@@ -87,13 +89,12 @@ class RewardedAdManager {
     if (_rewardedAd != null && _isRewardedAdReady) {
       _rewardedAd!.show(
         onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
-          print('User earned reward: ${reward.amount}');
+          AppLogger.i('User earned reward: ${reward.amount}', tag: 'ADS');
           onUserEarnedReward(); // 사용자가 보상을 획득했을 때 호출되는 콜백
         },
       );
     } else {
-      print('Rewarded Ad is not ready yet'); // 광고가 아직 준비되지 않았을 때 로그 출력
-      // 광고가 준비되지 않았을 때 사용자에게 알림 등을 표시하는 로직 추가 가능
+      AppLogger.w('Rewarded Ad is not ready yet', tag: 'ADS'); // 광고가 아직 준비되지 않았을 때 로그 출력
     }
   }
 

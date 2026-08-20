@@ -7,7 +7,7 @@ import 'package:get/get_utils/src/get_utils/get_utils.dart';
 import 'package:manito/core/widget/common_toast.dart';
 import 'package:manito/core/widget/profile_image_view.dart';
 import 'package:manito/core/widget/sub_appbar.dart';
-import 'package:manito/features/theme/theme.dart';
+import 'package:manito/core/theme/domain/entities/app_theme.dart';
 import 'package:manito/features_new/friends/presentation/providers/friend_list_provider.dart';
 import 'package:manito/features_new/friends/presentation/providers/user_search_provider.dart';
 import 'package:manito/features_new/profile/presentation/providers/my_profile_provider.dart';

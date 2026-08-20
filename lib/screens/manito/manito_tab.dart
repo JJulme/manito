@@ -3,11 +3,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:manito/features/badge/badge_provider.dart';
-import 'package:manito/features/manito/manito.dart';
-import 'package:manito/features/manito/manito_provider.dart';
-import 'package:manito/features/profiles/profile.dart';
-import 'package:manito/features/theme/theme.dart';
+import 'package:manito/core/badge/presentation/providers/badge_provider.dart';
+import 'package:manito/features_new/manito/domain/entities/manito_entity.dart';
+import 'package:manito/features_new/manito/presentation/providers/manito_provider.dart';
+import 'package:manito/core/theme/domain/entities/app_theme.dart';
 import 'package:manito/main.dart';
 import 'package:manito/share/custom_badge.dart';
 import 'package:manito/widgets/tab_container.dart';
@@ -39,7 +38,7 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
   }
 
   // 마니또 제안 화면 이동
-  void _toProposeScreen(ManitoPropose propose) async {
+  void _toProposeScreen(ManitoProposeEntity propose) async {
     ref
         .read(badgeProvider.notifier)
         .resetBadgeCount('mission_propose', typeId: propose.id);
@@ -53,8 +52,8 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
     }
   }
 
-  // 마니또 포스트 작성 화면 이동
-  void _toManitoPostScreen(ManitoAccept manitoAccept) {
+  // 마니또 포스트 화면 이동
+  void _toManitoPostScreen(ManitoAcceptEntity manitoAccept) {
     context.push('/manito_post', extra: manitoAccept);
   }
 
@@ -116,7 +115,7 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
   }
 
   // 제안 리스트
-  Widget _buildProposeList(List<ManitoPropose> proposeList) {
+  Widget _buildProposeList(List<ManitoProposeEntity> proposeList) {
     return ListView.builder(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
@@ -126,7 +125,7 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
   }
 
   // 추측 리스트
-  Widget _buildGuessList(List<ManitoGuess> guessList) {
+  Widget _buildGuessList(List<ManitoGuessEntity> guessList) {
     return ListView.builder(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
@@ -136,7 +135,7 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
   }
 
   // 수락 리스트
-  Widget _buildAcceptList(List<ManitoAccept> acceptList) {
+  Widget _buildAcceptList(List<ManitoAcceptEntity> acceptList) {
     return ListView.builder(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
@@ -146,7 +145,7 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
   }
 
   // 제안온 미션 아이템
-  Widget _buildProposeItem(ManitoPropose manitoPropose) {
+  Widget _buildProposeItem(ManitoProposeEntity manitoPropose) {
     final badgeState = ref.watch(badgeProvider).valueOrNull;
     return Stack(
       children: [
@@ -188,8 +187,8 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
   }
 
   // 미션 추측중인 아이템
-  Widget _buildGuessItem(ManitoGuess manitoGuess) {
-    final FriendProfile profile = manitoGuess.creatorProfile;
+  Widget _buildGuessItem(ManitoGuessEntity manitoGuess) {
+    final profile = manitoGuess.creatorProfile;
     return TabContainer(
       child: Row(
         children: [
@@ -210,7 +209,7 @@ class _ManitoTabState extends ConsumerState<ManitoTab>
   }
 
   // 수락한 미션 아이템
-  Widget _buildAcceptItem(ManitoAccept manitoAccept) {
+  Widget _buildAcceptItem(ManitoAcceptEntity manitoAccept) {
     return CustomSlide(
       mainWidget: TabContainer(
         child: Row(

@@ -2,22 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:manito/features/auth/auth_provider.dart';
-import 'package:manito/features/auth/kakao_login_webview.dart';
-import 'package:manito/features/fcm/fcm_provider.dart';
-import 'package:manito/features/manito/manito.dart';
+import 'package:manito/features_new/auth/presentation/providers/auth_provider.dart';
+import 'package:manito/features_new/auth/presentation/screens/kakao_login_webview.dart';
+import 'package:manito/core/fcm/fcm_provider.dart';
+import 'package:manito/features_new/manito/domain/entities/manito_entity.dart';
 import 'package:manito/features_new/friends/presentation/screens/blocked_users_screen.dart';
 import 'package:manito/features_new/friends/presentation/screens/edit_friend_nickname_screen.dart';
 import 'package:manito/features_new/friends/presentation/screens/friend_requests_screen.dart';
 import 'package:manito/features_new/friends/presentation/screens/user_detail_sceen.dart';
 import 'package:manito/features_new/friends/presentation/screens/user_search_screen.dart';
+import 'package:manito/core/models/models.dart';
+import 'package:manito/core/providers.dart';
 import 'package:manito/features_new/profile/domain/entities/user_profile_entity.dart';
-import 'package:manito/features_new/profile/presentation/screens/edit_profile_screen.dart';
-import 'package:manito/presentation/main/main_screen.dart';
+import 'package:manito/features/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:manito/screens/manito/album_screen.dart';
 import 'package:manito/screens/manito/manito_post_screen.dart';
-import 'package:manito/features/missions/mission.dart';
-import 'package:manito/screens/login_screen.dart';
+import 'package:manito/features_new/missions/domain/entities/mission_entity.dart';
+import 'package:manito/features/auth/presentation/screens/login_screen.dart';
 import 'package:manito/screens/manito/manito_propose_screen.dart';
 import 'package:manito/screens/missions/mission_create_screen.dart';
 import 'package:manito/screens/missions/mission_friends_search_screen.dart';
@@ -25,9 +26,18 @@ import 'package:manito/screens/missions/mission_group_create_screen.dart';
 import 'package:manito/screens/missions/mission_group_screen.dart';
 import 'package:manito/screens/missions/mission_guess_screen.dart';
 import 'package:manito/screens/missions/mission_search_screen.dart';
-import 'package:manito/screens/posts/post_detail_screen.dart';
-import 'package:manito/screens/setting_screen.dart';
+import 'package:manito/features_new/posts/presentation/screens/post_detail_screen.dart';
 import 'package:manito/screens/splash_screen.dart';
+import 'package:manito/features/main/main_nav_screen.dart';
+import 'package:manito/features/friends/presentation/screens/add_friend_screen.dart';
+import 'package:manito/features/friends/presentation/screens/invite_friends_screen.dart';
+import 'package:manito/features/profile/presentation/screens/profile_screen.dart';
+import 'package:manito/features/rooms/presentation/screens/group_lobby_screen.dart';
+import 'package:manito/features/setup/presentation/screens/mission_setup_screen.dart';
+import 'package:manito/features/game/presentation/screens/main_play_dashboard_screen.dart';
+import 'package:manito/core/util/app_logger.dart';
+import 'package:manito/features/feed/presentation/screens/result_feed_screen.dart';
+import 'package:manito/features/settings/presentation/screens/settings_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class GoRouterRefreshNotifier extends ChangeNotifier {
@@ -41,18 +51,21 @@ final goRouterRefreshProvider = Provider<GoRouterRefreshNotifier>((ref) {
   final notifier = GoRouterRefreshNotifier();
 
   ref.listen<AsyncValue<AuthState>>(authStateChangesProvider, (prev, next) {
-    Future.microtask(() => notifier.refresh()); // ✅ public 메서드 호출
+    Future.microtask(() => notifier.refresh());
   });
-  // ref.listen(userProfileProvider2, (prev, next) {
-  //   Future.microtask(() => notifier.refresh());
-  // });
+
+  ref.listen<AsyncValue<UserModel?>>(currentUserProfileProvider, (prev, next) {
+    Future.microtask(() => notifier.refresh());
+  });
 
   return notifier;
 });
 
+final rootNavigatorKey = GlobalKey<NavigatorState>();
+
 final routerProvider = Provider<GoRouter>((ref) {
-  ref.watch(fcmListenerProvider);
   return GoRouter(
+    navigatorKey: rootNavigatorKey,
     initialLocation: '/splash',
     refreshListenable: ref.read(goRouterRefreshProvider),
     redirect: (context, state) {
@@ -62,44 +75,56 @@ final routerProvider = Provider<GoRouter>((ref) {
           FlutterNativeSplash.remove();
           final isLoggedIn = auth.session?.user != null;
           final location = state.matchedLocation;
-          // final userAsync = ref.read(userProfileProvider2);
-          // print('userAsync.value: ${userAsync.value}');
-          // return userAsync.when(
-          //   loading: () {
-          //     print('=====loading=====');
-          //     return location == '/splash' ? null : '/splash';
-          //   },
-          //   error: (error, stackTrace) {
-          //     print('=====error=====');
-          //     return '/login';
-          //   },
-          //   data: (userProfile) {
-          //     print('=====data=====');
-          //     print(userProfile);
-          //     // _handleRedirect(
-          //     //   location,
-          //     //   isLoggedIn: isLoggedIn,
-          //     //   hasUserProfile: userProfile != null,
-          //     //   isProfileComplete: userProfile.isProfileComplete,
-          //     // );
-          //   },
-          // );
-          if (isLoggedIn) {
-            if (location == '/splash' || location == '/login') {
-              return '/bottom_nav2';
-            }
-            return null;
-          } else {
+
+          if (!isLoggedIn) {
             if (location == '/login' || location == '/kakao_login') {
               return null;
             }
+            AppLogger.i('User not logged in, redirecting: $location -> /login', tag: 'ROUTER');
             return '/login';
           }
+
+          // User is logged in: Check profile completeness
+          final profileAsync = ref.read(currentUserProfileProvider);
+          return profileAsync.when(
+            data: (profile) {
+              if (profile == null) {
+                // Profile record is being generated or fetched
+                return location == '/splash' ? null : '/splash';
+              }
+
+              final isComplete = profile.isProfileComplete;
+              if (!isComplete) {
+                if (location != '/edit_profile') {
+                  AppLogger.w('Profile incomplete for ${profile.userId}, forcing redirect to /edit_profile', tag: 'ROUTER');
+                  return '/edit_profile';
+                }
+                return null;
+              }
+
+              // Profile is complete!
+              if (location == '/splash' || location == '/login' || location == '/edit_profile') {
+                AppLogger.i('Profile complete, redirecting: $location -> /bottom_nav2', tag: 'ROUTER');
+                return '/bottom_nav2';
+              }
+              return null;
+            },
+            loading: () {
+              return location == '/splash' ? null : '/splash';
+            },
+            error: (error, stackTrace) {
+              AppLogger.e('Error loading profile in router: $error', tag: 'ROUTER', error: error, stackTrace: stackTrace);
+              return null;
+            },
+          );
         },
         loading: () {
           return state.matchedLocation == '/splash' ? null : '/splash';
         },
-        error: (error, stackTrace) => null,
+        error: (error, stackTrace) {
+          AppLogger.e('Router auth state error: $error', tag: 'ROUTER', error: error, stackTrace: stackTrace);
+          return null;
+        },
       );
     },
     routes: [
@@ -114,9 +139,61 @@ final routerProvider = Provider<GoRouter>((ref) {
       //   builder: (context, state) => const BottomNav(),
       // ),
       GoRoute(
+        path: '/',
+        name: 'root',
+        redirect: (_, __) => '/bottom_nav2',
+      ),
+      GoRoute(
         path: '/bottom_nav2',
         name: 'bottom_nav2',
-        builder: (context, state) => const MainScreen(),
+        builder: (context, state) => const MainNavScreen(),
+      ),
+      GoRoute(
+        path: '/add_friend',
+        name: 'addFriend',
+        builder: (context, state) => const AddFriendScreen(),
+      ),
+      GoRoute(
+        path: '/invite_friends',
+        name: 'inviteFriends',
+        builder: (context, state) => const InviteFriendsScreen(),
+      ),
+      GoRoute(
+        path: '/lobby/:roomId',
+        name: 'lobby',
+        builder: (context, state) {
+          final roomId = state.pathParameters['roomId']!;
+          return GroupLobbyScreen(roomId: roomId);
+        },
+      ),
+      GoRoute(
+        path: '/mission_setup/:roomId',
+        name: 'missionSetup',
+        builder: (context, state) {
+          final roomId = state.pathParameters['roomId']!;
+          return MissionSetupScreen(roomId: roomId);
+        },
+      ),
+      GoRoute(
+        path: '/game/:roomId',
+        name: 'game',
+        builder: (context, state) {
+          final roomId = state.pathParameters['roomId']!;
+          return MainPlayDashboardScreen(roomId: roomId);
+        },
+      ),
+      GoRoute(
+        path: '/result_feed/:roomId',
+        name: 'resultFeed',
+        builder: (context, state) {
+          final roomId = state.pathParameters['roomId']!;
+          return ResultFeedScreen(roomId: roomId);
+        },
+      ),
+      GoRoute(
+        path: '/profile',
+        name: 'profile',
+        builder: (context, state) => const ProfileScreen(),
       ),
       GoRoute(
         path: '/login',
@@ -132,14 +209,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/album',
         name: 'album',
         builder: (context, state) {
-          final ManitoAccept manitoAccept = state.extra as ManitoAccept;
+          final ManitoAcceptEntity manitoAccept = state.extra as ManitoAcceptEntity;
           return AlbumScreen(manitoAccept: manitoAccept);
         },
       ),
       GoRoute(
         path: '/setting',
         name: 'setting',
-        builder: (context, state) => const SettingScreen(),
+        builder: (context, state) => const SettingsScreen(),
       ),
       // GoRoute(
       //   path: '/profile_edit',
@@ -153,8 +230,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/edit_profile',
         name: 'editProfile',
         builder: (context, state) {
-          final canGoBack = state.extra as bool? ?? true;
-          return EditProfileScreen(canGoBack: canGoBack);
+          final isFirstSetup = state.extra as bool? ?? false;
+          return EditProfileScreen(isFirstSetup: isFirstSetup);
         },
       ),
       // GoRoute(
@@ -212,7 +289,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/mission_guess',
         name: 'missionGuess',
         builder: (context, state) {
-          final MyMission mission = state.extra as MyMission;
+          final MyMissionEntity mission = state.extra as MyMissionEntity;
           return MissionGuessScreen(mission: mission);
         },
       ),
@@ -220,7 +297,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/manito_propose',
         name: 'manitoPropose',
         builder: (context, state) {
-          final ManitoPropose propose = state.extra as ManitoPropose;
+          final ManitoProposeEntity propose = state.extra as ManitoProposeEntity;
           return ManitoProposeScreen(propose: propose);
         },
       ),
@@ -228,7 +305,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/manito_post',
         name: 'manitoPost',
         builder: (context, state) {
-          final ManitoAccept manitoAccept = state.extra as ManitoAccept;
+          final ManitoAcceptEntity manitoAccept = state.extra as ManitoAcceptEntity;
           return ManitoPostScreen(manitoAccept: manitoAccept);
         },
       ),
