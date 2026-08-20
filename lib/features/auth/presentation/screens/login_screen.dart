@@ -7,7 +7,7 @@ import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
 import 'package:manito/core/widget/manito_logo.dart';
 import 'package:manito/core/widget/manito_mascot.dart';
-import 'package:manito/features_new/auth/presentation/providers/auth_provider.dart';
+import '../auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});

@@ -4,8 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
-import 'package:manito/core/theme/presentation/providers/theme_provider.dart';
-import 'package:manito/features_new/auth/presentation/providers/auth_provider.dart';
+import 'package:manito/core/theme/theme_provider.dart';
+import 'package:manito/features/auth/presentation/auth_provider.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -118,11 +118,11 @@ class SettingsScreen extends ConsumerWidget {
                   trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.textDisabled),
                   onTap: () {
                     if (themeMode == ThemeMode.light) {
-                      ref.read(themeProvider.notifier).setTheme(ThemeMode.dark);
+                      ref.read(themeProvider.notifier).state = ThemeMode.dark;
                     } else if (themeMode == ThemeMode.dark) {
-                      ref.read(themeProvider.notifier).setTheme(ThemeMode.system);
+                      ref.read(themeProvider.notifier).state = ThemeMode.system;
                     } else {
-                      ref.read(themeProvider.notifier).setTheme(ThemeMode.light);
+                      ref.read(themeProvider.notifier).state = ThemeMode.light;
                     }
                   },
                 ),

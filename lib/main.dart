@@ -6,14 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:manito/core/providers.dart';
 import 'package:manito/core/router.dart';
-import 'package:manito/core/error/error_provider.dart';
 import 'package:manito/core/theme/app_theme.dart';
-import 'package:manito/core/theme/data/repositories/theme_repository_impl.dart';
-import 'package:manito/core/theme/domain/repositories/repository_provider.dart';
-import 'package:manito/core/theme/presentation/providers/theme_provider.dart';
+import 'package:manito/core/theme/theme_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -22,7 +18,6 @@ import 'package:manito/core/fcm/firebase_options.dart';
 
 import 'dart:convert';
 import 'package:timezone/data/latest_all.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -73,10 +68,6 @@ void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   // Timezone 초기화
   tz.initializeTimeZones();
-  // Hive 설정
-  await Hive.initFlutter();
-  final db = ThemeRepositoryImpl();
-  await db.initTheme();
   // 런처 스플래쉬 화면 설정
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   // FCM 설정
@@ -95,7 +86,6 @@ void main() async {
   );
   // 언어 설정
   timeago.setLocaleMessages('ko', timeago.KoMessages());
-  // timeago.setLocaleMessages('en_short', timeago.EnMessages());
   // 로컬 노티 설정
   const AndroidInitializationSettings androidInitializationSettings =
       AndroidInitializationSettings('ic_notification');
@@ -139,12 +129,11 @@ void main() async {
   await androidPlugin?.createNotificationChannel(deadlineChannel);
 
   runApp(
-    ProviderScope(
-      overrides: [themeRepositoryProvider.overrideWithValue(db)],
-      child: EasyLocalization(
-        supportedLocales: const [Locale('ko', 'KR'), Locale('en', 'US')],
-        path: 'assets/translations',
-        child: const Manito(),
+    EasyLocalization(
+      supportedLocales: const [Locale('ko', 'KR'), Locale('en', 'US')],
+      path: 'assets/translations',
+      child: const ProviderScope(
+        child: Manito(),
       ),
     ),
   );
@@ -175,22 +164,6 @@ class _ManitoState extends ConsumerState<Manito> {
     final themeMode = ref.watch(themeProvider);
     // ✅ 전역 FCM 및 Realtime 알림 리스너 활성화
     ref.watch(fcmListenerProvider);
-    // ✅ errorProvider 감시 - 어디서든 에러가 발생하면 여기서 감지
-    ref.listen(errorProvider, (previous, next) {
-      if (next != null) {
-        scaffoldMessengerKey.currentState?.showSnackBar(
-          SnackBar(
-            content: Text(next),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-        // 스넥바 표시 후 에러 상태 초기화
-        Future.delayed(const Duration(seconds: 2), () {
-          ref.read(errorProvider.notifier).clearError();
-        });
-      }
-    });
 
     return MaterialApp.router(
       scaffoldMessengerKey: scaffoldMessengerKey,
