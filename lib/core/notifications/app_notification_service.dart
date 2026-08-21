@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -335,13 +336,12 @@ class AppNotificationService {
           'route': '/rooms/$roomId/play',
         });
 
-        await _localNotifications.zonedSchedule(
-          id1,
-          '⏰ 마감 1분 전!',
-          '$roomTitle 마니또 마감 1분 전입니다! 미션과 추측을 서둘러 완료해주세요.',
-          tzOneMinBefore,
-          platformDetails,
-          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        await _safeZonedSchedule(
+          id: id1,
+          title: '⏰ 마감 1분 전!',
+          body: '$roomTitle 마니또 마감 1분 전입니다! 미션과 추측을 서둘러 완료해주세요.',
+          scheduledDate: tzOneMinBefore,
+          notificationDetails: platformDetails,
           payload: payload1,
         );
         AppLogger.i('Scheduled 1-min before deadline notification for room $roomId at $oneMinBefore', tag: 'NOTIF');
@@ -357,19 +357,55 @@ class AppNotificationService {
           'route': '/rooms/$roomId/result',
         });
 
-        await _localNotifications.zonedSchedule(
-          id2,
-          '🎉 마니또 마감!',
-          '$roomTitle 방이 마감되었습니다. 지금 마니또 결과를 확인해보세요!',
-          tzDeadline,
-          platformDetails,
-          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        await _safeZonedSchedule(
+          id: id2,
+          title: '🎉 마니또 마감!',
+          body: '$roomTitle 방이 마감되었습니다. 지금 마니또 결과를 확인해보세요!',
+          scheduledDate: tzDeadline,
+          notificationDetails: platformDetails,
           payload: payload2,
         );
         AppLogger.i('Scheduled deadline completion notification for room $roomId at $gameEndTime', tag: 'NOTIF');
       }
     } catch (e, s) {
       AppLogger.e('Failed to schedule deadline notifications: $e', tag: 'NOTIF', error: e, stackTrace: s);
+    }
+  }
+
+  /// 안드로이드 Exact Alarm 권한 유무에 따른 안전한 스케줄 알림 등록 (Fallback 지원)
+  Future<void> _safeZonedSchedule({
+    required int id,
+    required String title,
+    required String body,
+    required tz.TZDateTime scheduledDate,
+    required NotificationDetails notificationDetails,
+    required String payload,
+  }) async {
+    try {
+      await _localNotifications.zonedSchedule(
+        id,
+        title,
+        body,
+        scheduledDate,
+        notificationDetails,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        payload: payload,
+      );
+    } on PlatformException catch (e) {
+      if (e.code == 'exact_alarms_not_permitted') {
+        AppLogger.w('Exact alarm not permitted, falling back to inexactAllowWhileIdle: ${e.message}', tag: 'NOTIF');
+        await _localNotifications.zonedSchedule(
+          id,
+          title,
+          body,
+          scheduledDate,
+          notificationDetails,
+          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+          payload: payload,
+        );
+      } else {
+        rethrow;
+      }
     }
   }
 

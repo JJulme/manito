@@ -33,18 +33,18 @@ class AppColors {
 
   // Shadow Styles
   static List<BoxShadow> get cardShadow => [
-        BoxShadow(
-          color: const Color(0xFF64748B).withValues(alpha: 0.08),
-          blurRadius: 16,
-          offset: const Offset(0, 4),
-        ),
-      ];
+    BoxShadow(
+      color: const Color(0xFF64748B).withValues(alpha: 0.08),
+      blurRadius: 16,
+      offset: const Offset(0, 4),
+    ),
+  ];
 
   static List<BoxShadow> get elevatedShadow => [
-        BoxShadow(
-          color: const Color(0xFF64748B).withValues(alpha: 0.14),
-          blurRadius: 20,
-          offset: const Offset(0, 8),
-        ),
-      ];
+    BoxShadow(
+      color: const Color(0xFF64748B).withValues(alpha: 0.14),
+      blurRadius: 20,
+      offset: const Offset(0, 8),
+    ),
+  ];
 }

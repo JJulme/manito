@@ -14,6 +14,7 @@ import 'package:manito/features/friends/presentation/friends_provider.dart';
 import 'package:manito/features/game/presentation/screens/main_play_dashboard_screen.dart';
 import 'package:manito/features/rooms/presentation/rooms_provider.dart';
 import 'package:manito/features/rooms/presentation/screens/group_lobby_screen.dart';
+import 'package:manito/features/setup/presentation/screens/mission_setup_screen.dart';
 
 class HomeDashboardView extends ConsumerWidget {
   const HomeDashboardView({super.key});
@@ -593,13 +594,29 @@ class _OngoingRoomCardState extends ConsumerState<OngoingRoomCard> {
     final minStr = deadline.minute.toString().padLeft(2, '0');
     final deadlineStr = '${deadline.month}월 ${deadline.day}일 ($weekdayStr) $hourStr:$minStr';
 
+    final currentUserId = ref.watch(currentUserProvider)?.id;
+
     return InkWell(
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => MainPlayDashboardScreen(roomId: room.roomId),
-          ),
-        );
+      onTap: () async {
+        final currentMembers = membersAsync.value ??
+            await ref.read(roomMembersProvider(room.roomId).future);
+        final me = currentMembers?.where((m) => m.userId == currentUserId).firstOrNull;
+
+        if (context.mounted) {
+          if (me != null && !me.isMissionSelected) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => MissionSetupScreen(roomId: room.roomId),
+              ),
+            );
+          } else {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => MainPlayDashboardScreen(roomId: room.roomId),
+              ),
+            );
+          }
+        }
       },
       borderRadius: BorderRadius.circular(18),
       child: Card(

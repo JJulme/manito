@@ -14,6 +14,7 @@ import 'package:manito/features/game/presentation/game_provider.dart';
 import 'package:manito/features/game/presentation/widgets/block_editor_view.dart';
 import 'package:manito/features/rooms/presentation/rooms_provider.dart';
 import 'package:manito/features/setup/presentation/setup_provider.dart';
+import 'package:manito/features/setup/presentation/screens/mission_setup_screen.dart';
 import 'package:manito/core/notifications/app_notification_service.dart';
 
 class MainPlayDashboardScreen extends ConsumerStatefulWidget {
@@ -258,12 +259,39 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
       }
     });
 
+    ref.listen<AsyncValue<RoomMemberModel?>>(myMemberRecordProvider(widget.roomId), (prev, next) {
+      final member = next.value;
+      if (member != null && !member.isMissionSelected && mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => MissionSetupScreen(roomId: widget.roomId),
+          ),
+        );
+      }
+    });
+
     final roomAsync = ref.watch(roomDetailsProvider(widget.roomId));
     final myMemberAsync = ref.watch(myMemberRecordProvider(widget.roomId));
     final membersAsync = ref.watch(roomMembersProvider(widget.roomId));
     final formState = ref.watch(gameRecordFormProvider);
     final currentUserId = ref.watch(currentUserProvider)?.id;
     final lang = ref.watch(languageCodeProvider);
+
+    final myMember = myMemberAsync.value;
+    if (myMember != null && !myMember.isMissionSelected) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => MissionSetupScreen(roomId: widget.roomId),
+            ),
+          );
+        }
+      });
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+      );
+    }
 
     final room = roomAsync.value;
     final deadline = room?.gameEndTime ??

@@ -57,12 +57,6 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> {
               value: widget.roomId,
             ),
             callback: (payload) {
-              if (payload.eventType == PostgresChangeEvent.update) {
-                final status = payload.newRecord['status'] as String?;
-                if (status == 'ONGOING') {
-                  _navigateToDashboard();
-                }
-              }
               if (mounted) {
                 ref.invalidate(roomDetailsProvider(widget.roomId));
               }
@@ -157,15 +151,6 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ONGOING 감지 리스너
-    ref.listen<AsyncValue<RoomModel?>>(roomDetailsProvider(widget.roomId), (prev, next) {
-      next.whenData((room) {
-        if (room != null && room.status == RoomStatus.ongoing) {
-          _navigateToDashboard();
-        }
-      });
-    });
-
     final myMemberAsync = ref.watch(myMemberRecordProvider(widget.roomId));
     final membersAsync = ref.watch(roomMembersProvider(widget.roomId));
     final setupState = ref.watch(missionSetupProvider);
@@ -386,6 +371,9 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> {
                                       );
                                       // 모든 인원이 완료되었는지 검사
                                       await ref.read(setupRepositoryProvider).checkAndStartOngoingGame(widget.roomId);
+                                      if (mounted) {
+                                        _navigateToDashboard();
+                                      }
                                     }
                                   },
                             child: setupState.isSubmitting
