@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:manito/core/models/models.dart';
+import 'package:manito/core/notifications/notification_sender.dart';
 import 'package:manito/core/util/app_logger.dart';
 
 class FriendsRepository {
@@ -34,19 +35,19 @@ class FriendsRepository {
   }
 
   /// Get friendship status between current user and target user
-  Future<FriendshipModel?> getFriendship(String targetUserId) async {
+  Future<FriendshipModel?> getFriendship(String otherUserId) async {
     final uid = currentUserId;
     if (uid == null) return null;
 
     try {
       final response = await _supabase
           .from('friendships')
-          .select('*, requester:users!requester_id(*), receiver:users!receiver_id(*)')
-          .or('and(requester_id.eq.$uid,receiver_id.eq.$targetUserId),and(requester_id.eq.$targetUserId,receiver_id.eq.$uid)')
+          .select('*, requester:users!friendships_requester_id_fkey(*), receiver:users!friendships_receiver_id_fkey(*)')
+          .or('and(requester_id.eq.$uid,receiver_id.eq.$otherUserId),and(requester_id.eq.$otherUserId,receiver_id.eq.$uid)')
           .maybeSingle();
 
       if (response == null) return null;
-      return FriendshipModel.fromJson(response, currentUserId: uid);
+      return FriendshipModel.fromJson(response);
     } catch (e, s) {
       AppLogger.e('getFriendship Error: $e', tag: 'FRIENDS', error: e, stackTrace: s);
       rethrow;
@@ -67,6 +68,20 @@ class FriendsRepository {
         'status': 'REQUESTED',
       });
       AppLogger.i('Friend request sent successfully', tag: 'FRIENDS');
+
+      // 푸시 알림 발송
+      try {
+        final myUser = await _supabase.from('users').select('nickname').eq('user_id', uid).maybeSingle();
+        final myNickname = myUser?['nickname'] as String? ?? '친구';
+
+        final sender = NotificationSender();
+        await sender.sendFriendRequestNotification(
+          targetUserId: receiverId,
+          senderName: myNickname,
+        );
+      } catch (notifErr) {
+        AppLogger.w('Failed to send friend request push notification: $notifErr', tag: 'FRIENDS');
+      }
     } catch (e, s) {
       AppLogger.e('sendFriendRequest Error: $e', tag: 'FRIENDS', error: e, stackTrace: s);
       rethrow;

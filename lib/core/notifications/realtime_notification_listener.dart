@@ -105,6 +105,7 @@ class RealtimeNotificationListener {
 
     AppLogger.i('Realtime friendship change: status=$status', tag: 'REALTIME_NOTIF');
     _ref.invalidate(acceptedFriendsProvider);
+    _ref.invalidate(receivedFriendRequestsProvider);
   }
 
   Future<void> _handleCommentInsert(PostgresChangePayload payload, String currentUserId) async {

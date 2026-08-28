@@ -60,8 +60,10 @@
 	</array>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>카카오 로그인 연결을 위해 네트워크 접근이 필요합니다.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>마니또 미션 인증 및 프로필/댓글 사진 촬영을 위해 카메라 권한이 필요합니다.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>앨범 접근이 필요합니다.</string>
+	<string>마니또 미션 인증 및 프로필/댓글 사진 첨부를 위해 앨범 접근이 필요합니다.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>

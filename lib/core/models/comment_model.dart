@@ -5,6 +5,7 @@ class CommentModel {
   final int recordId;
   final String userId;
   final String content;
+  final String? imageUrl;
   final DateTime createdAt;
   final UserModel? author;
 
@@ -13,6 +14,7 @@ class CommentModel {
     required this.recordId,
     required this.userId,
     required this.content,
+    this.imageUrl,
     required this.createdAt,
     this.author,
   });
@@ -22,7 +24,8 @@ class CommentModel {
       commentId: json['comment_id'] as int,
       recordId: json['record_id'] as int,
       userId: json['user_id'] as String,
-      content: json['content'] as String,
+      content: (json['content'] as String?) ?? '',
+      imageUrl: json['image_url'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
       author: json['author'] != null
           ? UserModel.fromJson(json['author'] as Map<String, dynamic>)
@@ -38,6 +41,7 @@ class CommentModel {
       'record_id': recordId,
       'user_id': userId,
       'content': content,
+      'image_url': imageUrl,
       'created_at': createdAt.toIso8601String(),
     };
   }

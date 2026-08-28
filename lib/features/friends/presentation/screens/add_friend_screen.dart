@@ -1,10 +1,12 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/models/models.dart';
+import '../../../../core/widget/user_avatar.dart';
+import '../../../../core/analytics/analytics_event.dart';
+import '../../../../core/analytics/analytics_service.dart';
 import '../friends_provider.dart';
 
 class AddFriendScreen extends ConsumerStatefulWidget {
@@ -26,6 +28,11 @@ class _AddFriendScreenState extends ConsumerState<AddFriendScreen> {
   void _onSearch() {
     final query = _searchController.text.trim();
     if (query.isNotEmpty) {
+      ref.read(analyticsServiceProvider).logEvent(
+        AnalyticsEvent.friendSearch,
+        screenName: 'AddFriendScreen',
+        properties: {'query_length': query.length},
+      );
       ref.read(friendSearchProvider.notifier).search(query);
     }
   }
@@ -53,29 +60,30 @@ class _AddFriendScreenState extends ConsumerState<AddFriendScreen> {
             // Search Input Section
             Container(
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: Theme.of(context).cardTheme.color ?? AppColors.cardOf(context),
                 borderRadius: BorderRadius.circular(28),
-                border: Border.all(color: AppColors.border),
-                boxShadow: AppColors.cardShadow,
+                border: Border.all(color: AppColors.borderOf(context)),
+                boxShadow: AppColors.cardShadowOf(context),
               ),
               child: Row(
                 children: [
                   const SizedBox(width: 16),
-                  const Icon(Icons.search, color: AppColors.textSecondary),
+                  Icon(Icons.search, color: AppColors.textSecondaryOf(context)),
                   const SizedBox(width: 12),
                   Expanded(
                     child: TextField(
                       controller: _searchController,
                       textCapitalization: TextCapitalization.characters,
                       maxLength: 8,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: '8자리 고유 코드 입력 (예: ABCD1234)',
+                        hintStyle: AppTypography.bodyMd.copyWith(color: AppColors.textSecondaryOf(context)),
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
                         focusedBorder: InputBorder.none,
                         counterText: '',
                         fillColor: Colors.transparent,
-                        contentPadding: EdgeInsets.symmetric(vertical: 16),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 16),
                       ),
                       onSubmitted: (_) => _onSearch(),
                     ),
@@ -83,7 +91,7 @@ class _AddFriendScreenState extends ConsumerState<AddFriendScreen> {
                   TextButton(
                     onPressed: searchState.isLoading ? null : _onSearch,
                     style: TextButton.styleFrom(
-                      foregroundColor: AppColors.textPrimary,
+                      foregroundColor: AppColors.textPrimaryOf(context),
                       textStyle: AppTypography.titleMd,
                     ),
                     child: const Text('검색'),
@@ -107,18 +115,18 @@ class _AddFriendScreenState extends ConsumerState<AddFriendScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceLow,
+                  color: AppColors.surfaceLowOf(context),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: AppColors.borderOf(context)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.info_outline, color: AppColors.textSecondary),
+                    Icon(Icons.info_outline, color: AppColors.textSecondaryOf(context)),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         searchState.errorMessage!,
-                        style: AppTypography.bodyMd.copyWith(color: AppColors.textSecondary),
+                        style: AppTypography.bodyMd.copyWith(color: AppColors.textSecondaryOf(context)),
                       ),
                     ),
                   ],
@@ -127,7 +135,10 @@ class _AddFriendScreenState extends ConsumerState<AddFriendScreen> {
 
             // Search Result Card
             if (searchState.foundUser != null) ...[
-              const Text('검색 결과', style: AppTypography.labelMd),
+              Text(
+                '검색 결과',
+                style: AppTypography.labelMd.copyWith(color: AppColors.textSecondaryOf(context)),
+              ),
               const SizedBox(height: 8),
               _buildUserSearchResultCard(searchState.foundUser!, searchState.existingFriendship, currentUserId),
               const SizedBox(height: 32),
@@ -156,13 +167,13 @@ class _AddFriendScreenState extends ConsumerState<AddFriendScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: AppColors.surface,
+                            color: AppColors.surfaceLowOf(context),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.border),
+                            border: Border.all(color: AppColors.borderOf(context)),
                           ),
                           child: Text(
                             '${requests.length}개 대기중',
-                            style: AppTypography.labelSm.copyWith(color: AppColors.textPrimary),
+                            style: AppTypography.labelSm.copyWith(color: AppColors.textPrimaryOf(context)),
                           ),
                         ),
                       ],
@@ -208,37 +219,24 @@ class _AddFriendScreenState extends ConsumerState<AddFriendScreen> {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.surface,
-                border: Border.all(color: AppColors.border),
-              ),
-              child: ClipOval(
-                child: user.profileImageUrl != null && user.profileImageUrl!.isNotEmpty
-                    ? (user.profileImageUrl!.startsWith('http')
-                        ? CachedNetworkImage(
-                            imageUrl: user.profileImageUrl!,
-                            fit: BoxFit.cover,
-                            placeholder: (_, __) => Container(color: AppColors.surface),
-                            errorWidget: (_, __, ___) => const Icon(Icons.person, color: AppColors.textSecondary, size: 30),
-                          )
-                        : Image.asset(user.profileImageUrl!, fit: BoxFit.cover))
-                    : const Icon(Icons.person, color: AppColors.textSecondary, size: 30),
-              ),
+            UserAvatar(
+              imageUrl: user.profileImageUrl,
+              size: 52,
+              fallbackIconSize: 30,
             ),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(user.name, style: AppTypography.titleMd),
+                  Text(
+                    user.name,
+                    style: AppTypography.titleMd.copyWith(color: AppColors.textPrimaryOf(context)),
+                  ),
                   const SizedBox(height: 2),
                   Text(
                     user.statusMessage ?? '코드: ${user.uniqueCode}',
-                    style: AppTypography.bodySm,
+                    style: AppTypography.bodySm.copyWith(color: AppColors.textSecondaryOf(context)),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -249,9 +247,9 @@ class _AddFriendScreenState extends ConsumerState<AddFriendScreen> {
             if (isSelf)
               _buildStatusBadge(
                 label: '본인',
-                backgroundColor: AppColors.surfaceLow,
-                textColor: AppColors.textDisabled,
-                borderColor: AppColors.border,
+                backgroundColor: AppColors.surfaceLowOf(context),
+                textColor: AppColors.textDisabledOf(context),
+                borderColor: AppColors.borderOf(context),
               )
             else if (isAlreadyFriend)
               _buildStatusBadge(
@@ -263,17 +261,22 @@ class _AddFriendScreenState extends ConsumerState<AddFriendScreen> {
             else if (isRequested)
               _buildStatusBadge(
                 label: '요청중',
-                backgroundColor: AppColors.surfaceLow,
-                textColor: AppColors.textSecondary,
-                borderColor: AppColors.border,
+                backgroundColor: AppColors.surfaceLowOf(context),
+                textColor: AppColors.textSecondaryOf(context),
+                borderColor: AppColors.borderOf(context),
               )
             else
               _buildStatusBadge(
                 label: '요청',
                 backgroundColor: AppColors.primary,
-                textColor: AppColors.textPrimary,
+                textColor: const Color(0xFF1E1E24),
                 isAction: true,
                 onTap: () async {
+                  ref.read(analyticsServiceProvider).logEvent(
+                    AnalyticsEvent.friendRequestSend,
+                    screenName: 'AddFriendScreen',
+                    properties: {'target_user_id': user.userId},
+                  );
                   await ref.read(friendSearchProvider.notifier).sendRequest(user.userId);
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -323,44 +326,32 @@ class _AddFriendScreenState extends ConsumerState<AddFriendScreen> {
 
   Widget _buildReceivedRequestCard(FriendshipModel req) {
     final requester = req.friendProfile;
-    final hasImg = requester?.profileImageUrl != null && requester!.profileImageUrl!.isNotEmpty;
 
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Row(
           children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.surface,
-                border: Border.all(color: AppColors.border),
-              ),
-              child: ClipOval(
-                child: hasImg
-                    ? (requester.profileImageUrl!.startsWith('http')
-                        ? CachedNetworkImage(
-                            imageUrl: requester.profileImageUrl!,
-                            fit: BoxFit.cover,
-                            placeholder: (_, __) => Container(color: AppColors.surface),
-                            errorWidget: (_, __, ___) => const Icon(Icons.person, color: AppColors.textSecondary),
-                          )
-                        : Image.asset(requester.profileImageUrl!, fit: BoxFit.cover))
-                    : const Icon(Icons.person, color: AppColors.textSecondary),
-              ),
+            UserAvatar(
+              imageUrl: requester?.profileImageUrl,
+              size: 44,
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(requester?.name ?? '알 수 없는 요원', style: AppTypography.titleSmall),
+                  Text(
+                    requester?.name ?? '알 수 없는 요원',
+                    style: AppTypography.titleSmall.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimaryOf(context),
+                    ),
+                  ),
                   if (requester?.statusMessage != null)
                     Text(
                       requester!.statusMessage!,
-                      style: AppTypography.bodySm,
+                      style: AppTypography.bodySm.copyWith(color: AppColors.textSecondaryOf(context)),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -372,6 +363,11 @@ class _AddFriendScreenState extends ConsumerState<AddFriendScreen> {
               icon: const Icon(Icons.check_rounded, color: AppColors.statusGreen, size: 28),
               tooltip: '수락',
               onPressed: () async {
+                ref.read(analyticsServiceProvider).logEvent(
+                  AnalyticsEvent.friendRequestResponse,
+                  screenName: 'AddFriendScreen',
+                  properties: {'action': 'accept', 'friendship_id': req.friendshipId},
+                );
                 await ref.read(friendsRepositoryProvider).acceptFriendRequest(req.friendshipId);
                 ref.invalidate(receivedFriendRequestsProvider);
                 ref.invalidate(acceptedFriendsProvider);
@@ -387,6 +383,11 @@ class _AddFriendScreenState extends ConsumerState<AddFriendScreen> {
               icon: const Icon(Icons.close_rounded, color: AppColors.statusRed, size: 28),
               tooltip: '거절',
               onPressed: () async {
+                ref.read(analyticsServiceProvider).logEvent(
+                  AnalyticsEvent.friendRequestResponse,
+                  screenName: 'AddFriendScreen',
+                  properties: {'action': 'reject', 'friendship_id': req.friendshipId},
+                );
                 await ref.read(friendsRepositoryProvider).deleteFriendship(req.friendshipId);
                 ref.invalidate(receivedFriendRequestsProvider);
                 if (mounted) {

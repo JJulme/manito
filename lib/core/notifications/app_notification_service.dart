@@ -14,6 +14,8 @@ import '../../features/main/main_nav_screen.dart';
 import '../providers.dart';
 import '../router.dart';
 import '../util/app_logger.dart';
+import '../analytics/analytics_event.dart';
+import '../analytics/analytics_service.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'models/app_notification.dart';
 
@@ -202,6 +204,7 @@ class AppNotificationService {
       case NotificationType.friendRequest:
       case NotificationType.friendAccepted:
         _ref.invalidate(acceptedFriendsProvider);
+        _ref.invalidate(receivedFriendRequestsProvider);
         break;
       case NotificationType.commentCreated:
         final recordId = payload.extraData['record_id'];
@@ -274,10 +277,21 @@ class AppNotificationService {
 
       if (isFeedOrComment) {
         _ref.read(selectedBottomTabProvider.notifier).state = 1;
+      } else if (payload.type == NotificationType.roomInvite) {
+        _ref.read(selectedBottomTabProvider.notifier).state = 0;
       }
 
       final targetRoute = payload.effectiveRoute;
       AppLogger.i('Handling notification tap: navigating to $targetRoute', tag: 'NOTIF');
+
+      AnalyticsService.instance.logEvent(
+        AnalyticsEvent.notificationClick,
+        properties: {
+          'notification_type': payload.type.name,
+          'target_route': targetRoute,
+          'room_id': payload.roomId,
+        },
+      );
 
       try {
         if (isFeedOrComment) {

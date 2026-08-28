@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../../core/image/image_source_picker_modal.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/models/models.dart';
@@ -186,90 +187,11 @@ class _BlockEditorViewState extends State<BlockEditorView> {
     _notifyChange();
   }
 
-  void _showImageSourcePicker(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.border,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text('인증 사진 첨부 (필수)', style: AppTypography.titleMedium, textAlign: TextAlign.center),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.pop(ctx);
-                      _pickImage(ImageSource.camera);
-                    },
-                    borderRadius: BorderRadius.circular(16),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.border),
-                      ),
-                      child: Column(
-                        children: const [
-                          Icon(Icons.camera_alt_outlined, size: 32, color: AppColors.primaryDark),
-                          SizedBox(height: 8),
-                          Text('카메라 촬영', style: AppTypography.titleSmall),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.pop(ctx);
-                      _pickImage(ImageSource.gallery);
-                    },
-                    borderRadius: BorderRadius.circular(16),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.border),
-                      ),
-                      child: Column(
-                        children: const [
-                          Icon(Icons.photo_library_outlined, size: 32, color: AppColors.primaryDark),
-                          SizedBox(height: 8),
-                          Text('갤러리 선택', style: AppTypography.titleSmall),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
+  Future<void> _showImageSourcePicker(BuildContext context) async {
+    final source = await showImageSourcePickerModal(context, title: '인증 사진 첨부');
+    if (source != null) {
+      _pickImage(source);
+    }
   }
 
   void _removeBlock(int index) {
@@ -295,10 +217,10 @@ class _BlockEditorViewState extends State<BlockEditorView> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardTheme.color ?? AppColors.cardOf(context),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.border),
-            boxShadow: AppColors.cardShadow,
+            border: Border.all(color: AppColors.borderOf(context)),
+            boxShadow: AppColors.cardShadowOf(context),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -314,7 +236,7 @@ class _BlockEditorViewState extends State<BlockEditorView> {
                     decoration: BoxDecoration(
                       color: widget.hasError
                           ? AppColors.statusRed.withValues(alpha: 0.05)
-                          : AppColors.surfaceLow,
+                          : AppColors.surfaceLowOf(context),
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
                         color: widget.hasError
@@ -328,8 +250,8 @@ class _BlockEditorViewState extends State<BlockEditorView> {
                         Container(
                           width: 44,
                           height: 44,
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceOf(context),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -347,11 +269,11 @@ class _BlockEditorViewState extends State<BlockEditorView> {
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
-                                color: widget.hasError ? AppColors.statusRed : AppColors.textPrimary,
+                                color: widget.hasError ? AppColors.statusRed : AppColors.textPrimaryOf(context),
                               ),
                             ),
                             const SizedBox(width: 4),
-                            Text(
+                            const Text(
                               '(필수)',
                               style: TextStyle(
                                 fontSize: 12,

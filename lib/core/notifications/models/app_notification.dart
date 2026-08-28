@@ -160,6 +160,7 @@ class AppNotificationPayload {
   String get effectiveRoute {
     switch (type) {
       case NotificationType.roomInvite:
+        return '/bottom_nav2';
       case NotificationType.roomInviteAccepted:
         return roomId != null ? '/lobby/$roomId' : '/bottom_nav2';
       case NotificationType.gameStarted:

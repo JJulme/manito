@@ -173,4 +173,21 @@ class NotificationSender {
       },
     );
   }
+
+  /// [시나리오 5] 친구 요청 푸시 알림 발송 헬퍼
+  Future<void> sendFriendRequestNotification({
+    required String targetUserId,
+    required String senderName,
+  }) async {
+    await sendToUser(
+      targetUserId: targetUserId,
+      type: NotificationType.friendRequest,
+      title: '🤝 새로운 친구 요청!',
+      body: '$senderName님이 친구 요청을 보냈습니다.',
+      senderName: senderName,
+      extraData: {
+        'route': '/add_friend',
+      },
+    );
+  }
 }

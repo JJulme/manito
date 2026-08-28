@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math' as math;
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,9 +10,12 @@ import 'package:manito/core/providers.dart';
 import 'package:manito/core/router.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
+import 'package:manito/core/widget/user_avatar.dart';
 import 'package:manito/core/notifications/app_notification_service.dart';
 import 'package:manito/core/util/app_logger.dart';
 import 'package:manito/core/util/game_time_util.dart';
+import 'package:manito/core/analytics/analytics_event.dart';
+import 'package:manito/core/analytics/analytics_service.dart';
 import 'package:manito/main.dart';
 import 'package:manito/features/friends/presentation/screens/invite_friends_screen.dart';
 import 'package:manito/features/rooms/presentation/rooms_provider.dart';
@@ -178,9 +180,9 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
       builder: (ctx) {
         return Container(
           padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardTheme.color ?? AppColors.cardOf(context),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -254,6 +256,11 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
 
               Navigator.pop(ctx);
               try {
+                ref.read(analyticsServiceProvider).logEvent(
+                  AnalyticsEvent.lobbyTitleEdit,
+                  screenName: 'GroupLobbyScreen',
+                  properties: {'room_id': widget.roomId, 'new_title': newTitle},
+                );
                 await ref.read(roomsRepositoryProvider).updateRoomSettings(
                       roomId: widget.roomId,
                       title: newTitle,
@@ -276,6 +283,11 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
 
   Future<void> _updateCategory(String category) async {
     try {
+      ref.read(analyticsServiceProvider).logEvent(
+        AnalyticsEvent.lobbyCategoryToggle,
+        screenName: 'GroupLobbyScreen',
+        properties: {'room_id': widget.roomId, 'category': category},
+      );
       await ref.read(roomsRepositoryProvider).updateRoomSettings(
             roomId: widget.roomId,
             missionCategory: category,
@@ -335,9 +347,9 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
 
             return Container(
               padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardTheme.color ?? AppColors.cardOf(context),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: SafeArea(
                 top: false,
@@ -351,7 +363,7 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
                         width: 40,
                         height: 4,
                         decoration: BoxDecoration(
-                          color: AppColors.border,
+                          color: AppColors.borderOf(context),
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -379,7 +391,7 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                       decoration: BoxDecoration(
-                        color: AppColors.surfaceLow,
+                        color: AppColors.surfaceLowOf(context),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(color: AppColors.primary.withValues(alpha: 0.5)),
                       ),
@@ -388,24 +400,27 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('진행 시간', style: AppTypography.labelMd),
+                              Text('진행 시간', style: AppTypography.labelMd.copyWith(color: AppColors.textSecondaryOf(context))),
                               Text(
                                 GameTimeUtil.formatDuration(durationMinutes),
                                 style: AppTypography.titleSm.copyWith(
                                   fontWeight: FontWeight.w800,
-                                  color: AppColors.primaryDark,
+                                  color: AppColors.isDark(context) ? AppColors.primary : AppColors.primaryDark,
                                 ),
                               ),
                             ],
                           ),
-                          const Divider(height: 18, color: AppColors.border),
+                          Divider(height: 18, color: AppColors.borderOf(context)),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('🎯 마감 시간', style: AppTypography.labelMd),
+                              Text('🎯 마감 시간', style: AppTypography.labelMd.copyWith(color: AppColors.textPrimaryOf(context))),
                               Text(
                                 GameTimeUtil.formatKoreanDateTime(selectedDateTime),
-                                style: AppTypography.bodyMd.copyWith(fontWeight: FontWeight.w700),
+                                style: AppTypography.bodyMd.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textPrimaryOf(context),
+                                ),
                               ),
                             ],
                           ),
@@ -418,16 +433,17 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
                     Container(
                       height: 200,
                       decoration: BoxDecoration(
-                        color: AppColors.surfaceLow.withValues(alpha: 0.5),
+                        color: AppColors.surfaceLowOf(context).withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(color: AppColors.borderOf(context)),
                       ),
                       child: CupertinoTheme(
-                        data: const CupertinoThemeData(
+                        data: CupertinoThemeData(
+                          brightness: AppColors.isDark(context) ? Brightness.dark : Brightness.light,
                           textTheme: CupertinoTextThemeData(
                             dateTimePickerTextStyle: TextStyle(
                               fontSize: 18,
-                              color: AppColors.textPrimary,
+                              color: AppColors.textPrimaryOf(context),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -456,6 +472,14 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
                         onPressed: () async {
                           Navigator.pop(ctx);
                           try {
+                            ref.read(analyticsServiceProvider).logEvent(
+                              AnalyticsEvent.lobbyDeadlineChange,
+                              screenName: 'GroupLobbyScreen',
+                              properties: {
+                                'room_id': widget.roomId,
+                                'new_deadline': selectedDateTime.toIso8601String(),
+                              },
+                            );
                             await ref.read(roomsRepositoryProvider).updateRoomSettings(
                                   roomId: widget.roomId,
                                   gameEndTime: selectedDateTime,
@@ -509,6 +533,14 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
 
     setState(() => _isStarting = true);
     try {
+      ref.read(analyticsServiceProvider).logEvent(
+        AnalyticsEvent.roomGameStart,
+        screenName: 'GroupLobbyScreen',
+        properties: {
+          'room_id': widget.roomId,
+          'member_count': acceptedMembers.length,
+        },
+      );
       await ref.read(roomsRepositoryProvider).startGameAndMatch(widget.roomId);
       ref.invalidate(roomDetailsProvider(widget.roomId));
       ref.invalidate(roomMembersProvider(widget.roomId));
@@ -536,9 +568,9 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
           builder: (bottomSheetContext, setModalState) {
             return Container(
               padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardTheme.color ?? AppColors.cardOf(context),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -582,12 +614,18 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
                           child: OutlinedButton(
                             onPressed: isProcessing ? null : () => Navigator.pop(ctx),
                             style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: AppColors.border),
+                              side: BorderSide(color: AppColors.borderOf(context)),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
                             ),
-                            child: const Text('취소', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600)),
+                            child: Text(
+                              '취소',
+                              style: TextStyle(
+                                color: AppColors.textPrimaryOf(context),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -607,6 +645,11 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
 
                                     try {
                                       final repo = ref.read(roomsRepositoryProvider);
+                                      ref.read(analyticsServiceProvider).logEvent(
+                                        isHost ? AnalyticsEvent.roomDelete : AnalyticsEvent.roomLeave,
+                                        screenName: 'GroupLobbyScreen',
+                                        properties: {'room_id': widget.roomId},
+                                      );
                                       if (isHost) {
                                         await repo.deleteRoom(widget.roomId);
                                       } else {
@@ -684,9 +727,14 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
     final membersAsync = ref.watch(roomMembersProvider(widget.roomId));
     final currentUserId = ref.watch(currentUserProvider)?.id;
 
+    final room = roomAsync.value;
+    final isHost = room?.hostId == currentUserId;
+    final members = membersAsync.value ?? [];
+    final acceptedMembers = members.where((m) => m.joinStatus == '✔️').toList();
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(roomAsync.value?.title ?? '대기실'),
+        title: Text(room?.title ?? '대기실'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => Navigator.of(context).maybePop(),
@@ -694,11 +742,61 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout_rounded, color: AppColors.statusRed),
-            tooltip: roomAsync.value?.hostId == currentUserId ? '방 삭제 및 나가기' : '대기실 나가기',
-            onPressed: () => _showLeaveRoomBottomSheet(context, roomAsync.value?.hostId == currentUserId),
+            tooltip: isHost ? '방 삭제 및 나가기' : '대기실 나가기',
+            onPressed: () => _showLeaveRoomBottomSheet(context, isHost),
           ),
         ],
       ),
+      bottomNavigationBar: (room != null && isHost)
+          ? Container(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardTheme.color ?? AppColors.cardOf(context),
+                border: Border(
+                  top: BorderSide(color: AppColors.borderOf(context), width: 1),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: AppColors.isDark(context) ? 0.25 : 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, -4),
+                  ),
+                ],
+              ),
+              child: SafeArea(
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton.icon(
+                    onPressed: _isStarting || acceptedMembers.length < 2
+                        ? null
+                        : () => _startGame(members),
+                    icon: _isStarting
+                        ? const SizedBox.shrink()
+                        : const Icon(Icons.play_arrow_rounded, size: 22),
+                    label: _isStarting
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: AppColors.textPrimary,
+                            ),
+                          )
+                        : Text(
+                            acceptedMembers.length >= 2
+                                ? '마니또 시작하기 (${acceptedMembers.length}명 수락)'
+                                : '최소 2명 수락 필요 (${acceptedMembers.length}/2)',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                  ),
+                ),
+              ),
+            )
+          : null,
       body: roomAsync.when(
         loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
         error: (err, _) => Center(child: Text('대기실 로드 실패: $err')),
@@ -717,7 +815,6 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
             loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
             error: (err, _) => Center(child: Text('멤버 로드 실패: $err')),
             data: (members) {
-              final acceptedMembers = members.where((m) => m.joinStatus == '✔️').toList();
               final category = room.missionCategory?.toLowerCase() ?? 'daily';
               final deadline = room.gameEndTime ?? GameTimeUtil.calculateCeiledDeadline(minutesToAdd: 30);
 
@@ -739,10 +836,10 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
                     // 1. Room Settings & Parameters Card
                     Container(
                       decoration: BoxDecoration(
-                        color: AppColors.surface,
+                        color: Theme.of(context).cardTheme.color ?? AppColors.cardOf(context),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AppColors.border),
-                        boxShadow: AppColors.cardShadow,
+                        border: Border.all(color: AppColors.borderOf(context)),
+                        boxShadow: AppColors.cardShadowOf(context),
                       ),
                       padding: const EdgeInsets.all(18),
                       child: Column(
@@ -754,15 +851,18 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
                             children: [
                               Row(
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.tune_rounded,
                                     size: 20,
-                                    color: AppColors.primaryDark,
+                                    color: AppColors.isDark(context) ? AppColors.primary : AppColors.primaryDark,
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
                                     '마니또 옵션',
-                                    style: AppTypography.titleSm.copyWith(fontWeight: FontWeight.w700),
+                                    style: AppTypography.titleSm.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.textPrimaryOf(context),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -770,10 +870,19 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                   decoration: BoxDecoration(
-                                    color: AppColors.primary.withValues(alpha: 0.2),
+                                    color: AppColors.isDark(context)
+                                        ? AppColors.darkPrimaryLight
+                                        : AppColors.primary.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: const Text('방장', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.primaryDark)),
+                                  child: Text(
+                                    '방장',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.primaryDarkOf(context),
+                                    ),
+                                  ),
                                 ),
                             ],
                           ),
@@ -783,7 +892,7 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('제목', style: AppTypography.labelMd),
+                              Text('제목', style: AppTypography.labelMd.copyWith(color: AppColors.textSecondaryOf(context))),
                               if (isHost)
                                 InkWell(
                                   onTap: () => _showEditTitleDialog(context, room.title),
@@ -791,10 +900,17 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                     child: Row(
-                                      children: const [
-                                        Icon(Icons.edit_outlined, size: 14, color: AppColors.textSecondary),
-                                        SizedBox(width: 4),
-                                        Text('수정', style: TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+                                      children: [
+                                        Icon(Icons.edit_outlined, size: 14, color: AppColors.textSecondaryOf(context)),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          '수정',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: AppColors.textSecondaryOf(context),
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -806,19 +922,22 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
                             width: double.infinity,
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                             decoration: BoxDecoration(
-                              color: AppColors.surfaceLow,
+                              color: AppColors.surfaceLowOf(context),
                               borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: AppColors.border),
+                              border: Border.all(color: AppColors.borderOf(context)),
                             ),
                             child: Text(
                               room.title,
-                              style: AppTypography.bodyMd.copyWith(fontWeight: FontWeight.w600),
+                              style: AppTypography.bodyMd.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textPrimaryOf(context),
+                              ),
                             ),
                           ),
                           const SizedBox(height: 16),
 
                           // B. Mission Category Setting
-                          const Text('미션 카테고리', style: AppTypography.labelMd),
+                          Text('미션 카테고리', style: AppTypography.labelMd.copyWith(color: AppColors.textSecondaryOf(context))),
                           const SizedBox(height: 8),
                           Row(
                             children: [
@@ -835,7 +954,7 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('마감 시간', style: AppTypography.labelMd),
+                              Text('마감 시간', style: AppTypography.labelMd.copyWith(color: AppColors.textSecondaryOf(context))),
                               if (isHost)
                                 InkWell(
                                   onTap: () => _showDurationPickerModal(context, room.gameEndTime),
@@ -843,10 +962,17 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                     child: Row(
-                                      children: const [
-                                        Icon(Icons.timer_outlined, size: 14, color: AppColors.textSecondary),
-                                        SizedBox(width: 4),
-                                        Text('설정', style: TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+                                      children: [
+                                        Icon(Icons.timer_outlined, size: 14, color: AppColors.textSecondaryOf(context)),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          '설정',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: AppColors.textSecondaryOf(context),
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -858,35 +984,44 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
                             width: double.infinity,
                             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                             decoration: BoxDecoration(
-                              color: AppColors.surfaceLow,
+                              color: AppColors.surfaceLowOf(context),
                               borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: AppColors.border),
+                              border: Border.all(color: AppColors.borderOf(context)),
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Row(
                                   children: [
-                                    const Icon(Icons.alarm_on_rounded, size: 18, color: AppColors.primaryDark),
+                                    Icon(
+                                      Icons.alarm_on_rounded,
+                                      size: 18,
+                                      color: AppColors.isDark(context) ? AppColors.primary : AppColors.primaryDark,
+                                    ),
                                     const SizedBox(width: 8),
                                     Text(
                                       '마감 시간: ${deadline.hour.toString().padLeft(2, '0')}:${deadline.minute.toString().padLeft(2, '0')}',
-                                      style: AppTypography.bodyMd.copyWith(fontWeight: FontWeight.w700),
+                                      style: AppTypography.bodyMd.copyWith(
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.textPrimaryOf(context),
+                                      ),
                                     ),
                                   ],
                                 ),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                   decoration: BoxDecoration(
-                                    color: AppColors.primary.withValues(alpha: 0.2),
+                                    color: AppColors.isDark(context)
+                                        ? AppColors.darkPrimaryLight
+                                        : AppColors.primary.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: Text(
                                     '${deadline.month}/${deadline.day}',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w700,
-                                      color: AppColors.primaryDark,
+                                      color: AppColors.primaryDarkOf(context),
                                     ),
                                   ),
                                 ),
@@ -902,7 +1037,10 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('참여 인원 (${members.length}명)', style: AppTypography.titleMd),
+                        Text(
+                          '참여 인원 (${members.length}명)',
+                          style: AppTypography.titleMd.copyWith(color: AppColors.textPrimaryOf(context)),
+                        ),
                         if (isHost && room.status == RoomStatus.waiting)
                           InkWell(
                             onTap: () => _showInviteFriendsModal(context, members),
@@ -910,10 +1048,17 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
                             child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               child: Row(
-                                children: const [
-                                  Icon(Icons.person_add_rounded, size: 14, color: AppColors.textSecondary),
-                                  SizedBox(width: 4),
-                                  Text('친구 추가', style: TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+                                children: [
+                                  Icon(Icons.person_add_rounded, size: 14, color: AppColors.textSecondaryOf(context)),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '친구 추가',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.textSecondaryOf(context),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -933,41 +1078,25 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
                         final isMe = member.userId == currentUserId;
                         final isMemberHost = member.userId == room.hostId;
                         final profile = member.userProfile;
-                        final hasImg = profile?.profileImageUrl != null && profile!.profileImageUrl!.isNotEmpty;
 
                         return Container(
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                           decoration: BoxDecoration(
-                            color: AppColors.surface,
+                            color: Theme.of(context).cardTheme.color ?? AppColors.cardOf(context),
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: isMe ? AppColors.primary.withValues(alpha: 0.5) : AppColors.border,
+                              color: isMe
+                                  ? (AppColors.isDark(context) ? AppColors.primary : AppColors.primaryDark)
+                                  : AppColors.borderOf(context),
                               width: isMe ? 1.5 : 1.0,
                             ),
-                            boxShadow: AppColors.cardShadow,
+                            boxShadow: AppColors.cardShadowOf(context),
                           ),
                           child: Row(
                             children: [
-                              Container(
-                                width: 44,
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: AppColors.surfaceLow,
-                                  border: Border.all(color: AppColors.border),
-                                ),
-                                child: ClipOval(
-                                  child: hasImg
-                                      ? (profile.profileImageUrl!.startsWith('http')
-                                          ? CachedNetworkImage(
-                                              imageUrl: profile.profileImageUrl!,
-                                              fit: BoxFit.cover,
-                                              placeholder: (_, __) => Container(color: AppColors.surface),
-                                              errorWidget: (_, __, ___) => const Icon(Icons.person, color: AppColors.textSecondary),
-                                            )
-                                          : Image.asset(profile.profileImageUrl!, fit: BoxFit.cover))
-                                      : const Icon(Icons.person, color: AppColors.textSecondary),
-                                ),
+                              UserAvatar(
+                                imageUrl: profile?.profileImageUrl,
+                                size: 44,
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -978,17 +1107,29 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
                                       children: [
                                         Text(
                                           profile?.name ?? (isMe ? '나' : '요원'),
-                                          style: AppTypography.titleSm,
+                                          style: AppTypography.titleSm.copyWith(
+                                            color: AppColors.textPrimaryOf(context),
+                                            fontWeight: FontWeight.w700,
+                                          ),
                                         ),
                                         if (isMemberHost) ...[
                                           const SizedBox(width: 6),
                                           Container(
                                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                             decoration: BoxDecoration(
-                                              color: AppColors.primaryLight,
+                                              color: AppColors.isDark(context)
+                                                  ? AppColors.darkPrimaryLight
+                                                  : AppColors.primaryLight,
                                               borderRadius: BorderRadius.circular(6),
                                             ),
-                                            child: const Text('방장', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700)),
+                                            child: Text(
+                                              '방장',
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w700,
+                                                color: AppColors.primaryDarkOf(context),
+                                              ),
+                                            ),
                                           ),
                                         ],
                                       ],
@@ -998,7 +1139,9 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
                                       profile?.statusMessage?.isNotEmpty == true
                                           ? profile!.statusMessage!
                                           : '코드: ${profile?.uniqueCode ?? "-"}',
-                                      style: AppTypography.bodySm,
+                                      style: AppTypography.bodySm.copyWith(
+                                        color: AppColors.textSecondaryOf(context),
+                                      ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -1012,7 +1155,7 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
                                       ? AppColors.statusGreen.withValues(alpha: 0.15)
                                       : member.joinStatus == 'X'
                                           ? AppColors.statusRed.withValues(alpha: 0.15)
-                                          : AppColors.surfaceLow,
+                                          : AppColors.surfaceLowOf(context),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Text(
@@ -1028,7 +1171,7 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
                                         ? AppColors.statusGreen
                                         : member.joinStatus == 'X'
                                             ? AppColors.statusRed
-                                            : AppColors.textSecondary,
+                                            : AppColors.textSecondaryOf(context),
                                   ),
                                 ),
                               ),
@@ -1037,50 +1180,36 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
                         );
                       },
                     ),
-                    const SizedBox(height: 32),
-
-                    // 4. Start Game Button (Host Only)
-                    if (isHost) ...[
-                      SizedBox(
-                        width: double.infinity,
-                        height: 54,
-                        child: ElevatedButton.icon(
-                          onPressed: _isStarting ? null : () => _startGame(members),
-                          icon: _isStarting
-                              ? const SizedBox.shrink()
-                              : const Icon(Icons.play_arrow_rounded, size: 22),
-                          label: _isStarting
-                              ? const CircularProgressIndicator(color: Colors.white)
-                              : Text(
-                                  acceptedMembers.length >= 2
-                                      ? '마니또 시작하기'
-                                      : '최소 2명 수락 필요 (${acceptedMembers.length}/2)',
-                                ),
-                        ),
-                      ),
-                    ] else ...[
+                    // 4. Waiting Notice for Non-host Members
+                    if (!isHost) ...[
+                      const SizedBox(height: 24),
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: AppColors.surfaceLow,
+                          color: AppColors.surfaceLowOf(context),
                           borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: AppColors.border),
+                          border: Border.all(color: AppColors.borderOf(context)),
                         ),
                         child: Row(
-                          children: const [
-                            Icon(Icons.hourglass_top_rounded, color: AppColors.primaryDark),
-                            SizedBox(width: 12),
+                          children: [
+                            Icon(
+                              Icons.hourglass_top_rounded,
+                              color: AppColors.isDark(context) ? AppColors.primary : AppColors.primaryDark,
+                            ),
+                            const SizedBox(width: 12),
                             Expanded(
                               child: Text(
                                 '방장이 참가자들을 모아 게임을 시작할 때까지 잠시만 대기해주세요.',
-                                style: AppTypography.bodySm,
+                                style: AppTypography.bodySm.copyWith(
+                                  color: AppColors.textSecondaryOf(context),
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
                     ],
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
                   ],
                 ),
               );
@@ -1105,10 +1234,10 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
           padding: const EdgeInsets.symmetric(vertical: 8),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.primary : AppColors.surfaceLow,
+            color: isSelected ? AppColors.primary : AppColors.surfaceLowOf(context),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: isSelected ? AppColors.primaryDark : AppColors.border,
+              color: isSelected ? AppColors.primaryDark : AppColors.borderOf(context),
             ),
           ),
           child: Text(
@@ -1116,7 +1245,7 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
             style: TextStyle(
               fontSize: 12,
               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-              color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
+              color: isSelected ? const Color(0xFF1E1E24) : AppColors.textSecondaryOf(context),
             ),
           ),
         ),
@@ -1169,17 +1298,20 @@ class _LobbyCircularTimerBannerState extends State<LobbyCircularTimerBanner> {
     final remainingSec = (600 - elapsedSec).clamp(0, 600);
     final progress = remainingSec / 600.0;
     final isUrgent = remainingSec <= 60;
+    final isDark = AppColors.isDark(context);
 
-    final themeColor = isUrgent ? AppColors.statusRed : AppColors.primaryDark;
+    final themeColor = isUrgent
+        ? AppColors.statusRed
+        : (isDark ? AppColors.primary : AppColors.primaryDark);
     final bgColor = isUrgent
         ? AppColors.statusRed.withValues(alpha: 0.1)
-        : AppColors.primary.withValues(alpha: 0.15);
+        : (isDark ? AppColors.primary.withValues(alpha: 0.12) : AppColors.primary.withValues(alpha: 0.15));
     final borderColor = isUrgent
         ? AppColors.statusRed.withValues(alpha: 0.5)
-        : AppColors.primary.withValues(alpha: 0.4);
+        : (isDark ? AppColors.primary.withValues(alpha: 0.3) : AppColors.primary.withValues(alpha: 0.4));
     final trackColor = isUrgent
         ? AppColors.statusRed.withValues(alpha: 0.2)
-        : AppColors.primary.withValues(alpha: 0.25);
+        : (isDark ? AppColors.primary.withValues(alpha: 0.15) : AppColors.primary.withValues(alpha: 0.25));
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -1212,7 +1344,9 @@ class _LobbyCircularTimerBannerState extends State<LobbyCircularTimerBanner> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: isUrgent ? AppColors.textPrimary : AppColors.textSecondary,
+                    color: isUrgent
+                        ? (isDark ? AppColors.darkTextPrimary : AppColors.textPrimary)
+                        : AppColors.textSecondaryOf(context),
                   ),
                 ),
               ],

@@ -17,7 +17,7 @@ class ManitoLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final logoColor = color ?? AppColors.textPrimary;
+    final logoColor = color ?? AppColors.textPrimaryOf(context);
 
     Widget textWidget = Text(
       'manito',

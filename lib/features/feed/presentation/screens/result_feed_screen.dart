@@ -5,7 +5,10 @@ import 'package:go_router/go_router.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
 import 'package:manito/core/models/models.dart';
+import 'package:manito/core/widget/user_avatar.dart';
 import 'package:manito/core/providers.dart';
+import 'package:manito/core/analytics/analytics_event.dart';
+import 'package:manito/core/analytics/analytics_service.dart';
 import 'package:manito/features/rooms/presentation/rooms_provider.dart';
 import 'package:manito/features/feed/presentation/feed_provider.dart';
 import 'package:manito/features/feed/presentation/widgets/comments_sheet.dart';
@@ -22,6 +25,18 @@ class ResultFeedScreen extends ConsumerStatefulWidget {
 
 class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
   String? _selectedUserId;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(analyticsServiceProvider).logEvent(
+        AnalyticsEvent.resultFeedView,
+        screenName: 'ResultFeedScreen',
+        properties: {'room_id': widget.roomId},
+      );
+    });
+  }
 
   void _handleBackNavigation(BuildContext context) {
     if (Navigator.of(context).canPop()) {
@@ -158,7 +173,7 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
                       children: [
                         // 1. 상단: 참여한 친구들의 프로필 가로 스크롤 바 (Tier 3 뱃지 포함)
                         _buildMemberHorizontalList(activeMembers, currentSelectedId, records),
-                        const Divider(height: 1, color: AppColors.border),
+                        Divider(height: 1, color: AppColors.borderOf(context)),
 
                         // 2. 본문 스크롤 영역: [미션 수행 기록] + [추측한 마니또 기록]
                         Expanded(
@@ -221,7 +236,7 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
 
     return Container(
       height: 90,
-      color: Colors.white,
+      color: Theme.of(context).cardTheme.color ?? AppColors.cardOf(context),
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         scrollDirection: Axis.horizontal,
@@ -256,6 +271,14 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
 
           return InkWell(
             onTap: () {
+              ref.read(analyticsServiceProvider).logEvent(
+                AnalyticsEvent.resultMemberFilter,
+                screenName: 'ResultFeedScreen',
+                properties: {
+                  'room_id': widget.roomId,
+                  'target_user_id': member.userId,
+                },
+              );
               setState(() {
                 _selectedUserId = member.userId;
               });
@@ -269,29 +292,11 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
                   Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.surface,
-                          border: Border.all(
-                            color: isSelected ? AppColors.primaryDark : AppColors.border,
-                            width: isSelected ? 2.5 : 1.0,
-                          ),
-                        ),
-                        child: ClipOval(
-                          child: (imgUrl != null && imgUrl.isNotEmpty)
-                              ? (imgUrl.startsWith('http')
-                                  ? CachedNetworkImage(
-                                      imageUrl: imgUrl,
-                                      fit: BoxFit.cover,
-                                      placeholder: (_, __) => Container(color: AppColors.surface),
-                                      errorWidget: (_, __, ___) => const Icon(Icons.person, size: 24, color: AppColors.textSecondary),
-                                    )
-                                  : Image.asset(imgUrl, fit: BoxFit.cover))
-                              : const Icon(Icons.person, size: 24, color: AppColors.textSecondary),
-                        ),
+                      UserAvatar(
+                        imageUrl: imgUrl,
+                        size: 48,
+                        borderWidth: isSelected ? 2.5 : 1.0,
+                        borderColor: isSelected ? AppColors.primary : AppColors.borderOf(context),
                       ),
                       if (hasMemberUnread)
                         Positioned(
@@ -303,7 +308,7 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
                             decoration: BoxDecoration(
                               color: AppColors.error,
                               shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2),
+                              border: Border.all(color: Theme.of(context).cardTheme.color ?? AppColors.cardOf(context), width: 2),
                             ),
                           ),
                         ),
@@ -315,7 +320,7 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
-                      color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
+                      color: isSelected ? AppColors.primary : AppColors.textPrimaryOf(context),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -347,7 +352,7 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
-        side: const BorderSide(color: AppColors.border),
+        side: BorderSide(color: AppColors.borderOf(context)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(18),
@@ -360,6 +365,7 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
               style: AppTypography.titleSmall.copyWith(
                 fontWeight: FontWeight.w800,
                 fontSize: 16,
+                color: AppColors.textPrimaryOf(context),
               ),
             ),
             const SizedBox(height: 14),
@@ -368,32 +374,15 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: AppColors.surfaceLowOf(context),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.border),
+                border: Border.all(color: AppColors.borderOf(context)),
               ),
               child: Row(
                 children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.surfaceLow,
-                      border: Border.all(color: AppColors.border),
-                    ),
-                    child: ClipOval(
-                      child: (bProfileImg != null && bProfileImg.isNotEmpty)
-                          ? (bProfileImg.startsWith('http')
-                              ? CachedNetworkImage(
-                                  imageUrl: bProfileImg,
-                                  fit: BoxFit.cover,
-                                  placeholder: (_, __) => Container(color: AppColors.surface),
-                                  errorWidget: (_, __, ___) => const Icon(Icons.person, size: 24, color: AppColors.textSecondary),
-                                )
-                              : Image.asset(bProfileImg, fit: BoxFit.cover))
-                          : const Icon(Icons.person, size: 24, color: AppColors.textSecondary),
-                    ),
+                  UserAvatar(
+                    imageUrl: bProfileImg,
+                    size: 44,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -405,6 +394,7 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
                           style: AppTypography.bodyMd.copyWith(
                             fontWeight: FontWeight.w800,
                             fontSize: 15,
+                            color: AppColors.textPrimaryOf(context),
                           ),
                         ),
                         if (bProfile?.statusMessage != null && bProfile!.statusMessage!.isNotEmpty) ...[
@@ -412,7 +402,7 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
                           Text(
                             bProfile.statusMessage!,
                             style: AppTypography.bodySm.copyWith(
-                              color: AppColors.textSecondary,
+                              color: AppColors.textSecondaryOf(context),
                               fontSize: 12.5,
                             ),
                             maxLines: 1,
@@ -432,9 +422,9 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: AppColors.surfaceLowOf(context),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: AppColors.borderOf(context)),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -445,7 +435,7 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
                         assignedMission,
                         style: AppTypography.bodyMd.copyWith(
                           fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
+                          color: AppColors.textPrimaryOf(context),
                         ),
                       ),
                     ),
@@ -464,7 +454,7 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
                 alignment: Alignment.center,
                 child: Text(
                   '$bName님이 등록한 기록이 없습니다.',
-                  style: AppTypography.bodySm.copyWith(color: AppColors.textDisabled),
+                  style: AppTypography.bodySm.copyWith(color: AppColors.textDisabledOf(context)),
                 ),
               ),
             ],
@@ -487,8 +477,9 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
-        side: const BorderSide(color: AppColors.border),
+        side: BorderSide(color: AppColors.borderOf(context)),
       ),
+      color: Theme.of(context).cardTheme.color ?? AppColors.cardOf(context),
       child: Padding(
         padding: const EdgeInsets.all(18),
         child: Column(
@@ -500,6 +491,7 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
               style: AppTypography.titleSmall.copyWith(
                 fontWeight: FontWeight.w800,
                 fontSize: 16,
+                color: AppColors.textPrimaryOf(context),
               ),
             ),
             const SizedBox(height: 14),
@@ -509,32 +501,15 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: AppColors.surfaceLowOf(context),
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: AppColors.borderOf(context)),
                 ),
                 child: Row(
                   children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.surfaceLow,
-                        border: Border.all(color: AppColors.border),
-                      ),
-                      child: ClipOval(
-                        child: (suspectUser.profileImageUrl != null && suspectUser.profileImageUrl!.isNotEmpty)
-                            ? (suspectUser.profileImageUrl!.startsWith('http')
-                                ? CachedNetworkImage(
-                                    imageUrl: suspectUser.profileImageUrl!,
-                                    fit: BoxFit.cover,
-                                    placeholder: (_, __) => Container(color: AppColors.surface),
-                                    errorWidget: (_, __, ___) => const Icon(Icons.person, size: 24, color: AppColors.textSecondary),
-                                  )
-                                : Image.asset(suspectUser.profileImageUrl!, fit: BoxFit.cover))
-                            : const Icon(Icons.person, size: 24, color: AppColors.textSecondary),
-                      ),
+                    UserAvatar(
+                      imageUrl: suspectUser.profileImageUrl,
+                      size: 44,
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -546,6 +521,7 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
                             style: AppTypography.bodyMd.copyWith(
                               fontWeight: FontWeight.w800,
                               fontSize: 15,
+                              color: AppColors.textPrimaryOf(context),
                             ),
                           ),
                           if (suspectUser.statusMessage != null && suspectUser.statusMessage!.isNotEmpty) ...[
@@ -553,7 +529,7 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
                             Text(
                               suspectUser.statusMessage!,
                               style: AppTypography.bodySm.copyWith(
-                                color: AppColors.textSecondary,
+                                color: AppColors.textSecondaryOf(context),
                                 fontSize: 12.5,
                               ),
                               maxLines: 1,
@@ -578,7 +554,7 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
                 alignment: Alignment.center,
                 child: Text(
                   '$aName님이 등록한 기록이 없습니다.',
-                  style: AppTypography.bodySm.copyWith(color: AppColors.textDisabled),
+                  style: AppTypography.bodySm.copyWith(color: AppColors.textDisabledOf(context)),
                 ),
               ),
             ],
@@ -606,7 +582,7 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
                       width: double.infinity,
                       placeholder: (_, __) => Container(
                         height: 200,
-                        color: AppColors.surface,
+                        color: AppColors.surfaceLowOf(context),
                         alignment: Alignment.center,
                         child: const SizedBox(
                           width: 24,
@@ -616,9 +592,9 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
                       ),
                       errorWidget: (_, __, ___) => Container(
                         height: 100,
-                        color: AppColors.surface,
+                        color: AppColors.surfaceLowOf(context),
                         alignment: Alignment.center,
-                        child: const Icon(Icons.broken_image_outlined, color: AppColors.textSecondary),
+                        child: Icon(Icons.broken_image_outlined, color: AppColors.textSecondaryOf(context)),
                       ),
                     )
                   : Image.asset(
@@ -634,12 +610,12 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
             margin: const EdgeInsets.symmetric(vertical: 4),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.surfaceLowOf(context),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
               block.value,
-              style: AppTypography.bodyMd.copyWith(height: 1.45),
+              style: AppTypography.bodyMd.copyWith(height: 1.45, color: AppColors.textPrimaryOf(context)),
             ),
           );
         }
@@ -662,9 +638,9 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: const Border(top: BorderSide(color: AppColors.border, width: 1)),
-        boxShadow: AppColors.cardShadow,
+        color: Theme.of(context).cardTheme.color ?? AppColors.cardOf(context),
+        border: Border(top: BorderSide(color: AppColors.borderOf(context), width: 1)),
+        boxShadow: AppColors.cardShadowOf(context),
       ),
       child: SafeArea(
         child: Padding(
@@ -675,10 +651,11 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: AppColors.surfaceLowOf(context),
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: unreadCount > 0 ? AppColors.error.withValues(alpha: 0.5) : AppColors.border,
+                  color: AppColors.borderOf(context),
+                  width: 1,
                 ),
               ),
               child: Row(
@@ -686,7 +663,11 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
                   Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      const Icon(Icons.chat_bubble_outline_rounded, size: 18, color: AppColors.textSecondary),
+                      Icon(
+                        Icons.chat_bubble_outline_rounded,
+                        size: 18,
+                        color: unreadCount > 0 ? AppColors.error : AppColors.primaryDark,
+                      ),
                       if (unreadCount > 0)
                         Positioned(
                           top: -2,
@@ -706,7 +687,7 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
                   Expanded(
                     child: Text(
                       '댓글을 남겨보세요.',
-                      style: AppTypography.bodySm.copyWith(color: AppColors.textDisabled),
+                      style: AppTypography.bodySm.copyWith(color: AppColors.textDisabledOf(context)),
                     ),
                   ),
                   if (commentCount > 0) ...[

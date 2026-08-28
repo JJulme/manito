@@ -6,9 +6,12 @@ import '../../core/models/models.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/util/app_logger.dart';
+import '../../core/analytics/analytics_event.dart';
+import '../../core/analytics/analytics_service.dart';
 import '../feed/presentation/feed_provider.dart';
 import '../feed/presentation/screens/archive_feed_view.dart';
 import '../feed/presentation/screens/result_feed_screen.dart';
+import '../friends/presentation/friends_provider.dart';
 import '../profile/presentation/screens/profile_screen.dart';
 import '../rooms/presentation/rooms_provider.dart';
 import '../rooms/presentation/screens/home_dashboard_view.dart';
@@ -33,6 +36,12 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> with WidgetsBindi
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _startGlobalDeadlineChecker();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(analyticsServiceProvider).logEvent(
+        AnalyticsEvent.appOpen,
+        screenName: 'MainNavScreen',
+      );
+    });
   }
 
   @override
@@ -49,6 +58,7 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> with WidgetsBindi
       ref.invalidate(unreadCommentSummaryProvider);
       ref.invalidate(ongoingRoomsProvider);
       ref.invalidate(completedRoomsProvider);
+      ref.invalidate(receivedFriendRequestsProvider);
     }
   }
 
@@ -58,24 +68,18 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> with WidgetsBindi
     });
   }
 
-  void _checkOngoingRoomsDeadline() {
-    if (_isProcessingRoom) return;
-
-    final ongoingRoomsAsync = ref.read(ongoingRoomsProvider);
-    final rooms = ongoingRoomsAsync.value;
-    if (rooms == null || rooms.isEmpty) return;
+  Future<void> _checkOngoingRoomsDeadline() async {
+    final ongoingRooms = ref.read(ongoingRoomsProvider).value ?? [];
+    if (ongoingRooms.isEmpty) return;
 
     final now = DateTime.now();
 
-    for (final room in rooms) {
-      // ⚠️ 대기실(WAITING) 등 게임이 실제로 시작되지 않은 방은 마감 알림 스케줄링 및 마감 처리 대상에서 제외
-      if (room.status != RoomStatus.ongoing || room.gameEndTime == null) {
-        continue;
-      }
+    for (final room in ongoingRooms) {
+      if (room.status != RoomStatus.ongoing) continue;
+      final deadline = room.gameEndTime;
+      if (deadline == null) continue;
 
-      final deadline = room.gameEndTime!;
-
-      // 알림 스케줄링 등록 (실제 진행 중인 방에 대해서만 1회 등록)
+      // 1. 백그라운드 푸시 알림 예약
       if (!_scheduledNotificationRoomIds.contains(room.roomId)) {
         _scheduledNotificationRoomIds.add(room.roomId);
         ref.read(appNotificationServiceProvider).scheduleGameDeadlineNotifications(
@@ -85,49 +89,77 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> with WidgetsBindi
         );
       }
 
-      if (_processedCompletedRoomIds.contains(room.roomId)) continue;
+      // 2. 포그라운드 마감 체크
+      if (now.isAfter(deadline)) {
+        if (_processedCompletedRoomIds.contains(room.roomId) || _isProcessingRoom) {
+          continue;
+        }
 
-      final isEnded = now.isAfter(deadline);
-      if (isEnded) {
+        _isProcessingRoom = true;
         _processedCompletedRoomIds.add(room.roomId);
-        _handleRoomDeadline(room.roomId, room.title);
-        break; // 한 번에 한 방씩 순차 처리
+        AppLogger.i('Global deadline reached for room: ${room.roomId}', tag: 'MAIN');
+
+        try {
+          await ref.read(roomsRepositoryProvider).finalizeGameAndFillAutoReplies(room.roomId);
+          await ref.read(appNotificationServiceProvider).showImmediateDeadlineCompleteNotification(
+            roomId: room.roomId,
+            roomTitle: room.title,
+          );
+
+          ref.invalidate(ongoingRoomsProvider);
+          ref.invalidate(completedRoomsProvider);
+          ref.invalidate(roomDetailsProvider(room.roomId));
+          ref.invalidate(roomRecordsProvider(room.roomId));
+
+          if (mounted) {
+            _showDeadlineCompletionModal(room.roomId, room.title);
+          }
+        } catch (e, s) {
+          AppLogger.e('Error during global deadline finalization: $e', tag: 'MAIN', error: e, stackTrace: s);
+        } finally {
+          _isProcessingRoom = false;
+        }
+        break;
       }
     }
   }
 
-  /// 백그라운드 자동응답 저장 및 전역 [기록 상세] 즉시 화면 전환
-  Future<void> _handleRoomDeadline(String roomId, String roomTitle) async {
-    _isProcessingRoom = true;
-    try {
-      AppLogger.i('Handling global deadline reached for room: $roomId', tag: 'MAIN');
-
-      // 1. 서버 RPC 호출: 참여자 전원의 미작성 자동응답 일괄 생성 및 방 상태 ENDED 처리
-      await ref.read(roomsRepositoryProvider).finalizeGameAndFillAutoReplies(roomId);
-
-      // 2. 마감 완료 푸시 알림 발송
-      await ref.read(appNotificationServiceProvider).showImmediateDeadlineCompleteNotification(
-        roomId: roomId,
-        roomTitle: roomTitle,
-      );
-
-      // 3. 프로바이더 새로고침
-      ref.invalidate(ongoingRoomsProvider);
-      ref.invalidate(completedRoomsProvider);
-    } catch (e, s) {
-      AppLogger.e('Global auto-reply error: $e', tag: 'MAIN', error: e, stackTrace: s);
-    } finally {
-      _isProcessingRoom = false;
-    }
-
-    if (mounted) {
-      // 5. 전역 즉시 강제 이동 ([기록 상세] 화면으로 push)
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => ResultFeedScreen(roomId: roomId),
+  void _showDeadlineCompletionModal(String roomId, String roomTitle) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.celebration_rounded, color: AppColors.primaryDark),
+            SizedBox(width: 8),
+            Text('마니또 마감!'),
+          ],
         ),
-      );
-    }
+        content: Text(
+          '\'$roomTitle\' 방의 마니또 활동이 종료되었습니다!\n지금 바로 마니또 결과와 친구들의 인증 피드를 확인해보세요.',
+          style: AppTypography.bodyMd,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('닫기', style: TextStyle(color: AppColors.textSecondary)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => ResultFeedScreen(roomId: roomId),
+                ),
+              );
+            },
+            child: const Text('결과 보러가기'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -136,6 +168,8 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> with WidgetsBindi
     final totalUnreadComments = ref.watch(totalUnreadCommentCountProvider);
     final invitationsAsync = ref.watch(receivedRoomInvitationsProvider);
     final hasInvitations = invitationsAsync.value?.isNotEmpty ?? false;
+    final friendRequestsAsync = ref.watch(receivedFriendRequestsProvider);
+    final hasFriendRequests = friendRequestsAsync.value?.isNotEmpty ?? false;
     // 진행중인 방 상태 지속 구독
     ref.watch(ongoingRoomsProvider);
 
@@ -150,13 +184,13 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> with WidgetsBindi
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          border: const Border(
-            top: BorderSide(color: AppColors.border, width: 1),
+          color: Theme.of(context).cardTheme.color ?? AppColors.cardOf(context),
+          border: Border(
+            top: BorderSide(color: AppColors.borderOf(context), width: 1),
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
+              color: Colors.black.withValues(alpha: AppColors.isDark(context) ? 0.25 : 0.04),
               blurRadius: 16,
               offset: const Offset(0, -4),
             ),
@@ -173,7 +207,7 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> with WidgetsBindi
                   currentIndex: currentTab,
                   icon: Icons.home_rounded,
                   label: '홈',
-                  hasBadge: hasInvitations,
+                  hasBadge: hasInvitations || hasFriendRequests,
                 ),
                 _buildNavItem(
                   index: 1,
@@ -219,7 +253,7 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> with WidgetsBindi
                 Icon(
                   icon,
                   size: 26,
-                  color: isSelected ? AppColors.textPrimary : AppColors.textDisabled,
+                  color: isSelected ? AppColors.textPrimaryOf(context) : AppColors.textDisabledOf(context),
                 ),
                 if (hasBadge)
                   Positioned(
@@ -241,11 +275,11 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> with WidgetsBindi
               label,
               style: isSelected
                   ? AppTypography.labelSm.copyWith(
-                      color: AppColors.textPrimary,
+                      color: AppColors.textPrimaryOf(context),
                       fontWeight: FontWeight.w700,
                     )
                   : AppTypography.labelSm.copyWith(
-                      color: AppColors.textDisabled,
+                      color: AppColors.textDisabledOf(context),
                     ),
             ),
           ],

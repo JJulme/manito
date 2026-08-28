@@ -4,12 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:manito/core/image/image_source_picker_modal.dart';
 import 'package:manito/core/models/models.dart';
 import 'package:manito/core/providers.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
 import 'package:manito/core/util/app_logger.dart';
 import 'package:manito/core/widget/manito_mascot.dart';
+import 'package:manito/core/widget/user_avatar.dart';
+import 'package:manito/core/analytics/analytics_event.dart';
+import 'package:manito/core/analytics/analytics_service.dart';
 import 'package:manito/features/profile/presentation/profile_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -29,15 +33,24 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final _guessReplyController = TextEditingController();
 
   String? _selectedImageUrl;
-  bool _isUploadingImage = false;
-
   String? _manitoImageUrl;
-  bool _isUploadingManitoImage = false;
-
   String? _guessImageUrl;
+  bool _isUploadingImage = false;
+  bool _isUploadingManitoImage = false;
   bool _isUploadingGuessImage = false;
-
   bool _isInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(analyticsServiceProvider).logEvent(
+        AnalyticsEvent.profileEditView,
+        screenName: 'EditProfileScreen',
+        properties: {'is_first_setup': widget.isFirstSetup},
+      );
+    });
+  }
 
   @override
   void dispose() {
@@ -61,11 +74,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     }
   }
 
-  Future<void> _pickImageFromGallery() async {
+  Future<void> _pickProfileImage() async {
+    final source = await showImageSourcePickerModal(context);
+    if (source == null) return;
+
     try {
       final picker = ImagePicker();
       final picked = await picker.pickImage(
-        source: ImageSource.gallery,
+        source: source,
         imageQuality: 85,
       );
       if (picked == null) return;
@@ -105,10 +121,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   }
 
   Future<void> _pickAutoReplyImage({required bool isManito}) async {
+    final source = await showImageSourcePickerModal(context);
+    if (source == null) return;
+
     try {
       final picker = ImagePicker();
       final picked = await picker.pickImage(
-        source: ImageSource.gallery,
+        source: source,
         imageQuality: 85,
       );
       if (picked == null) return;
@@ -208,6 +227,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         );
 
     if (success && mounted) {
+      ref.read(analyticsServiceProvider).logEvent(
+        AnalyticsEvent.profileEditSave,
+        screenName: 'EditProfileScreen',
+        properties: {
+          'is_first_setup': widget.isFirstSetup,
+          'has_profile_image': image.isNotEmpty,
+          'has_status_message': status.isNotEmpty,
+          'has_manito_auto_reply_img': _manitoImageUrl != null && _manitoImageUrl!.isNotEmpty,
+          'has_guess_auto_reply_img': _guessImageUrl != null && _guessImageUrl!.isNotEmpty,
+        },
+      );
       ref.invalidate(currentUserProfileProvider);
       try {
         await ref.read(currentUserProfileProvider.future);
@@ -253,10 +283,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).cardTheme.color ?? AppColors.cardOf(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-        boxShadow: AppColors.cardShadow,
+        border: Border.all(color: AppColors.borderOf(context)),
+        boxShadow: AppColors.cardShadowOf(context),
       ),
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -267,11 +297,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             children: [
               Icon(icon, size: 20, color: AppColors.primaryDark),
               const SizedBox(width: 8),
-              Text(title, style: AppTypography.titleSm),
+              Text(
+                title,
+                style: AppTypography.titleSm.copyWith(color: AppColors.textPrimaryOf(context)),
+              ),
             ],
           ),
           const SizedBox(height: 4),
-          Text(description, style: AppTypography.bodySm),
+          Text(
+            description,
+            style: AppTypography.bodySm.copyWith(color: AppColors.textSecondaryOf(context)),
+          ),
           const SizedBox(height: 16),
 
           // 1. Full-Width Blog Image Slot
@@ -283,9 +319,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   child: Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceLow,
+                      color: AppColors.surfaceLowOf(context),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.border),
+                      border: Border.all(color: AppColors.borderOf(context)),
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(15),
@@ -294,8 +330,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               imageUrl: imageUrl,
                               width: double.infinity,
                               fit: BoxFit.fitWidth,
-                              placeholder: (_, __) => Container(color: AppColors.surface),
-                              errorWidget: (_, __, ___) => const Icon(Icons.broken_image_outlined, color: AppColors.textSecondary),
+                              placeholder: (_, __) => Container(color: AppColors.surfaceOf(context)),
+                              errorWidget: (_, __, ___) => Icon(Icons.broken_image_outlined, color: AppColors.textSecondaryOf(context)),
                             )
                           : Image.asset(imageUrl, width: double.infinity, fit: BoxFit.fitWidth),
                     ),
@@ -384,24 +420,24 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 width: double.infinity,
                 height: 120,
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceLow,
+                  color: AppColors.surfaceLowOf(context),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppColors.border,
+                    color: AppColors.borderOf(context),
                     style: BorderStyle.solid,
                   ),
                 ),
                 child:
                     isUploading
-                        ? const Center(
+                        ? Center(
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              CircularProgressIndicator(
+                              const CircularProgressIndicator(
                                 color: AppColors.primary,
                               ),
-                              SizedBox(height: 8),
-                              Text('사진 업로드 중...', style: AppTypography.bodySm),
+                              const SizedBox(height: 8),
+                              Text('사진 업로드 중...', style: AppTypography.bodySm.copyWith(color: AppColors.textSecondaryOf(context))),
                             ],
                           ),
                         )
@@ -426,7 +462,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             Text(
                               '사진 추가하기 (선택, 최대 1장)',
                               style: AppTypography.labelMd.copyWith(
-                                color: AppColors.textPrimary,
+                                color: AppColors.textPrimaryOf(context),
                               ),
                             ),
                           ],
@@ -445,14 +481,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               hintText: hintText,
               alignLabelWithHint: true,
               filled: true,
-              fillColor: AppColors.surfaceLow,
+              fillColor: AppColors.surfaceLowOf(context),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppColors.border),
+                borderSide: BorderSide(color: AppColors.borderOf(context)),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppColors.border),
+                borderSide: BorderSide(color: AppColors.borderOf(context)),
               ),
             ),
           ),
@@ -500,18 +536,21 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           ),
                         ),
                         child: Row(
-                          children: const [
-                            ManitoMascot.sunglass(width: 48, height: 48),
-                            SizedBox(width: 14),
+                          children: [
+                            const ManitoMascot.sunglass(width: 48, height: 48),
+                            const SizedBox(width: 14),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('프로필 등록', style: AppTypography.titleSm),
-                                  SizedBox(height: 4),
+                                  Text(
+                                    '프로필 등록',
+                                    style: AppTypography.titleSm.copyWith(color: AppColors.textPrimaryOf(context)),
+                                  ),
+                                  const SizedBox(height: 4),
                                   Text(
                                     '원활한 서비스 이용을 위해 5가지 필수 정보를 모두 입력해주세요.',
-                                    style: AppTypography.bodySm,
+                                    style: AppTypography.bodySm.copyWith(color: AppColors.textSecondaryOf(context)),
                                   ),
                                 ],
                               ),
@@ -527,63 +566,47 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       child: Stack(
                         children: [
                           GestureDetector(
-                            onTap: _pickImageFromGallery,
-                            child: Container(
-                              width: 108,
-                              height: 108,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: AppColors.surfaceLow,
-                                border: Border.all(
-                                  color: AppColors.border,
-                                  width: 2,
-                                ),
-                                boxShadow: AppColors.cardShadow,
-                              ),
-                              child: ClipOval(
-                                child:
-                                    _isUploadingImage
-                                        ? const Center(
-                                          child: CircularProgressIndicator(
-                                            color: AppColors.primary,
-                                          ),
-                                        )
-                                        : _selectedImageUrl != null &&
-                                            _selectedImageUrl!.isNotEmpty
-                                        ? (_selectedImageUrl!.startsWith('http')
-                                            ? CachedNetworkImage(
-                                              imageUrl: _selectedImageUrl!,
-                                              fit: BoxFit.cover,
-                                              placeholder: (_, __) => Container(color: AppColors.surface),
-                                              errorWidget: (_, __, ___) => const Icon(Icons.person_rounded, size: 54, color: AppColors.textDisabled),
-                                            )
-                                            : Image.asset(
-                                              _selectedImageUrl!,
-                                              fit: BoxFit.cover,
-                                            ))
-                                        : const Icon(
-                                          Icons.person_rounded,
-                                          size: 54,
-                                          color: AppColors.textDisabled,
-                                        ),
-                              ),
-                            ),
+                            onTap: _pickProfileImage,
+                            child: _isUploadingImage
+                                ? Container(
+                                    width: 108,
+                                    height: 108,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: AppColors.surfaceLowOf(context),
+                                      border: Border.all(
+                                        color: AppColors.borderOf(context),
+                                        width: 2,
+                                      ),
+                                      boxShadow: AppColors.cardShadowOf(context),
+                                    ),
+                                    child: const Center(
+                                      child: CircularProgressIndicator(color: AppColors.primary),
+                                    ),
+                                  )
+                                : UserAvatar(
+                                    imageUrl: _selectedImageUrl,
+                                    size: 108,
+                                    borderWidth: 2,
+                                    showShadow: true,
+                                    fallbackIconSize: 54,
+                                  ),
                           ),
                           Positioned(
                             bottom: 0,
                             right: 0,
                             child: GestureDetector(
-                              onTap: _pickImageFromGallery,
+                              onTap: _pickProfileImage,
                               child: Container(
                                 padding: const EdgeInsets.all(8),
-                                decoration: const BoxDecoration(
-                                  color: AppColors.primaryDark,
+                                decoration: BoxDecoration(
+                                  color: AppColors.isDark(context) ? AppColors.primary : AppColors.primaryDark,
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.camera_alt_rounded,
                                   size: 16,
-                                  color: Colors.white,
+                                  color: AppColors.isDark(context) ? const Color(0xFF1E1E24) : Colors.white,
                                 ),
                               ),
                             ),
@@ -594,7 +617,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     const SizedBox(height: 24),
 
                     // 2. Name
-                    const Text('이름 *', style: AppTypography.titleSm),
+                    Text('이름 *', style: AppTypography.titleSm.copyWith(color: AppColors.textPrimaryOf(context))),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _nameController,
@@ -607,7 +630,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     const SizedBox(height: 16),
 
                     // 3. Status Message
-                    const Text('상태 메시지 *', style: AppTypography.titleSm),
+                    Text('상태 메시지 *', style: AppTypography.titleSm.copyWith(color: AppColors.textPrimaryOf(context))),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _statusController,

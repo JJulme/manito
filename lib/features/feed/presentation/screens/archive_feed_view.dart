@@ -5,6 +5,7 @@ import 'package:manito/core/models/models.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
 import 'package:manito/core/widget/manito_mascot.dart';
+import 'package:manito/core/widget/user_avatar.dart';
 import 'package:manito/features/feed/presentation/feed_provider.dart';
 import 'package:manito/features/feed/presentation/screens/result_feed_screen.dart';
 import 'package:manito/features/rooms/presentation/rooms_provider.dart';
@@ -38,15 +39,18 @@ class ArchiveFeedView extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      ManitoMascot.selfie(width: 120, height: 120),
-                      SizedBox(height: 16),
-                      Text('완료된 마니또 기록이 없습니다.', style: AppTypography.titleMedium),
-                      SizedBox(height: 6),
+                    children: [
+                      const ManitoMascot.selfie(width: 120, height: 120),
+                      const SizedBox(height: 16),
+                      Text(
+                        '완료된 마니또 기록이 없습니다.',
+                        style: AppTypography.titleMedium.copyWith(color: AppColors.textPrimaryOf(context)),
+                      ),
+                      const SizedBox(height: 6),
                       Text(
                         '마니또가 종료되면 이곳에 추억과 사진이 안전하게 기록됩니다.',
                         textAlign: TextAlign.center,
-                        style: AppTypography.bodySm,
+                        style: AppTypography.bodySm.copyWith(color: AppColors.textSecondaryOf(context)),
                       ),
                     ],
                   ),
@@ -130,7 +134,7 @@ class RecordHistoryCard extends ConsumerWidget {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
-          side: const BorderSide(color: AppColors.border),
+          side: BorderSide(color: AppColors.borderOf(context)),
         ),
         child: Padding(
           padding: const EdgeInsets.all(14),
@@ -186,6 +190,7 @@ class RecordHistoryCard extends ConsumerWidget {
                             style: AppTypography.titleSmall.copyWith(
                               fontWeight: FontWeight.w800,
                               fontSize: 16,
+                              color: AppColors.textPrimaryOf(context),
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -217,17 +222,17 @@ class RecordHistoryCard extends ConsumerWidget {
                     // 시작 ~ 종료 일시 (한 줄로 깔끔하고 직관적인 포맷)
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.calendar_today_rounded,
                           size: 12.5,
-                          color: AppColors.textSecondary,
+                          color: AppColors.textSecondaryOf(context),
                         ),
                         const SizedBox(width: 5),
                         Expanded(
                           child: Text(
                             dateRangeStr,
                             style: AppTypography.bodySm.copyWith(
-                              color: AppColors.textSecondary,
+                              color: AppColors.textSecondaryOf(context),
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                             ),
@@ -246,7 +251,7 @@ class RecordHistoryCard extends ConsumerWidget {
                         if (activeMembers.isEmpty) {
                           return const SizedBox.shrink();
                         }
-                        return _buildOverlappingAvatars(activeMembers);
+                        return _buildOverlappingAvatars(context, activeMembers);
                       },
                       orElse: () => const SizedBox.shrink(),
                     ),
@@ -262,61 +267,41 @@ class RecordHistoryCard extends ConsumerWidget {
 
   Widget _buildPlaceholder() {
     return Container(
-      color: AppColors.surfaceLow,
+      color: AppColors.surface,
       child: const Center(
         child: Icon(
           Icons.photo_library_outlined,
           color: AppColors.textDisabled,
-          size: 28,
+          size: 32,
         ),
       ),
     );
   }
 
-  Widget _buildOverlappingAvatars(List<RoomMemberModel> members) {
-    const maxAvatars = 4;
-    final displayMembers = members.take(maxAvatars).toList();
-    final extraCount = members.length - maxAvatars;
-    final stackWidth = (displayMembers.length * 16.0 + (extraCount > 0 ? 24 : 8)).clamp(24.0, 120.0);
+  Widget _buildOverlappingAvatars(BuildContext context, List<RoomMemberModel> members) {
+    const maxDisplay = 4;
+    final displayMembers = members.take(maxDisplay).toList();
+    final extraCount = members.length - displayMembers.length;
+    final cardBg = Theme.of(context).cardTheme.color ?? AppColors.cardOf(context);
 
     return Row(
       children: [
         SizedBox(
+          width: (displayMembers.length * 16.0) + (extraCount > 0 ? 24.0 : 8.0),
           height: 24,
-          width: stackWidth,
           child: Stack(
             clipBehavior: Clip.none,
             children: [
               for (int i = 0; i < displayMembers.length; i++)
                 Positioned(
                   left: i * 16.0,
-                  child: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.surface,
-                      border: Border.all(color: Colors.white, width: 1.5),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.08),
-                          blurRadius: 2,
-                          offset: const Offset(0, 1),
-                        ),
-                      ],
-                    ),
-                    child: ClipOval(
-                      child: displayMembers[i].userProfile?.profileImageUrl != null
-                          ? (displayMembers[i].userProfile!.profileImageUrl!.startsWith('http')
-                              ? CachedNetworkImage(
-                                  imageUrl: displayMembers[i].userProfile!.profileImageUrl!,
-                                  fit: BoxFit.cover,
-                                  placeholder: (_, __) => Container(color: AppColors.surface),
-                                  errorWidget: (_, __, ___) => const Icon(Icons.person, size: 14, color: AppColors.textSecondary),
-                                )
-                              : Image.asset(displayMembers[i].userProfile!.profileImageUrl!, fit: BoxFit.cover))
-                          : const Icon(Icons.person, size: 14, color: AppColors.textSecondary),
-                    ),
+                  child: UserAvatar(
+                    imageUrl: displayMembers[i].userProfile?.profileImageUrl,
+                    size: 24,
+                    borderWidth: 1.5,
+                    borderColor: cardBg,
+                    showShadow: true,
+                    fallbackIconSize: 14,
                   ),
                 ),
               if (extraCount > 0)
@@ -327,16 +312,16 @@ class RecordHistoryCard extends ConsumerWidget {
                     height: 24,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColors.surfaceLow,
-                      border: Border.all(color: Colors.white, width: 1.5),
+                      color: AppColors.surfaceLowOf(context),
+                      border: Border.all(color: cardBg, width: 1.5),
                     ),
                     alignment: Alignment.center,
                     child: Text(
                       '+$extraCount',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 9,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textSecondary,
+                        color: AppColors.textSecondaryOf(context),
                       ),
                     ),
                   ),
@@ -349,7 +334,7 @@ class RecordHistoryCard extends ConsumerWidget {
           '${members.length}명',
           style: AppTypography.bodySm.copyWith(
             fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
+            color: AppColors.textPrimaryOf(context),
             fontSize: 12,
           ),
         ),

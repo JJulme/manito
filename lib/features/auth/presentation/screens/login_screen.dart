@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:manito/core/analytics/analytics_event.dart';
+import 'package:manito/core/analytics/analytics_service.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
 import 'package:manito/core/widget/manito_logo.dart';
@@ -47,9 +49,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _handleGoogleLogin() async {
     setState(() => _isLoading = true);
+    ref.read(analyticsServiceProvider).logEvent(
+      AnalyticsEvent.loginAttempt,
+      screenName: 'LoginScreen',
+      properties: {'provider': 'google'},
+    );
     try {
       await ref.read(authProvider.notifier).loginWithGoogle();
+      ref.read(analyticsServiceProvider).logEvent(
+        AnalyticsEvent.loginSuccess,
+        screenName: 'LoginScreen',
+        properties: {'provider': 'google'},
+      );
     } catch (e) {
+      ref.read(analyticsServiceProvider).logEvent(
+        AnalyticsEvent.loginFailure,
+        screenName: 'LoginScreen',
+        properties: {'provider': 'google', 'error': e.toString()},
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('구글 로그인 실패: $e')),
@@ -62,9 +79,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _handleAppleLogin() async {
     setState(() => _isLoading = true);
+    ref.read(analyticsServiceProvider).logEvent(
+      AnalyticsEvent.loginAttempt,
+      screenName: 'LoginScreen',
+      properties: {'provider': 'apple'},
+    );
     try {
       await ref.read(authProvider.notifier).loginWithApple();
+      ref.read(analyticsServiceProvider).logEvent(
+        AnalyticsEvent.loginSuccess,
+        screenName: 'LoginScreen',
+        properties: {'provider': 'apple'},
+      );
     } catch (e) {
+      ref.read(analyticsServiceProvider).logEvent(
+        AnalyticsEvent.loginFailure,
+        screenName: 'LoginScreen',
+        properties: {'provider': 'apple', 'error': e.toString()},
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('애플 로그인 실패: $e')),
@@ -78,7 +110,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.backgroundOf(context),
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -133,6 +165,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                         fontSize: 19,
                                         fontWeight: FontWeight.w700,
                                         height: 1.35,
+                                        color: AppColors.textPrimaryOf(context),
                                       ),
                                       textAlign: TextAlign.center,
                                     ),
@@ -149,9 +182,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       SmoothPageIndicator(
                         controller: _pageController,
                         count: _slides.length,
-                        effect: const ExpandingDotsEffect(
-                          activeDotColor: AppColors.textPrimary,
-                          dotColor: AppColors.border,
+                        effect: ExpandingDotsEffect(
+                          activeDotColor: AppColors.isDark(context) ? AppColors.primary : AppColors.textPrimary,
+                          dotColor: AppColors.borderOf(context),
                           dotHeight: 7,
                           dotWidth: 7,
                           expansionFactor: 3,
@@ -176,7 +209,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               iconAsset: 'assets/images/circle_kakao.png',
                               bgColor: const Color(0xFFFEE500),
                               textColor: const Color(0xFF191919),
-                              onTap: () => context.push('/kakao_login'),
+                              onTap: () {
+                                ref.read(analyticsServiceProvider).logEvent(
+                                  AnalyticsEvent.loginAttempt,
+                                  screenName: 'LoginScreen',
+                                  properties: {'provider': 'kakao'},
+                                );
+                                context.push('/kakao_login');
+                              },
                             ),
                             const SizedBox(height: 10),
 
@@ -184,9 +224,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             _buildSocialButton(
                               label: 'Google 계정으로 계속',
                               iconAsset: 'assets/images/circle_google.png',
-                              bgColor: Colors.white,
-                              textColor: AppColors.textPrimary,
-                              borderSide: const BorderSide(color: AppColors.border, width: 1.2),
+                              bgColor: AppColors.cardOf(context),
+                              textColor: AppColors.textPrimaryOf(context),
+                              borderSide: BorderSide(color: AppColors.borderOf(context), width: 1.2),
                               onTap: _handleGoogleLogin,
                             ),
 
@@ -198,6 +238,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 iconAsset: 'assets/images/circle_apple.png',
                                 bgColor: Colors.black,
                                 textColor: Colors.white,
+                                borderSide: BorderSide(
+                                  color: AppColors.isDark(context) ? AppColors.borderOf(context) : Colors.transparent,
+                                  width: 1.0,
+                                ),
                                 onTap: _handleAppleLogin,
                               ),
                             ],
@@ -232,7 +276,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           color: bgColor,
           borderRadius: BorderRadius.circular(16),
           border: borderSide != null ? Border.fromBorderSide(borderSide) : null,
-          boxShadow: AppColors.cardShadow,
+          boxShadow: AppColors.cardShadowOf(context),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(

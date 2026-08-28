@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:manito/core/analytics/analytics_event.dart';
+import 'package:manito/core/analytics/analytics_service.dart';
 import '../auth_provider.dart';
 
 class KakaoLoginWebview extends ConsumerStatefulWidget {
@@ -42,11 +44,26 @@ class _KakaoLoginWebviewState extends ConsumerState<KakaoLoginWebview> {
   @override
   Widget build(BuildContext context) {
     ref.listen(authProvider, (previous, next) {
-      next.whenData((auth) {
-        if (auth.session?.user != null && mounted) {
-          context.pop();
-        }
-      });
+      next.when(
+        data: (auth) {
+          if (auth.session?.user != null && mounted) {
+            ref.read(analyticsServiceProvider).logEvent(
+              AnalyticsEvent.loginSuccess,
+              screenName: 'KakaoLoginWebview',
+              properties: {'provider': 'kakao'},
+            );
+            context.pop();
+          }
+        },
+        error: (err, _) {
+          ref.read(analyticsServiceProvider).logEvent(
+            AnalyticsEvent.loginFailure,
+            screenName: 'KakaoLoginWebview',
+            properties: {'provider': 'kakao', 'error': err.toString()},
+          );
+        },
+        loading: () {},
+      );
     });
 
     return SafeArea(
@@ -71,7 +88,7 @@ class _KakaoLoginWebviewState extends ConsumerState<KakaoLoginWebview> {
                           const SnackBar(content: Text('카카오 로그인 실패: 인증 코드 없음')),
                         );
                         Future.delayed(const Duration(milliseconds: 500), () {
-                          if (mounted) context.pop();
+                          if (context.mounted) context.pop();
                         });
                       }
                     }

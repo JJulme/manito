@@ -73,3 +73,9 @@ final roomThumbnailProvider =
   final repo = ref.watch(feedRepositoryProvider);
   return repo.fetchRoomThumbnail(roomId);
 });
+
+final sharedCompletedRoomsProvider =
+    FutureProvider.autoDispose.family<List<RoomModel>, String>((ref, friendUserId) async {
+  final repo = ref.watch(feedRepositoryProvider);
+  return repo.fetchSharedCompletedRooms(friendUserId);
+});

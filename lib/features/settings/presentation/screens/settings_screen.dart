@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
 import 'package:manito/core/theme/theme_provider.dart';
+import 'package:manito/core/analytics/analytics_event.dart';
+import 'package:manito/core/analytics/analytics_service.dart';
 import 'package:manito/features/auth/presentation/auth_provider.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -72,8 +74,8 @@ class SettingsScreen extends ConsumerWidget {
     Clipboard.setData(const ClipboardData(text: _contactEmail));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('문의 이메일($contactEmail)이 복사되었습니다.'),
-        backgroundColor: AppColors.textPrimary,
+        content: const Text('문의 이메일($_contactEmail)이 복사되었습니다.'),
+        backgroundColor: AppColors.textPrimaryOf(context),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         duration: const Duration(seconds: 2),
@@ -81,7 +83,132 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  static const String contactEmail = _contactEmail;
+  void _showThemeModePicker(BuildContext context, WidgetRef ref) {
+    final currentTheme = ref.read(themeProvider);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardTheme.color ?? AppColors.cardOf(context),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.borderOf(context),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '테마 모드 설정',
+              style: AppTypography.titleMedium.copyWith(
+                color: AppColors.textPrimaryOf(context),
+                fontWeight: FontWeight.w700,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            _buildThemeOptionTile(
+              context: ctx,
+              title: '라이트 모드',
+              subtitle: '밝고 산뜻한 기본 테마',
+              icon: Icons.light_mode_outlined,
+              isSelected: currentTheme == ThemeMode.light,
+              onTap: () {
+                ref.read(analyticsServiceProvider).logEvent(
+                  AnalyticsEvent.themeChange,
+                  screenName: 'SettingsScreen',
+                  properties: {'mode': 'light'},
+                );
+                ref.read(themeProvider.notifier).setTheme(ThemeMode.light);
+                Navigator.pop(ctx);
+              },
+            ),
+            _buildThemeOptionTile(
+              context: ctx,
+              title: '다크 모드',
+              subtitle: '어두운 환경에서 눈이 편안한 테마',
+              icon: Icons.dark_mode_outlined,
+              isSelected: currentTheme == ThemeMode.dark,
+              onTap: () {
+                ref.read(analyticsServiceProvider).logEvent(
+                  AnalyticsEvent.themeChange,
+                  screenName: 'SettingsScreen',
+                  properties: {'mode': 'dark'},
+                );
+                ref.read(themeProvider.notifier).setTheme(ThemeMode.dark);
+                Navigator.pop(ctx);
+              },
+            ),
+            _buildThemeOptionTile(
+              context: ctx,
+              title: '시스템 설정 동기화',
+              subtitle: '기기 OS의 다크/라이트 설정에 자동 맞춤',
+              icon: Icons.brightness_auto_outlined,
+              isSelected: currentTheme == ThemeMode.system,
+              onTap: () {
+                ref.read(analyticsServiceProvider).logEvent(
+                  AnalyticsEvent.themeChange,
+                  screenName: 'SettingsScreen',
+                  properties: {'mode': 'system'},
+                );
+                ref.read(themeProvider.notifier).setTheme(ThemeMode.system);
+                Navigator.pop(ctx);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildThemeOptionTile({
+    required BuildContext context,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: ListTile(
+        leading: Icon(
+          icon,
+          color: isSelected ? AppColors.primary : AppColors.textPrimaryOf(context),
+        ),
+        title: Text(
+          title,
+          style: AppTypography.titleSmall.copyWith(
+            color: isSelected ? AppColors.primary : AppColors.textPrimaryOf(context),
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+          ),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: AppTypography.bodySm.copyWith(
+            color: AppColors.textSecondaryOf(context),
+          ),
+        ),
+        trailing: isSelected
+            ? const Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 22)
+            : null,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        onTap: onTap,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -99,40 +226,32 @@ class SettingsScreen extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         children: [
           // Section 1: 일반 설정
-          const Text('일반 설정', style: AppTypography.labelMd),
+          Text('일반 설정', style: AppTypography.labelMd.copyWith(color: AppColors.textSecondaryOf(context))),
           const SizedBox(height: 10),
           Card(
             child: Column(
               children: [
                 ListTile(
-                  leading: const Icon(Icons.brightness_medium_rounded, color: AppColors.textPrimary),
-                  title: const Text('테마 모드', style: AppTypography.titleSmall),
+                  leading: Icon(Icons.brightness_medium_rounded, color: AppColors.textPrimaryOf(context)),
+                  title: Text('테마 모드', style: AppTypography.titleSmall.copyWith(color: AppColors.textPrimaryOf(context))),
                   subtitle: Text(
                     themeMode == ThemeMode.light
                         ? '라이트 모드'
                         : themeMode == ThemeMode.dark
                             ? '다크 모드'
                             : '시스템 설정 동기화',
-                    style: AppTypography.bodySm,
+                    style: AppTypography.bodySm.copyWith(color: AppColors.textSecondaryOf(context)),
                   ),
                   trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.textDisabled),
-                  onTap: () {
-                    if (themeMode == ThemeMode.light) {
-                      ref.read(themeProvider.notifier).state = ThemeMode.dark;
-                    } else if (themeMode == ThemeMode.dark) {
-                      ref.read(themeProvider.notifier).state = ThemeMode.system;
-                    } else {
-                      ref.read(themeProvider.notifier).state = ThemeMode.light;
-                    }
-                  },
+                  onTap: () => _showThemeModePicker(context, ref),
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(Icons.language_rounded, color: AppColors.textPrimary),
-                  title: const Text('언어 설정 (Language)', style: AppTypography.titleSmall),
+                  leading: Icon(Icons.language_rounded, color: AppColors.textPrimaryOf(context)),
+                  title: Text('언어 설정 (Language)', style: AppTypography.titleSmall.copyWith(color: AppColors.textPrimaryOf(context))),
                   subtitle: Text(
                     context.locale.languageCode == 'ko' ? '한국어 (Korean)' : 'English',
-                    style: AppTypography.bodySm,
+                    style: AppTypography.bodySm.copyWith(color: AppColors.textSecondaryOf(context)),
                   ),
                   trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.textDisabled),
                   onTap: () async {
@@ -149,23 +268,23 @@ class SettingsScreen extends ConsumerWidget {
           const SizedBox(height: 24),
 
           // Section 2: 고객지원
-          const Text('고객지원 및 문의', style: AppTypography.labelMd),
+          Text('고객지원 및 문의', style: AppTypography.labelMd.copyWith(color: AppColors.textSecondaryOf(context))),
           const SizedBox(height: 10),
           Card(
             child: Column(
               children: [
                 ListTile(
-                  leading: const Icon(Icons.mail_outline_rounded, color: AppColors.textPrimary),
-                  title: const Text('개발팀 문의하기', style: AppTypography.titleSmall),
-                  subtitle: const Text(_contactEmail, style: AppTypography.bodySm),
-                  trailing: const Icon(Icons.copy_rounded, size: 16, color: AppColors.textSecondary),
+                  leading: Icon(Icons.mail_outline_rounded, color: AppColors.textPrimaryOf(context)),
+                  title: Text('개발팀 문의하기', style: AppTypography.titleSmall.copyWith(color: AppColors.textPrimaryOf(context))),
+                  subtitle: Text(_contactEmail, style: AppTypography.bodySm.copyWith(color: AppColors.textSecondaryOf(context))),
+                  trailing: Icon(Icons.copy_rounded, size: 16, color: AppColors.textSecondaryOf(context)),
                   onTap: () => _copyEmail(context),
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(Icons.info_outline_rounded, color: AppColors.textPrimary),
-                  title: const Text('앱 버전', style: AppTypography.titleSmall),
-                  subtitle: const Text('2.1.1 (최신 버전)', style: AppTypography.bodySm),
+                  leading: Icon(Icons.info_outline_rounded, color: AppColors.textPrimaryOf(context)),
+                  title: Text('앱 버전', style: AppTypography.titleSmall.copyWith(color: AppColors.textPrimaryOf(context))),
+                  subtitle: Text('2.1.1 (최신 버전)', style: AppTypography.bodySm.copyWith(color: AppColors.textSecondaryOf(context))),
                 ),
               ],
             ),
@@ -173,14 +292,14 @@ class SettingsScreen extends ConsumerWidget {
           const SizedBox(height: 24),
 
           // Section 3: 계정 관리
-          const Text('계정 관리', style: AppTypography.labelMd),
+          Text('계정 관리', style: AppTypography.labelMd.copyWith(color: AppColors.textSecondaryOf(context))),
           const SizedBox(height: 10),
           Card(
             child: Column(
               children: [
                 ListTile(
-                  leading: const Icon(Icons.logout_rounded, color: AppColors.textPrimary),
-                  title: const Text('로그아웃', style: AppTypography.titleSmall),
+                  leading: Icon(Icons.logout_rounded, color: AppColors.textPrimaryOf(context)),
+                  title: Text('로그아웃', style: AppTypography.titleSmall.copyWith(color: AppColors.textPrimaryOf(context))),
                   trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.textDisabled),
                   onTap: () => _showLogoutDialog(context, ref),
                 ),

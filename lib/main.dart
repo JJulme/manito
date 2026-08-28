@@ -176,7 +176,7 @@ class _ManitoState extends ConsumerState<Manito> {
       debugShowCheckedModeBanner: false,
       // 테마 설정
       theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
       // 전역 키보드 닫기 및 포커스 해제 (GestureDetector Unfocus)
       builder: (context, child) {

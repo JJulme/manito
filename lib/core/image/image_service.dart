@@ -6,7 +6,6 @@ import 'package:manito/core/providers.dart';
 import 'package:manito/core/util/app_logger.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
-import 'package:photo_manager/photo_manager.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 // Provider
@@ -73,34 +72,26 @@ class ImageService {
     }
   }
 
-  /// 여러 이미지 업로드
-  Future<List<String>> uploadImages({
-    required List<AssetEntity> assets,
+  /// 여러 파일 업로드
+  Future<List<String>> uploadMultipleFiles({
+    required List<File> files,
     required String bucket,
     required String prefix,
   }) async {
     List<String> uploadedUrls = [];
 
-    for (AssetEntity asset in assets) {
-      final file = await asset.originFile;
-      if (file == null) continue;
-
+    for (File file in files) {
       try {
-        // 압축
         final compressedFile = await compressImage(file);
-        // 파일명 생성
         final fileName = _generateFileName(prefix);
-        // 업로드
         final url = await uploadImage(
           file: compressedFile,
           bucket: bucket,
           fileName: fileName,
         );
-
         uploadedUrls.add(url);
       } catch (e, s) {
-        AppLogger.e('Image upload failed for asset: $e', tag: 'IMAGE', error: e, stackTrace: s);
-        // 하나 실패해도 계속 진행
+        AppLogger.e('Image upload failed for file: $e', tag: 'IMAGE', error: e, stackTrace: s);
       }
     }
 

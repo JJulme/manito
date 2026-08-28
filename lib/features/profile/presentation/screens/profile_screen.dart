@@ -5,6 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/providers.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
+import 'package:manito/core/widget/user_avatar.dart';
+import 'package:manito/core/analytics/analytics_event.dart';
+import 'package:manito/core/analytics/analytics_service.dart';
 import 'package:manito/features/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:manito/features/settings/presentation/screens/settings_screen.dart';
 
@@ -13,6 +16,10 @@ class ProfileScreen extends ConsumerWidget {
 
   void _copyToClipboard(BuildContext context, String code) {
     Clipboard.setData(ClipboardData(text: code));
+    AnalyticsService.instance.logEvent(
+      AnalyticsEvent.myCodeCopy,
+      screenName: 'ProfileScreen',
+    );
     // 안드로이드는 시스템 자체 클립보드 오버레이가 뜨므로 iOS에서만 인앱 스낵바 안내 노출
     if (Theme.of(context).platform == TargetPlatform.iOS) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -27,7 +34,8 @@ class ProfileScreen extends ConsumerWidget {
     }
   }
 
-  Widget _buildAutoReplyPreviewCard({
+  Widget _buildAutoReplyPreviewCard(
+    BuildContext context, {
     required String title,
     required String? imageUrl,
     required String? text,
@@ -39,10 +47,10 @@ class ProfileScreen extends ConsumerWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).cardTheme.color ?? AppColors.cardOf(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-        boxShadow: AppColors.cardShadow,
+        border: Border.all(color: AppColors.borderOf(context)),
+        boxShadow: AppColors.cardShadowOf(context),
       ),
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -53,7 +61,10 @@ class ProfileScreen extends ConsumerWidget {
             children: [
               Icon(icon, size: 20, color: AppColors.primaryDark),
               const SizedBox(width: 8),
-              Text(title, style: AppTypography.titleSm),
+              Text(
+                title,
+                style: AppTypography.titleSm.copyWith(color: AppColors.textPrimaryOf(context)),
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -65,9 +76,9 @@ class ProfileScreen extends ConsumerWidget {
               child: Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceLow,
+                  color: AppColors.surfaceLowOf(context),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: AppColors.borderOf(context)),
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(15),
@@ -76,8 +87,8 @@ class ProfileScreen extends ConsumerWidget {
                           imageUrl: imageUrl,
                           width: double.infinity,
                           fit: BoxFit.fitWidth,
-                          placeholder: (_, __) => Container(color: AppColors.surface),
-                          errorWidget: (_, __, ___) => const Icon(Icons.broken_image_outlined, color: AppColors.textSecondary),
+                          placeholder: (_, __) => Container(color: AppColors.surfaceOf(context)),
+                          errorWidget: (_, __, ___) => Icon(Icons.broken_image_outlined, color: AppColors.textSecondaryOf(context)),
                         )
                       : Image.asset(imageUrl, width: double.infinity, fit: BoxFit.fitWidth),
                 ),
@@ -91,13 +102,13 @@ class ProfileScreen extends ConsumerWidget {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
-              color: AppColors.surfaceLow,
+              color: AppColors.surfaceLowOf(context),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: AppColors.borderOf(context)),
             ),
             child: Text(
               displayContent,
-              style: AppTypography.bodyMd.copyWith(color: AppColors.textPrimary),
+              style: AppTypography.bodyMd.copyWith(color: AppColors.textPrimaryOf(context)),
             ),
           ),
         ],
@@ -144,8 +155,6 @@ class ProfileScreen extends ConsumerWidget {
             return const Center(child: Text('사용자 정보를 찾을 수 없습니다.'));
           }
 
-          final hasProfileImage = user.profileImageUrl != null && user.profileImageUrl!.isNotEmpty;
-
           return SingleChildScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -156,42 +165,30 @@ class ProfileScreen extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: Theme.of(context).cardTheme.color ?? AppColors.cardOf(context),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.border),
-                    boxShadow: AppColors.cardShadow,
+                    border: Border.all(color: AppColors.borderOf(context)),
+                    boxShadow: AppColors.cardShadowOf(context),
                   ),
                   child: Column(
                     children: [
                       // Avatar
-                      Container(
-                        width: 96,
-                        height: 96,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.surfaceLow,
-                          border: Border.all(color: AppColors.border, width: 2),
-                          boxShadow: AppColors.cardShadow,
-                        ),
-                        child: ClipOval(
-                          child: hasProfileImage
-                              ? (user.profileImageUrl!.startsWith('http')
-                                  ? CachedNetworkImage(
-                                      imageUrl: user.profileImageUrl!,
-                                      fit: BoxFit.cover,
-                                      placeholder: (_, __) => Container(color: AppColors.surface),
-                                      errorWidget: (_, __, ___) => const Icon(Icons.person_rounded, size: 52, color: AppColors.textDisabled),
-                                    )
-                                  : Image.asset(user.profileImageUrl!, fit: BoxFit.cover))
-                              : const Icon(Icons.person_rounded, size: 52, color: AppColors.textDisabled),
-                        ),
+                      UserAvatar(
+                        imageUrl: user.profileImageUrl,
+                        size: 96,
+                        borderWidth: 2,
+                        showShadow: true,
+                        fallbackIconSize: 52,
                       ),
                       const SizedBox(height: 16),
 
                       // User Name
                       Text(
                         user.name,
-                        style: AppTypography.headlineMd.copyWith(fontWeight: FontWeight.w700),
+                        style: AppTypography.headlineMd.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimaryOf(context),
+                        ),
                       ),
                       const SizedBox(height: 6),
 
@@ -201,7 +198,7 @@ class ProfileScreen extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
                             user.statusMessage!,
-                            style: AppTypography.bodyMd.copyWith(color: AppColors.textSecondary),
+                            style: AppTypography.bodyMd.copyWith(color: AppColors.textSecondaryOf(context)),
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -214,9 +211,9 @@ class ProfileScreen extends ConsumerWidget {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           decoration: BoxDecoration(
-                            color: AppColors.surfaceLow,
+                            color: AppColors.surfaceLowOf(context),
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: AppColors.border),
+                            border: Border.all(color: AppColors.borderOf(context)),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -226,12 +223,12 @@ class ProfileScreen extends ConsumerWidget {
                               Text(
                                 '고유코드: ${user.uniqueCode}',
                                 style: AppTypography.labelMd.copyWith(
-                                  color: AppColors.textPrimary,
+                                  color: AppColors.textPrimaryOf(context),
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
                               const SizedBox(width: 6),
-                              const Icon(Icons.copy_rounded, size: 14, color: AppColors.textSecondary),
+                              Icon(Icons.copy_rounded, size: 14, color: AppColors.textSecondaryOf(context)),
                             ],
                           ),
                         ),
@@ -242,16 +239,20 @@ class ProfileScreen extends ConsumerWidget {
                 const SizedBox(height: 28),
 
                 // 2. Section: Auto-Reply Showcase
-                const Text('내 자동응답 프리셋', style: AppTypography.titleMd),
+                Text(
+                  '내 자동응답 프리셋',
+                  style: AppTypography.titleMd.copyWith(color: AppColors.textPrimaryOf(context)),
+                ),
                 const SizedBox(height: 4),
-                const Text(
+                Text(
                   '마감 시간까지 미참여 시 피드에 대신 노출될 게시물입니다.',
-                  style: AppTypography.bodySm,
+                  style: AppTypography.bodySm.copyWith(color: AppColors.textSecondaryOf(context)),
                 ),
                 const SizedBox(height: 12),
 
                 // 3. Manito Auto-Reply Showcase Card
                 _buildAutoReplyPreviewCard(
+                  context,
                   title: '마니또 자동응답',
                   imageUrl: user.manitoAutoReplyImg,
                   text: user.manitoAutoReplyText,
@@ -262,6 +263,7 @@ class ProfileScreen extends ConsumerWidget {
 
                 // 4. Guess Auto-Reply Showcase Card
                 _buildAutoReplyPreviewCard(
+                  context,
                   title: '추측 자동응답',
                   imageUrl: user.guessAutoReplyImg,
                   text: user.guessAutoReplyText,

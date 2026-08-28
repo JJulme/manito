@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -10,10 +9,12 @@ import 'package:manito/core/theme/app_typography.dart';
 import 'package:manito/core/util/app_logger.dart';
 import 'package:manito/core/widget/manito_logo.dart';
 import 'package:manito/core/widget/manito_mascot.dart';
+import 'package:manito/core/widget/user_avatar.dart';
 import 'package:manito/features/friends/presentation/friends_provider.dart';
 import 'package:manito/features/game/presentation/screens/main_play_dashboard_screen.dart';
 import 'package:manito/features/rooms/presentation/rooms_provider.dart';
 import 'package:manito/features/rooms/presentation/screens/group_lobby_screen.dart';
+import 'package:manito/features/setup/presentation/setup_provider.dart';
 import 'package:manito/features/setup/presentation/screens/mission_setup_screen.dart';
 
 class HomeDashboardView extends ConsumerWidget {
@@ -31,6 +32,8 @@ class HomeDashboardView extends ConsumerWidget {
     final hasOngoingRoom = validOngoingRooms.isNotEmpty;
     final invitationsAsync = ref.watch(receivedRoomInvitationsProvider);
     final friendsAsync = ref.watch(acceptedFriendsProvider);
+    final receivedFriendRequestsAsync = ref.watch(receivedFriendRequestsProvider);
+    final hasFriendRequests = receivedFriendRequestsAsync.value?.isNotEmpty ?? false;
 
     return Scaffold(
       appBar: AppBar(
@@ -42,6 +45,7 @@ class HomeDashboardView extends ConsumerWidget {
           ref.invalidate(ongoingRoomsProvider);
           ref.invalidate(receivedRoomInvitationsProvider);
           ref.invalidate(acceptedFriendsProvider);
+          ref.invalidate(receivedFriendRequestsProvider);
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -95,7 +99,6 @@ class HomeDashboardView extends ConsumerWidget {
                         itemBuilder: (ctx, idx) {
                           final invite = invites[idx];
                           final hostProfile = invite.userProfile;
-                          final hasHostImg = hostProfile?.profileImageUrl != null && hostProfile!.profileImageUrl!.isNotEmpty;
                           final roomTitle = invite.room?.title ?? '마니또 비밀 초대';
 
                           return Card(
@@ -103,26 +106,9 @@ class HomeDashboardView extends ConsumerWidget {
                               padding: const EdgeInsets.all(14),
                               child: Row(
                                 children: [
-                                  Container(
-                                    width: 44,
-                                    height: 44,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: AppColors.surface,
-                                      border: Border.all(color: AppColors.border),
-                                    ),
-                                    child: ClipOval(
-                                      child: hasHostImg
-                                          ? (hostProfile!.profileImageUrl!.startsWith('http')
-                                              ? CachedNetworkImage(
-                                                  imageUrl: hostProfile.profileImageUrl!,
-                                                  fit: BoxFit.cover,
-                                                  placeholder: (_, __) => Container(color: AppColors.surface),
-                                                  errorWidget: (_, __, ___) => const Icon(Icons.person, color: AppColors.textSecondary),
-                                                )
-                                              : Image.asset(hostProfile.profileImageUrl!, fit: BoxFit.cover))
-                                          : const Icon(Icons.person, color: AppColors.textSecondary),
-                                    ),
+                                  UserAvatar(
+                                    imageUrl: hostProfile?.profileImageUrl,
+                                    size: 44,
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
@@ -292,14 +278,14 @@ class HomeDashboardView extends ConsumerWidget {
                         data: (friends) => Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: AppColors.surface,
+                            color: AppColors.surfaceLowOf(context),
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: AppColors.border),
+                            border: Border.all(color: AppColors.borderOf(context)),
                           ),
                           child: Text(
                             '${friends.length}명',
                             style: AppTypography.labelSm.copyWith(
-                              color: AppColors.textPrimary,
+                              color: AppColors.textPrimaryOf(context),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -314,24 +300,34 @@ class HomeDashboardView extends ConsumerWidget {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       child: Row(
-                        children: const [
-                          Icon(Icons.person_add_rounded, size: 14, color: AppColors.textSecondary),
-                          SizedBox(width: 4),
+                        children: [
+                          Icon(Icons.person_add_alt_1_outlined, size: 16, color: AppColors.primaryDark),
+                          const SizedBox(width: 4),
                           Text(
                             '친구 추가',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textSecondary,
-                              fontWeight: FontWeight.w600,
+                            style: AppTypography.labelSm.copyWith(
+                              color: AppColors.primaryDark,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
+                          if (hasFriendRequests) ...[
+                            const SizedBox(width: 4),
+                            Container(
+                              width: 6,
+                              height: 6,
+                              decoration: const BoxDecoration(
+                                color: AppColors.statusRed,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
 
               friendsAsync.when(
                 loading: () => const Center(
@@ -346,9 +342,9 @@ class HomeDashboardView extends ConsumerWidget {
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
                       decoration: BoxDecoration(
-                        color: AppColors.surface,
+                        color: AppColors.surfaceLowOf(context),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(color: AppColors.borderOf(context)),
                       ),
                       alignment: Alignment.center,
                       child: Column(
@@ -377,53 +373,40 @@ class HomeDashboardView extends ConsumerWidget {
                     itemBuilder: (ctx, idx) {
                       final friend = friends[idx];
                       final profile = friend.friendProfile;
-                      final hasImg = profile?.profileImageUrl != null && profile!.profileImageUrl!.isNotEmpty;
 
                       return Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(14),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 44,
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: AppColors.surface,
-                                  border: Border.all(color: AppColors.border),
+                        child: InkWell(
+                          onTap: () => context.push('/friend_detail', extra: friend),
+                          borderRadius: BorderRadius.circular(16),
+                          child: Padding(
+                            padding: const EdgeInsets.all(14),
+                            child: Row(
+                              children: [
+                                UserAvatar(
+                                  imageUrl: profile?.profileImageUrl,
+                                  size: 44,
                                 ),
-                                child: ClipOval(
-                                  child: hasImg
-                                      ? (profile.profileImageUrl!.startsWith('http')
-                                          ? CachedNetworkImage(
-                                              imageUrl: profile.profileImageUrl!,
-                                              fit: BoxFit.cover,
-                                              placeholder: (_, __) => Container(color: AppColors.surface),
-                                              errorWidget: (_, __, ___) => const Icon(Icons.person, color: AppColors.textSecondary),
-                                            )
-                                          : Image.asset(profile.profileImageUrl!, fit: BoxFit.cover))
-                                      : const Icon(Icons.person, color: AppColors.textSecondary),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(profile?.name ?? '알 수 없는 요원', style: AppTypography.titleSmall),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        profile?.statusMessage?.isNotEmpty == true
+                                            ? profile!.statusMessage!
+                                            : '코드: ${profile?.uniqueCode ?? "-"}',
+                                        style: AppTypography.bodySm,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 14),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(profile?.name ?? '알 수 없는 요원', style: AppTypography.titleSmall),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      profile?.statusMessage?.isNotEmpty == true
-                                          ? profile!.statusMessage!
-                                          : '코드: ${profile?.uniqueCode ?? "-"}',
-                                      style: AppTypography.bodySm,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                                const Icon(Icons.chevron_right_rounded, color: AppColors.textDisabled, size: 20),
+                              ],
+                            ),
                           ),
                         ),
                       );
@@ -603,18 +586,34 @@ class _OngoingRoomCardState extends ConsumerState<OngoingRoomCard> {
         final me = currentMembers?.where((m) => m.userId == currentUserId).firstOrNull;
 
         if (context.mounted) {
-          if (me != null && !me.isMissionSelected) {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => MissionSetupScreen(roomId: room.roomId),
-              ),
-            );
-          } else {
+          // 게임이 이미 시작(ONGOING)된 방인 경우
+          if (room.status == RoomStatus.ongoing) {
+            if (me != null && !me.isMissionSelected) {
+              // 아직 미션이 선택 안 되었다면 백그라운드에서 랜덤 자동 배정
+              unawaited(
+                ref.read(missionSetupProvider.notifier).confirmSelection(me.roomMemberId, room.roomId, null),
+              );
+            }
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (_) => MainPlayDashboardScreen(roomId: room.roomId),
               ),
             );
+          } else {
+            // 아직 SETUP 단계인 경우
+            if (me != null && !me.isMissionSelected) {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => MissionSetupScreen(roomId: room.roomId),
+                ),
+              );
+            } else {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => MainPlayDashboardScreen(roomId: room.roomId),
+                ),
+              );
+            }
           }
         }
       },
@@ -624,7 +623,7 @@ class _OngoingRoomCardState extends ConsumerState<OngoingRoomCard> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
           side: BorderSide(
-            color: isUrgent ? AppColors.statusRed.withValues(alpha: 0.5) : AppColors.border,
+            color: isUrgent ? AppColors.statusRed.withValues(alpha: 0.5) : AppColors.borderOf(context),
             width: isUrgent ? 1.2 : 1.0,
           ),
         ),
@@ -676,10 +675,10 @@ class _OngoingRoomCardState extends ConsumerState<OngoingRoomCard> {
                     decoration: BoxDecoration(
                       color: isUrgent
                           ? AppColors.statusRed.withValues(alpha: 0.12)
-                          : AppColors.surfaceLow,
+                          : AppColors.surfaceLowOf(context),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: isUrgent ? AppColors.statusRed : AppColors.border,
+                        color: isUrgent ? AppColors.statusRed : AppColors.borderOf(context),
                         width: isUrgent ? 1.2 : 1.0,
                       ),
                     ),
@@ -697,7 +696,7 @@ class _OngoingRoomCardState extends ConsumerState<OngoingRoomCard> {
                           style: TextStyle(
                             fontSize: 12.5,
                             fontWeight: FontWeight.w800,
-                            color: isUrgent ? AppColors.statusRed : AppColors.textPrimary,
+                            color: isUrgent ? AppColors.statusRed : AppColors.textPrimaryOf(context),
                           ),
                         ),
                       ],
@@ -706,7 +705,7 @@ class _OngoingRoomCardState extends ConsumerState<OngoingRoomCard> {
                 ],
               ),
               const SizedBox(height: 12),
-              const Divider(height: 1, color: AppColors.border),
+              Divider(height: 1, color: AppColors.borderOf(context)),
               const SizedBox(height: 12),
 
               // 2. 하단: [참여 친구 아바타 스택] on Left & [마감 일시] on Right
@@ -751,46 +750,25 @@ class _OngoingRoomCardState extends ConsumerState<OngoingRoomCard> {
     const maxAvatars = 4;
     final displayMembers = members.take(maxAvatars).toList();
     final extraCount = members.length - maxAvatars;
-    final stackWidth = (displayMembers.length * 18.0 + (extraCount > 0 ? 28 : 10)).clamp(28.0, 140.0);
+    final cardBg = Theme.of(context).cardTheme.color ?? AppColors.cardOf(context);
 
     return Row(
       children: [
         SizedBox(
+          width: (displayMembers.length * 18.0) + (extraCount > 0 ? 28.0 : 10.0),
           height: 28,
-          width: stackWidth,
           child: Stack(
             clipBehavior: Clip.none,
             children: [
               for (int i = 0; i < displayMembers.length; i++)
                 Positioned(
                   left: i * 18.0,
-                  child: Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.surface,
-                      border: Border.all(color: Colors.white, width: 2),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.08),
-                          blurRadius: 2,
-                          offset: const Offset(0, 1),
-                        ),
-                      ],
-                    ),
-                    child: ClipOval(
-                      child: displayMembers[i].userProfile?.profileImageUrl != null
-                          ? (displayMembers[i].userProfile!.profileImageUrl!.startsWith('http')
-                              ? CachedNetworkImage(
-                                  imageUrl: displayMembers[i].userProfile!.profileImageUrl!,
-                                  fit: BoxFit.cover,
-                                  placeholder: (_, __) => Container(color: AppColors.surface),
-                                  errorWidget: (_, __, ___) => const Icon(Icons.person, size: 16, color: AppColors.textSecondary),
-                                )
-                              : Image.asset(displayMembers[i].userProfile!.profileImageUrl!, fit: BoxFit.cover))
-                          : const Icon(Icons.person, size: 16, color: AppColors.textSecondary),
-                    ),
+                  child: UserAvatar(
+                    imageUrl: displayMembers[i].userProfile?.profileImageUrl,
+                    size: 28,
+                    borderWidth: 2,
+                    borderColor: cardBg,
+                    showShadow: true,
                   ),
                 ),
               if (extraCount > 0)
@@ -801,8 +779,8 @@ class _OngoingRoomCardState extends ConsumerState<OngoingRoomCard> {
                     height: 28,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColors.surfaceLow,
-                      border: Border.all(color: Colors.white, width: 2),
+                      color: AppColors.surfaceLowOf(context),
+                      border: Border.all(color: cardBg, width: 2),
                     ),
                     alignment: Alignment.center,
                     child: Text(
@@ -823,7 +801,7 @@ class _OngoingRoomCardState extends ConsumerState<OngoingRoomCard> {
           '${members.length}명 참여 중',
           style: AppTypography.bodySm.copyWith(
             fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
+            color: AppColors.textPrimaryOf(context),
             fontSize: 12.5,
           ),
         ),
@@ -842,8 +820,6 @@ class WaitingRoomCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final hostProfile = room.hostProfile;
     final hostName = hostProfile?.name ?? '요원';
-    final hasImg = hostProfile?.profileImageUrl != null &&
-        hostProfile!.profileImageUrl!.isNotEmpty;
     final currentUserId = ref.watch(currentUserProvider)?.id;
     final isHost = room.hostId == currentUserId;
     final createdDateStr =
@@ -862,7 +838,7 @@ class WaitingRoomCard extends ConsumerWidget {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
-          side: const BorderSide(color: AppColors.border),
+          side: BorderSide(color: AppColors.borderOf(context)),
         ),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -918,32 +894,16 @@ class WaitingRoomCard extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              const Divider(height: 1, color: AppColors.border),
+              Divider(height: 1, color: AppColors.borderOf(context)),
               const SizedBox(height: 10),
 
               // Bottom Section: Host avatar + name + [방장] + timestamp
               Row(
                 children: [
-                  Container(
-                    width: 22,
-                    height: 22,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.surfaceLow,
-                      border: Border.all(color: AppColors.border, width: 0.8),
-                    ),
-                    child: ClipOval(
-                      child: hasImg
-                          ? (hostProfile!.profileImageUrl!.startsWith('http')
-                              ? CachedNetworkImage(
-                                  imageUrl: hostProfile.profileImageUrl!,
-                                  fit: BoxFit.cover,
-                                  placeholder: (_, __) => Container(color: AppColors.surface),
-                                  errorWidget: (_, __, ___) => const Icon(Icons.person, size: 14, color: AppColors.textSecondary),
-                                )
-                              : Image.asset(hostProfile.profileImageUrl!, fit: BoxFit.cover))
-                          : const Icon(Icons.person, size: 14, color: AppColors.textSecondary),
-                    ),
+                  UserAvatar(
+                    imageUrl: hostProfile?.profileImageUrl,
+                    size: 22,
+                    borderWidth: 0.8,
                   ),
                   const SizedBox(width: 6),
                   Text(

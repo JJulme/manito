@@ -14,6 +14,7 @@ import 'package:manito/features/auth/presentation/screens/login_screen.dart';
 import 'package:manito/features/auth/presentation/screens/splash_screen.dart';
 import 'package:manito/features/feed/presentation/screens/result_feed_screen.dart';
 import 'package:manito/features/friends/presentation/screens/add_friend_screen.dart';
+import 'package:manito/features/friends/presentation/screens/friend_detail_screen.dart';
 import 'package:manito/features/friends/presentation/screens/invite_friends_screen.dart';
 import 'package:manito/features/game/presentation/screens/main_play_dashboard_screen.dart';
 import 'package:manito/features/main/main_nav_screen.dart';
@@ -128,6 +129,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/add_friend',
         name: 'addFriend',
         builder: (context, state) => const AddFriendScreen(),
+      ),
+      GoRoute(
+        path: '/friend_detail',
+        name: 'friendDetail',
+        builder: (context, state) {
+          final friendship = state.extra as FriendshipModel;
+          return FriendDetailScreen(friendship: friendship);
+        },
       ),
       GoRoute(
         path: '/invite_friends',

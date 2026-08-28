@@ -58,19 +58,25 @@ class FeedRepository {
   Future<CommentModel> createComment({
     required int recordId,
     required String content,
+    String? imageUrl,
   }) async {
     final uid = currentUserId;
     if (uid == null) throw Exception('로그인이 필요합니다.');
 
     try {
-      AppLogger.i('Posting comment on record: $recordId', tag: 'FEED');
+      AppLogger.i('Posting comment on record: $recordId, hasImage: ${imageUrl != null}', tag: 'FEED');
+      final insertData = <String, dynamic>{
+        'record_id': recordId,
+        'user_id': uid,
+        'content': content,
+      };
+      if (imageUrl != null && imageUrl.isNotEmpty) {
+        insertData['image_url'] = imageUrl;
+      }
+
       final response = await _supabase
           .from('comments')
-          .insert({
-            'record_id': recordId,
-            'user_id': uid,
-            'content': content,
-          })
+          .insert(insertData)
           .select('*, author:users!user_id(*)')
           .single();
 
@@ -79,9 +85,13 @@ class FeedRepository {
 
       // 푸시 알림 발송 (방 참여자들에게)
       try {
+        final notifText = content.trim().isNotEmpty
+            ? content.trim()
+            : (imageUrl != null ? '📷 사진을 남겼습니다.' : '새로운 댓글이 등록되었습니다.');
+
         await _sendCommentPushNotification(
           recordId: recordId,
-          commentContent: content,
+          commentContent: notifText,
           authorName: createdComment.author?.name ?? '마니또 요원',
         );
       } catch (err) {
@@ -251,6 +261,58 @@ class FeedRepository {
     } catch (e, s) {
       AppLogger.e('fetchRoomThumbnail Error: $e', tag: 'FEED', error: e, stackTrace: s);
       return null;
+    }
+  }
+
+  /// Fetch completed rooms shared between current user and a friend
+  Future<List<RoomModel>> fetchSharedCompletedRooms(String friendUserId) async {
+    final uid = currentUserId;
+    if (uid == null) return [];
+
+    try {
+      AppLogger.d('Fetching shared completed rooms with friend: $friendUserId', tag: 'FEED');
+
+      // 1. Get room_ids where current user participated with '✔️'
+      final myRoomsRes = await _supabase
+          .from('room_members')
+          .select('room_id')
+          .eq('user_id', uid)
+          .eq('join_status', '✔️');
+
+      final myRoomIds = (myRoomsRes as List)
+          .map((e) => e['room_id'] as String)
+          .toList();
+
+      if (myRoomIds.isEmpty) return [];
+
+      // 2. Filter to room_ids where friend also participated with '✔️'
+      final sharedRoomsRes = await _supabase
+          .from('room_members')
+          .select('room_id')
+          .eq('user_id', friendUserId)
+          .eq('join_status', '✔️')
+          .inFilter('room_id', myRoomIds);
+
+      final sharedRoomIds = (sharedRoomsRes as List)
+          .map((e) => e['room_id'] as String)
+          .toList();
+
+      if (sharedRoomIds.isEmpty) return [];
+
+      // 3. Fetch completed rooms for these shared room IDs
+      final response = await _supabase
+          .from('rooms')
+          .select('*, host:users!host_id(*)')
+          .inFilter('room_id', sharedRoomIds)
+          .inFilter('status', ['COMPLETED', 'ENDED'])
+          .order('created_at', ascending: false);
+
+      final list = (response as List).map((json) => RoomModel.fromJson(json)).toList();
+      AppLogger.d('Found ${list.length} shared completed rooms with friend $friendUserId', tag: 'FEED');
+      return list;
+    } catch (e, s) {
+      AppLogger.e('fetchSharedCompletedRooms Error: $e', tag: 'FEED', error: e, stackTrace: s);
+      return [];
     }
   }
 }

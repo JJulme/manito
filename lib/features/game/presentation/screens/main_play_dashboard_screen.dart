@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/models/models.dart';
@@ -8,6 +7,8 @@ import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
 import 'package:manito/core/util/app_logger.dart';
 import 'package:manito/core/util/game_time_util.dart';
+import 'package:manito/core/analytics/analytics_event.dart';
+import 'package:manito/core/analytics/analytics_service.dart';
 import 'package:manito/features/feed/presentation/feed_provider.dart';
 import 'package:manito/features/feed/presentation/screens/result_feed_screen.dart';
 import 'package:manito/features/game/presentation/game_provider.dart';
@@ -16,6 +17,7 @@ import 'package:manito/features/rooms/presentation/rooms_provider.dart';
 import 'package:manito/features/setup/presentation/setup_provider.dart';
 import 'package:manito/features/setup/presentation/screens/mission_setup_screen.dart';
 import 'package:manito/core/notifications/app_notification_service.dart';
+import 'package:manito/core/widget/user_avatar.dart';
 
 class MainPlayDashboardScreen extends ConsumerStatefulWidget {
   final String roomId;
@@ -231,6 +233,16 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
 
     if (mounted) {
       if (success1 && success2) {
+        ref.read(analyticsServiceProvider).logEvent(
+          AnalyticsEvent.postWriteComplete,
+          screenName: 'MainPlayDashboardScreen',
+          properties: {
+            'room_id': widget.roomId,
+            'perform_blocks_count': _performBlocks.length,
+            'guess_blocks_count': _guessBlocks.length,
+            'has_suspect': _selectedSuspectId != null,
+          },
+        );
         setState(() => _showValidationErrors = false);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -261,12 +273,18 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
 
     ref.listen<AsyncValue<RoomMemberModel?>>(myMemberRecordProvider(widget.roomId), (prev, next) {
       final member = next.value;
+      final currentRoom = ref.read(roomDetailsProvider(widget.roomId)).value;
       if (member != null && !member.isMissionSelected && mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (_) => MissionSetupScreen(roomId: widget.roomId),
-          ),
-        );
+        if (currentRoom?.status == RoomStatus.ongoing) {
+          // 게임 진행 중이면 미션을 백그라운드에서 자동 랜덤 확정 처리
+          ref.read(missionSetupProvider.notifier).confirmSelection(member.roomMemberId, widget.roomId, null);
+        } else {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => MissionSetupScreen(roomId: widget.roomId),
+            ),
+          );
+        }
       }
     });
 
@@ -277,23 +295,31 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
     final currentUserId = ref.watch(currentUserProvider)?.id;
     final lang = ref.watch(languageCodeProvider);
 
+    final room = roomAsync.value;
     final myMember = myMemberAsync.value;
     if (myMember != null && !myMember.isMissionSelected) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (_) => MissionSetupScreen(roomId: widget.roomId),
-            ),
-          );
-        }
-      });
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator(color: AppColors.primary)),
-      );
+      if (room?.status == RoomStatus.ongoing) {
+        // 이미 진행 중인 게임이므로 미션을 백그라운드 자동 배정하고 대시보드 화면 유지
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            ref.read(missionSetupProvider.notifier).confirmSelection(myMember.roomMemberId, widget.roomId, null);
+          }
+        });
+      } else {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (_) => MissionSetupScreen(roomId: widget.roomId),
+              ),
+            );
+          }
+        });
+        return const Scaffold(
+          body: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+        );
+      }
     }
-
-    final room = roomAsync.value;
     final deadline = room?.gameEndTime ??
         (room?.createdAt.add(const Duration(minutes: 30)) ??
             GameTimeUtil.calculateCeiledDeadline(minutesToAdd: 30));
@@ -320,7 +346,7 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
           showDuration: const Duration(seconds: 10),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           decoration: BoxDecoration(
-            color: AppColors.textPrimary.withValues(alpha: 0.92),
+            color: AppColors.isDark(context) ? AppColors.darkCard : const Color(0xFF222222).withValues(alpha: 0.92),
             borderRadius: BorderRadius.circular(10),
           ),
           textStyle: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
@@ -329,10 +355,10 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
             decoration: BoxDecoration(
               color: isUrgent
                   ? AppColors.statusRed.withValues(alpha: 0.12)
-                  : AppColors.surfaceLow,
+                  : AppColors.surfaceLowOf(context),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: isUrgent ? AppColors.statusRed : AppColors.border,
+                color: isUrgent ? AppColors.statusRed : AppColors.borderOf(context),
                 width: isUrgent ? 1.2 : 1.0,
               ),
             ),
@@ -342,7 +368,9 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
                 Icon(
                   Icons.timer_outlined,
                   size: 16,
-                  color: isUrgent ? AppColors.statusRed : AppColors.primaryDark,
+                  color: isUrgent
+                      ? AppColors.statusRed
+                      : (AppColors.isDark(context) ? AppColors.primary : AppColors.primaryDark),
                 ),
                 const SizedBox(width: 6),
                 Text(
@@ -350,7 +378,7 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: isUrgent ? AppColors.statusRed : AppColors.textPrimary,
+                    color: isUrgent ? AppColors.statusRed : AppColors.textPrimaryOf(context),
                   ),
                 ),
               ],
@@ -363,14 +391,19 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
             child: TextButton(
               onPressed: formState.isSaving ? null : _submitAllRecords,
               style: TextButton.styleFrom(
-                foregroundColor: allConditionsMet ? AppColors.primaryDark : AppColors.textSecondary,
+                foregroundColor: allConditionsMet
+                    ? (AppColors.isDark(context) ? AppColors.primary : AppColors.primaryDark)
+                    : AppColors.textSecondaryOf(context),
                 padding: const EdgeInsets.symmetric(horizontal: 14),
               ),
               child: formState.isSaving
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 16,
                       height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primaryDark),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.isDark(context) ? AppColors.primary : AppColors.primaryDark,
+                      ),
                     )
                   : Text(
                       '저장',
@@ -378,8 +411,8 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: allConditionsMet
-                            ? AppColors.primaryDark
-                            : AppColors.textSecondary.withValues(alpha: 0.6),
+                            ? (AppColors.isDark(context) ? AppColors.primary : AppColors.primaryDark)
+                            : AppColors.textSecondaryOf(context).withValues(alpha: 0.6),
                       ),
                     ),
             ),
@@ -401,9 +434,9 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
                 Container(
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: AppColors.surfaceLowOf(context),
                     borderRadius: BorderRadius.circular(28),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: AppColors.borderOf(context)),
                   ),
                   child: Row(
                     children: [
@@ -447,32 +480,16 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                               decoration: BoxDecoration(
-                                color: AppColors.surface,
+                                color: Theme.of(context).cardTheme.color ?? AppColors.cardOf(context),
                                 borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: AppColors.border),
-                                boxShadow: AppColors.cardShadow,
+                                border: Border.all(color: AppColors.borderOf(context)),
+                                boxShadow: AppColors.cardShadowOf(context),
                               ),
                               child: Row(
                                 children: [
-                                  Container(
-                                    width: 44,
-                                    height: 44,
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.white,
-                                    ),
-                                    child: ClipOval(
-                                      child: targetUser?.profileImageUrl != null
-                                          ? (targetUser!.profileImageUrl!.startsWith('http')
-                                              ? CachedNetworkImage(
-                                                  imageUrl: targetUser.profileImageUrl!,
-                                                  fit: BoxFit.cover,
-                                                  placeholder: (_, __) => Container(color: AppColors.surface),
-                                                  errorWidget: (_, __, ___) => const Icon(Icons.person, color: AppColors.textSecondary),
-                                                )
-                                              : Image.asset(targetUser.profileImageUrl!, fit: BoxFit.cover))
-                                          : const Icon(Icons.person, color: AppColors.textSecondary),
-                                    ),
+                                  UserAvatar(
+                                    imageUrl: targetUser?.profileImageUrl,
+                                    size: 44,
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
@@ -481,14 +498,19 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
                                       children: [
                                         Text(
                                           targetUser?.name ?? '요원',
-                                          style: AppTypography.titleSmall.copyWith(fontWeight: FontWeight.w700),
+                                          style: AppTypography.titleSmall.copyWith(
+                                            fontWeight: FontWeight.w700,
+                                            color: AppColors.textPrimaryOf(context),
+                                          ),
                                         ),
                                         if (targetUser?.statusMessage != null &&
                                             targetUser!.statusMessage!.isNotEmpty) ...[
                                           const SizedBox(height: 2),
                                           Text(
                                             targetUser.statusMessage!,
-                                            style: AppTypography.bodySm,
+                                            style: AppTypography.bodySm.copyWith(
+                                              color: AppColors.textSecondaryOf(context),
+                                            ),
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                           ),
@@ -506,9 +528,9 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: AppColors.surfaceLowOf(context),
                                   borderRadius: BorderRadius.circular(14),
-                                  border: Border.all(color: AppColors.border),
+                                  border: Border.all(color: AppColors.borderOf(context)),
                                 ),
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -518,8 +540,9 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
                                     Expanded(
                                       child: Text(
                                         mission.getContent(lang),
-                                        style: AppTypography.titleSmall.copyWith(
-                                          fontWeight: FontWeight.w600,
+                                        style: AppTypography.bodyMd.copyWith(
+                                          color: AppColors.textPrimaryOf(context),
+                                          fontWeight: FontWeight.w500,
                                           height: 1.4,
                                         ),
                                       ),
@@ -608,7 +631,7 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
       }
     }
     final profile = selectedMember?.userProfile;
-    final hasImg = profile?.profileImageUrl != null && profile!.profileImageUrl!.isNotEmpty;
+    final profileImg = profile?.profileImageUrl;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -622,43 +645,25 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
             decoration: BoxDecoration(
               color: hasError
                   ? AppColors.statusRed.withValues(alpha: 0.05)
-                  : AppColors.surface,
+                  : (Theme.of(context).cardTheme.color ?? AppColors.cardOf(context)),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: hasError
                     ? AppColors.statusRed
-                    : (selectedMember != null ? AppColors.primary : AppColors.border),
+                    : (selectedMember != null ? AppColors.primary : AppColors.borderOf(context)),
                 width: (hasError || selectedMember != null) ? 1.8 : 1.0,
               ),
-              boxShadow: AppColors.cardShadow,
+              boxShadow: AppColors.cardShadowOf(context),
             ),
             child: Row(
               children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white,
-                  ),
-                  child: ClipOval(
-                    child: selectedMember != null
-                        ? (hasImg
-                            ? (profile!.profileImageUrl!.startsWith('http')
-                                ? CachedNetworkImage(
-                                    imageUrl: profile.profileImageUrl!,
-                                    fit: BoxFit.cover,
-                                    placeholder: (_, __) => Container(color: AppColors.surface),
-                                    errorWidget: (_, __, ___) => const Icon(Icons.person, color: AppColors.textSecondary),
-                                  )
-                                : Image.asset(profile.profileImageUrl!, fit: BoxFit.cover))
-                            : const Icon(Icons.person, color: AppColors.textSecondary))
-                        : Icon(
-                            Icons.person_search_rounded,
-                            color: hasError ? AppColors.statusRed : AppColors.textSecondary,
-                            size: 24,
-                          ),
-                  ),
+                UserAvatar(
+                  imageUrl: selectedMember != null ? profileImg : null,
+                  size: 44,
+                  fallbackIcon: selectedMember != null ? Icons.person : Icons.person_search_rounded,
+                  fallbackIconColor: (selectedMember == null && hasError)
+                      ? AppColors.statusRed
+                      : AppColors.textSecondaryOf(context),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -673,7 +678,7 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
                           fontWeight: FontWeight.w700,
                           color: hasError
                               ? AppColors.statusRed
-                              : (selectedMember != null ? AppColors.textPrimary : AppColors.textSecondary),
+                              : (selectedMember != null ? AppColors.textPrimaryOf(context) : AppColors.textSecondaryOf(context)),
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -684,7 +689,7 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
                                 : '마니또로 지목된 요원')
                             : '나의 마니또로 의심되는 친구를 선택하세요',
                         style: AppTypography.bodySm.copyWith(
-                          color: hasError ? AppColors.statusRed : AppColors.textSecondary,
+                          color: hasError ? AppColors.statusRed : AppColors.textSecondaryOf(context),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -694,7 +699,7 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
                 ),
                 Icon(
                   Icons.keyboard_arrow_down_rounded,
-                  color: hasError ? AppColors.statusRed : AppColors.textSecondary,
+                  color: hasError ? AppColors.statusRed : AppColors.textSecondaryOf(context),
                   size: 24,
                 ),
               ],
@@ -725,9 +730,9 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
             maxHeight: MediaQuery.of(context).size.height * 0.6,
           ),
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardTheme.color ?? AppColors.cardOf(context),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -738,18 +743,27 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
                   width: 36,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.border,
+                    color: AppColors.borderOf(context),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
               ),
               const SizedBox(height: 16),
-              const Text('친구 선택', style: AppTypography.titleMedium, textAlign: TextAlign.center),
+              Text(
+                '친구 선택',
+                style: AppTypography.titleMedium.copyWith(color: AppColors.textPrimaryOf(context)),
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 16),
               if (otherMembers.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24),
-                  child: Center(child: Text('선택 가능한 참가자가 없습니다.', style: AppTypography.bodyMd)),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  child: Center(
+                    child: Text(
+                      '선택 가능한 참가자가 없습니다.',
+                      style: AppTypography.bodyMd.copyWith(color: AppColors.textSecondaryOf(context)),
+                    ),
+                  ),
                 )
               else
                 Flexible(
@@ -760,11 +774,20 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
                     itemBuilder: (context, idx) {
                       final m = otherMembers[idx];
                       final p = m.userProfile;
+                      final pImg = p?.profileImageUrl;
+                      final statusMsg = p?.statusMessage;
                       final isSelected = m.userId == _selectedSuspectId;
-                      final hasImg = p?.profileImageUrl != null && p!.profileImageUrl!.isNotEmpty;
 
                       return InkWell(
                         onTap: () {
+                          ref.read(analyticsServiceProvider).logEvent(
+                            AnalyticsEvent.suspectSelect,
+                            screenName: 'MainPlayDashboardScreen',
+                            properties: {
+                              'room_id': widget.roomId,
+                              'suspect_user_id': m.userId,
+                            },
+                          );
                           setState(() => _selectedSuspectId = m.userId);
                           Navigator.pop(ctx);
                         },
@@ -772,34 +795,22 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                           decoration: BoxDecoration(
-                            color: isSelected ? AppColors.primaryLight.withValues(alpha: 0.3) : AppColors.surface,
+                            color: isSelected
+                                ? (AppColors.isDark(context)
+                                    ? AppColors.darkPrimaryLight
+                                    : AppColors.primaryLight.withValues(alpha: 0.3))
+                                : AppColors.surfaceOf(context),
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: isSelected ? AppColors.primaryDark : AppColors.border,
+                              color: isSelected ? AppColors.primary : AppColors.borderOf(context),
                               width: isSelected ? 1.5 : 1.0,
                             ),
                           ),
                           child: Row(
                             children: [
-                              Container(
-                                width: 40,
-                                height: 40,
-                                decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.white,
-                                ),
-                                child: ClipOval(
-                                  child: hasImg
-                                      ? (p!.profileImageUrl!.startsWith('http')
-                                          ? CachedNetworkImage(
-                                              imageUrl: p.profileImageUrl!,
-                                              fit: BoxFit.cover,
-                                              placeholder: (_, __) => Container(color: AppColors.surface),
-                                              errorWidget: (_, __, ___) => const Icon(Icons.person, color: AppColors.textSecondary),
-                                            )
-                                          : Image.asset(p.profileImageUrl!, fit: BoxFit.cover))
-                                      : const Icon(Icons.person, color: AppColors.textSecondary),
-                                ),
+                              UserAvatar(
+                                imageUrl: pImg,
+                                size: 40,
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -808,13 +819,18 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
                                   children: [
                                     Text(
                                       p?.name ?? '요원',
-                                      style: AppTypography.titleSmall.copyWith(fontWeight: FontWeight.w700),
+                                      style: AppTypography.titleSmall.copyWith(
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.textPrimaryOf(context),
+                                      ),
                                     ),
-                                    if (p?.statusMessage != null && p!.statusMessage!.isNotEmpty) ...[
+                                    if (statusMsg != null && statusMsg.isNotEmpty) ...[
                                       const SizedBox(height: 2),
                                       Text(
-                                        p!.statusMessage!,
-                                        style: AppTypography.bodySm,
+                                        statusMsg,
+                                        style: AppTypography.bodySm.copyWith(
+                                          color: AppColors.textSecondaryOf(context),
+                                        ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -844,6 +860,8 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
     required bool isSelected,
     required bool hasError,
   }) {
+    final isDark = AppColors.isDark(context);
+
     return InkWell(
       onTap: () => setState(() => _selectedTab = index),
       borderRadius: BorderRadius.circular(24),
@@ -852,7 +870,9 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
         padding: const EdgeInsets.symmetric(vertical: 12),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.textPrimary : Colors.transparent,
+          color: isSelected
+              ? (isDark ? AppColors.primary : const Color(0xFF222222))
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(24),
         ),
         child: Row(
@@ -861,7 +881,9 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
             Text(
               title,
               style: AppTypography.labelSm.copyWith(
-                color: isSelected ? Colors.white : AppColors.textSecondary,
+                color: isSelected
+                    ? (isDark ? const Color(0xFF1E1E24) : Colors.white)
+                    : AppColors.textSecondaryOf(context),
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
               ),
             ),

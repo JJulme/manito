@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -8,6 +7,9 @@ import 'package:manito/core/providers.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
 import 'package:manito/core/util/app_logger.dart';
+import 'package:manito/core/widget/user_avatar.dart';
+import 'package:manito/core/analytics/analytics_event.dart';
+import 'package:manito/core/analytics/analytics_service.dart';
 import 'package:manito/features/game/presentation/screens/main_play_dashboard_screen.dart';
 import 'package:manito/features/rooms/presentation/rooms_provider.dart';
 import 'package:manito/features/setup/presentation/setup_provider.dart';
@@ -21,9 +23,10 @@ class MissionSetupScreen extends ConsumerStatefulWidget {
   ConsumerState<MissionSetupScreen> createState() => _MissionSetupScreenState();
 }
 
-class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> {
+class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> with WidgetsBindingObserver {
+  static const int _totalTimeoutSeconds = 60;
   Timer? _timer;
-  int _secondsLeft = 30;
+  int _secondsLeft = _totalTimeoutSeconds;
   bool _hasTimedOut = false;
   bool _hasNavigatedToGame = false;
   RealtimeChannel? _roomChannel;
@@ -31,15 +34,45 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _subscribeToRoomRealtime();
     _startTimer();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(analyticsServiceProvider).logEvent(
+        AnalyticsEvent.missionSetupView,
+        screenName: 'MissionSetupScreen',
+        properties: {'room_id': widget.roomId},
+      );
+    });
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
     _roomChannel?.unsubscribe();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached ||
+        state == AppLifecycleState.hidden) {
+      _handleAppExitOrBackground();
+    }
+  }
+
+  void _handleAppExitOrBackground() {
+    if (_hasTimedOut || _hasNavigatedToGame) return;
+    final myMember = ref.read(myMemberRecordProvider(widget.roomId)).value;
+    if (myMember != null && !myMember.isMissionSelected) {
+      AppLogger.i('App backgrounded/exited during mission setup. Auto-assigning random mission.', tag: 'SETUP');
+      // Fire-and-forget random fallback mission assignment
+      ref.read(missionSetupProvider.notifier).confirmSelection(myMember.roomMemberId, widget.roomId, null);
+      ref.read(setupRepositoryProvider).checkAndStartOngoingGame(widget.roomId);
+    }
   }
 
   void _subscribeToRoomRealtime() {
@@ -111,11 +144,11 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> {
           .confirmSelection(member.roomMemberId, widget.roomId, null);
     }
 
-    // 30초 경과 시 전원 준비 상태 체크 후 게임 시작(ONGOING) 전환
+    // 1분(60초) 경과 시 전원 준비 상태 체크 후 게임 시작(ONGOING) 전환
     try {
       final isStarted = await ref.read(setupRepositoryProvider).checkAndStartOngoingGame(widget.roomId);
       if (!isStarted) {
-        // 30초가 경과했으면 미선택 인원도 fallback 완료되었으므로 강제 ONGOING 처리
+        // 60초가 경과했으면 미선택 인원도 fallback 완료되었으므로 강제 ONGOING 처리
         await ref.read(supabaseProvider).from('rooms').update({
           'status': 'ONGOING',
           'game_start_time': DateTime.now().toUtc().toIso8601String(),
@@ -151,6 +184,27 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AsyncValue<RoomModel?>>(roomDetailsProvider(widget.roomId), (prev, next) {
+      final room = next.value;
+      if (room?.status == RoomStatus.ongoing && mounted) {
+        _navigateToDashboard();
+      }
+    });
+
+    ref.listen<AsyncValue<RoomMemberModel?>>(myMemberRecordProvider(widget.roomId), (prev, next) {
+      final member = next.value;
+      if (member != null && member.isMissionSelected && mounted) {
+        _navigateToDashboard();
+      }
+    });
+
+    final room = ref.watch(roomDetailsProvider(widget.roomId)).value;
+    if (room?.status == RoomStatus.ongoing) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _navigateToDashboard();
+      });
+    }
+
     final myMemberAsync = ref.watch(myMemberRecordProvider(widget.roomId));
     final membersAsync = ref.watch(roomMembersProvider(widget.roomId));
     final setupState = ref.watch(missionSetupProvider);
@@ -171,6 +225,13 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> {
               return const Center(child: Text('참가자 정보를 찾을 수 없습니다.'));
             }
 
+            if (myMember.isMissionSelected) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) _navigateToDashboard();
+              });
+              return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+            }
+
             final targetUser = myMember.targetUserProfile;
 
             // Fetch candidate missions
@@ -184,28 +245,33 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> {
                     final readyCount = members.where((m) => m.isMissionSelected).length;
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                      color: AppColors.surface,
+                      color: AppColors.surfaceLowOf(context),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
-                            children: const [
-                              Icon(Icons.sync_rounded, size: 16, color: AppColors.textSecondary),
-                              SizedBox(width: 6),
-                              Text('다른 친구들 미션 선택 중...', style: AppTypography.labelSm),
+                            children: [
+                              Icon(Icons.sync_rounded, size: 16, color: AppColors.textSecondaryOf(context)),
+                              const SizedBox(width: 6),
+                              Text(
+                                '다른 친구들 미션 선택 중...',
+                                style: AppTypography.labelSm.copyWith(color: AppColors.textSecondaryOf(context)),
+                              ),
                             ],
                           ),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
-                              color: AppColors.primaryLight,
+                              color: AppColors.isDark(context)
+                                  ? AppColors.darkPrimaryLight
+                                  : AppColors.primaryLight,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               '$readyCount/${members.length}',
                               style: AppTypography.labelSm.copyWith(
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.textPrimary,
+                                color: AppColors.primaryDarkOf(context),
                               ),
                             ),
                           ),
@@ -226,23 +292,26 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> {
                         Center(
                           child: Column(
                             children: [
-                              const Text('미션 선택 제한시간', style: AppTypography.labelSm),
+                              Text(
+                                '미션 선택 제한시간',
+                                style: AppTypography.labelSm.copyWith(color: AppColors.textSecondaryOf(context)),
+                              ),
                               const SizedBox(height: 4),
                               Text(
-                                '00:${_secondsLeft.toString().padLeft(2, '0')}',
+                                '${(_secondsLeft ~/ 60).toString().padLeft(2, '0')}:${(_secondsLeft % 60).toString().padLeft(2, '0')}',
                                 style: AppTypography.timerDisplay.copyWith(
                                   fontSize: 36,
-                                  color: _secondsLeft <= 5 ? Colors.red : AppColors.timerUrgent,
+                                  color: _secondsLeft <= 10 ? Colors.red : AppColors.timerUrgent,
                                 ),
                               ),
                               const SizedBox(height: 8),
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(4),
                                 child: LinearProgressIndicator(
-                                  value: _secondsLeft / 30.0,
-                                  backgroundColor: AppColors.surface,
+                                  value: _secondsLeft / _totalTimeoutSeconds.toDouble(),
+                                  backgroundColor: AppColors.surfaceLowOf(context),
                                   valueColor: AlwaysStoppedAnimation<Color>(
-                                    _secondsLeft <= 5 ? Colors.red : AppColors.timerUrgent,
+                                    _secondsLeft <= 10 ? Colors.red : AppColors.timerUrgent,
                                   ),
                                   minHeight: 6,
                                 ),
@@ -256,10 +325,10 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> {
                         Container(
                           padding: const EdgeInsets.all(18),
                           decoration: BoxDecoration(
-                            color: AppColors.surface,
+                            color: Theme.of(context).cardTheme.color ?? AppColors.cardOf(context),
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: AppColors.border),
-                            boxShadow: AppColors.cardShadow,
+                            border: Border.all(color: AppColors.borderOf(context)),
+                            boxShadow: AppColors.cardShadowOf(context),
                           ),
                           child: Column(
                             children: [
@@ -267,39 +336,29 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> {
                                 '당신은 ${targetUser?.name ?? "친구"}의 마니또 입니다',
                                 style: AppTypography.titleSmall.copyWith(
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
+                                  color: AppColors.textPrimaryOf(context),
                                 ),
                               ),
                               const SizedBox(height: 12),
-                              Container(
-                                width: 64,
-                                height: 64,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.white,
-                                  border: Border.all(color: AppColors.border, width: 2),
-                                ),
-                                child: ClipOval(
-                                  child: targetUser?.profileImageUrl != null
-                                    ? CachedNetworkImage(
-                                        imageUrl: targetUser!.profileImageUrl!,
-                                        fit: BoxFit.cover,
-                                        placeholder: (_, __) => Container(color: AppColors.surface),
-                                        errorWidget: (_, __, ___) => const Icon(Icons.person, size: 36, color: AppColors.textSecondary),
-                                      )
-                                    : const Icon(Icons.person, size: 36, color: AppColors.textSecondary),
-                                ),
+                              UserAvatar(
+                                imageUrl: targetUser?.profileImageUrl,
+                                size: 64,
+                                borderWidth: 2,
+                                fallbackIconSize: 36,
                               ),
                               const SizedBox(height: 10),
                               Text(
                                 targetUser?.name ?? '마니또 대상',
-                                style: AppTypography.headlineMd,
+                                style: AppTypography.headlineMd.copyWith(color: AppColors.textPrimaryOf(context)),
                               ),
                               if (targetUser?.statusMessage != null && targetUser!.statusMessage!.isNotEmpty) ...[
                                 const SizedBox(height: 2),
                                 Text(
                                   '"${targetUser.statusMessage!}"',
-                                  style: AppTypography.bodySm.copyWith(fontStyle: FontStyle.italic),
+                                  style: AppTypography.bodySm.copyWith(
+                                    fontStyle: FontStyle.italic,
+                                    color: AppColors.textSecondaryOf(context),
+                                  ),
                                 ),
                               ],
                             ],
@@ -328,7 +387,10 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> {
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                const Text('미션 선택', style: AppTypography.titleMd),
+                                Text(
+                                  '미션 선택',
+                                  style: AppTypography.titleMd.copyWith(color: AppColors.textPrimaryOf(context)),
+                                ),
                                 const SizedBox(height: 12),
 
                                 // Mission 1 Card
@@ -337,7 +399,17 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> {
                                   isSelected: selectedId == m1.missionId,
                                   isFinalized: setupState.isFinalized || myMember.isMissionSelected,
                                   lang: lang,
-                                  onTap: () => ref.read(missionSetupProvider.notifier).selectMission(m1.missionId),
+                                  onTap: () {
+                                    ref.read(analyticsServiceProvider).logEvent(
+                                      AnalyticsEvent.missionCandidateSelect,
+                                      screenName: 'MissionSetupScreen',
+                                      properties: {
+                                        'room_id': widget.roomId,
+                                        'mission_id': m1.missionId,
+                                      },
+                                    );
+                                    ref.read(missionSetupProvider.notifier).selectMission(m1.missionId);
+                                  },
                                 ),
                                 const SizedBox(height: 12),
 
@@ -347,7 +419,17 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> {
                                   isSelected: selectedId == m2.missionId,
                                   isFinalized: setupState.isFinalized || myMember.isMissionSelected,
                                   lang: lang,
-                                  onTap: () => ref.read(missionSetupProvider.notifier).selectMission(m2.missionId),
+                                  onTap: () {
+                                    ref.read(analyticsServiceProvider).logEvent(
+                                      AnalyticsEvent.missionCandidateSelect,
+                                      screenName: 'MissionSetupScreen',
+                                      properties: {
+                                        'room_id': widget.roomId,
+                                        'mission_id': m2.missionId,
+                                      },
+                                    );
+                                    ref.read(missionSetupProvider.notifier).selectMission(m2.missionId);
+                                  },
                                 ),
                               ],
                             );
@@ -361,6 +443,14 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> {
                             onPressed: setupState.selectedMissionId == null || setupState.isSubmitting
                                 ? null
                                 : () async {
+                                    ref.read(analyticsServiceProvider).logEvent(
+                                      AnalyticsEvent.missionReadySubmit,
+                                      screenName: 'MissionSetupScreen',
+                                      properties: {
+                                        'room_id': widget.roomId,
+                                        'selected_mission_id': setupState.selectedMissionId,
+                                      },
+                                    );
                                     final success = await ref
                                         .read(missionSetupProvider.notifier)
                                         .confirmSelection(myMember.roomMemberId, widget.roomId);
@@ -394,10 +484,13 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> {
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(Icons.check_circle_rounded, color: AppColors.statusGreen),
-                                SizedBox(width: 8),
-                                Text('미션 선택 완료', style: AppTypography.titleSmall),
+                              children: [
+                                const Icon(Icons.check_circle_rounded, color: AppColors.statusGreen),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '미션 선택 완료',
+                                  style: AppTypography.titleSmall.copyWith(color: AppColors.statusGreen),
+                                ),
                               ],
                             ),
                           ),
@@ -428,13 +521,17 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryLight.withValues(alpha: 0.3) : Colors.white,
+          color: isSelected
+              ? (AppColors.isDark(context)
+                  ? AppColors.darkPrimaryLight
+                  : AppColors.primaryLight.withValues(alpha: 0.3))
+              : (Theme.of(context).cardTheme.color ?? AppColors.cardOf(context)),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? AppColors.primaryDark : AppColors.border,
+            color: isSelected ? AppColors.primaryDark : AppColors.borderOf(context),
             width: isSelected ? 2 : 1,
           ),
-          boxShadow: isSelected ? AppColors.elevatedShadow : AppColors.cardShadow,
+          boxShadow: isSelected ? AppColors.elevatedShadowOf(context) : AppColors.cardShadowOf(context),
         ),
         child: Row(
           children: [
@@ -442,12 +539,12 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.primary : AppColors.surface,
+                color: isSelected ? AppColors.primary : AppColors.surfaceLowOf(context),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 Icons.assignment_outlined,
-                color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
+                color: isSelected ? const Color(0xFF1E1E24) : AppColors.textSecondaryOf(context),
               ),
             ),
             const SizedBox(width: 14),
@@ -458,14 +555,14 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> {
                   Text(
                     mission.category.toUpperCase(),
                     style: AppTypography.labelSm.copyWith(
-                      color: AppColors.textSecondary,
+                      color: AppColors.textSecondaryOf(context),
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     mission.getContent(lang),
-                    style: AppTypography.titleMd,
+                    style: AppTypography.titleMd.copyWith(color: AppColors.textPrimaryOf(context)),
                   ),
                 ],
               ),
@@ -478,7 +575,7 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> {
                 height: 22,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.border, width: 2),
+                  border: Border.all(color: AppColors.borderOf(context), width: 2),
                 ),
               ),
           ],
