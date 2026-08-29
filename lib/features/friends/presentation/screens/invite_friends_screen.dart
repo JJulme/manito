@@ -6,6 +6,7 @@ import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
 import 'package:manito/core/util/app_logger.dart';
 import 'package:manito/core/util/game_time_util.dart';
+import 'package:manito/core/util/text_sanitizer.dart';
 import 'package:manito/core/analytics/analytics_event.dart';
 import 'package:manito/core/analytics/analytics_service.dart';
 import 'package:manito/features/friends/presentation/friends_provider.dart';
@@ -142,7 +143,7 @@ class _InviteFriendsScreenState extends ConsumerState<InviteFriendsScreen> {
                 ? userProfile!.name.trim()
                 : '요원';
         final defaultTitle = '$hostName의 마니또 방';
-        final enteredTitle = _titleController.text.trim();
+        final enteredTitle = TextSanitizer.sanitizeSingleLine(_titleController.text);
         final finalTitle =
             enteredTitle.isNotEmpty ? enteredTitle : defaultTitle;
         final defaultDeadline = GameTimeUtil.calculateCeiledDeadline(

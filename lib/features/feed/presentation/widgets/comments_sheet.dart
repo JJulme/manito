@@ -11,6 +11,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/providers.dart';
 import '../../../../core/util/app_logger.dart';
+import '../../../../core/util/text_sanitizer.dart';
 import '../../../../core/widget/user_avatar.dart';
 import '../../../../core/analytics/analytics_event.dart';
 import '../../../../core/analytics/analytics_service.dart';
@@ -131,7 +132,7 @@ class _CommentsSheetState extends ConsumerState<CommentsSheet> {
   }
 
   Future<void> _sendComment() async {
-    final text = _controller.text.trim();
+    final text = TextSanitizer.sanitizeMultiLine(_controller.text);
     if ((text.isEmpty && _selectedImage == null) || _isSending) return;
 
     setState(() => _isSending = true);

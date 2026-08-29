@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/providers.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
+import 'package:manito/core/widget/network_error_view.dart';
 import 'package:manito/core/widget/user_avatar.dart';
 import 'package:manito/core/analytics/analytics_event.dart';
 import 'package:manito/core/analytics/analytics_service.dart';
@@ -147,9 +148,13 @@ class ProfileScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: userAsync.when(
+      body: SafeArea(
+        child: userAsync.when(
         loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
-        error: (err, _) => Center(child: Text('프로필 로드 실패: $err')),
+        error: (err, _) => NetworkErrorView(
+          title: '프로필을 불러오지 못했어요',
+          onRetry: () => ref.invalidate(currentUserProfileProvider),
+        ),
         data: (user) {
           if (user == null) {
             return const Center(child: Text('사용자 정보를 찾을 수 없습니다.'));
@@ -275,6 +280,7 @@ class ProfileScreen extends ConsumerWidget {
             ),
           );
         },
+      ),
       ),
     );
   }

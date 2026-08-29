@@ -9,6 +9,7 @@ import 'package:manito/core/theme/app_typography.dart';
 import 'package:manito/core/util/app_logger.dart';
 import 'package:manito/core/widget/manito_logo.dart';
 import 'package:manito/core/widget/manito_mascot.dart';
+import 'package:manito/core/widget/network_error_view.dart';
 import 'package:manito/core/widget/user_avatar.dart';
 import 'package:manito/features/friends/presentation/friends_provider.dart';
 import 'package:manito/features/game/presentation/screens/main_play_dashboard_screen.dart';
@@ -223,7 +224,11 @@ class HomeDashboardView extends ConsumerWidget {
                     child: CircularProgressIndicator(color: AppColors.primary),
                   ),
                 ),
-                error: (err, _) => Center(child: Text('방 목록 조회 실패: $err')),
+                error: (err, _) => NetworkErrorView(
+                  isCompact: true,
+                  title: '방 목록을 불러오지 못했어요',
+                  onRetry: () => ref.invalidate(ongoingRoomsProvider),
+                ),
                 data: (rooms) {
                   final validRooms = rooms.where((room) {
                     if (room.status == RoomStatus.waiting) {
@@ -301,13 +306,17 @@ class HomeDashboardView extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       child: Row(
                         children: [
-                          Icon(Icons.person_add_alt_1_outlined, size: 16, color: AppColors.primaryDark),
+                          Icon(
+                            Icons.person_add_rounded,
+                            size: 15,
+                            color: AppColors.textSecondaryOf(context),
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             '친구 추가',
                             style: AppTypography.labelSm.copyWith(
-                              color: AppColors.primaryDark,
-                              fontWeight: FontWeight.w700,
+                              color: AppColors.textSecondaryOf(context),
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                           if (hasFriendRequests) ...[
@@ -336,7 +345,11 @@ class HomeDashboardView extends ConsumerWidget {
                     child: CircularProgressIndicator(color: AppColors.primary),
                   ),
                 ),
-                error: (err, _) => Center(child: Text('친구 목록 로드 실패: $err')),
+                error: (err, _) => NetworkErrorView(
+                  isCompact: true,
+                  title: '친구 목록을 불러오지 못했어요',
+                  onRetry: () => ref.invalidate(acceptedFriendsProvider),
+                ),
                 data: (friends) {
                   if (friends.isEmpty) {
                     return Container(

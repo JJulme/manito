@@ -153,9 +153,10 @@ class _FriendDetailScreenState extends ConsumerState<FriendDetailScreen> {
           ),
         ],
       ),
-      body: _isDeleting
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-          : SingleChildScrollView(
+      body: SafeArea(
+        child: _isDeleting
+            ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+            : SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -291,6 +292,7 @@ class _FriendDetailScreenState extends ConsumerState<FriendDetailScreen> {
                 ],
               ),
             ),
+      ),
     );
   }
 }

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
 import 'package:manito/core/models/models.dart';
+import 'package:manito/core/widget/network_error_view.dart';
 import 'package:manito/core/widget/user_avatar.dart';
 import 'package:manito/core/providers.dart';
 import 'package:manito/core/analytics/analytics_event.dart';
@@ -87,27 +88,61 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
         body: Center(child: CircularProgressIndicator(color: AppColors.primary)),
       ),
       error: (err, _) => Scaffold(
-        appBar: AppBar(title: const Text('마니또 결과')),
-        body: Center(child: Text('방 정보를 불러오지 못했습니다: $err')),
+        appBar: AppBar(
+          title: const Text('마니또 결과'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded),
+            onPressed: () => _handleBackNavigation(context),
+          ),
+        ),
+        body: SafeArea(
+          child: NetworkErrorView(
+            title: '방 정보를 불러오지 못했어요',
+            onRetry: () => ref.invalidate(roomDetailsProvider(widget.roomId)),
+          ),
+        ),
       ),
       data: (room) {
         final roomTitle = room?.title ?? '마니또 결과';
 
         return membersAsync.when(
           loading: () => Scaffold(
-            appBar: AppBar(title: Text(roomTitle)),
+            appBar: AppBar(
+              title: Text(roomTitle),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                onPressed: () => _handleBackNavigation(context),
+              ),
+            ),
             body: const Center(child: CircularProgressIndicator(color: AppColors.primary)),
           ),
           error: (err, _) => Scaffold(
-            appBar: AppBar(title: Text(roomTitle)),
-            body: Center(child: Text('멤버 정보를 불러오지 못했습니다: $err')),
+            appBar: AppBar(
+              title: Text(roomTitle),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                onPressed: () => _handleBackNavigation(context),
+              ),
+            ),
+            body: SafeArea(
+              child: NetworkErrorView(
+                title: '멤버 정보를 불러오지 못했어요',
+                onRetry: () => ref.invalidate(roomMembersProvider(widget.roomId)),
+              ),
+            ),
           ),
           data: (members) {
             final activeMembers = members.where((m) => m.joinStatus == '✔️').toList();
 
             if (activeMembers.isEmpty) {
               return Scaffold(
-                appBar: AppBar(title: Text(roomTitle)),
+                appBar: AppBar(
+                  title: Text(roomTitle),
+                  leading: IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                    onPressed: () => _handleBackNavigation(context),
+                  ),
+                ),
                 body: const Center(child: Text('참여한 멤버가 없습니다.')),
               );
             }
@@ -131,12 +166,29 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
 
             return recordsAsync.when(
               loading: () => Scaffold(
-                appBar: AppBar(title: Text(roomTitle)),
+                appBar: AppBar(
+                  title: Text(roomTitle),
+                  leading: IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                    onPressed: () => _handleBackNavigation(context),
+                  ),
+                ),
                 body: const Center(child: CircularProgressIndicator(color: AppColors.primary)),
               ),
               error: (err, _) => Scaffold(
-                appBar: AppBar(title: Text(roomTitle)),
-                body: Center(child: Text('기록을 불러오지 못했습니다: $err')),
+                appBar: AppBar(
+                  title: Text(roomTitle),
+                  leading: IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                    onPressed: () => _handleBackNavigation(context),
+                  ),
+                ),
+                body: SafeArea(
+                  child: NetworkErrorView(
+                    title: '기록을 불러오지 못했어요',
+                    onRetry: () => ref.invalidate(roomRecordsProvider(widget.roomId)),
+                  ),
+                ),
               ),
               data: (records) {
                 // 1. B가 작성한 미션 수행 기록 (B -> A)

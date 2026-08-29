@@ -198,7 +198,7 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> with WidgetsBindi
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -206,21 +206,18 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> with WidgetsBindi
                   index: 0,
                   currentIndex: currentTab,
                   icon: Icons.home_rounded,
-                  label: '홈',
                   hasBadge: hasInvitations || hasFriendRequests,
                 ),
                 _buildNavItem(
                   index: 1,
                   currentIndex: currentTab,
-                  icon: Icons.auto_stories_rounded,
-                  label: '기록',
+                  icon: Icons.history_edu_rounded,
                   hasBadge: totalUnreadComments > 0,
                 ),
                 _buildNavItem(
                   index: 2,
                   currentIndex: currentTab,
-                  icon: Icons.account_circle_rounded,
-                  label: '프로필',
+                  icon: Icons.person_rounded,
                 ),
               ],
             ),
@@ -234,7 +231,6 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> with WidgetsBindi
     required int index,
     required int currentIndex,
     required IconData icon,
-    required String label,
     bool hasBadge = false,
   }) {
     final isSelected = index == currentIndex;
@@ -243,45 +239,28 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> with WidgetsBindi
       onTap: () => ref.read(selectedBottomTabProvider.notifier).state = index,
       borderRadius: BorderRadius.circular(16),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+        child: Stack(
+          clipBehavior: Clip.none,
           children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Icon(
-                  icon,
-                  size: 26,
-                  color: isSelected ? AppColors.textPrimaryOf(context) : AppColors.textDisabledOf(context),
-                ),
-                if (hasBadge)
-                  Positioned(
-                    top: -2,
-                    right: -4,
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        color: AppColors.error,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
+            Icon(
+              icon,
+              size: 26,
+              color: isSelected ? AppColors.textPrimaryOf(context) : AppColors.textDisabledOf(context),
+            ),
+            if (hasBadge)
+              Positioned(
+                top: -2,
+                right: -4,
+                child: Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: AppColors.error,
+                    shape: BoxShape.circle,
                   ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: isSelected
-                  ? AppTypography.labelSm.copyWith(
-                      color: AppColors.textPrimaryOf(context),
-                      fontWeight: FontWeight.w700,
-                    )
-                  : AppTypography.labelSm.copyWith(
-                      color: AppColors.textDisabledOf(context),
-                    ),
-            ),
+                ),
+              ),
           ],
         ),
       ),

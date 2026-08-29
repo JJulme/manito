@@ -5,6 +5,7 @@ import 'package:manito/core/models/models.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
 import 'package:manito/core/widget/manito_mascot.dart';
+import 'package:manito/core/widget/network_error_view.dart';
 import 'package:manito/core/widget/user_avatar.dart';
 import 'package:manito/features/feed/presentation/feed_provider.dart';
 import 'package:manito/features/feed/presentation/screens/result_feed_screen.dart';
@@ -28,8 +29,8 @@ class ArchiveFeedView extends ConsumerWidget {
           loading: () => const Center(
             child: CircularProgressIndicator(color: AppColors.primary),
           ),
-          error: (err, _) => Center(
-            child: Text('기록 목록을 불러오지 못했습니다: $err'),
+          error: (err, _) => NetworkErrorView(
+            onRetry: () => ref.invalidate(completedRoomsProvider),
           ),
           data: (rooms) {
             if (rooms.isEmpty) {

@@ -1,5 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'models/models.dart';
 
@@ -36,3 +37,12 @@ final currentUserProfileProvider = FutureProvider<UserModel?>((ref) async {
 });
 
 final languageCodeProvider = StateProvider<String>((ref) => 'ko');
+
+final appVersionProvider = FutureProvider<String>((ref) async {
+  try {
+    final packageInfo = await PackageInfo.fromPlatform();
+    return packageInfo.version;
+  } catch (e) {
+    return '2.2.1';
+  }
+});

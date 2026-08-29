@@ -4,6 +4,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:manito/core/providers.dart';
@@ -66,6 +67,8 @@ late double width;
 void main() async {
   // 웹바인딩 설정
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  // 안드로이드 몰입 모드 (Immersive Sticky Mode): 시스템 네비게이션 바 & 상태바를 숨겨 전체화면으로 사용
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   // Timezone 초기화
   tz.initializeTimeZones();
   // 런처 스플래쉬 화면 설정

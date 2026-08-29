@@ -10,10 +10,12 @@ import 'package:manito/core/providers.dart';
 import 'package:manito/core/router.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
+import 'package:manito/core/widget/network_error_view.dart';
 import 'package:manito/core/widget/user_avatar.dart';
 import 'package:manito/core/notifications/app_notification_service.dart';
 import 'package:manito/core/util/app_logger.dart';
 import 'package:manito/core/util/game_time_util.dart';
+import 'package:manito/core/util/text_sanitizer.dart';
 import 'package:manito/core/analytics/analytics_event.dart';
 import 'package:manito/core/analytics/analytics_service.dart';
 import 'package:manito/main.dart';
@@ -251,7 +253,7 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
           ),
           ElevatedButton(
             onPressed: () async {
-              final newTitle = controller.text.trim();
+              final newTitle = TextSanitizer.sanitizeSingleLine(controller.text);
               if (newTitle.isEmpty) return;
 
               Navigator.pop(ctx);
@@ -797,9 +799,13 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
               ),
             )
           : null,
-      body: roomAsync.when(
+      body: SafeArea(
+        child: roomAsync.when(
         loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
-        error: (err, _) => Center(child: Text('대기실 로드 실패: $err')),
+        error: (err, _) => NetworkErrorView(
+          title: '대기실을 불러오지 못했어요',
+          onRetry: () => ref.invalidate(roomDetailsProvider(widget.roomId)),
+        ),
         data: (room) {
           if (room == null) {
             if (!_isVoluntaryExit) {
@@ -813,7 +819,10 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
 
           return membersAsync.when(
             loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
-            error: (err, _) => Center(child: Text('멤버 로드 실패: $err')),
+            error: (err, _) => NetworkErrorView(
+              title: '참가자 목록을 불러오지 못했어요',
+              onRetry: () => ref.invalidate(roomMembersProvider(widget.roomId)),
+            ),
             data: (members) {
               final category = room.missionCategory?.toLowerCase() ?? 'daily';
               final deadline = room.gameEndTime ?? GameTimeUtil.calculateCeiledDeadline(minutesToAdd: 30);
@@ -1216,6 +1225,7 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
             },
           );
         },
+      ),
       ),
     );
   }

@@ -7,6 +7,7 @@ import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
 import 'package:manito/core/util/app_logger.dart';
 import 'package:manito/core/util/game_time_util.dart';
+import 'package:manito/core/util/text_sanitizer.dart';
 import 'package:manito/core/analytics/analytics_event.dart';
 import 'package:manito/core/analytics/analytics_service.dart';
 import 'package:manito/features/feed/presentation/feed_provider.dart';
@@ -17,6 +18,7 @@ import 'package:manito/features/rooms/presentation/rooms_provider.dart';
 import 'package:manito/features/setup/presentation/setup_provider.dart';
 import 'package:manito/features/setup/presentation/screens/mission_setup_screen.dart';
 import 'package:manito/core/notifications/app_notification_service.dart';
+import 'package:manito/core/widget/network_error_view.dart';
 import 'package:manito/core/widget/user_avatar.dart';
 
 class MainPlayDashboardScreen extends ConsumerStatefulWidget {
@@ -218,17 +220,31 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
       return;
     }
 
+    final sanitizedPerformBlocks = _performBlocks.map((b) {
+      if (b.type == BlockType.text) {
+        return RecordBlock(type: BlockType.text, value: TextSanitizer.sanitizeMultiLine(b.value));
+      }
+      return b;
+    }).toList();
+
+    final sanitizedGuessBlocks = _guessBlocks.map((b) {
+      if (b.type == BlockType.text) {
+        return RecordBlock(type: BlockType.text, value: TextSanitizer.sanitizeMultiLine(b.value));
+      }
+      return b;
+    }).toList();
+
     final success1 = await ref.read(gameRecordFormProvider.notifier).save(
           roomId: widget.roomId,
           recordType: RecordType.missionPerform,
-          content: _performBlocks,
+          content: sanitizedPerformBlocks,
         );
 
     final success2 = await ref.read(gameRecordFormProvider.notifier).save(
           roomId: widget.roomId,
           recordType: RecordType.suspectGuess,
           suspectUserId: _selectedSuspectId,
-          content: _guessBlocks,
+          content: sanitizedGuessBlocks,
         );
 
     if (mounted) {
@@ -419,11 +435,15 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
           ),
         ],
       ),
-      body: _isLoadingRecords
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-          : roomAsync.when(
+      body: SafeArea(
+        child: _isLoadingRecords
+            ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+            : roomAsync.when(
               loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
-              error: (err, _) => Center(child: Text('방 정보 로드 실패: $err')),
+              error: (err, _) => NetworkErrorView(
+                title: '방 정보를 불러오지 못했어요',
+                onRetry: () => ref.invalidate(roomDetailsProvider(widget.roomId)),
+              ),
               data: (room) {
           return SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -611,6 +631,7 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
             ),
           );
         },
+      ),
       ),
     );
   }

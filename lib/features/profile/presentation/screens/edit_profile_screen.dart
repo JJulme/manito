@@ -10,6 +10,7 @@ import 'package:manito/core/providers.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
 import 'package:manito/core/util/app_logger.dart';
+import 'package:manito/core/util/text_sanitizer.dart';
 import 'package:manito/core/widget/manito_mascot.dart';
 import 'package:manito/core/widget/user_avatar.dart';
 import 'package:manito/core/analytics/analytics_event.dart';
@@ -187,10 +188,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   Future<void> _handleSave() async {
     final image = _selectedImageUrl?.trim() ?? '';
-    final name = _nameController.text.trim();
-    final status = _statusController.text.trim();
-    final manitoReply = _manitoReplyController.text.trim();
-    final guessReply = _guessReplyController.text.trim();
+    final name = TextSanitizer.sanitizeSingleLine(_nameController.text);
+    final status = TextSanitizer.sanitizeSingleLine(_statusController.text);
+    final manitoReply = TextSanitizer.sanitizeMultiLine(_manitoReplyController.text);
+    final guessReply = TextSanitizer.sanitizeMultiLine(_guessReplyController.text);
 
     // Validation: 5가지 항목 모두 필수 체크
     if (image.isEmpty) {
@@ -511,7 +512,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(isMandatorySetup ? '프로필 등록' : '프로필 수정'),
-          automaticallyImplyLeading: !isMandatorySetup,
+          automaticallyImplyLeading: false,
+          leading: isMandatorySetup
+              ? null
+              : IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                  onPressed: () => Navigator.of(context).maybePop(),
+                ),
         ),
         body: SafeArea(
           child: Column(

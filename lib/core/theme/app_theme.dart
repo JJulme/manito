@@ -28,7 +28,13 @@ class AppTheme {
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
         centerTitle: true,
-        titleTextStyle: AppTypography.headlineMd,
+        titleTextStyle: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+          color: AppColors.textPrimary,
+          letterSpacing: -0.2,
+        ),
+        iconTheme: IconThemeData(color: AppColors.textPrimary),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -116,8 +122,8 @@ class AppTheme {
       dialogTheme: DialogThemeData(
         backgroundColor: AppColors.card,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        titleTextStyle: AppTypography.headlineMd,
-        contentTextStyle: AppTypography.bodyMd,
+        titleTextStyle: AppTypography.headlineMd.copyWith(color: AppColors.textPrimary),
+        contentTextStyle: AppTypography.bodyMd.copyWith(color: AppColors.textSecondary),
       ),
       dividerTheme: const DividerThemeData(
         color: AppColors.divider,

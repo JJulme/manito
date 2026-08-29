@@ -68,7 +68,12 @@ class _KakaoLoginWebviewState extends ConsumerState<KakaoLoginWebview> {
 
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded),
+            onPressed: () => Navigator.of(context).maybePop(),
+          ),
+        ),
         body: _kakaoLoginUrl == null
             ? const Center(child: CircularProgressIndicator())
             : InAppWebView(

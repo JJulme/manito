@@ -7,6 +7,7 @@ import 'package:manito/core/providers.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
 import 'package:manito/core/util/app_logger.dart';
+import 'package:manito/core/widget/network_error_view.dart';
 import 'package:manito/core/widget/user_avatar.dart';
 import 'package:manito/core/analytics/analytics_event.dart';
 import 'package:manito/core/analytics/analytics_service.dart';
@@ -217,9 +218,13 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> with Wi
           title: const Text('마니또 미션 선택'),
           automaticallyImplyLeading: false, // 뒤로가기 버튼 제거
         ),
-        body: myMemberAsync.when(
+        body: SafeArea(
+          child: myMemberAsync.when(
           loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
-          error: (err, _) => Center(child: Text('정보 로드 실패: $err')),
+          error: (err, _) => NetworkErrorView(
+            title: '참가자 정보를 불러오지 못했어요',
+            onRetry: () => ref.invalidate(myMemberRecordProvider(widget.roomId)),
+          ),
           data: (myMember) {
             if (myMember == null) {
               return const Center(child: Text('참가자 정보를 찾을 수 없습니다.'));
@@ -502,6 +507,7 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> with Wi
               ],
             );
           },
+        ),
         ),
       ),
     );

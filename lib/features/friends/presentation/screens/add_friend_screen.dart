@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/util/text_sanitizer.dart';
 import '../../../../core/models/models.dart';
 import '../../../../core/widget/user_avatar.dart';
 import '../../../../core/analytics/analytics_event.dart';
@@ -26,7 +27,7 @@ class _AddFriendScreenState extends ConsumerState<AddFriendScreen> {
   }
 
   void _onSearch() {
-    final query = _searchController.text.trim();
+    final query = TextSanitizer.sanitizeSingleLine(_searchController.text).replaceAll(' ', '').toUpperCase();
     if (query.isNotEmpty) {
       ref.read(analyticsServiceProvider).logEvent(
         AnalyticsEvent.friendSearch,
@@ -51,7 +52,8 @@ class _AddFriendScreenState extends ConsumerState<AddFriendScreen> {
           onPressed: () => Navigator.of(context).maybePop(),
         ),
       ),
-      body: SingleChildScrollView(
+      body: SafeArea(
+        child: SingleChildScrollView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Column(
@@ -205,6 +207,7 @@ class _AddFriendScreenState extends ConsumerState<AddFriendScreen> {
             ),
           ],
         ),
+      ),
       ),
     );
   }
