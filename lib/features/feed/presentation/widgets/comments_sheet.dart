@@ -123,7 +123,7 @@ class _CommentsSheetState extends ConsumerState<CommentsSheet> {
       AppLogger.e('Error picking comment image: $e', tag: 'FEED', error: e, stackTrace: s);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('사진 선택 실패: $e')),
+          const SnackBar(content: Text('사진을 불러올 수 없습니다.')),
         );
       }
     } finally {
@@ -176,10 +176,11 @@ class _CommentsSheetState extends ConsumerState<CommentsSheet> {
 
       ref.invalidate(recordCommentsProvider(widget.recordId));
       ref.invalidate(roomRecordsProvider(widget.roomId));
-    } catch (e) {
+    } catch (e, s) {
       if (mounted) {
+        AppLogger.e('댓글 작성 실패', error: e, stackTrace: s);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('댓글 작성 실패: $e')),
+          const SnackBar(content: Text('댓글 작성에 실패했습니다. 다시 시도해 주세요.')),
         );
       }
     } finally {

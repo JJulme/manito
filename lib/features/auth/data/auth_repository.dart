@@ -66,10 +66,10 @@ class AuthRepository {
       final idToken = googleAuth.idToken;
 
       if (accessToken == null) {
-        throw 'No Access Token found.';
+        throw const AuthException('Access Token을 찾을 수 없습니다.');
       }
       if (idToken == null) {
-        throw 'No ID Token found.';
+        throw const AuthException('ID Token을 찾을 수 없습니다.');
       }
 
       await _supabase.auth.signInWithIdToken(

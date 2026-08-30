@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:manito/core/analytics/analytics_event.dart';
 import 'package:manito/core/analytics/analytics_service.dart';
+import 'package:manito/core/util/app_logger.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
 import 'package:manito/core/widget/manito_logo.dart';
@@ -61,15 +62,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         screenName: 'LoginScreen',
         properties: {'provider': 'google'},
       );
-    } catch (e) {
+    } catch (e, s) {
       ref.read(analyticsServiceProvider).logEvent(
         AnalyticsEvent.loginFailure,
         screenName: 'LoginScreen',
         properties: {'provider': 'google', 'error': e.toString()},
       );
       if (mounted) {
+        AppLogger.e('구글 로그인 실패', error: e, stackTrace: s);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('구글 로그인 실패: $e')),
+          const SnackBar(content: Text('구글 로그인에 실패했습니다. 다시 시도해 주세요.')),
         );
       }
     } finally {
@@ -91,15 +93,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         screenName: 'LoginScreen',
         properties: {'provider': 'apple'},
       );
-    } catch (e) {
+    } catch (e, s) {
       ref.read(analyticsServiceProvider).logEvent(
         AnalyticsEvent.loginFailure,
         screenName: 'LoginScreen',
         properties: {'provider': 'apple', 'error': e.toString()},
       );
       if (mounted) {
+        AppLogger.e('애플 로그인 실패', error: e, stackTrace: s);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('애플 로그인 실패: $e')),
+          const SnackBar(content: Text('애플 로그인에 실패했습니다. 다시 시도해 주세요.')),
         );
       }
     } finally {

@@ -1,11 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/notifications/notification_sender.dart';
 import '../../../core/providers.dart';
 import '../../../core/models/models.dart';
 import '../data/friends_repository.dart';
 
 final friendsRepositoryProvider = Provider<FriendsRepository>((ref) {
   final supabase = ref.watch(supabaseProvider);
-  return FriendsRepository(supabase);
+  final notificationSender = ref.watch(notificationSenderProvider);
+  return FriendsRepository(supabase, notificationSender: notificationSender);
 });
 
 final acceptedFriendsProvider = FutureProvider.autoDispose<List<FriendshipModel>>((ref) async {
@@ -16,6 +18,28 @@ final acceptedFriendsProvider = FutureProvider.autoDispose<List<FriendshipModel>
 final receivedFriendRequestsProvider = FutureProvider.autoDispose<List<FriendshipModel>>((ref) async {
   final repo = ref.watch(friendsRepositoryProvider);
   return repo.fetchReceivedRequests();
+});
+
+/// 초대 가능한 친구 목록 필터링 Provider (검색어 및 기참여 멤버 제외)
+final filteredInvitableFriendsProvider = Provider.autoDispose.family<
+    List<FriendshipModel>,
+    ({Set<String>? excludedUserIds, String searchQuery})>((ref, arg) {
+  final friends = ref.watch(acceptedFriendsProvider).value ?? [];
+  final currentUserId = ref.watch(currentUserProvider)?.id;
+
+  return friends.where((f) {
+    final friendId = f.friendProfile?.userId ??
+        (f.requesterId == currentUserId ? f.receiverId : f.requesterId);
+    if (arg.excludedUserIds != null && arg.excludedUserIds!.contains(friendId)) {
+      return false;
+    }
+    if (arg.searchQuery.isEmpty) return true;
+    final name = f.friendProfile?.name.toLowerCase() ?? '';
+    final status = f.friendProfile?.statusMessage?.toLowerCase() ?? '';
+    final code = f.friendProfile?.uniqueCode.toLowerCase() ?? '';
+    final query = arg.searchQuery.toLowerCase();
+    return name.contains(query) || status.contains(query) || code.contains(query);
+  }).toList();
 });
 
 class FriendSearchState {
@@ -47,10 +71,14 @@ class FriendSearchState {
   }
 }
 
-class FriendSearchNotifier extends StateNotifier<FriendSearchState> {
-  final FriendsRepository _repo;
+class FriendSearchNotifier extends AutoDisposeNotifier<FriendSearchState> {
+  late final FriendsRepository _repo;
 
-  FriendSearchNotifier(this._repo) : super(const FriendSearchState());
+  @override
+  FriendSearchState build() {
+    _repo = ref.watch(friendsRepositoryProvider);
+    return const FriendSearchState();
+  }
 
   Future<void> search(String code) async {
     final cleanCode = code.trim().toUpperCase();
@@ -107,7 +135,6 @@ class FriendSearchNotifier extends StateNotifier<FriendSearchState> {
 }
 
 final friendSearchProvider =
-    StateNotifierProvider.autoDispose<FriendSearchNotifier, FriendSearchState>((ref) {
-  final repo = ref.watch(friendsRepositoryProvider);
-  return FriendSearchNotifier(repo);
-});
+    NotifierProvider.autoDispose<FriendSearchNotifier, FriendSearchState>(
+  FriendSearchNotifier.new,
+);

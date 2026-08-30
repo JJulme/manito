@@ -116,24 +116,7 @@ class NotificationSender {
     );
   }
 
-  /// [시나리오 2] 초대 수락 알림 발송 헬퍼 (방장에게 전송)
-  Future<void> sendInviteAcceptedNotification({
-    required String roomId,
-    required String hostUserId,
-    required String participantName,
-    required String roomTitle,
-  }) async {
-    await sendToUser(
-      targetUserId: hostUserId,
-      type: NotificationType.roomInviteAccepted,
-      title: '🎉 초대 수락 완료!',
-      body: '$participantName님이 \'$roomTitle\' 초대를 수락했습니다.',
-      roomId: roomId,
-      senderName: participantName,
-    );
-  }
-
-  /// [시나리오 3] 게임 시작 및 마니또 매칭 완료 알림 발송 헬퍼 (전체 멤버에게 전송)
+  /// [시나리오 2] 게임 시작 및 마니또 매칭 완료 알림 발송 헬퍼 (전체 멤버에게 전송)
   Future<void> sendGameStartedNotification({
     required String roomId,
     required List<String> memberUserIds,

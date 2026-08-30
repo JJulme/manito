@@ -81,7 +81,7 @@ class _FriendDetailScreenState extends ConsumerState<FriendDetailScreen> {
       AppLogger.e('Failed to delete friend: $e', tag: 'FRIENDS', error: e, stackTrace: s);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('친구 삭제 실패: $e')),
+          const SnackBar(content: Text('친구 삭제에 실패했습니다. 다시 시도해 주세요.')),
         );
       }
     } finally {

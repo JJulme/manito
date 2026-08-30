@@ -18,6 +18,8 @@ import 'package:manito/core/fcm/fcm_provider.dart';
 import 'package:manito/core/fcm/firebase_options.dart';
 
 import 'dart:convert';
+import 'dart:ui';
+import 'package:manito/core/util/app_logger.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 
 @pragma('vm:entry-point')
@@ -130,6 +132,15 @@ void main() async {
   await androidPlugin?.createNotificationChannel(defaultChannel);
   await androidPlugin?.createNotificationChannel(generalChannel);
   await androidPlugin?.createNotificationChannel(deadlineChannel);
+
+  // 전역 에러 핸들러 설정
+  FlutterError.onError = (FlutterErrorDetails details) {
+    AppLogger.e('FlutterError', error: details.exception, stackTrace: details.stack);
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    AppLogger.e('PlatformError', error: error, stackTrace: stack);
+    return true;
+  };
 
   runApp(
     EasyLocalization(

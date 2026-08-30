@@ -63,7 +63,11 @@ class ProfileRepository {
           .update(updates)
           .eq('user_id', uid)
           .select()
-          .single();
+          .maybeSingle();
+
+      if (response == null) {
+        throw Exception('프로필 수정 결과를 가져오지 못했습니다.');
+      }
 
       AppLogger.i('Profile updated successfully', tag: 'PROFILE');
       return UserModel.fromJson(response);

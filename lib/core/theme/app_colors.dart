@@ -49,28 +49,21 @@ class AppColors {
   static bool isDark(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark;
 
-  static Color backgroundOf(BuildContext context) =>
-      isDark(context) ? darkBackground : background;
-  static Color surfaceOf(BuildContext context) =>
-      isDark(context) ? darkSurface : surface;
-  static Color surfaceLowOf(BuildContext context) =>
-      isDark(context) ? darkSurfaceLow : surfaceLow;
-  static Color cardOf(BuildContext context) =>
-      isDark(context) ? darkCard : card;
-  static Color textPrimaryOf(BuildContext context) =>
-      isDark(context) ? darkTextPrimary : textPrimary;
-  static Color textSecondaryOf(BuildContext context) =>
-      isDark(context) ? darkTextSecondary : textSecondary;
-  static Color textDisabledOf(BuildContext context) =>
-      isDark(context) ? darkTextDisabled : textDisabled;
-  static Color borderOf(BuildContext context) =>
-      isDark(context) ? darkBorder : border;
-  static Color dividerOf(BuildContext context) =>
-      isDark(context) ? darkDivider : divider;
-  static Color primaryLightOf(BuildContext context) =>
-      isDark(context) ? darkPrimaryLight : primaryLight;
-  static Color primaryDarkOf(BuildContext context) =>
-      isDark(context) ? primary : primaryDark;
+  static AppColorsExtension of(BuildContext context) =>
+      Theme.of(context).extension<AppColorsExtension>() ??
+      (isDark(context) ? AppColorsExtension.dark : AppColorsExtension.light);
+
+  static Color backgroundOf(BuildContext context) => of(context).background;
+  static Color surfaceOf(BuildContext context) => of(context).surface;
+  static Color surfaceLowOf(BuildContext context) => of(context).surfaceLow;
+  static Color cardOf(BuildContext context) => of(context).card;
+  static Color textPrimaryOf(BuildContext context) => of(context).textPrimary;
+  static Color textSecondaryOf(BuildContext context) => of(context).textSecondary;
+  static Color textDisabledOf(BuildContext context) => of(context).textDisabled;
+  static Color borderOf(BuildContext context) => of(context).border;
+  static Color dividerOf(BuildContext context) => of(context).divider;
+  static Color primaryLightOf(BuildContext context) => of(context).primaryLight;
+  static Color primaryDarkOf(BuildContext context) => of(context).primaryDark;
 
   // Shadow Styles
   static List<BoxShadow> get cardShadow => [
@@ -108,4 +101,116 @@ class AppColors {
           ),
         ]
       : elevatedShadow;
+}
+
+/// Material 3 ThemeExtension for Type-safe and smooth color themes
+@immutable
+class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
+  final Color background;
+  final Color surface;
+  final Color surfaceLow;
+  final Color card;
+  final Color textPrimary;
+  final Color textSecondary;
+  final Color textDisabled;
+  final Color border;
+  final Color divider;
+  final Color primary;
+  final Color primaryLight;
+  final Color primaryDark;
+
+  const AppColorsExtension({
+    required this.background,
+    required this.surface,
+    required this.surfaceLow,
+    required this.card,
+    required this.textPrimary,
+    required this.textSecondary,
+    required this.textDisabled,
+    required this.border,
+    required this.divider,
+    required this.primary,
+    required this.primaryLight,
+    required this.primaryDark,
+  });
+
+  static const light = AppColorsExtension(
+    background: AppColors.background,
+    surface: AppColors.surface,
+    surfaceLow: AppColors.surfaceLow,
+    card: AppColors.card,
+    textPrimary: AppColors.textPrimary,
+    textSecondary: AppColors.textSecondary,
+    textDisabled: AppColors.textDisabled,
+    border: AppColors.border,
+    divider: AppColors.divider,
+    primary: AppColors.primary,
+    primaryLight: AppColors.primaryLight,
+    primaryDark: AppColors.primaryDark,
+  );
+
+  static const dark = AppColorsExtension(
+    background: AppColors.darkBackground,
+    surface: AppColors.darkSurface,
+    surfaceLow: AppColors.darkSurfaceLow,
+    card: AppColors.darkCard,
+    textPrimary: AppColors.darkTextPrimary,
+    textSecondary: AppColors.darkTextSecondary,
+    textDisabled: AppColors.darkTextDisabled,
+    border: AppColors.darkBorder,
+    divider: AppColors.darkDivider,
+    primary: AppColors.primary,
+    primaryLight: AppColors.darkPrimaryLight,
+    primaryDark: AppColors.primaryDark,
+  );
+
+  @override
+  AppColorsExtension copyWith({
+    Color? background,
+    Color? surface,
+    Color? surfaceLow,
+    Color? card,
+    Color? textPrimary,
+    Color? textSecondary,
+    Color? textDisabled,
+    Color? border,
+    Color? divider,
+    Color? primary,
+    Color? primaryLight,
+    Color? primaryDark,
+  }) {
+    return AppColorsExtension(
+      background: background ?? this.background,
+      surface: surface ?? this.surface,
+      surfaceLow: surfaceLow ?? this.surfaceLow,
+      card: card ?? this.card,
+      textPrimary: textPrimary ?? this.textPrimary,
+      textSecondary: textSecondary ?? this.textSecondary,
+      textDisabled: textDisabled ?? this.textDisabled,
+      border: border ?? this.border,
+      divider: divider ?? this.divider,
+      primary: primary ?? this.primary,
+      primaryLight: primaryLight ?? this.primaryLight,
+      primaryDark: primaryDark ?? this.primaryDark,
+    );
+  }
+
+  @override
+  AppColorsExtension lerp(ThemeExtension<AppColorsExtension>? other, double t) {
+    if (other is! AppColorsExtension) return this;
+    return AppColorsExtension(
+      background: Color.lerp(background, other.background, t) ?? background,
+      surface: Color.lerp(surface, other.surface, t) ?? surface,
+      surfaceLow: Color.lerp(surfaceLow, other.surfaceLow, t) ?? surfaceLow,
+      card: Color.lerp(card, other.card, t) ?? card,
+      textPrimary: Color.lerp(textPrimary, other.textPrimary, t) ?? textPrimary,
+      textSecondary: Color.lerp(textSecondary, other.textSecondary, t) ?? textSecondary,
+      textDisabled: Color.lerp(textDisabled, other.textDisabled, t) ?? textDisabled,
+      border: Color.lerp(border, other.border, t) ?? border,
+      divider: Color.lerp(divider, other.divider, t) ?? divider,
+      primary: Color.lerp(primary, other.primary, t) ?? primary,
+      primaryLight: Color.lerp(primaryLight, other.primaryLight, t) ?? primaryLight,
+      primaryDark: Color.lerp(primaryDark, other.primaryDark, t) ?? primaryDark,
+    );
+  }
 }

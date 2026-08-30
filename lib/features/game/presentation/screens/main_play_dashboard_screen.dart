@@ -14,6 +14,8 @@ import 'package:manito/features/feed/presentation/feed_provider.dart';
 import 'package:manito/features/feed/presentation/screens/result_feed_screen.dart';
 import 'package:manito/features/game/presentation/game_provider.dart';
 import 'package:manito/features/game/presentation/widgets/block_editor_view.dart';
+import 'package:manito/features/game/presentation/widgets/game_timer_header.dart';
+import 'package:manito/features/game/presentation/widgets/suspect_selection_modal.dart';
 import 'package:manito/features/rooms/presentation/rooms_provider.dart';
 import 'package:manito/features/setup/presentation/setup_provider.dart';
 import 'package:manito/features/setup/presentation/screens/mission_setup_screen.dart';
@@ -168,19 +170,6 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
     }
   }
 
-  String _formatRemainingDuration(Duration d) {
-    if (d.inSeconds <= 0) return '00:00:00 (마감)';
-    final days = d.inDays;
-    final hours = (d.inHours % 24).toString().padLeft(2, '0');
-    final minutes = (d.inMinutes % 60).toString().padLeft(2, '0');
-    final seconds = (d.inSeconds % 60).toString().padLeft(2, '0');
-
-    if (days > 0) {
-      return '$days일 $hours:$minutes:$seconds';
-    }
-    return '${d.inHours.toString().padLeft(2, '0')}:$minutes:$seconds';
-  }
-
   /// 3대 필수 조건 검증 및 일괄 저장
   Future<void> _submitAllRecords() async {
     final hasPerformImage = _performBlocks.any((b) => b.type == BlockType.image && b.value.trim().isNotEmpty);
@@ -280,16 +269,16 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(roomDetailsProvider(widget.roomId), (prev, next) {
-      final r = next.value;
+    ref.listen<AsyncValue<RoomModel?>>(roomDetailsProvider(widget.roomId), (prev, next) {
+      final r = next.valueOrNull;
       if (r != null && r.status == RoomStatus.ended && !_hasNavigatedToResult && !_isHandlingDeadline) {
         _handleDeadlineReached();
       }
     });
 
     ref.listen<AsyncValue<RoomMemberModel?>>(myMemberRecordProvider(widget.roomId), (prev, next) {
-      final member = next.value;
-      final currentRoom = ref.read(roomDetailsProvider(widget.roomId)).value;
+      final member = next.valueOrNull;
+      final currentRoom = ref.read(roomDetailsProvider(widget.roomId)).valueOrNull;
       if (member != null && !member.isMissionSelected && mounted) {
         if (currentRoom?.status == RoomStatus.ongoing) {
           // 게임 진행 중이면 미션을 백그라운드에서 자동 랜덤 확정 처리
@@ -339,7 +328,6 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
     final deadline = room?.gameEndTime ??
         (room?.createdAt.add(const Duration(minutes: 30)) ??
             GameTimeUtil.calculateCeiledDeadline(minutesToAdd: 30));
-    final isUrgent = _remainingDuration.inMinutes <= 10 && _remainingDuration > Duration.zero;
 
     final hasPerformImage = _performBlocks.any((b) => b.type == BlockType.image && b.value.trim().isNotEmpty);
     final hasGuessImage = _guessBlocks.any((b) => b.type == BlockType.image && b.value.trim().isNotEmpty);
@@ -356,50 +344,9 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
           onPressed: () => Navigator.of(context).maybePop(),
         ),
         centerTitle: true,
-        title: Tooltip(
-          message: '마감 시간: ${GameTimeUtil.formatKoreanDateTime(deadline)}',
-          triggerMode: TooltipTriggerMode.tap,
-          showDuration: const Duration(seconds: 10),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          decoration: BoxDecoration(
-            color: AppColors.isDark(context) ? AppColors.darkCard : const Color(0xFF222222).withValues(alpha: 0.92),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          textStyle: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-            decoration: BoxDecoration(
-              color: isUrgent
-                  ? AppColors.statusRed.withValues(alpha: 0.12)
-                  : AppColors.surfaceLowOf(context),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: isUrgent ? AppColors.statusRed : AppColors.borderOf(context),
-                width: isUrgent ? 1.2 : 1.0,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.timer_outlined,
-                  size: 16,
-                  color: isUrgent
-                      ? AppColors.statusRed
-                      : (AppColors.isDark(context) ? AppColors.primary : AppColors.primaryDark),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  _formatRemainingDuration(_remainingDuration),
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: isUrgent ? AppColors.statusRed : AppColors.textPrimaryOf(context),
-                  ),
-                ),
-              ],
-            ),
-          ),
+        title: GameTimerHeaderBadge(
+          deadline: deadline,
+          remainingDuration: _remainingDuration,
         ),
         actions: [
           Padding(
@@ -600,10 +547,21 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             // 친구 선택 프로필 카드 ([미션 기록]과 동일한 디자인 적용 + 에러 시 붉은색 테두리)
-                            _buildSuspectSelectionCard(
-                              context,
-                              otherMembers,
+                            SuspectSelectionCard(
+                              otherMembers: otherMembers,
+                              selectedSuspectId: _selectedSuspectId,
                               hasError: _showValidationErrors && !isSuspectSelected,
+                              onSuspectSelected: (suspectId) {
+                                ref.read(analyticsServiceProvider).logEvent(
+                                  AnalyticsEvent.suspectSelect,
+                                  screenName: 'MainPlayDashboardScreen',
+                                  properties: {
+                                    'room_id': widget.roomId,
+                                    'suspect_user_id': suspectId,
+                                  },
+                                );
+                                setState(() => _selectedSuspectId = suspectId);
+                              },
                             ),
                             const SizedBox(height: 16),
 
@@ -633,245 +591,6 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
         },
       ),
       ),
-    );
-  }
-
-  /// [마니또 추측] 탭의 친구 선택 프로필 카드 ([미션 기록] 탭의 타겟 프로필과 동일한 UI + 에러 강조 피드백)
-  Widget _buildSuspectSelectionCard(
-    BuildContext context,
-    List<RoomMemberModel> otherMembers, {
-    bool hasError = false,
-  }) {
-    RoomMemberModel? selectedMember;
-    if (_selectedSuspectId != null) {
-      for (final m in otherMembers) {
-        if (m.userId == _selectedSuspectId) {
-          selectedMember = m;
-          break;
-        }
-      }
-    }
-    final profile = selectedMember?.userProfile;
-    final profileImg = profile?.profileImageUrl;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        InkWell(
-          onTap: () => _showSuspectSelectionModal(context, otherMembers),
-          borderRadius: BorderRadius.circular(16),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: hasError
-                  ? AppColors.statusRed.withValues(alpha: 0.05)
-                  : (Theme.of(context).cardTheme.color ?? AppColors.cardOf(context)),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: hasError
-                    ? AppColors.statusRed
-                    : (selectedMember != null ? AppColors.primary : AppColors.borderOf(context)),
-                width: (hasError || selectedMember != null) ? 1.8 : 1.0,
-              ),
-              boxShadow: AppColors.cardShadowOf(context),
-            ),
-            child: Row(
-              children: [
-                UserAvatar(
-                  imageUrl: selectedMember != null ? profileImg : null,
-                  size: 44,
-                  fallbackIcon: selectedMember != null ? Icons.person : Icons.person_search_rounded,
-                  fallbackIconColor: (selectedMember == null && hasError)
-                      ? AppColors.statusRed
-                      : AppColors.textSecondaryOf(context),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        selectedMember != null
-                            ? (profile?.name ?? '요원')
-                            : '친구 선택',
-                        style: AppTypography.titleSmall.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: hasError
-                              ? AppColors.statusRed
-                              : (selectedMember != null ? AppColors.textPrimaryOf(context) : AppColors.textSecondaryOf(context)),
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        selectedMember != null
-                            ? (profile?.statusMessage?.isNotEmpty == true
-                                ? profile!.statusMessage!
-                                : '마니또로 지목된 요원')
-                            : '나의 마니또로 의심되는 친구를 선택하세요',
-                        style: AppTypography.bodySm.copyWith(
-                          color: hasError ? AppColors.statusRed : AppColors.textSecondaryOf(context),
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                Icon(
-                  Icons.keyboard_arrow_down_rounded,
-                  color: hasError ? AppColors.statusRed : AppColors.textSecondaryOf(context),
-                  size: 24,
-                ),
-              ],
-            ),
-          ),
-        ),
-        if (hasError)
-          const Padding(
-            padding: EdgeInsets.only(top: 6, left: 4),
-            child: Text(
-              '⚠️ 마니또로 의심되는 친구를 선택해 주세요.',
-              style: TextStyle(color: AppColors.statusRed, fontSize: 12, fontWeight: FontWeight.w600),
-            ),
-          ),
-      ],
-    );
-  }
-
-  /// 친구 선택 모달 바텀시트
-  void _showSuspectSelectionModal(BuildContext context, List<RoomMemberModel> otherMembers) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (ctx) {
-        return Container(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.6,
-          ),
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardTheme.color ?? AppColors.cardOf(context),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: AppColors.borderOf(context),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                '친구 선택',
-                style: AppTypography.titleMedium.copyWith(color: AppColors.textPrimaryOf(context)),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              if (otherMembers.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 24),
-                  child: Center(
-                    child: Text(
-                      '선택 가능한 참가자가 없습니다.',
-                      style: AppTypography.bodyMd.copyWith(color: AppColors.textSecondaryOf(context)),
-                    ),
-                  ),
-                )
-              else
-                Flexible(
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: otherMembers.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
-                    itemBuilder: (context, idx) {
-                      final m = otherMembers[idx];
-                      final p = m.userProfile;
-                      final pImg = p?.profileImageUrl;
-                      final statusMsg = p?.statusMessage;
-                      final isSelected = m.userId == _selectedSuspectId;
-
-                      return InkWell(
-                        onTap: () {
-                          ref.read(analyticsServiceProvider).logEvent(
-                            AnalyticsEvent.suspectSelect,
-                            screenName: 'MainPlayDashboardScreen',
-                            properties: {
-                              'room_id': widget.roomId,
-                              'suspect_user_id': m.userId,
-                            },
-                          );
-                          setState(() => _selectedSuspectId = m.userId);
-                          Navigator.pop(ctx);
-                        },
-                        borderRadius: BorderRadius.circular(16),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? (AppColors.isDark(context)
-                                    ? AppColors.darkPrimaryLight
-                                    : AppColors.primaryLight.withValues(alpha: 0.3))
-                                : AppColors.surfaceOf(context),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: isSelected ? AppColors.primary : AppColors.borderOf(context),
-                              width: isSelected ? 1.5 : 1.0,
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              UserAvatar(
-                                imageUrl: pImg,
-                                size: 40,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      p?.name ?? '요원',
-                                      style: AppTypography.titleSmall.copyWith(
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColors.textPrimaryOf(context),
-                                      ),
-                                    ),
-                                    if (statusMsg != null && statusMsg.isNotEmpty) ...[
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        statusMsg,
-                                        style: AppTypography.bodySm.copyWith(
-                                          color: AppColors.textSecondaryOf(context),
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                              ),
-                              if (isSelected)
-                                const Icon(Icons.check_circle_rounded, color: AppColors.primaryDark, size: 22),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-            ],
-          ),
-        );
-      },
     );
   }
 

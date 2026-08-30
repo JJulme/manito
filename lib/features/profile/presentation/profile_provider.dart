@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers.dart';
+import '../../../core/util/app_logger.dart';
 import '../data/profile_repository.dart';
 
 final profileRepositoryProvider = Provider<ProfileRepository>((ref) {
@@ -31,11 +32,14 @@ class ProfileFormState {
   }
 }
 
-class ProfileFormNotifier extends StateNotifier<ProfileFormState> {
-  final ProfileRepository _repo;
-  final Ref _ref;
+class ProfileFormNotifier extends AutoDisposeNotifier<ProfileFormState> {
+  late final ProfileRepository _repo;
 
-  ProfileFormNotifier(this._repo, this._ref) : super(const ProfileFormState());
+  @override
+  ProfileFormState build() {
+    _repo = ref.watch(profileRepositoryProvider);
+    return const ProfileFormState();
+  }
 
   Future<bool> saveProfile({
     String? name,
@@ -58,18 +62,18 @@ class ProfileFormNotifier extends StateNotifier<ProfileFormState> {
         guessAutoReplyImg: guessAutoReplyImg,
       );
       // Refresh current user profile provider
-      _ref.invalidate(currentUserProfileProvider);
+      ref.invalidate(currentUserProfileProvider);
       state = state.copyWith(isSaving: false, saveSuccess: true);
       return true;
-    } catch (e) {
-      state = state.copyWith(isSaving: false, errorMessage: '저장 실패: $e');
+    } catch (e, s) {
+      AppLogger.e('프로필 저장 실패', error: e, stackTrace: s);
+      state = state.copyWith(isSaving: false, errorMessage: '프로필 저장에 실패했습니다. 다시 시도해 주세요.');
       return false;
     }
   }
 }
 
 final profileFormProvider =
-    StateNotifierProvider.autoDispose<ProfileFormNotifier, ProfileFormState>((ref) {
-  final repo = ref.watch(profileRepositoryProvider);
-  return ProfileFormNotifier(repo, ref);
-});
+    NotifierProvider.autoDispose<ProfileFormNotifier, ProfileFormState>(
+  ProfileFormNotifier.new,
+);

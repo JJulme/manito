@@ -5,8 +5,10 @@ import 'package:manito/core/util/app_logger.dart';
 
 class FriendsRepository {
   final SupabaseClient _supabase;
+  final NotificationSender _notificationSender;
 
-  FriendsRepository(this._supabase);
+  FriendsRepository(this._supabase, {NotificationSender? notificationSender})
+      : _notificationSender = notificationSender ?? NotificationSender();
 
   String? get currentUserId => _supabase.auth.currentUser?.id;
 
@@ -74,8 +76,7 @@ class FriendsRepository {
         final myUser = await _supabase.from('users').select('nickname').eq('user_id', uid).maybeSingle();
         final myNickname = myUser?['nickname'] as String? ?? '친구';
 
-        final sender = NotificationSender();
-        await sender.sendFriendRequestNotification(
+        await _notificationSender.sendFriendRequestNotification(
           targetUserId: receiverId,
           senderName: myNickname,
         );

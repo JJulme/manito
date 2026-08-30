@@ -2,6 +2,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:manito/core/constants/app_constants.dart';
 import 'models/models.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -43,6 +44,6 @@ final appVersionProvider = FutureProvider<String>((ref) async {
     final packageInfo = await PackageInfo.fromPlatform();
     return packageInfo.version;
   } catch (e) {
-    return '2.2.1';
+    return AppConstants.versionFallback;
   }
 });

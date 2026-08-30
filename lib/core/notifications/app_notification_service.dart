@@ -126,7 +126,7 @@ class AppNotificationService {
           AppLogger.i('App launched from terminated state via notification: ${initialMessage.data}', tag: 'NOTIF');
           final payload = AppNotificationPayload.fromJson(initialMessage.data);
           _invalidateRelevantProviders(payload);
-          Future.delayed(const Duration(milliseconds: 600), () {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
             _handleNotificationTap(payload);
           });
         } catch (e, s) {

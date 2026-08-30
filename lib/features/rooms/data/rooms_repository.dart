@@ -5,8 +5,10 @@ import 'package:manito/core/util/app_logger.dart';
 
 class RoomsRepository {
   final SupabaseClient _supabase;
+  final NotificationSender _notificationSender;
 
-  RoomsRepository(this._supabase);
+  RoomsRepository(this._supabase, {NotificationSender? notificationSender})
+      : _notificationSender = notificationSender ?? NotificationSender();
 
   String? get currentUserId => _supabase.auth.currentUser?.id;
 
@@ -114,7 +116,11 @@ class RoomsRepository {
             'game_end_time': gameEndTime?.toUtc().toIso8601String(),
           })
           .select()
-          .single();
+          .maybeSingle();
+
+      if (roomResponse == null) {
+        throw Exception('방 생성 결과를 가져오지 못했습니다.');
+      }
 
       final room = RoomModel.fromJson(roomResponse);
 
@@ -157,7 +163,11 @@ class RoomsRepository {
           .eq('room_id', roomId)
           .eq('host_id', uid)
           .select()
-          .single();
+          .maybeSingle();
+
+      if (response == null) {
+        throw Exception('방 설정 업데이트 결과를 가져오지 못했습니다.');
+      }
 
       AppLogger.i('Room settings updated successfully: $roomId', tag: 'ROOMS');
       return RoomModel.fromJson(response);
@@ -190,8 +200,7 @@ class RoomsRepository {
               : '요원';
           final roomTitle = roomData?['title'] as String? ?? '마니또 방';
 
-          final sender = NotificationSender();
-          await sender.sendRoomInvitationNotification(
+          await _notificationSender.sendRoomInvitationNotification(
             roomId: roomId,
             invitedUserIds: friendUserIds,
             hostName: hostName,
@@ -222,32 +231,6 @@ class RoomsRepository {
         'is_invite_viewed': true,
       }).eq('room_member_id', roomMemberId);
       AppLogger.i('Responded to invite $roomMemberId: $status', tag: 'ROOMS');
-
-      // 수락 시 방장에게 알림 발송 트리거
-      if (status == '✔️') {
-        try {
-          final memberData = await _supabase.from('room_members').select('room_id, users(name)').eq('room_member_id', roomMemberId).maybeSingle();
-          final rId = memberData?['room_id'] as String?;
-          if (rId != null) {
-            final roomData = await _supabase.from('rooms').select('host_id, title').eq('room_id', rId).maybeSingle();
-            final hostId = roomData?['host_id'] as String?;
-            final roomTitle = roomData?['title'] as String? ?? '마니또 방';
-            final participantName = memberData?['users']?['name'] as String? ?? '요원';
-
-            if (hostId != null) {
-              final sender = NotificationSender();
-              await sender.sendInviteAcceptedNotification(
-                roomId: rId,
-                hostUserId: hostId,
-                participantName: participantName,
-                roomTitle: roomTitle,
-              );
-            }
-          }
-        } catch (notifErr) {
-          AppLogger.w('Failed to dispatch invite accepted notification: $notifErr', tag: 'ROOMS');
-        }
-      }
     } catch (e, s) {
       AppLogger.e('respondToInvitation Error: $e', tag: 'ROOMS', error: e, stackTrace: s);
       rethrow;
@@ -367,8 +350,7 @@ class RoomsRepository {
 
           final roomTitle = roomRes?['title'] as String? ?? '마니또';
 
-          final sender = NotificationSender();
-          await sender.sendGameStartedNotification(
+          await _notificationSender.sendGameStartedNotification(
             roomId: roomId,
             memberUserIds: targetUserIds,
             roomTitle: roomTitle,

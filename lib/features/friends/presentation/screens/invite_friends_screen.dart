@@ -192,9 +192,9 @@ class _InviteFriendsScreenState extends ConsumerState<InviteFriendsScreen> {
         stackTrace: s,
       );
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('방 개설/초대 실패: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('방 개설에 실패했습니다. 다시 시도해 주세요.')),
+        );
       }
     }
   }
@@ -444,23 +444,17 @@ class _InviteFriendsScreenState extends ConsumerState<InviteFriendsScreen> {
                       ),
                   error: (err, _) => Center(child: Text('친구 목록 로드 실패: $err')),
                   data: (friends) {
-                    // Filter out already participating/invited members if excludedUserIds provided
-                    final invitableFriends =
-                        friends.where((f) {
-                          final friendId =
-                              f.friendProfile?.userId ??
-                              (f.requesterId ==
-                                      ref.read(currentUserProvider)?.id
-                                  ? f.receiverId
-                                  : f.requesterId);
-                          if (widget.excludedUserIds != null &&
-                              widget.excludedUserIds!.contains(friendId)) {
-                            return false;
-                          }
-                          return true;
-                        }).toList();
+                    final filteredFriends = ref.watch(filteredInvitableFriendsProvider((
+                      excludedUserIds: widget.excludedUserIds,
+                      searchQuery: _searchQuery,
+                    )));
 
-                    if (invitableFriends.isEmpty) {
+                    final allInvitable = ref.watch(filteredInvitableFriendsProvider((
+                      excludedUserIds: widget.excludedUserIds,
+                      searchQuery: '',
+                    )));
+
+                    if (allInvitable.isEmpty) {
                       return Container(
                         padding: const EdgeInsets.all(32),
                         decoration: BoxDecoration(
@@ -505,22 +499,6 @@ class _InviteFriendsScreenState extends ConsumerState<InviteFriendsScreen> {
                         ),
                       );
                     }
-
-                    // Filter by search query
-                    final filteredFriends =
-                        invitableFriends.where((f) {
-                          if (_searchQuery.isEmpty) return true;
-                          final name =
-                              f.friendProfile?.name.toLowerCase() ?? '';
-                          final status =
-                              f.friendProfile?.statusMessage?.toLowerCase() ??
-                              '';
-                          final code =
-                              f.friendProfile?.uniqueCode.toLowerCase() ?? '';
-                          return name.contains(_searchQuery) ||
-                              status.contains(_searchQuery) ||
-                              code.contains(_searchQuery);
-                        }).toList();
 
                     if (filteredFriends.isEmpty) {
                       return Container(

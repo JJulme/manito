@@ -86,30 +86,34 @@ class RecordModel {
     List<RecordBlock> blocks = [];
     if (json['content'] is List) {
       blocks = (json['content'] as List)
-          .map((e) => RecordBlock.fromJson(e as Map<String, dynamic>))
+          .whereType<Map<String, dynamic>>()
+          .map((e) => RecordBlock.fromJson(e))
           .toList();
     } else if (json['content'] is Map) {
       blocks = [RecordBlock.fromJson(json['content'] as Map<String, dynamic>)];
     }
 
     return RecordModel(
-      recordId: json['record_id'] as int,
-      roomId: json['room_id'] as String,
-      userId: json['user_id'] as String,
-      recordType: RecordType.fromString(json['record_type'] as String),
+      recordId: (json['record_id'] as num?)?.toInt() ?? 0,
+      roomId: json['room_id']?.toString() ?? '',
+      userId: json['user_id']?.toString() ?? '',
+      recordType: RecordType.fromString(json['record_type']?.toString() ?? ''),
       suspectUserId: json['suspect_user_id'] as String?,
       content: blocks,
       isDeleted: json['is_deleted'] as bool? ?? false,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      author: json['author'] != null
+      createdAt: json['created_at'] != null
+          ? (DateTime.tryParse(json['created_at'].toString())?.toLocal() ?? DateTime.now())
+          : DateTime.now(),
+      author: json['author'] is Map<String, dynamic>
           ? UserModel.fromJson(json['author'] as Map<String, dynamic>)
           : null,
-      suspectUser: json['suspect_user'] != null
+      suspectUser: json['suspect_user'] is Map<String, dynamic>
           ? UserModel.fromJson(json['suspect_user'] as Map<String, dynamic>)
           : null,
-      comments: json['comments'] != null
+      comments: json['comments'] is List
           ? (json['comments'] as List)
-              .map((e) => CommentModel.fromJson(e as Map<String, dynamic>))
+              .whereType<Map<String, dynamic>>()
+              .map((e) => CommentModel.fromJson(e))
               .toList()
           : null,
     );

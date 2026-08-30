@@ -9,6 +9,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
+      extensions: const [AppColorsExtension.light],
       scaffoldBackgroundColor: AppColors.background,
       colorScheme: const ColorScheme(
         brightness: Brightness.light,
@@ -137,6 +138,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
+      extensions: const [AppColorsExtension.dark],
       scaffoldBackgroundColor: AppColors.darkBackground,
       colorScheme: const ColorScheme(
         brightness: Brightness.dark,

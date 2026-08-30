@@ -114,9 +114,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         stackTrace: s,
       );
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('사진 업로드 실패: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('사진 업로드에 실패했습니다. 다시 시도해 주세요.')),
+        );
       }
     }
   }
@@ -179,9 +179,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         stackTrace: s,
       );
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('사진 업로드 실패: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('사진 업로드에 실패했습니다. 다시 시도해 주세요.')),
+        );
       }
     }
   }

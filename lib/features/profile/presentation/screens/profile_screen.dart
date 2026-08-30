@@ -21,18 +21,15 @@ class ProfileScreen extends ConsumerWidget {
       AnalyticsEvent.myCodeCopy,
       screenName: 'ProfileScreen',
     );
-    // 안드로이드는 시스템 자체 클립보드 오버레이가 뜨므로 iOS에서만 인앱 스낵바 안내 노출
-    if (Theme.of(context).platform == TargetPlatform.iOS) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('고유 코드($code)가 클립보드에 복사되었습니다.'),
-          backgroundColor: AppColors.textPrimary,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('고유 코드($code)가 클립보드에 복사되었습니다.'),
+        backgroundColor: AppColors.textPrimary,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   Widget _buildAutoReplyPreviewCard(

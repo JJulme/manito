@@ -81,7 +81,11 @@ class GameRepository {
             onConflict: 'room_id, user_id, record_type',
           )
           .select('*, author:users!records_user_id_fkey(*), suspect_user:users!records_suspect_user_id_fkey(*)')
-          .single();
+          .maybeSingle();
+
+      if (response == null) {
+        throw Exception('기록 저장 결과를 가져오지 못했습니다.');
+      }
 
       AppLogger.i('Record saved successfully', tag: 'GAME');
       return RecordModel.fromJson(response);

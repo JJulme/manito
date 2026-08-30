@@ -37,9 +37,11 @@ class FriendshipModel {
 
   factory FriendshipModel.fromJson(Map<String, dynamic> json, {String? currentUserId}) {
     UserModel? profile;
-    if (json['users'] != null) {
+    if (json['users'] is Map<String, dynamic>) {
       profile = UserModel.fromJson(json['users'] as Map<String, dynamic>);
-    } else if (json['requester'] != null && json['receiver'] != null && currentUserId != null) {
+    } else if (json['requester'] is Map<String, dynamic> &&
+        json['receiver'] is Map<String, dynamic> &&
+        currentUserId != null) {
       final isRequester = json['requester_id'] == currentUserId;
       profile = UserModel.fromJson(
         (isRequester ? json['receiver'] : json['requester']) as Map<String, dynamic>,
@@ -47,12 +49,16 @@ class FriendshipModel {
     }
 
     return FriendshipModel(
-      friendshipId: json['friendship_id'] as int,
-      requesterId: json['requester_id'] as String,
-      receiverId: json['receiver_id'] as String,
-      status: FriendshipStatus.fromString(json['status'] as String),
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at'] as String) : null,
+      friendshipId: (json['friendship_id'] as num?)?.toInt() ?? 0,
+      requesterId: json['requester_id']?.toString() ?? '',
+      receiverId: json['receiver_id']?.toString() ?? '',
+      status: FriendshipStatus.fromString(json['status']?.toString() ?? ''),
+      createdAt: json['created_at'] != null
+          ? (DateTime.tryParse(json['created_at'].toString())?.toLocal() ?? DateTime.now())
+          : DateTime.now(),
+      updatedAt: json['updated_at'] != null
+          ? DateTime.tryParse(json['updated_at'].toString())?.toLocal()
+          : null,
       friendProfile: profile,
     );
   }

@@ -15,7 +15,7 @@ class UnreadCommentSummary {
     final roomMap = <String, int>{};
     if (json['rooms'] is Map) {
       (json['rooms'] as Map).forEach((k, v) {
-        roomMap[k.toString()] = (v as num).toInt();
+        roomMap[k.toString()] = (v as num?)?.toInt() ?? int.tryParse(v.toString()) ?? 0;
       });
     }
 
@@ -24,7 +24,7 @@ class UnreadCommentSummary {
       (json['records'] as Map).forEach((k, v) {
         final rId = int.tryParse(k.toString());
         if (rId != null) {
-          recordMap[rId] = (v as num).toInt();
+          recordMap[rId] = (v as num?)?.toInt() ?? int.tryParse(v.toString()) ?? 0;
         }
       });
     }

@@ -21,15 +21,17 @@ class MissionCandidateModel {
 
   factory MissionCandidateModel.fromJson(Map<String, dynamic> json) {
     return MissionCandidateModel(
-      candidateId: json['candidate_id'] as int,
-      roomMemberId: json['room_member_id'] as int,
-      candidateMission1Id: json['candidate_mission_1_id'] as int,
-      candidateMission2Id: json['candidate_mission_2_id'] as int,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      mission1: json['mission_1'] != null
+      candidateId: (json['candidate_id'] as num?)?.toInt() ?? 0,
+      roomMemberId: (json['room_member_id'] as num?)?.toInt() ?? 0,
+      candidateMission1Id: (json['candidate_mission_1_id'] as num?)?.toInt() ?? 0,
+      candidateMission2Id: (json['candidate_mission_2_id'] as num?)?.toInt() ?? 0,
+      createdAt: json['created_at'] != null
+          ? (DateTime.tryParse(json['created_at'].toString())?.toLocal() ?? DateTime.now())
+          : DateTime.now(),
+      mission1: json['mission_1'] is Map<String, dynamic>
           ? MissionModel.fromJson(json['mission_1'] as Map<String, dynamic>)
           : null,
-      mission2: json['mission_2'] != null
+      mission2: json['mission_2'] is Map<String, dynamic>
           ? MissionModel.fromJson(json['mission_2'] as Map<String, dynamic>)
           : null,
     );

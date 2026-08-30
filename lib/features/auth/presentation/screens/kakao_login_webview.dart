@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:manito/core/analytics/analytics_event.dart';
 import 'package:manito/core/analytics/analytics_service.dart';
+import 'package:manito/core/util/app_logger.dart';
 import '../auth_provider.dart';
 
 class KakaoLoginWebview extends ConsumerStatefulWidget {
@@ -30,10 +31,11 @@ class _KakaoLoginWebviewState extends ConsumerState<KakaoLoginWebview> {
       setState(() {
         _kakaoLoginUrl = url;
       });
-    } catch (e) {
+    } catch (e, s) {
       if (!mounted) return;
+      AppLogger.e('카카오 로그인 URL 로드 실패', error: e, stackTrace: s);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('카카오 로그인 URL 로드 실패: $e')),
+        const SnackBar(content: Text('카카오 로그인 연결에 실패했습니다. 다시 시도해 주세요.')),
       );
       Future.delayed(const Duration(milliseconds: 500), () {
         if (mounted) context.pop();

@@ -6,6 +6,7 @@ import '../../../../core/image/image_source_picker_modal.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/models/models.dart';
+import '../../../../core/util/app_logger.dart';
 
 class BlockEditorView extends StatefulWidget {
   final List<RecordBlock> initialBlocks;
@@ -139,10 +140,11 @@ class _BlockEditorViewState extends State<BlockEditorView> {
       setState(() => _isUploading = true);
       try {
         imagePath = await widget.onUploadImage!(File(picked.path));
-      } catch (e) {
+      } catch (e, s) {
         if (mounted) {
+          AppLogger.e('이미지 업로드 실패', error: e, stackTrace: s);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('이미지 업로드 실패: $e')),
+            const SnackBar(content: Text('이미지 업로드에 실패했습니다. 다시 시도해 주세요.')),
           );
         }
         return;

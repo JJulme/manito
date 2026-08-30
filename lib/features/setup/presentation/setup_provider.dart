@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers.dart';
 import '../../../core/models/models.dart';
+import '../../../core/util/app_logger.dart';
 import '../data/setup_repository.dart';
 
 final setupRepositoryProvider = Provider<SetupRepository>((ref) {
@@ -48,11 +49,14 @@ class MissionSetupState {
   }
 }
 
-class MissionSetupNotifier extends StateNotifier<MissionSetupState> {
-  final SetupRepository _repo;
-  final Ref _ref;
+class MissionSetupNotifier extends AutoDisposeNotifier<MissionSetupState> {
+  late final SetupRepository _repo;
 
-  MissionSetupNotifier(this._repo, this._ref) : super(const MissionSetupState());
+  @override
+  MissionSetupState build() {
+    _repo = ref.watch(setupRepositoryProvider);
+    return const MissionSetupState();
+  }
 
   void selectMission(int missionId) {
     if (state.isFinalized) return;
@@ -69,18 +73,21 @@ class MissionSetupNotifier extends StateNotifier<MissionSetupState> {
       await _repo.finalizeMission(roomMemberId, targetId);
       await _repo.checkAndStartOngoingGame(roomId);
 
-      _ref.invalidate(myMemberRecordProvider(roomId));
+      ref.invalidate(myMemberRecordProvider(roomId));
       state = state.copyWith(isSubmitting: false, isFinalized: true);
       return true;
-    } catch (e) {
-      state = state.copyWith(isSubmitting: false, errorMessage: '미션 확정 실패: $e');
+    } catch (e, s) {
+      AppLogger.e('미션 확정 실패', error: e, stackTrace: s);
+      state = state.copyWith(
+        isSubmitting: false,
+        errorMessage: '미션 확정에 실패했습니다. 다시 시도해 주세요.',
+      );
       return false;
     }
   }
 }
 
 final missionSetupProvider =
-    StateNotifierProvider.autoDispose<MissionSetupNotifier, MissionSetupState>((ref) {
-  final repo = ref.watch(setupRepositoryProvider);
-  return MissionSetupNotifier(repo, ref);
-});
+    NotifierProvider.autoDispose<MissionSetupNotifier, MissionSetupState>(
+  MissionSetupNotifier.new,
+);

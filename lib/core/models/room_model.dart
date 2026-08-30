@@ -42,19 +42,21 @@ class RoomModel {
 
   factory RoomModel.fromJson(Map<String, dynamic> json) {
     return RoomModel(
-      roomId: json['room_id'] as String,
-      hostId: json['host_id'] as String,
+      roomId: json['room_id']?.toString() ?? '',
+      hostId: json['host_id']?.toString() ?? '',
       title: json['title'] as String? ?? '마니또 대기실',
-      status: RoomStatus.fromString(json['status'] as String),
+      status: RoomStatus.fromString(json['status']?.toString() ?? ''),
       missionCategory: json['mission_category'] as String?,
       gameStartTime: json['game_start_time'] != null
-          ? DateTime.parse(json['game_start_time'] as String).toLocal()
+          ? DateTime.tryParse(json['game_start_time'].toString())?.toLocal()
           : null,
       gameEndTime: json['game_end_time'] != null
-          ? DateTime.parse(json['game_end_time'] as String).toLocal()
+          ? DateTime.tryParse(json['game_end_time'].toString())?.toLocal()
           : null,
-      createdAt: DateTime.parse(json['created_at'] as String).toLocal(),
-      hostProfile: json['host'] != null
+      createdAt: json['created_at'] != null
+          ? (DateTime.tryParse(json['created_at'].toString())?.toLocal() ?? DateTime.now())
+          : DateTime.now(),
+      hostProfile: json['host'] is Map<String, dynamic>
           ? UserModel.fromJson(json['host'] as Map<String, dynamic>)
           : null,
     );

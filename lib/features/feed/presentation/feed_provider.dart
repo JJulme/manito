@@ -1,11 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/notifications/notification_sender.dart';
 import '../../../core/providers.dart';
 import '../../../core/models/models.dart';
 import '../data/feed_repository.dart';
 
 final feedRepositoryProvider = Provider<FeedRepository>((ref) {
   final supabase = ref.watch(supabaseProvider);
-  return FeedRepository(supabase);
+  final notificationSender = ref.watch(notificationSenderProvider);
+  return FeedRepository(supabase, notificationSender: notificationSender);
 });
 
 final roomRecordsProvider =

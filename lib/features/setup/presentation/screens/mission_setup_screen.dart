@@ -14,6 +14,7 @@ import 'package:manito/core/analytics/analytics_service.dart';
 import 'package:manito/features/game/presentation/screens/main_play_dashboard_screen.dart';
 import 'package:manito/features/rooms/presentation/rooms_provider.dart';
 import 'package:manito/features/setup/presentation/setup_provider.dart';
+import 'package:manito/core/constants/app_constants.dart';
 
 class MissionSetupScreen extends ConsumerStatefulWidget {
   final String roomId;
@@ -25,7 +26,7 @@ class MissionSetupScreen extends ConsumerStatefulWidget {
 }
 
 class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> with WidgetsBindingObserver {
-  static const int _totalTimeoutSeconds = 60;
+  static const int _totalTimeoutSeconds = AppConstants.missionSelectTimeoutSeconds;
   Timer? _timer;
   int _secondsLeft = _totalTimeoutSeconds;
   bool _hasTimedOut = false;
@@ -460,7 +461,7 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> with Wi
                                         .read(missionSetupProvider.notifier)
                                         .confirmSelection(myMember.roomMemberId, widget.roomId);
 
-                                    if (mounted && success) {
+                                    if (context.mounted && success) {
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         const SnackBar(content: Text('미션이 선택되었습니다!')),
                                       );

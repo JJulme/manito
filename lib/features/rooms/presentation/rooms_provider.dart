@@ -1,11 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/notifications/notification_sender.dart';
 import '../../../core/providers.dart';
 import '../../../core/models/models.dart';
 import '../data/rooms_repository.dart';
 
 final roomsRepositoryProvider = Provider<RoomsRepository>((ref) {
   final supabase = ref.watch(supabaseProvider);
-  return RoomsRepository(supabase);
+  final notificationSender = ref.watch(notificationSenderProvider);
+  return RoomsRepository(supabase, notificationSender: notificationSender);
 });
 
 final ongoingRoomsProvider = FutureProvider.autoDispose<List<RoomModel>>((ref) async {

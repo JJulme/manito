@@ -9,11 +9,10 @@ import 'package:manito/core/analytics/analytics_event.dart';
 import 'package:manito/core/analytics/analytics_service.dart';
 import 'package:manito/core/providers.dart';
 import 'package:manito/features/auth/presentation/auth_provider.dart';
+import 'package:manito/core/constants/app_constants.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
-
-  static const String _contactEmail = 'manito.ask@gmail.com';
 
   void _showLogoutDialog(BuildContext context, WidgetRef ref) {
     showDialog(
@@ -74,10 +73,10 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   void _copyEmail(BuildContext context) {
-    Clipboard.setData(const ClipboardData(text: _contactEmail));
+    Clipboard.setData(const ClipboardData(text: AppConstants.contactEmail));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('문의 이메일($_contactEmail)이 복사되었습니다.'),
+        content: Text('문의 이메일(${AppConstants.contactEmail})이 복사되었습니다.'),
         backgroundColor: AppColors.textPrimaryOf(context),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -237,7 +236,7 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeProvider);
     final appVersionAsync = ref.watch(appVersionProvider);
-    final appVersion = appVersionAsync.value ?? '2.2.1';
+    final appVersion = appVersionAsync.value ?? AppConstants.versionFallback;
 
     return Scaffold(
       appBar: AppBar(
@@ -351,7 +350,7 @@ class SettingsScreen extends ConsumerWidget {
                       ),
                     ),
                     subtitle: Text(
-                      _contactEmail,
+                      AppConstants.contactEmail,
                       style: AppTypography.bodySm.copyWith(
                         color: AppColors.textSecondaryOf(context),
                       ),

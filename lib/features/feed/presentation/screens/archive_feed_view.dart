@@ -6,7 +6,7 @@ import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
 import 'package:manito/core/widget/manito_mascot.dart';
 import 'package:manito/core/widget/network_error_view.dart';
-import 'package:manito/core/widget/user_avatar.dart';
+import 'package:manito/core/widget/overlapping_avatars.dart';
 import 'package:manito/features/feed/presentation/feed_provider.dart';
 import 'package:manito/features/feed/presentation/screens/result_feed_screen.dart';
 import 'package:manito/features/rooms/presentation/rooms_provider.dart';
@@ -252,7 +252,11 @@ class RecordHistoryCard extends ConsumerWidget {
                         if (activeMembers.isEmpty) {
                           return const SizedBox.shrink();
                         }
-                        return _buildOverlappingAvatars(context, activeMembers);
+                        return OverlappingAvatars(
+                          members: activeMembers,
+                          avatarSize: 24,
+                          countTextSuffix: '명',
+                        );
                       },
                       orElse: () => const SizedBox.shrink(),
                     ),
@@ -276,70 +280,6 @@ class RecordHistoryCard extends ConsumerWidget {
           size: 32,
         ),
       ),
-    );
-  }
-
-  Widget _buildOverlappingAvatars(BuildContext context, List<RoomMemberModel> members) {
-    const maxDisplay = 4;
-    final displayMembers = members.take(maxDisplay).toList();
-    final extraCount = members.length - displayMembers.length;
-    final cardBg = Theme.of(context).cardTheme.color ?? AppColors.cardOf(context);
-
-    return Row(
-      children: [
-        SizedBox(
-          width: (displayMembers.length * 16.0) + (extraCount > 0 ? 24.0 : 8.0),
-          height: 24,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              for (int i = 0; i < displayMembers.length; i++)
-                Positioned(
-                  left: i * 16.0,
-                  child: UserAvatar(
-                    imageUrl: displayMembers[i].userProfile?.profileImageUrl,
-                    size: 24,
-                    borderWidth: 1.5,
-                    borderColor: cardBg,
-                    showShadow: true,
-                    fallbackIconSize: 14,
-                  ),
-                ),
-              if (extraCount > 0)
-                Positioned(
-                  left: displayMembers.length * 16.0,
-                  child: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.surfaceLowOf(context),
-                      border: Border.all(color: cardBg, width: 1.5),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      '+$extraCount',
-                      style: TextStyle(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textSecondaryOf(context),
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 6),
-        Text(
-          '${members.length}명',
-          style: AppTypography.bodySm.copyWith(
-            fontWeight: FontWeight.w700,
-            color: AppColors.textPrimaryOf(context),
-            fontSize: 12,
-          ),
-        ),
-      ],
     );
   }
 }

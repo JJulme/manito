@@ -25,16 +25,18 @@ class UserModel {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      userId: json['user_id'] as String,
-      uniqueCode: json['unique_code'] as String,
-      name: json['name'] as String,
+      userId: json['user_id']?.toString() ?? '',
+      uniqueCode: json['unique_code']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
       profileImageUrl: json['profile_image_url'] as String?,
       statusMessage: json['status_message'] as String?,
       manitoAutoReplyText: json['manito_auto_reply_text'] as String?,
       manitoAutoReplyImg: json['manito_auto_reply_img'] as String?,
       guessAutoReplyText: json['guess_auto_reply_text'] as String?,
       guessAutoReplyImg: json['guess_auto_reply_img'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: json['created_at'] != null
+          ? (DateTime.tryParse(json['created_at'].toString())?.toLocal() ?? DateTime.now())
+          : DateTime.now(),
     );
   }
 

@@ -5,8 +5,10 @@ import 'package:manito/core/notifications/notification_sender.dart';
 
 class FeedRepository {
   final SupabaseClient _supabase;
+  final NotificationSender _notificationSender;
 
-  FeedRepository(this._supabase);
+  FeedRepository(this._supabase, {NotificationSender? notificationSender})
+      : _notificationSender = notificationSender ?? NotificationSender();
 
   String? get currentUserId => _supabase.auth.currentUser?.id;
 
@@ -78,7 +80,11 @@ class FeedRepository {
           .from('comments')
           .insert(insertData)
           .select('*, author:users!user_id(*)')
-          .single();
+          .maybeSingle();
+
+      if (response == null) {
+        throw Exception('댓글 등록 결과를 가져오지 못했습니다.');
+      }
 
       final createdComment = CommentModel.fromJson(response);
       AppLogger.i('Comment posted successfully (ID: ${createdComment.commentId})', tag: 'FEED');
@@ -142,8 +148,7 @@ class FeedRepository {
       if (targetUserIds.isEmpty) return;
 
       // 3. NotificationSender를 통해 푸시 알림 발송
-      final sender = NotificationSender();
-      await sender.sendCommentCreatedNotification(
+      await _notificationSender.sendCommentCreatedNotification(
         roomId: roomId,
         recordId: recordId,
         targetUserIds: targetUserIds,

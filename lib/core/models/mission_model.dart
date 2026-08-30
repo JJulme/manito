@@ -24,12 +24,14 @@ class MissionModel {
 
   factory MissionModel.fromJson(Map<String, dynamic> json) {
     return MissionModel(
-      missionId: json['mission_id'] as int,
-      category: json['category'] as String,
-      contentKo: json['content_ko'] as String,
-      contentEn: json['content_en'] as String,
+      missionId: (json['mission_id'] as num?)?.toInt() ?? 0,
+      category: json['category']?.toString() ?? '',
+      contentKo: json['content_ko']?.toString() ?? '',
+      contentEn: json['content_en']?.toString() ?? '',
       isActive: json['is_active'] as bool? ?? true,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: json['created_at'] != null
+          ? (DateTime.tryParse(json['created_at'].toString())?.toLocal() ?? DateTime.now())
+          : DateTime.now(),
     );
   }
 

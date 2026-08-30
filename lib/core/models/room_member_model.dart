@@ -35,25 +35,27 @@ class RoomMemberModel {
 
   factory RoomMemberModel.fromJson(Map<String, dynamic> json) {
     return RoomMemberModel(
-      roomMemberId: json['room_member_id'] as int,
-      roomId: json['room_id'] as String,
-      userId: json['user_id'] as String,
+      roomMemberId: (json['room_member_id'] as num?)?.toInt() ?? 0,
+      roomId: json['room_id']?.toString() ?? '',
+      userId: json['user_id']?.toString() ?? '',
       targetUserId: json['target_user_id'] as String?,
       joinStatus: json['join_status'] as String? ?? '-',
-      assignedMissionId: json['assigned_mission_id'] as int?,
+      assignedMissionId: (json['assigned_mission_id'] as num?)?.toInt(),
       isMissionSelected: json['is_mission_selected'] as bool? ?? false,
       isInviteViewed: json['is_invite_viewed'] as bool? ?? false,
-      createdAt: DateTime.parse(json['created_at'] as String).toLocal(),
-      userProfile: json['user'] != null
+      createdAt: json['created_at'] != null
+          ? (DateTime.tryParse(json['created_at'].toString())?.toLocal() ?? DateTime.now())
+          : DateTime.now(),
+      userProfile: json['user'] is Map<String, dynamic>
           ? UserModel.fromJson(json['user'] as Map<String, dynamic>)
           : null,
-      targetUserProfile: json['target_user'] != null
+      targetUserProfile: json['target_user'] is Map<String, dynamic>
           ? UserModel.fromJson(json['target_user'] as Map<String, dynamic>)
           : null,
-      assignedMission: json['mission'] != null
+      assignedMission: json['mission'] is Map<String, dynamic>
           ? MissionModel.fromJson(json['mission'] as Map<String, dynamic>)
           : null,
-      room: json['room'] != null
+      room: json['room'] is Map<String, dynamic>
           ? RoomModel.fromJson(json['room'] as Map<String, dynamic>)
           : null,
     );
