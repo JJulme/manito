@@ -37,6 +37,11 @@
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="kakao1a36ff49b64f62a81bd117e504fe332b" android:host="oauth"/>
             </intent-filter>
+            <!-- FCM 푸시 알림 클릭 액션 연동 -->
+            <intent-filter>
+                <action android:name="FLUTTER_NOTIFICATION_CLICK"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

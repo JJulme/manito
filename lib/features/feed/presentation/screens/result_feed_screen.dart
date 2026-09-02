@@ -222,58 +222,64 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
                         onPressed: () => _handleBackNavigation(context),
                       ),
                     ),
-                    body: Column(
-                      children: [
-                        // 1. 상단: 참여한 친구들의 프로필 가로 스크롤 바 (Tier 3 뱃지 포함)
-                        FeedMemberHorizontalList(
-                          members: activeMembers,
-                          selectedId: currentSelectedId,
-                          records: records,
-                          onMemberSelected: (userId) {
-                            ref.read(analyticsServiceProvider).logEvent(
-                              AnalyticsEvent.resultMemberFilter,
-                              screenName: 'ResultFeedScreen',
-                              properties: {
-                                'room_id': widget.roomId,
-                                'target_user_id': userId,
-                              },
-                            );
-                            setState(() => _selectedUserId = userId);
-                          },
-                        ),
-                        Divider(height: 1, color: AppColors.borderOf(context)),
-
-                        // 2. 본문 스크롤 영역: [미션 수행 기록] + [추측한 마니또 기록]
-                        Expanded(
-                          child: RefreshIndicator(
-                            onRefresh: () async {
-                              ref.invalidate(roomRecordsProvider(widget.roomId));
-                              ref.invalidate(roomMembersProvider(widget.roomId));
-                              ref.invalidate(unreadCommentSummaryProvider);
-                            },
-                            child: SingleChildScrollView(
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  // 섹션 1: A의 마니또였던 B가 작성한 미션 수행 기록
-                                  FeedMissionPerformSection(
-                                    selectedMember: selectedMember,
-                                    manitoMember: manitoMemberB,
-                                    record: missionRecord,
-                                    lang: lang,
-                                  ),
-                                  const SizedBox(height: 20),
-
-                                  // 섹션 2: A가 지목한 마니또와 추측 기록
-                                  FeedSuspectGuessSection(
-                                    selectedMember: selectedMember,
-                                    manitoMember: manitoMemberB,
-                                    record: guessRecord,
-                                  ),
-                                  const SizedBox(height: 24),
-                                ],
+                    body: CustomScrollView(
+                      physics: const ClampingScrollPhysics(),
+                      slivers: [
+                        SliverAppBar(
+                          automaticallyImplyLeading: false,
+                          backgroundColor: Theme.of(context).cardTheme.color ?? AppColors.cardOf(context),
+                          floating: true,
+                          snap: true,
+                          pinned: false,
+                          toolbarHeight: 91,
+                          elevation: 0,
+                          scrolledUnderElevation: 0,
+                          flexibleSpace: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              FeedMemberHorizontalList(
+                                members: activeMembers,
+                                selectedId: currentSelectedId,
+                                records: records,
+                                onMemberSelected: (userId) {
+                                  ref.read(analyticsServiceProvider).logEvent(
+                                    AnalyticsEvent.resultMemberFilter,
+                                    screenName: 'ResultFeedScreen',
+                                    properties: {
+                                      'room_id': widget.roomId,
+                                      'target_user_id': userId,
+                                    },
+                                  );
+                                  setState(() => _selectedUserId = userId);
+                                },
                               ),
+                              Divider(height: 1, color: AppColors.borderOf(context)),
+                            ],
+                          ),
+                        ),
+                        SliverPadding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                          sliver: SliverToBoxAdapter(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                // 섹션 1: A의 마니또였던 B가 작성한 미션 수행 기록
+                                FeedMissionPerformSection(
+                                  selectedMember: selectedMember,
+                                  manitoMember: manitoMemberB,
+                                  record: missionRecord,
+                                  lang: lang,
+                                ),
+                                const SizedBox(height: 20),
+
+                                // 섹션 2: A가 지목한 마니또와 추측 기록
+                                FeedSuspectGuessSection(
+                                  selectedMember: selectedMember,
+                                  manitoMember: manitoMemberB,
+                                  record: guessRecord,
+                                ),
+                                const SizedBox(height: 24),
+                              ],
                             ),
                           ),
                         ),

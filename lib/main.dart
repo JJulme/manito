@@ -1,4 +1,5 @@
-import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:manito/i18n/strings.g.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -19,7 +20,9 @@ import 'package:manito/core/fcm/firebase_options.dart';
 
 import 'dart:convert';
 import 'dart:ui';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:manito/core/util/app_logger.dart';
+import 'package:manito/features/emoticon/data/models/custom_emoticon_model.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 
 @pragma('vm:entry-point')
@@ -73,6 +76,9 @@ void main() async {
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   // Timezone 초기화
   tz.initializeTimeZones();
+  // Hive 로컬 DB 초기화 (이모티콘 등)
+  await Hive.initFlutter();
+  Hive.registerAdapter(CustomEmoticonModelAdapter());
   // 런처 스플래쉬 화면 설정
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   // FCM 설정
@@ -80,8 +86,6 @@ void main() async {
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   // Admob 설정
   MobileAds.instance.initialize();
-  // 다국어 패키지 초기화
-  await EasyLocalization.ensureInitialized();
   // .env 변수 가져오기
   await dotenv.load(fileName: '.env');
   // supabase 연결
@@ -142,10 +146,10 @@ void main() async {
     return true;
   };
 
+  LocaleSettings.useDeviceLocale();
+
   runApp(
-    EasyLocalization(
-      supportedLocales: const [Locale('ko', 'KR'), Locale('en', 'US')],
-      path: 'assets/translations',
+    TranslationProvider(
       child: const ProviderScope(
         child: Manito(),
       ),
@@ -162,17 +166,6 @@ class Manito extends ConsumerStatefulWidget {
 
 class _ManitoState extends ConsumerState<Manito> {
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // 언어 코드 프로바이더에 저장
-    Future.microtask(() {
-      if (!mounted) return;
-      final lang = context.locale.languageCode;
-      ref.read(languageCodeProvider.notifier).state = lang;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     width = MediaQuery.of(context).size.width;
     final themeMode = ref.watch(themeProvider);
@@ -182,10 +175,10 @@ class _ManitoState extends ConsumerState<Manito> {
     return MaterialApp.router(
       scaffoldMessengerKey: scaffoldMessengerKey,
       routerConfig: ref.read(routerProvider),
-      // 다국어 설정
-      localizationsDelegates: context.localizationDelegates,
-      supportedLocales: context.supportedLocales,
-      locale: context.locale,
+      // 다국어 설정 (slang)
+      locale: TranslationProvider.of(context).flutterLocale,
+      supportedLocales: AppLocaleUtils.supportedLocales,
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       // 디버깅 배너 숨기기
       debugShowCheckedModeBanner: false,
       // 테마 설정

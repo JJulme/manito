@@ -47,19 +47,22 @@ class RoomModel {
       title: json['title'] as String? ?? '마니또 대기실',
       status: RoomStatus.fromString(json['status']?.toString() ?? ''),
       missionCategory: json['mission_category'] as String?,
-      gameStartTime: json['game_start_time'] != null
-          ? DateTime.tryParse(json['game_start_time'].toString())?.toLocal()
-          : null,
-      gameEndTime: json['game_end_time'] != null
-          ? DateTime.tryParse(json['game_end_time'].toString())?.toLocal()
-          : null,
-      createdAt: json['created_at'] != null
-          ? (DateTime.tryParse(json['created_at'].toString())?.toLocal() ?? DateTime.now())
-          : DateTime.now(),
+      gameStartTime: _parseUtcToLocal(json['game_start_time']),
+      gameEndTime: _parseUtcToLocal(json['game_end_time']),
+      createdAt: _parseUtcToLocal(json['created_at']) ?? DateTime.now(),
       hostProfile: json['host'] is Map<String, dynamic>
           ? UserModel.fromJson(json['host'] as Map<String, dynamic>)
           : null,
     );
+  }
+
+  static DateTime? _parseUtcToLocal(dynamic val) {
+    if (val == null) return null;
+    final str = val.toString().trim();
+    if (str.isEmpty) return null;
+    final parsed = DateTime.tryParse(str);
+    if (parsed == null) return null;
+    return parsed.isUtc ? parsed.toLocal() : parsed;
   }
 
   Map<String, dynamic> toJson() {

@@ -1,8 +1,10 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:manito/core/constants/app_constants.dart';
+import 'package:manito/i18n/strings.g.dart';
 import 'models/models.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -37,7 +39,43 @@ final currentUserProfileProvider = FutureProvider<UserModel?>((ref) async {
   return UserModel.fromJson(response);
 });
 
-final languageCodeProvider = StateProvider<String>((ref) => 'ko');
+final appLocaleProvider = StateNotifierProvider<AppLocaleNotifier, AppLocale>((ref) {
+  return AppLocaleNotifier();
+});
+
+class AppLocaleNotifier extends StateNotifier<AppLocale> {
+  static const String _key = 'selected_app_locale';
+
+  AppLocaleNotifier() : super(LocaleSettings.currentLocale) {
+    _loadSavedLocale();
+  }
+
+  Future<void> _loadSavedLocale() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedCode = prefs.getString(_key);
+      if (savedCode != null) {
+        final locale = AppLocaleUtils.parse(savedCode);
+        LocaleSettings.setLocale(locale);
+        state = locale;
+      }
+    } catch (_) {}
+  }
+
+  Future<void> setLocale(AppLocale newLocale) async {
+    LocaleSettings.setLocale(newLocale);
+    state = newLocale;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_key, newLocale.languageCode);
+    } catch (_) {}
+  }
+}
+
+final languageCodeProvider = Provider<String>((ref) {
+  final locale = ref.watch(appLocaleProvider);
+  return locale.languageCode;
+});
 
 final appVersionProvider = FutureProvider<String>((ref) async {
   try {

@@ -1,4 +1,3 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +9,7 @@ import 'package:manito/core/analytics/analytics_service.dart';
 import 'package:manito/core/providers.dart';
 import 'package:manito/features/auth/presentation/auth_provider.dart';
 import 'package:manito/core/constants/app_constants.dart';
+import 'package:manito/i18n/strings.g.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -186,6 +186,75 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
+  void _showLanguagePicker(BuildContext context, WidgetRef ref) {
+    final currentLocale = ref.read(appLocaleProvider);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder:
+          (ctx) => Container(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+            decoration: BoxDecoration(
+              color:
+                  Theme.of(context).cardTheme.color ??
+                  AppColors.cardOf(context),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(24),
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppColors.borderOf(context),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  t.settings.language,
+                  style: AppTypography.titleMedium.copyWith(
+                    color: AppColors.textPrimaryOf(context),
+                    fontWeight: FontWeight.w700,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                _buildThemeOptionTile(
+                  context: ctx,
+                  title: t.settings.langKo,
+                  subtitle: '한국어 (기본)',
+                  icon: Icons.language_rounded,
+                  isSelected: currentLocale == AppLocale.ko,
+                  onTap: () {
+                    ref.read(appLocaleProvider.notifier).setLocale(AppLocale.ko);
+                    Navigator.pop(ctx);
+                  },
+                ),
+                _buildThemeOptionTile(
+                  context: ctx,
+                  title: t.settings.langEn,
+                  subtitle: 'English (US)',
+                  icon: Icons.language_rounded,
+                  isSelected: currentLocale == AppLocale.en,
+                  onTap: () {
+                    ref.read(appLocaleProvider.notifier).setLocale(AppLocale.en);
+                    Navigator.pop(ctx);
+                  },
+                ),
+              ],
+            ),
+          ),
+    );
+  }
+
   Widget _buildThemeOptionTile({
     required BuildContext context,
     required String title,
@@ -235,12 +304,13 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeProvider);
+    final currentLocale = ref.watch(appLocaleProvider);
     final appVersionAsync = ref.watch(appVersionProvider);
     final appVersion = appVersionAsync.value ?? AppConstants.versionFallback;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('환경설정'),
+        title: Text(t.settings.title),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => Navigator.of(context).maybePop(),
@@ -267,17 +337,17 @@ class SettingsScreen extends ConsumerWidget {
                       color: AppColors.textPrimaryOf(context),
                     ),
                     title: Text(
-                      '테마 모드',
+                      t.settings.theme,
                       style: AppTypography.titleSmall.copyWith(
                         color: AppColors.textPrimaryOf(context),
                       ),
                     ),
                     subtitle: Text(
                       themeMode == ThemeMode.light
-                          ? '라이트 모드'
+                          ? t.settings.themeLight
                           : themeMode == ThemeMode.dark
-                          ? '다크 모드'
-                          : '시스템 설정 동기화',
+                          ? t.settings.themeDark
+                          : t.settings.themeSystem,
                       style: AppTypography.bodySm.copyWith(
                         color: AppColors.textSecondaryOf(context),
                       ),
@@ -296,15 +366,15 @@ class SettingsScreen extends ConsumerWidget {
                       color: AppColors.textPrimaryOf(context),
                     ),
                     title: Text(
-                      '언어 설정 (Language)',
+                      t.settings.language,
                       style: AppTypography.titleSmall.copyWith(
                         color: AppColors.textPrimaryOf(context),
                       ),
                     ),
                     subtitle: Text(
-                      context.locale.languageCode == 'ko'
-                          ? '한국어 (Korean)'
-                          : 'English',
+                      currentLocale == AppLocale.ko
+                          ? t.settings.langKo
+                          : t.settings.langEn,
                       style: AppTypography.bodySm.copyWith(
                         color: AppColors.textSecondaryOf(context),
                       ),
@@ -314,13 +384,7 @@ class SettingsScreen extends ConsumerWidget {
                       size: 14,
                       color: AppColors.textDisabled,
                     ),
-                    onTap: () async {
-                      if (context.locale.languageCode == 'ko') {
-                        await context.setLocale(const Locale('en', 'US'));
-                      } else {
-                        await context.setLocale(const Locale('ko', 'KR'));
-                      }
-                    },
+                    onTap: () => _showLanguagePicker(context, ref),
                   ),
                 ],
               ),

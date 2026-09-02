@@ -123,7 +123,7 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
       if (_remainingDuration != Duration.zero) {
         setState(() => _remainingDuration = Duration.zero);
       }
-      if (!_hasNavigatedToResult && !_isHandlingDeadline) {
+      if (room?.status == RoomStatus.ongoing && !_hasNavigatedToResult && !_isHandlingDeadline) {
         _handleDeadlineReached();
       }
     } else {

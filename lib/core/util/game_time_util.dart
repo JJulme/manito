@@ -4,7 +4,7 @@ class GameTimeUtil {
   /// 예: 현재 12시 0분 + 30분 = 12시 30분 -> 12시 30분 00초
   /// 예: 현재 12시 3분 + 60분 = 13시 3분 -> 10분 올림 = 13시 10분 00초
   static DateTime calculateCeiledDeadline({DateTime? baseTime, int minutesToAdd = 30}) {
-    final start = baseTime ?? DateTime.now();
+    final start = (baseTime ?? DateTime.now()).toLocal();
     final target = start.add(Duration(minutes: minutesToAdd));
 
     final remainder = target.minute % 10;
@@ -38,19 +38,20 @@ class GameTimeUtil {
 
   /// 한국어 날짜 및 시간 포맷 (예: 8월 11일 (화) 오후 09:30)
   static String formatKoreanDateTime(DateTime dt) {
+    final localDt = dt.toLocal();
     final weekdays = ['월', '화', '수', '목', '금', '토', '일'];
-    final weekdayStr = weekdays[dt.weekday - 1];
-    final isPm = dt.hour >= 12;
-    final displayHour = dt.hour == 0 ? 12 : (dt.hour > 12 ? dt.hour - 12 : dt.hour);
+    final weekdayStr = weekdays[localDt.weekday - 1];
+    final isPm = localDt.hour >= 12;
+    final displayHour = localDt.hour == 0 ? 12 : (localDt.hour > 12 ? localDt.hour - 12 : localDt.hour);
     final period = isPm ? '오후' : '오전';
-    final minuteStr = dt.minute.toString().padLeft(2, '0');
+    final minuteStr = localDt.minute.toString().padLeft(2, '0');
 
-    return '${dt.month}월 ${dt.day}일 ($weekdayStr) $period ${displayHour.toString().padLeft(2, '0')}:$minuteStr';
+    return '${localDt.month}월 ${localDt.day}일 ($weekdayStr) $period ${displayHour.toString().padLeft(2, '0')}:$minuteStr';
   }
 
   /// 대기실 잔여 시간 계산 (10분 기준)
   static int getRemainingWaitingMinutes(DateTime createdAt) {
-    final elapsed = DateTime.now().difference(createdAt).inMinutes;
+    final elapsed = DateTime.now().difference(createdAt.toLocal()).inMinutes;
     return (10 - elapsed).clamp(0, 10);
   }
 }

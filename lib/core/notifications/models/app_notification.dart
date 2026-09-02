@@ -11,9 +11,6 @@ enum NotificationType {
   /// 방 초대 도착
   roomInvite,
 
-  /// 방 초대 수락됨
-  roomInviteAccepted,
-
   /// 게임 시작 알림
   gameStarted,
 
@@ -45,8 +42,6 @@ extension NotificationTypeExtension on NotificationType {
         return 'friend_accepted';
       case NotificationType.roomInvite:
         return 'room_invite';
-      case NotificationType.roomInviteAccepted:
-        return 'room_invite_accepted';
       case NotificationType.gameStarted:
         return 'game_started';
       case NotificationType.manitoAssigned:
@@ -65,7 +60,7 @@ extension NotificationTypeExtension on NotificationType {
   }
 
   static NotificationType fromString(String? val) {
-    switch (val) {
+    switch (val?.toLowerCase()) {
       case 'friend_request':
         return NotificationType.friendRequest;
       case 'friend_accepted':
@@ -73,20 +68,23 @@ extension NotificationTypeExtension on NotificationType {
         return NotificationType.friendAccepted;
       case 'room_invite':
         return NotificationType.roomInvite;
-      case 'room_invite_accepted':
-      case 'room_join':
-        return NotificationType.roomInviteAccepted;
       case 'game_started':
       case 'game_start':
         return NotificationType.gameStarted;
       case 'manito_assigned':
         return NotificationType.manitoAssigned;
       case 'game_deadline':
+      case 'game_deadline_1min':
+      case 'update_mission_progress':
+      case 'update_mission_guess':
         return NotificationType.gameDeadline;
       case 'game_ended':
+      case 'game_completed':
+      case 'update_mission_complete':
         return NotificationType.gameEnded;
       case 'feed_uploaded':
       case 'mission_proof':
+      case 'mission_propose':
         return NotificationType.feedUploaded;
       case 'comment_created':
       case 'new_comment':
@@ -161,9 +159,9 @@ class AppNotificationPayload {
     switch (type) {
       case NotificationType.roomInvite:
         return '/bottom_nav2';
-      case NotificationType.roomInviteAccepted:
-        return roomId != null ? '/lobby/$roomId' : '/bottom_nav2';
       case NotificationType.gameStarted:
+      case NotificationType.manitoAssigned:
+      case NotificationType.gameDeadline:
         return roomId != null ? '/game/$roomId' : '/bottom_nav2';
       case NotificationType.gameEnded:
       case NotificationType.commentCreated:

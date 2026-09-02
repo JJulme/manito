@@ -98,6 +98,22 @@ class AppNotificationService {
         },
       );
 
+      // 로컬 알림 탭으로 앱이 실행된 경우 처리
+      final launchDetails = await _localNotifications.getNotificationAppLaunchDetails();
+      if (launchDetails?.didNotificationLaunchApp ?? false) {
+        final payloadStr = launchDetails?.notificationResponse?.payload;
+        if (payloadStr != null && payloadStr.isNotEmpty) {
+          try {
+            final json = jsonDecode(payloadStr) as Map<String, dynamic>;
+            final payload = AppNotificationPayload.fromJson(json);
+            _invalidateRelevantProviders(payload);
+            _handleNotificationTap(payload);
+          } catch (e) {
+            AppLogger.e('Failed to parse launch local notification payload: $e', tag: 'NOTIF');
+          }
+        }
+      }
+
       // 6. 포그라운드 메시지 리스너
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         try {
@@ -126,9 +142,7 @@ class AppNotificationService {
           AppLogger.i('App launched from terminated state via notification: ${initialMessage.data}', tag: 'NOTIF');
           final payload = AppNotificationPayload.fromJson(initialMessage.data);
           _invalidateRelevantProviders(payload);
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _handleNotificationTap(payload);
-          });
+          _handleNotificationTap(payload);
         } catch (e, s) {
           AppLogger.e('Error handling initial FCM message: $e', tag: 'NOTIF', error: e, stackTrace: s);
         }
@@ -189,16 +203,13 @@ class AppNotificationService {
         _ref.invalidate(receivedRoomInvitationsProvider);
         _ref.invalidate(ongoingRoomsProvider);
         break;
-      case NotificationType.roomInviteAccepted:
-        if (payload.roomId != null) {
-          _ref.invalidate(roomMembersProvider(payload.roomId!));
-        }
-        _ref.invalidate(ongoingRoomsProvider);
-        break;
       case NotificationType.gameStarted:
+      case NotificationType.manitoAssigned:
+      case NotificationType.gameDeadline:
         _ref.invalidate(ongoingRoomsProvider);
         if (payload.roomId != null) {
           _ref.invalidate(roomDetailsProvider(payload.roomId!));
+          _ref.invalidate(roomRecordsProvider(payload.roomId!));
         }
         break;
       case NotificationType.friendRequest:
@@ -207,7 +218,7 @@ class AppNotificationService {
         _ref.invalidate(receivedFriendRequestsProvider);
         break;
       case NotificationType.commentCreated:
-        final recordId = payload.extraData['record_id'];
+        final recordId = payload.extraData['record_id'] ?? payload.recordId;
         if (recordId != null) {
           final id = int.tryParse(recordId.toString());
           if (id != null) {
@@ -218,6 +229,15 @@ class AppNotificationService {
           _ref.invalidate(roomRecordsProvider(payload.roomId!));
           _ref.invalidate(unreadCommentCountProvider(payload.roomId!));
         }
+        _ref.invalidate(unreadCommentSummaryProvider);
+        break;
+      case NotificationType.feedUploaded:
+      case NotificationType.gameEnded:
+        if (payload.roomId != null) {
+          _ref.invalidate(roomRecordsProvider(payload.roomId!));
+          _ref.invalidate(unreadCommentCountProvider(payload.roomId!));
+        }
+        _ref.invalidate(ongoingRoomsProvider);
         _ref.invalidate(unreadCommentSummaryProvider);
         break;
       default:
@@ -267,9 +287,14 @@ class AppNotificationService {
 
   /// 알림 탭 시 화면 이동 (Deep-Link Navigation)
   void _handleNotificationTap(AppNotificationPayload payload) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    void executeNav(int retryCount) {
       final context = rootNavigatorKey.currentContext;
-      if (context == null) return;
+      if (context == null) {
+        if (retryCount < 5) {
+          Future.delayed(const Duration(milliseconds: 300), () => executeNav(retryCount + 1));
+        }
+        return;
+      }
 
       final isFeedOrComment = payload.type == NotificationType.commentCreated ||
           payload.type == NotificationType.feedUploaded ||
@@ -279,10 +304,12 @@ class AppNotificationService {
         _ref.read(selectedBottomTabProvider.notifier).state = 1;
       } else if (payload.type == NotificationType.roomInvite) {
         _ref.read(selectedBottomTabProvider.notifier).state = 0;
+        _ref.invalidate(receivedRoomInvitationsProvider);
+        _ref.invalidate(ongoingRoomsProvider);
       }
 
       final targetRoute = payload.effectiveRoute;
-      AppLogger.i('Handling notification tap: navigating to $targetRoute', tag: 'NOTIF');
+      AppLogger.i('Handling notification tap: navigating to $targetRoute (attempt: ${retryCount + 1})', tag: 'NOTIF');
 
       AnalyticsService.instance.logEvent(
         AnalyticsEvent.notificationClick,
@@ -303,6 +330,10 @@ class AppNotificationService {
       } catch (e) {
         AppLogger.w('context navigation failed: $e', tag: 'NOTIF');
       }
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      executeNav(0);
     });
   }
 
@@ -345,9 +376,9 @@ class AppNotificationService {
         final id1 = (roomId.hashCode + 1) & 0x7FFFFFFF;
         final tzOneMinBefore = tz.TZDateTime.from(oneMinBefore, tz.local);
         final payload1 = jsonEncode({
-          'type': 'GAME_DEADLINE_1MIN',
+          'type': 'game_deadline',
           'room_id': roomId,
-          'route': '/rooms/$roomId/play',
+          'route': '/game/$roomId',
         });
 
         await _safeZonedSchedule(
@@ -366,9 +397,9 @@ class AppNotificationService {
         final id2 = (roomId.hashCode + 2) & 0x7FFFFFFF;
         final tzDeadline = tz.TZDateTime.from(gameEndTime, tz.local);
         final payload2 = jsonEncode({
-          'type': 'GAME_COMPLETED',
+          'type': 'game_ended',
           'room_id': roomId,
-          'route': '/rooms/$roomId/result',
+          'route': '/result_feed/$roomId',
         });
 
         await _safeZonedSchedule(
