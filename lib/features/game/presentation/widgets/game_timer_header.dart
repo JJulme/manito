@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/util/game_time_util.dart';
 
@@ -56,7 +57,7 @@ class GameTimerHeaderBadge extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              Icons.timer_outlined,
+              LucideIcons.timer,
               size: 16,
               color: isUrgent
                   ? AppColors.statusRed

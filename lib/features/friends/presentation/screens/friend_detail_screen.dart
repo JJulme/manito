@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:manito/core/models/models.dart';
 import 'package:manito/core/providers.dart';
 import 'package:manito/core/theme/app_colors.dart';
@@ -114,7 +115,7 @@ class _FriendDetailScreenState extends ConsumerState<FriendDetailScreen> {
             ),
             const SizedBox(height: 16),
             ListTile(
-              leading: const Icon(Icons.person_remove_outlined, color: AppColors.error),
+              leading: const Icon(LucideIcons.user_minus, color: AppColors.error),
               title: const Text(
                 '친구 삭제',
                 style: TextStyle(color: AppColors.error, fontWeight: FontWeight.w600),
@@ -142,12 +143,12 @@ class _FriendDetailScreenState extends ConsumerState<FriendDetailScreen> {
         title: const Text('친구 프로필'),
         centerTitle: false,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          icon: const Icon(LucideIcons.chevron_left),
           onPressed: () => Navigator.of(context).maybePop(),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.more_vert_rounded),
+            icon: const Icon(LucideIcons.ellipsis_vertical),
             tooltip: '더보기',
             onPressed: _isDeleting ? null : _showMoreMenu,
           ),
@@ -265,7 +266,7 @@ class _FriendDetailScreenState extends ConsumerState<FriendDetailScreen> {
                           alignment: Alignment.center,
                           child: Column(
                             children: [
-                              Icon(Icons.history_toggle_off_rounded, size: 40, color: AppColors.textDisabledOf(context)),
+                              Icon(LucideIcons.rotate_ccw_clock, size: 40, color: AppColors.textDisabledOf(context)),
                               const SizedBox(height: 10),
                               Text('아직 함께한 마니또 기록이 없습니다.', style: AppTypography.bodyMd.copyWith(color: AppColors.textPrimaryOf(context))),
                               const SizedBox(height: 4),

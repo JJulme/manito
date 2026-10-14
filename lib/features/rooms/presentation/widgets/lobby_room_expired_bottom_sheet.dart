@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
 
@@ -40,7 +41,7 @@ class LobbyRoomExpiredBottomSheet extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              isTimeExpired ? Icons.timer_off_rounded : Icons.delete_outline_rounded,
+              isTimeExpired ? LucideIcons.timer_off : LucideIcons.trash,
               color: AppColors.statusRed,
               size: 32,
             ),

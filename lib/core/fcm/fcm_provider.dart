@@ -18,17 +18,6 @@ class FCMListener {
   }
 
   void _init() {
-    _ref.listen<User?>(
-      currentUserProvider,
-      (previous, current) async {
-        if (current != null) {
-          await _handleUserLoggedIn(current);
-        } else {
-          await _handleUserLoggedOut();
-        }
-      },
-    );
-
     _ref.listen<AsyncValue<AuthState>>(
       authStateProvider,
       (previous, current) async {

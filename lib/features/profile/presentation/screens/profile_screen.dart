@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/providers.dart';
@@ -86,7 +87,7 @@ class ProfileScreen extends ConsumerWidget {
                           width: double.infinity,
                           fit: BoxFit.fitWidth,
                           placeholder: (_, __) => Container(color: AppColors.surfaceOf(context)),
-                          errorWidget: (_, __, ___) => Icon(Icons.broken_image_outlined, color: AppColors.textSecondaryOf(context)),
+                          errorWidget: (_, __, ___) => Icon(LucideIcons.image_off, color: AppColors.textSecondaryOf(context)),
                         )
                       : Image.asset(imageUrl, width: double.infinity, fit: BoxFit.fitWidth),
                 ),
@@ -124,7 +125,7 @@ class ProfileScreen extends ConsumerWidget {
         centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit_outlined),
+            icon: const Icon(LucideIcons.pencil),
             tooltip: '프로필 수정',
             onPressed: () {
               Navigator.of(context).push(
@@ -135,7 +136,7 @@ class ProfileScreen extends ConsumerWidget {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.settings_outlined),
+            icon: const Icon(LucideIcons.settings),
             tooltip: '환경설정',
             onPressed: () {
               Navigator.of(context).push(
@@ -220,7 +221,7 @@ class ProfileScreen extends ConsumerWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.vpn_key_outlined, size: 16, color: AppColors.primaryDark),
+                              const Icon(LucideIcons.key, size: 16, color: AppColors.primaryDark),
                               const SizedBox(width: 6),
                               Text(
                                 '고유코드: ${user.uniqueCode}',
@@ -230,7 +231,7 @@ class ProfileScreen extends ConsumerWidget {
                                 ),
                               ),
                               const SizedBox(width: 6),
-                              Icon(Icons.copy_rounded, size: 14, color: AppColors.textSecondaryOf(context)),
+                              Icon(LucideIcons.copy, size: 14, color: AppColors.textSecondaryOf(context)),
                             ],
                           ),
                         ),
@@ -258,7 +259,7 @@ class ProfileScreen extends ConsumerWidget {
                   title: '마니또 자동응답',
                   imageUrl: user.manitoAutoReplyImg,
                   text: user.manitoAutoReplyText,
-                  icon: Icons.lock_clock_outlined,
+                  icon: LucideIcons.lock,
                   emptyFallbackText: '설정된 마니또 자동응답 문구가 없습니다.',
                 ),
                 const SizedBox(height: 16),
@@ -269,7 +270,7 @@ class ProfileScreen extends ConsumerWidget {
                   title: '추측 자동응답',
                   imageUrl: user.guessAutoReplyImg,
                   text: user.guessAutoReplyText,
-                  icon: Icons.psychology_outlined,
+                  icon: LucideIcons.brain,
                   emptyFallbackText: '설정된 추측 자동응답 문구가 없습니다.',
                 ),
                 const SizedBox(height: 32),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:go_router/go_router.dart';
 import 'package:manito/core/providers.dart';
 import 'package:manito/core/theme/app_colors.dart';
@@ -278,7 +279,7 @@ class _InviteFriendsScreenState extends ConsumerState<InviteFriendsScreen> {
                 ),
                 IconButton(
                   icon: const Icon(
-                    Icons.close_rounded,
+                    LucideIcons.x,
                     color: AppColors.textSecondary,
                   ),
                   onPressed: () => Navigator.of(context).pop(),
@@ -313,7 +314,7 @@ class _InviteFriendsScreenState extends ConsumerState<InviteFriendsScreen> {
                         Row(
                           children: [
                             const Icon(
-                              Icons.edit_note_rounded,
+                              LucideIcons.file_pen,
                               size: 20,
                               color: AppColors.primaryDark,
                             ),
@@ -363,7 +364,7 @@ class _InviteFriendsScreenState extends ConsumerState<InviteFriendsScreen> {
                                 _titleController.text.isNotEmpty
                                     ? IconButton(
                                       icon: Icon(
-                                        Icons.clear_rounded,
+                                        LucideIcons.x,
                                         size: 18,
                                         color: AppColors.textSecondaryOf(context),
                                       ),
@@ -399,7 +400,7 @@ class _InviteFriendsScreenState extends ConsumerState<InviteFriendsScreen> {
                   child: Row(
                     children: [
                       Icon(
-                        Icons.search_rounded,
+                        LucideIcons.search,
                         color: AppColors.textSecondaryOf(context),
                       ),
                       const SizedBox(width: 10),
@@ -420,7 +421,7 @@ class _InviteFriendsScreenState extends ConsumerState<InviteFriendsScreen> {
                       if (_searchController.text.isNotEmpty)
                         IconButton(
                           icon: Icon(
-                            Icons.clear_rounded,
+                            LucideIcons.x,
                             size: 18,
                             color: AppColors.textSecondaryOf(context),
                           ),
@@ -466,7 +467,7 @@ class _InviteFriendsScreenState extends ConsumerState<InviteFriendsScreen> {
                         child: Column(
                           children: [
                             const Icon(
-                              Icons.group_outlined,
+                              LucideIcons.users,
                               size: 48,
                               color: AppColors.textDisabled,
                             ),
@@ -489,7 +490,7 @@ class _InviteFriendsScreenState extends ConsumerState<InviteFriendsScreen> {
                               ElevatedButton.icon(
                                 onPressed: () => context.push('/add_friend'),
                                 icon: const Icon(
-                                  Icons.person_add_alt_1_rounded,
+                                  LucideIcons.user_plus,
                                   size: 18,
                                 ),
                                 label: const Text('친구 추가하러 가기'),
@@ -569,8 +570,8 @@ class _InviteFriendsScreenState extends ConsumerState<InviteFriendsScreen> {
                       ? const SizedBox.shrink()
                       : Icon(
                         widget.isBottomSheet
-                            ? Icons.send_rounded
-                            : Icons.rocket_launch_rounded,
+                            ? LucideIcons.send
+                            : LucideIcons.rocket,
                         size: 20,
                       ),
               label:
@@ -613,7 +614,7 @@ class _InviteFriendsScreenState extends ConsumerState<InviteFriendsScreen> {
       appBar: AppBar(
         title: Text(isNewRoomMode ? '마니또 방 만들기' : '친구 초대'),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          icon: const Icon(LucideIcons.chevron_left),
           onPressed: () => Navigator.of(context).maybePop(),
         ),
         actions: [

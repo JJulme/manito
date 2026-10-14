@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:manito/core/models/models.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
@@ -131,7 +132,7 @@ class SuspectSelectionCard extends StatelessWidget {
                                 ),
                               ),
                               if (isSelected)
-                                const Icon(Icons.check_circle_rounded, color: AppColors.primaryDark, size: 22),
+                                const Icon(LucideIcons.circle_check, color: AppColors.primaryDark, size: 22),
                             ],
                           ),
                         ),
@@ -187,7 +188,7 @@ class SuspectSelectionCard extends StatelessWidget {
                 UserAvatar(
                   imageUrl: selectedMember != null ? profileImg : null,
                   size: 44,
-                  fallbackIcon: selectedMember != null ? Icons.person : Icons.person_search_rounded,
+                  fallbackIcon: selectedMember != null ? LucideIcons.user : LucideIcons.user_check,
                   fallbackIconColor: (selectedMember == null && hasError)
                       ? AppColors.statusRed
                       : AppColors.textSecondaryOf(context),
@@ -225,7 +226,7 @@ class SuspectSelectionCard extends StatelessWidget {
                   ),
                 ),
                 Icon(
-                  Icons.keyboard_arrow_down_rounded,
+                  LucideIcons.chevron_down,
                   color: hasError ? AppColors.statusRed : AppColors.textSecondaryOf(context),
                   size: 24,
                 ),

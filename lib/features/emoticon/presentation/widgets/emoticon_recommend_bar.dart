@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter/services.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/features/emoticon/data/models/custom_emoticon_model.dart';
@@ -87,7 +88,7 @@ class EmoticonRecommendBar extends StatelessWidget {
                             : Container(
                                 color: AppColors.surfaceLowOf(context),
                                 child: Icon(
-                                  Icons.broken_image_outlined,
+                                  LucideIcons.image_off,
                                   size: 20,
                                   color: AppColors.textDisabledOf(context),
                                 ),
@@ -113,7 +114,7 @@ class EmoticonRecommendBar extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      Icons.close_rounded,
+                      LucideIcons.x,
                       size: 15,
                       color: AppColors.textSecondaryOf(context),
                     ),

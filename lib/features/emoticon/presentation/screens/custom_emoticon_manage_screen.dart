@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -107,7 +108,7 @@ class _CustomEmoticonManageScreenState extends ConsumerState<CustomEmoticonManag
       appBar: AppBar(
         title: const Text('내 사진 이모티콘'),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          icon: const Icon(LucideIcons.chevron_left),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -126,7 +127,7 @@ class _CustomEmoticonManageScreenState extends ConsumerState<CustomEmoticonManag
               ),
               child: Row(
                 children: [
-                  Icon(Icons.photo_library_outlined, size: 20, color: AppColors.textSecondaryOf(context)),
+                  Icon(LucideIcons.image, size: 20, color: AppColors.textSecondaryOf(context)),
                   const SizedBox(width: 10),
                   Text(
                     stats.summary,
@@ -244,7 +245,7 @@ class _CustomEmoticonManageScreenState extends ConsumerState<CustomEmoticonManag
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.add_photo_alternate_outlined, size: 56, color: AppColors.textDisabledOf(context)),
+                          Icon(LucideIcons.image_plus, size: 56, color: AppColors.textDisabledOf(context)),
                           const SizedBox(height: 12),
                           Text(
                             '아직 등록된 이모티콘이 없어요.\n사진을 추가하고 태그를 지정해 보세요!',
@@ -259,7 +260,7 @@ class _CustomEmoticonManageScreenState extends ConsumerState<CustomEmoticonManag
                             width: double.infinity,
                             child: ElevatedButton.icon(
                               onPressed: _isAdding ? null : _pickAndAddEmoticons,
-                              icon: const Icon(Icons.add_rounded, size: 20),
+                              icon: const Icon(LucideIcons.plus, size: 20),
                               label: const Text('사진 추가하기'),
                             ),
                           ),
@@ -329,7 +330,7 @@ class _CustomEmoticonManageScreenState extends ConsumerState<CustomEmoticonManag
                                       color: AppColors.surfaceLowOf(context),
                                       child: Center(
                                         child: Icon(
-                                          Icons.broken_image_outlined,
+                                          LucideIcons.image_off,
                                           color: AppColors.textDisabledOf(context),
                                         ),
                                       ),
@@ -395,7 +396,7 @@ class _CustomEmoticonManageScreenState extends ConsumerState<CustomEmoticonManag
                       height: 24,
                       child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                     )
-                  : const Icon(Icons.add_rounded, color: Colors.white),
+                  : const Icon(LucideIcons.plus, color: Colors.white),
             )
           : null,
     );

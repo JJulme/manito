@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
 
@@ -66,7 +67,7 @@ class _EmoticonBatchTagDialogState extends State<_EmoticonBatchTagDialog> {
                       tag,
                       style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                     ),
-                    deleteIcon: const Icon(Icons.close_rounded, size: 16),
+                    deleteIcon: const Icon(LucideIcons.x, size: 16),
                     onDeleted: () => _removeTag(tag),
                     backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                     side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
@@ -99,7 +100,7 @@ class _EmoticonBatchTagDialogState extends State<_EmoticonBatchTagDialog> {
                 const SizedBox(width: 8),
                 IconButton(
                   onPressed: _addTag,
-                  icon: const Icon(Icons.add_circle_rounded, color: AppColors.primary),
+                  icon: const Icon(LucideIcons.circle_plus, color: AppColors.primary),
                   tooltip: '태그 추가',
                 ),
               ],

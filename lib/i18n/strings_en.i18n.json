@@ -28,6 +28,7 @@
   "home": {
     "title": "Manito",
     "tabHome": "Home",
+    "tabChat": "Chat",
     "tabArchive": "Archive",
     "tabFriends": "Friends",
     "tabProfile": "Profile",
@@ -38,6 +39,24 @@
     "noInvitations": "No invitations received",
     "accept": "Accept",
     "decline": "Decline"
+  },
+  "chat": {
+    "title": "Chat",
+    "newChat": "New Chat",
+    "searchHint": "Search by friend name or code",
+    "groupTitleHint": "Group chat title (optional)",
+    "startDirect": "Start 1:1 Chat",
+    "startGroup": "Start Group Chat ({count})",
+    "emptyChats": "No active chats right now.",
+    "emptyChatsDesc": "Select a friend to start a 1:1 or group chat!",
+    "firstMessageDesc": "Send the first message to start the conversation!",
+    "leaveRoom": "Leave Chat Room",
+    "leaveConfirmTitle": "Leave Chat Room",
+    "leaveConfirmMessage": "Leaving the room will delete all messages and remove it from your chat list.\n\nAre you sure you want to leave?",
+    "drawerTitle": "Chat Drawer",
+    "members": "Participants",
+    "me": "Me",
+    "yesterday": "Yesterday"
   },
   "lobby": {
     "title": "Waiting Room",

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -268,12 +269,12 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
       appBar: AppBar(
         title: Text(room?.title ?? '대기실'),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          icon: const Icon(LucideIcons.chevron_left),
           onPressed: () => Navigator.of(context).maybePop(),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout_rounded, color: AppColors.statusRed),
+            icon: const Icon(LucideIcons.log_out, color: AppColors.statusRed),
             tooltip: isHost ? '방 삭제 및 나가기' : '대기실 나가기',
             onPressed: () => LobbyLeaveBottomSheet.show(
               context,
@@ -315,7 +316,7 @@ class _GroupLobbyScreenState extends ConsumerState<GroupLobbyScreen> {
                         : () => _startGame(members),
                     icon: _isStarting
                         ? const SizedBox.shrink()
-                        : const Icon(Icons.play_arrow_rounded, size: 22),
+                        : const Icon(LucideIcons.play, size: 22),
                     label: _isStarting
                         ? const SizedBox(
                             width: 22,

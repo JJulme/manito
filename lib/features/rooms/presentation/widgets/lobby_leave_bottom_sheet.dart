@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:manito/core/analytics/analytics_event.dart';
@@ -68,7 +69,7 @@ class _LobbyLeaveBottomSheetState extends ConsumerState<LobbyLeaveBottomSheet> {
               shape: BoxShape.circle,
             ),
             child: const Icon(
-              Icons.logout_rounded,
+              LucideIcons.log_out,
               color: AppColors.statusRed,
               size: 28,
             ),

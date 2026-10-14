@@ -20,6 +20,7 @@ class NotificationSender {
     String? roomId,
     String? senderId,
     String? senderName,
+    String? imageUrl,
     Map<String, dynamic>? extraData,
   }) async {
     await sendToUsers(
@@ -30,6 +31,7 @@ class NotificationSender {
       roomId: roomId,
       senderId: senderId,
       senderName: senderName,
+      imageUrl: imageUrl,
       extraData: extraData,
     );
   }
@@ -43,11 +45,18 @@ class NotificationSender {
     String? roomId,
     String? senderId,
     String? senderName,
+    String? imageUrl,
     Map<String, dynamic>? extraData,
   }) async {
     if (targetUserIds.isEmpty) return;
 
     final currentUserId = senderId ?? _supabase.auth.currentUser?.id;
+
+    final mergedExtra = <String, dynamic>{
+      if (imageUrl != null) 'sender_profile_url': imageUrl,
+      if (imageUrl != null) 'image_url': imageUrl,
+      ...?extraData,
+    };
 
     final payload = AppNotificationPayload(
       type: type,
@@ -56,7 +65,7 @@ class NotificationSender {
       roomId: roomId,
       senderId: currentUserId,
       senderName: senderName,
-      extraData: extraData ?? {},
+      extraData: mergedExtra,
     );
 
     try {
@@ -72,6 +81,7 @@ class NotificationSender {
           .map((u) => u['fcm_token'] as String?)
           .where((token) => token != null && token.isNotEmpty)
           .cast<String>()
+          .toSet()
           .toList();
 
       if (tokens.isEmpty) {
@@ -87,6 +97,7 @@ class NotificationSender {
             'tokens': tokens,
             'title': payload.title,
             'body': payload.body,
+            'imageUrl': imageUrl,
             'data': payload.toJson(),
           },
         );

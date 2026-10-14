@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/image/image_service.dart';
@@ -340,7 +341,7 @@ class _CommentsSheetState extends ConsumerState<CommentsSheet> {
               iconTheme: const IconThemeData(color: Colors.white),
               elevation: 0,
               leading: IconButton(
-                icon: const Icon(Icons.close_rounded, color: Colors.white),
+                icon: const Icon(LucideIcons.x, color: Colors.white),
                 onPressed: () => Navigator.of(ctx).pop(),
               ),
             ),
@@ -355,7 +356,7 @@ class _CommentsSheetState extends ConsumerState<CommentsSheet> {
                     child: CircularProgressIndicator(color: Colors.white),
                   ),
                   errorWidget: (_, __, ___) => const Center(
-                    child: Icon(Icons.broken_image_rounded, color: Colors.white54, size: 48),
+                    child: Icon(LucideIcons.image_off, color: Colors.white54, size: 48),
                   ),
                 ),
               ),
@@ -400,7 +401,7 @@ class _CommentsSheetState extends ConsumerState<CommentsSheet> {
                     style: AppTypography.headlineMd.copyWith(color: AppColors.textPrimaryOf(context)),
                   ),
                   IconButton(
-                    icon: Icon(Icons.close_rounded, color: AppColors.textSecondaryOf(context)),
+                    icon: Icon(LucideIcons.x, color: AppColors.textSecondaryOf(context)),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -432,7 +433,7 @@ class _CommentsSheetState extends ConsumerState<CommentsSheet> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: const [
-                        Icon(Icons.chat_bubble_outline_rounded, size: 40, color: AppColors.textDisabled),
+                        Icon(LucideIcons.message_circle, size: 40, color: AppColors.textDisabled),
                         SizedBox(height: 8),
                         Text('아직 작성된 댓글이 없습니다.\n첫 번째 소감을 남겨보세요!',
                             textAlign: TextAlign.center, style: AppTypography.bodySm),
@@ -563,7 +564,7 @@ class _CommentsSheetState extends ConsumerState<CommentsSheet> {
                                                 color: AppColors.surfaceLowOf(context),
                                                 child: Center(
                                                   child: Icon(
-                                                    Icons.broken_image_rounded,
+                                                    LucideIcons.image_off,
                                                     color: AppColors.textDisabledOf(context),
                                                   ),
                                                 ),
@@ -608,7 +609,7 @@ class _CommentsSheetState extends ConsumerState<CommentsSheet> {
                                               color: AppColors.surfaceLowOf(context),
                                               child: Center(
                                                 child: Icon(
-                                                  Icons.broken_image_rounded,
+                                                  LucideIcons.image_off,
                                                   color: AppColors.textDisabledOf(context),
                                                 ),
                                               ),
@@ -705,7 +706,7 @@ class _CommentsSheetState extends ConsumerState<CommentsSheet> {
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
-                                Icons.close_rounded,
+                                LucideIcons.x,
                                 size: 13,
                                 color: Colors.white,
                               ),
@@ -755,7 +756,7 @@ class _CommentsSheetState extends ConsumerState<CommentsSheet> {
                                   child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primaryDark),
                                 )
                               : Icon(
-                                  Icons.add_photo_alternate_outlined,
+                                  LucideIcons.image_plus,
                                   color: AppColors.textSecondaryOf(context),
                                   size: 22,
                                 ),
@@ -813,9 +814,9 @@ class _CommentsSheetState extends ConsumerState<CommentsSheet> {
                           IconButton(
                             onPressed: _sendComment,
                             icon: const Icon(
-                              Icons.send_rounded,
+                              LucideIcons.send,
                               color: AppColors.primaryDark,
-                              size: 22,
+                              size: 20,
                             ),
                             tooltip: '전송',
                             splashRadius: 20,
@@ -826,11 +827,11 @@ class _CommentsSheetState extends ConsumerState<CommentsSheet> {
                           IconButton(
                             onPressed: _toggleEmoticonPicker,
                             icon: Icon(
-                              Icons.emoji_emotions_outlined,
+                              LucideIcons.face_slightly_smiling,
                               color: _isEmoticonPickerOpen
                                   ? AppColors.primary
                                   : AppColors.textSecondaryOf(context),
-                              size: 24,
+                              size: 22,
                             ),
                             tooltip: '이모티콘',
                             splashRadius: 20,

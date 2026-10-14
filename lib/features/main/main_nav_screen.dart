@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import '../../core/notifications/app_notification_service.dart';
 import '../../core/models/models.dart';
 import '../../core/theme/app_colors.dart';
@@ -8,6 +9,8 @@ import '../../core/theme/app_typography.dart';
 import '../../core/util/app_logger.dart';
 import '../../core/analytics/analytics_event.dart';
 import '../../core/analytics/analytics_service.dart';
+import '../chat/presentation/chat_provider.dart';
+import '../chat/presentation/screens/chat_list_screen.dart';
 import '../feed/presentation/feed_provider.dart';
 import '../feed/presentation/screens/archive_feed_view.dart';
 import '../feed/presentation/screens/result_feed_screen.dart';
@@ -132,7 +135,7 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> with WidgetsBindi
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Row(
           children: [
-            Icon(Icons.celebration_rounded, color: AppColors.primaryDark),
+            Icon(LucideIcons.party_popper, color: AppColors.primaryDark),
             SizedBox(width: 8),
             Text('마니또 마감!'),
           ],
@@ -166,6 +169,7 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> with WidgetsBindi
   Widget build(BuildContext context) {
     final currentTab = ref.watch(selectedBottomTabProvider);
     final totalUnreadComments = ref.watch(totalUnreadCommentCountProvider);
+    final unreadChatCount = ref.watch(totalUnreadChatCountProvider);
     final invitationsAsync = ref.watch(receivedRoomInvitationsProvider);
     final hasInvitations = invitationsAsync.value?.isNotEmpty ?? false;
     final friendRequestsAsync = ref.watch(receivedFriendRequestsProvider);
@@ -178,6 +182,7 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> with WidgetsBindi
         index: currentTab,
         children: const [
           HomeDashboardView(),
+          ChatListScreen(),
           ArchiveFeedView(),
           ProfileScreen(),
         ],
@@ -198,26 +203,32 @@ class _MainNavScreenState extends ConsumerState<MainNavScreen> with WidgetsBindi
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildNavItem(
                   index: 0,
                   currentIndex: currentTab,
-                  icon: Icons.home_rounded,
+                  icon: LucideIcons.house,
                   hasBadge: hasInvitations || hasFriendRequests,
                 ),
                 _buildNavItem(
                   index: 1,
                   currentIndex: currentTab,
-                  icon: Icons.history_edu_rounded,
-                  hasBadge: totalUnreadComments > 0,
+                  icon: LucideIcons.message_circle,
+                  hasBadge: unreadChatCount > 0,
                 ),
                 _buildNavItem(
                   index: 2,
                   currentIndex: currentTab,
-                  icon: Icons.person_rounded,
+                  icon: LucideIcons.book_open,
+                  hasBadge: totalUnreadComments > 0,
+                ),
+                _buildNavItem(
+                  index: 3,
+                  currentIndex: currentTab,
+                  icon: LucideIcons.user,
                 ),
               ],
             ),

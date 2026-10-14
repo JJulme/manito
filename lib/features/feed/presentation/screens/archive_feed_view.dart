@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:manito/core/models/models.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
@@ -224,8 +225,8 @@ class RecordHistoryCard extends ConsumerWidget {
                     Row(
                       children: [
                         Icon(
-                          Icons.calendar_today_rounded,
-                          size: 12.5,
+                          LucideIcons.calendar,
+                          size: 13,
                           color: AppColors.textSecondaryOf(context),
                         ),
                         const SizedBox(width: 5),
@@ -275,7 +276,7 @@ class RecordHistoryCard extends ConsumerWidget {
       color: AppColors.surface,
       child: const Center(
         child: Icon(
-          Icons.photo_library_outlined,
+          LucideIcons.image,
           color: AppColors.textDisabled,
           size: 32,
         ),

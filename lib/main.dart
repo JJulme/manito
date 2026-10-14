@@ -25,12 +25,13 @@ import 'package:manito/core/util/app_logger.dart';
 import 'package:manito/features/emoticon/data/models/custom_emoticon_model.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 
+import 'package:manito/core/util/notification_image_util.dart';
+
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // message.notification이 포함된 FCM 푸시는 Android OS가 백그라운드에서 자동으로 시스템 알림을 표시하므로,
-  // 중복 알림(2개) 방지를 위해 로컬 알림은 순수 data-only 메시지일 때만 생성합니다.
+  // message.notification이 포함된 경우 Android 시스템이 자체 알림을 띄우므로 중복 방지
   if (message.notification != null) {
     return;
   }
@@ -38,20 +39,76 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   try {
     final title = message.data['title']?.toString() ?? '마니또 알림';
     final body = message.data['body']?.toString() ?? '';
+    final imageUrl = message.data['image_url']?.toString() ?? message.data['sender_profile_url']?.toString();
+    final type = message.data['type']?.toString();
+    final isChat = type == 'chat_message' || type == 'chatMessage' || (type?.contains('chat') ?? false);
 
     if (title.isNotEmpty || body.isNotEmpty) {
       final flutterLocalNotifications = FlutterLocalNotificationsPlugin();
-      const androidDetails = AndroidNotificationDetails(
-        'default_notification_channel',
-        '마니또 알림',
-        channelDescription: '마니또 초대, 시작 및 미션 관련 알림을 수신합니다.',
+
+      StyleInformation? styleInfo;
+      ByteArrayAndroidBitmap? largeIconBitmap;
+      Uint8List? imageBytes;
+
+      if (imageUrl != null && imageUrl.trim().isNotEmpty) {
+        imageBytes = await NotificationImageUtil.downloadAndProcessProfileImage(imageUrl);
+      }
+
+      String? shortcutId;
+
+      if (isChat) {
+        final senderName = message.data['sender_name']?.toString() ?? title;
+        final senderId = message.data['sender_id']?.toString() ?? 'sender';
+        final roomId = message.data['room_id']?.toString();
+        shortcutId = roomId ?? senderId;
+        final isGroup = title.contains('(');
+
+        const mePerson = Person(
+          name: '나',
+          key: 'me',
+        );
+
+        final senderPerson = Person(
+          name: senderName,
+          key: senderId,
+          icon: imageBytes != null ? ByteArrayAndroidIcon(imageBytes) : null,
+          bot: false,
+          important: true,
+        );
+
+        styleInfo = MessagingStyleInformation(
+          mePerson,
+          conversationTitle: isGroup ? title : null,
+          groupConversation: isGroup,
+          messages: [
+            Message(
+              body,
+              DateTime.now(),
+              senderPerson,
+            ),
+          ],
+        );
+      }
+
+      if (imageBytes != null) {
+        largeIconBitmap = ByteArrayAndroidBitmap(imageBytes);
+      }
+
+      final androidDetails = AndroidNotificationDetails(
+        isChat ? 'chat_notification_channel_v4' : 'default_notification_channel',
+        isChat ? '채팅 알림' : '마니또 알림',
+        channelDescription: isChat ? '새로운 채팅 메시지 알림을 수신합니다.' : '마니또 초대, 시작 및 미션 관련 알림을 수신합니다.',
         importance: Importance.max,
         priority: Priority.high,
         icon: 'ic_notification',
+        largeIcon: largeIconBitmap,
+        styleInformation: styleInfo,
+        category: isChat ? AndroidNotificationCategory.message : null,
+        shortcutId: shortcutId,
         playSound: true,
         enableVibration: true,
       );
-      const platformDetails = NotificationDetails(android: androidDetails);
+      final platformDetails = NotificationDetails(android: androidDetails);
       final notifId = DateTime.now().millisecondsSinceEpoch & 0x7FFFFFFF;
       await flutterLocalNotifications.show(
         notifId,
@@ -95,22 +152,20 @@ void main() async {
   );
   // 언어 설정
   timeago.setLocaleMessages('ko', timeago.KoMessages());
-  // 로컬 노티 설정
-  const AndroidInitializationSettings androidInitializationSettings =
-      AndroidInitializationSettings('ic_notification');
-  const DarwinInitializationSettings darwinInitializationSettings =
-      DarwinInitializationSettings();
-  const InitializationSettings initializationSettings = InitializationSettings(
-    android: androidInitializationSettings,
-    iOS: darwinInitializationSettings,
-  );
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
   // 안드로이드 노티피케이션 채널 생성 (백그라운드/헤드업 알림 수신 보장)
   const AndroidNotificationChannel defaultChannel = AndroidNotificationChannel(
     'default_notification_channel',
     '마니또 알림',
     description: '마니또 초대, 시작 및 미션 관련 기본 알림을 수신합니다.',
+    importance: Importance.max,
+    playSound: true,
+    enableVibration: true,
+  );
+  const AndroidNotificationChannel chatChannel = AndroidNotificationChannel(
+    'chat_notification_channel_v4',
+    '채팅 알림',
+    description: '새로운 채팅 메시지 알림을 수신합니다.',
     importance: Importance.max,
     playSound: true,
     enableVibration: true,
@@ -134,6 +189,7 @@ void main() async {
   final androidPlugin = flutterLocalNotificationsPlugin
       .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
   await androidPlugin?.createNotificationChannel(defaultChannel);
+  await androidPlugin?.createNotificationChannel(chatChannel);
   await androidPlugin?.createNotificationChannel(generalChannel);
   await androidPlugin?.createNotificationChannel(deadlineChannel);
 

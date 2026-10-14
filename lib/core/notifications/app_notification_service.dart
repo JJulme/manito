@@ -7,6 +7,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../features/chat/presentation/chat_provider.dart';
 import '../../features/friends/presentation/friends_provider.dart';
 import '../../features/rooms/presentation/rooms_provider.dart';
 import '../../features/feed/presentation/feed_provider.dart';
@@ -16,6 +17,7 @@ import '../router.dart';
 import '../util/app_logger.dart';
 import '../analytics/analytics_event.dart';
 import '../analytics/analytics_service.dart';
+import '../util/notification_image_util.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'models/app_notification.dart';
 
@@ -175,6 +177,9 @@ class AppNotificationService {
       final title = message.notification?.title ?? message.data['title']?.toString() ?? '마니또 알림';
       final body = message.notification?.body ?? message.data['body']?.toString() ?? '';
       final payload = AppNotificationPayload.fromJson(message.data);
+      final imageUrl = message.notification?.android?.imageUrl ??
+          message.data['image_url']?.toString() ??
+          message.data['sender_profile_url']?.toString();
 
       // 1. 해당 알림 타입에 맞는 Riverpod Provider 실시간 자동 갱신
       _invalidateRelevantProviders(payload);
@@ -187,6 +192,7 @@ class AppNotificationService {
           id: notifId,
           title: title,
           body: body,
+          imageUrl: imageUrl,
           payload: jsonEncode(payload.toJson()),
         );
       }
@@ -205,6 +211,11 @@ class AppNotificationService {
         break;
       case NotificationType.gameStarted:
       case NotificationType.manitoAssigned:
+        _ref.invalidate(ongoingRoomsProvider);
+        if (payload.roomId != null) {
+          _ref.invalidate(roomDetailsProvider(payload.roomId!));
+        }
+        break;
       case NotificationType.gameDeadline:
         _ref.invalidate(ongoingRoomsProvider);
         if (payload.roomId != null) {
@@ -240,6 +251,13 @@ class AppNotificationService {
         _ref.invalidate(ongoingRoomsProvider);
         _ref.invalidate(unreadCommentSummaryProvider);
         break;
+      case NotificationType.chatMessage:
+        _ref.invalidate(chatRoomsProvider);
+        if (payload.roomId != null) {
+          _ref.invalidate(chatRoomDetailsProvider(payload.roomId!));
+          _ref.invalidate(chatMessagesProvider(payload.roomId!));
+        }
+        break;
       default:
         _ref.invalidate(ongoingRoomsProvider);
         break;
@@ -252,15 +270,79 @@ class AppNotificationService {
     required String title,
     required String body,
     String? payload,
+    String? imageUrl,
   }) async {
     try {
-      const androidDetails = AndroidNotificationDetails(
-        'default_notification_channel',
-        '마니또 알림',
-        channelDescription: '마니또 초대, 시작 및 미션 관련 알림을 수신합니다.',
+      StyleInformation? styleInfo;
+      ByteArrayAndroidBitmap? largeIconBitmap;
+
+      Uint8List? imageBytes;
+      if (imageUrl != null && imageUrl.trim().isNotEmpty) {
+        // EXIF 회전 보정 및 원형(Circle) 크롭 처리된 PNG 바이트 획득
+        imageBytes = await NotificationImageUtil.downloadAndProcessProfileImage(imageUrl);
+      }
+
+      String? shortcutId;
+
+      // 채팅 알림인 경우 카카오톡 스타일 MessagingStyleInformation 적용
+      // (왼쪽에 보낸 사람 원형 프로필 사진 + 오른쪽 아래에 앱 아이콘 뱃지)
+      if (payload != null) {
+        try {
+          final json = jsonDecode(payload) as Map<String, dynamic>;
+          final type = json['type']?.toString();
+          final isChat = type == 'chat_message' || type == 'chatMessage' || (type?.contains('chat') ?? false);
+          if (isChat) {
+            final senderName = json['sender_name']?.toString() ?? title;
+            final senderId = json['sender_id']?.toString() ?? 'sender';
+            final roomId = json['room_id']?.toString();
+            shortcutId = roomId ?? senderId;
+            final isGroup = title.contains('(');
+
+            const mePerson = Person(
+              name: '나',
+              key: 'me',
+            );
+
+            final senderPerson = Person(
+              name: senderName,
+              key: senderId,
+              icon: imageBytes != null ? ByteArrayAndroidIcon(imageBytes) : null,
+              bot: false,
+              important: true,
+            );
+
+            styleInfo = MessagingStyleInformation(
+              mePerson,
+              conversationTitle: isGroup ? title : null,
+              groupConversation: isGroup,
+              messages: [
+                Message(
+                  body,
+                  DateTime.now(),
+                  senderPerson,
+                ),
+              ],
+            );
+          }
+        } catch (_) {}
+      }
+
+      // 접힌(Collapsed) 기본 상태에서도 앱 아이콘 대신 원형 프로필 사진이 즉시 뜨도록 largeIcon 설정
+      if (imageBytes != null) {
+        largeIconBitmap = ByteArrayAndroidBitmap(imageBytes);
+      }
+
+      final androidDetails = AndroidNotificationDetails(
+        styleInfo != null ? 'chat_notification_channel_v4' : 'default_notification_channel',
+        styleInfo != null ? '채팅 알림' : '마니또 알림',
+        channelDescription: styleInfo != null ? '새로운 채팅 메시지 알림을 수신합니다.' : '마니또 초대, 시작, 채팅 및 미션 관련 알림을 수신합니다.',
         importance: Importance.max,
         priority: Priority.high,
         icon: 'ic_notification',
+        largeIcon: largeIconBitmap,
+        styleInformation: styleInfo,
+        category: styleInfo != null ? AndroidNotificationCategory.message : null,
+        shortcutId: shortcutId,
         playSound: true,
         enableVibration: true,
       );
@@ -273,7 +355,7 @@ class AppNotificationService {
         presentList: true,
       );
 
-      const platformDetails = NotificationDetails(
+      final platformDetails = NotificationDetails(
         android: androidDetails,
         iOS: iosDetails,
       );
@@ -290,7 +372,7 @@ class AppNotificationService {
     void executeNav(int retryCount) {
       final context = rootNavigatorKey.currentContext;
       if (context == null) {
-        if (retryCount < 5) {
+        if (retryCount < 10) {
           Future.delayed(const Duration(milliseconds: 300), () => executeNav(retryCount + 1));
         }
         return;
@@ -323,7 +405,16 @@ class AppNotificationService {
       try {
         if (isFeedOrComment) {
           context.go('/bottom_nav2');
-          context.push(targetRoute);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            final navContext = rootNavigatorKey.currentContext;
+            if (navContext != null && navContext.mounted) {
+              try {
+                navContext.push(targetRoute);
+              } catch (pushErr) {
+                AppLogger.w('push navigation failed: $pushErr', tag: 'NOTIF');
+              }
+            }
+          });
         } else {
           context.go(targetRoute);
         }

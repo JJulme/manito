@@ -28,6 +28,7 @@
   "home": {
     "title": "마니또",
     "tabHome": "홈",
+    "tabChat": "채팅",
     "tabArchive": "기록",
     "tabFriends": "친구",
     "tabProfile": "프로필",
@@ -38,6 +39,24 @@
     "noInvitations": "받은 초대장이 없습니다",
     "accept": "수락",
     "decline": "거절"
+  },
+  "chat": {
+    "title": "채팅",
+    "newChat": "새로운 채팅",
+    "searchHint": "친구 이름 또는 고유 코드 검색",
+    "groupTitleHint": "그룹 대화방 제목 (선택 입력)",
+    "startDirect": "1:1 대화 시작",
+    "startGroup": "그룹 대화 시작 ({count}명)",
+    "emptyChats": "진행 중인 채팅이 없습니다.",
+    "emptyChatsDesc": "친구를 선택해 1:1 또는 그룹 대화를 시작해보세요!",
+    "firstMessageDesc": "첫 메시지를 보내 대화를 시작해보세요!",
+    "leaveRoom": "채팅방 나가기",
+    "leaveConfirmTitle": "채팅방 나가기",
+    "leaveConfirmMessage": "채팅방을 나가면 대화 내용이 모두 삭제되고 채팅 목록에서도 삭제됩니다.\n\n정말 나가시겠습니까?",
+    "drawerTitle": "채팅방 서랍",
+    "members": "대화상대",
+    "me": "나",
+    "yesterday": "어제"
   },
   "lobby": {
     "title": "대기실",

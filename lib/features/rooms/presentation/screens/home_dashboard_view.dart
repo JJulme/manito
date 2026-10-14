@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:manito/core/models/models.dart';
@@ -55,7 +56,7 @@ class HomeDashboardView extends ConsumerWidget {
               if (!hasOngoingRoom) ...[
                 ElevatedButton.icon(
                   onPressed: () => context.push('/invite_friends'),
-                  icon: const Icon(Icons.add_circle_outline_rounded, size: 22),
+                  icon: const Icon(LucideIcons.circle_plus, size: 22),
                   label: const Text('새 마니또 방 개설하기'),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 18),
@@ -130,7 +131,7 @@ class HomeDashboardView extends ConsumerWidget {
                                     ),
                                   ),
                                   IconButton(
-                                    icon: const Icon(Icons.check_rounded, color: AppColors.statusGreen, size: 28),
+                                    icon: const Icon(LucideIcons.check, color: AppColors.statusGreen, size: 28),
                                     tooltip: '수락',
                                     onPressed: () async {
                                       if (hasOngoingRoom) {
@@ -140,7 +141,7 @@ class HomeDashboardView extends ConsumerWidget {
                                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                                             title: Row(
                                               children: const [
-                                                Icon(Icons.info_outline_rounded, color: AppColors.primaryDark),
+                                                Icon(LucideIcons.info, color: AppColors.primaryDark),
                                                 SizedBox(width: 8),
                                                 Text('초대 수락 불가', style: AppTypography.titleMedium),
                                               ],
@@ -182,7 +183,7 @@ class HomeDashboardView extends ConsumerWidget {
                                     },
                                   ),
                                   IconButton(
-                                    icon: const Icon(Icons.close_rounded, color: AppColors.statusRed, size: 28),
+                                    icon: const Icon(LucideIcons.x, color: AppColors.statusRed, size: 28),
                                     tooltip: '거절',
                                     onPressed: () async {
                                       await ref.read(roomsRepositoryProvider).respondToInvitation(invite.roomMemberId, 'X');
@@ -305,7 +306,7 @@ class HomeDashboardView extends ConsumerWidget {
                       child: Row(
                         children: [
                           Icon(
-                            Icons.person_add_rounded,
+                            LucideIcons.user_plus,
                             size: 15,
                             color: AppColors.textSecondaryOf(context),
                           ),
@@ -360,7 +361,7 @@ class HomeDashboardView extends ConsumerWidget {
                       alignment: Alignment.center,
                       child: Column(
                         children: [
-                          const Icon(Icons.group_outlined, size: 40, color: AppColors.textDisabled),
+                          const Icon(LucideIcons.users, size: 40, color: AppColors.textDisabled),
                           const SizedBox(height: 10),
                           const Text('아직 등록된 친구가 없습니다.', style: AppTypography.bodyMd),
                           const SizedBox(height: 4),
@@ -368,7 +369,7 @@ class HomeDashboardView extends ConsumerWidget {
                           const SizedBox(height: 12),
                           OutlinedButton.icon(
                             onPressed: () => context.push('/add_friend'),
-                            icon: const Icon(Icons.search_rounded, size: 16),
+                            icon: const Icon(LucideIcons.search, size: 16),
                             label: const Text('친구 검색 및 추가'),
                           ),
                         ],
@@ -415,7 +416,7 @@ class HomeDashboardView extends ConsumerWidget {
                                     ],
                                   ),
                                 ),
-                                const Icon(Icons.chevron_right_rounded, color: AppColors.textDisabled, size: 20),
+                                const Icon(LucideIcons.chevron_right, color: AppColors.textDisabled, size: 20),
                               ],
                             ),
                           ),

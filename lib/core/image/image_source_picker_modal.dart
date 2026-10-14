@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_typography.dart';
 
@@ -47,7 +48,7 @@ Future<ImageSource?> showImageSourcePickerModal(
                     ),
                     child: Column(
                       children: [
-                        const Icon(Icons.camera_alt_outlined, size: 32, color: AppColors.primaryDark),
+                        const Icon(LucideIcons.camera, size: 32, color: AppColors.primaryDark),
                         const SizedBox(height: 8),
                         Text('카메라 촬영', style: AppTypography.titleSmall.copyWith(color: AppColors.textPrimaryOf(context))),
                       ],
@@ -69,7 +70,7 @@ Future<ImageSource?> showImageSourcePickerModal(
                     ),
                     child: Column(
                       children: [
-                        const Icon(Icons.photo_library_outlined, size: 32, color: AppColors.primaryDark),
+                        const Icon(LucideIcons.image, size: 32, color: AppColors.primaryDark),
                         const SizedBox(height: 8),
                         Text('앨범에서 선택', style: AppTypography.titleSmall.copyWith(color: AppColors.textPrimaryOf(context))),
                       ],

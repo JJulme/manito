@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:manito/core/models/models.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
@@ -42,7 +43,7 @@ class LobbyOptionsCard extends StatelessWidget {
               Row(
                 children: [
                   Icon(
-                    Icons.tune_rounded,
+                    LucideIcons.sliders_horizontal,
                     size: 20,
                     color: AppColors.isDark(context) ? AppColors.primary : AppColors.primaryDark,
                   ),
@@ -91,7 +92,7 @@ class LobbyOptionsCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     child: Row(
                       children: [
-                        Icon(Icons.edit_outlined, size: 14, color: AppColors.textSecondaryOf(context)),
+                        Icon(LucideIcons.pencil, size: 14, color: AppColors.textSecondaryOf(context)),
                         const SizedBox(width: 4),
                         Text(
                           '수정',
@@ -153,7 +154,7 @@ class LobbyOptionsCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     child: Row(
                       children: [
-                        Icon(Icons.timer_outlined, size: 14, color: AppColors.textSecondaryOf(context)),
+                        Icon(LucideIcons.timer, size: 14, color: AppColors.textSecondaryOf(context)),
                         const SizedBox(width: 4),
                         Text(
                           '설정',
@@ -184,7 +185,7 @@ class LobbyOptionsCard extends StatelessWidget {
                 Row(
                   children: [
                     Icon(
-                      Icons.alarm_on_rounded,
+                      LucideIcons.alarm_clock_check,
                       size: 18,
                       color: AppColors.isDark(context) ? AppColors.primary : AppColors.primaryDark,
                     ),

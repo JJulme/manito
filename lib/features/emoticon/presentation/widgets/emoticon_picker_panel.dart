@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/theme/app_colors.dart';
@@ -138,7 +139,7 @@ class _EmoticonPickerPanelState extends ConsumerState<EmoticonPickerPanel> {
                 IconButton(
                   onPressed: widget.onOpenManageScreen,
                   icon: Icon(
-                    Icons.settings_outlined,
+                    LucideIcons.settings,
                     size: 20,
                     color: AppColors.textSecondaryOf(context),
                   ),
@@ -168,7 +169,7 @@ class _EmoticonPickerPanelState extends ConsumerState<EmoticonPickerPanel> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            Icons.emoji_emotions_outlined,
+                            LucideIcons.face_slightly_smiling,
                             size: 40,
                             color: AppColors.textDisabledOf(context),
                           ),
@@ -182,7 +183,7 @@ class _EmoticonPickerPanelState extends ConsumerState<EmoticonPickerPanel> {
                           const SizedBox(height: 12),
                           OutlinedButton.icon(
                             onPressed: widget.onOpenManageScreen,
-                            icon: const Icon(Icons.add_rounded, size: 18),
+                            icon: const Icon(LucideIcons.plus, size: 18),
                             label: const Text('사진 추가하러 가기'),
                             style: OutlinedButton.styleFrom(
                               minimumSize: const Size(0, 36),
@@ -249,7 +250,7 @@ class _EmoticonPickerPanelState extends ConsumerState<EmoticonPickerPanel> {
                                 : Container(
                                     color: AppColors.surfaceLowOf(context),
                                     child: Icon(
-                                      Icons.broken_image_outlined,
+                                      LucideIcons.image_off,
                                       size: 20,
                                       color: AppColors.textDisabledOf(context),
                                     ),

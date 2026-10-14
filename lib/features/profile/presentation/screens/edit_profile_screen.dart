@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -259,7 +260,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       SnackBar(
         content: Row(
           children: [
-            const Icon(Icons.info_outline_rounded, color: Colors.white),
+            const Icon(LucideIcons.info, color: Colors.white),
             const SizedBox(width: 10),
             Expanded(child: Text(msg)),
           ],
@@ -332,7 +333,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               width: double.infinity,
                               fit: BoxFit.fitWidth,
                               placeholder: (_, __) => Container(color: AppColors.surfaceOf(context)),
-                              errorWidget: (_, __, ___) => Icon(Icons.broken_image_outlined, color: AppColors.textSecondaryOf(context)),
+                              errorWidget: (_, __, ___) => Icon(LucideIcons.image_off, color: AppColors.textSecondaryOf(context)),
                             )
                           : Image.asset(imageUrl, width: double.infinity, fit: BoxFit.fitWidth),
                     ),
@@ -361,7 +362,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: const [
                               Icon(
-                                Icons.photo_camera_outlined,
+                                LucideIcons.camera,
                                 size: 14,
                                 color: Colors.white,
                               ),
@@ -397,7 +398,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
-                            Icons.close_rounded,
+                            LucideIcons.x,
                             size: 14,
                             color: Colors.white,
                           ),
@@ -454,7 +455,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
-                                Icons.add_photo_alternate_rounded,
+                                LucideIcons.image_plus,
                                 size: 24,
                                 color: AppColors.primaryDark,
                               ),
@@ -516,7 +517,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           leading: isMandatorySetup
               ? null
               : IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                  icon: const Icon(LucideIcons.chevron_left),
                   onPressed: () => Navigator.of(context).maybePop(),
                 ),
         ),
@@ -611,7 +612,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
-                                  Icons.camera_alt_rounded,
+                                  LucideIcons.camera,
                                   size: 16,
                                   color: AppColors.isDark(context) ? const Color(0xFF1E1E24) : Colors.white,
                                 ),
@@ -631,7 +632,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       maxLength: 12,
                       decoration: const InputDecoration(
                         hintText: '이름을 입력하세요 (2~12자)',
-                        prefixIcon: Icon(Icons.badge_outlined),
+                        prefixIcon: Icon(LucideIcons.badge),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -644,7 +645,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       maxLength: 30,
                       decoration: const InputDecoration(
                         hintText: '상태 메시지를 입력하세요 (최대 30자)',
-                        prefixIcon: Icon(Icons.chat_bubble_outline_rounded),
+                        prefixIcon: Icon(LucideIcons.message_square),
                       ),
                     ),
                     const SizedBox(height: 28),
@@ -654,7 +655,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       title: '마니또 자동응답 *',
                       description:
                           '마감 시간까지 마니또 미션을 입력하지 못했을 때 자동으로 게시되는 게시물입니다.',
-                      icon: Icons.lock_clock_outlined,
+                      icon: LucideIcons.lock,
                       textController: _manitoReplyController,
                       imageUrl: _manitoImageUrl,
                       isUploading: _isUploadingManitoImage,
@@ -668,7 +669,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       title: '추측 자동응답 *',
                       description:
                           '마감 시간까지 마니또 추측을 입력하지 못했을 때 자동으로 게시되는 게시물입니다.',
-                      icon: Icons.psychology_outlined,
+                      icon: LucideIcons.brain,
                       textController: _guessReplyController,
                       imageUrl: _guessImageUrl,
                       isUploading: _isUploadingGuessImage,

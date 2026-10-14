@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/features/feed/presentation/feed_provider.dart';
 
@@ -66,7 +67,7 @@ class FeedBottomCommentBar extends ConsumerWidget {
                   height: 38,
                   child: Center(
                     child: Icon(
-                      Icons.add_photo_alternate_outlined,
+                      LucideIcons.image_plus,
                       color: AppColors.textSecondaryOf(context),
                       size: 22,
                     ),
@@ -147,7 +148,7 @@ class FeedBottomCommentBar extends ConsumerWidget {
                   height: 38,
                   child: Center(
                     child: Icon(
-                      Icons.emoji_emotions_outlined,
+                      LucideIcons.face_slightly_smiling,
                       color: AppColors.textSecondaryOf(context),
                       size: 24,
                     ),

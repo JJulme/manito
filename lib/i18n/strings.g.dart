@@ -4,9 +4,9 @@
 /// To regenerate, run: `dart run slang`
 ///
 /// Locales: 2
-/// Strings: 228 (114 per locale)
+/// Strings: 262 (131 per locale)
 ///
-/// Built on 2026-08-31 at 12:27 UTC
+/// Built on 2026-09-02 at 14:05 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -151,6 +151,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final _StringsCommonKo common = _StringsCommonKo._(_root);
 	late final _StringsAuthKo auth = _StringsAuthKo._(_root);
 	late final _StringsHomeKo home = _StringsHomeKo._(_root);
+	late final _StringsChatKo chat = _StringsChatKo._(_root);
 	late final _StringsLobbyKo lobby = _StringsLobbyKo._(_root);
 	late final _StringsMissionSetupKo missionSetup = _StringsMissionSetupKo._(_root);
 	late final _StringsGameKo game = _StringsGameKo._(_root);
@@ -209,6 +210,7 @@ class _StringsHomeKo {
 	// Translations
 	String get title => '마니또';
 	String get tabHome => '홈';
+	String get tabChat => '채팅';
 	String get tabArchive => '기록';
 	String get tabFriends => '친구';
 	String get tabProfile => '프로필';
@@ -219,6 +221,31 @@ class _StringsHomeKo {
 	String get noInvitations => '받은 초대장이 없습니다';
 	String get accept => '수락';
 	String get decline => '거절';
+}
+
+// Path: chat
+class _StringsChatKo {
+	_StringsChatKo._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get title => '채팅';
+	String get newChat => '새로운 채팅';
+	String get searchHint => '친구 이름 또는 고유 코드 검색';
+	String get groupTitleHint => '그룹 대화방 제목 (선택 입력)';
+	String get startDirect => '1:1 대화 시작';
+	String get startGroup => '그룹 대화 시작 ({count}명)';
+	String get emptyChats => '진행 중인 채팅이 없습니다.';
+	String get emptyChatsDesc => '친구를 선택해 1:1 또는 그룹 대화를 시작해보세요!';
+	String get firstMessageDesc => '첫 메시지를 보내 대화를 시작해보세요!';
+	String get leaveRoom => '채팅방 나가기';
+	String get leaveConfirmTitle => '채팅방 나가기';
+	String get leaveConfirmMessage => '채팅방을 나가면 대화 내용이 모두 삭제되고 채팅 목록에서도 삭제됩니다.\n\n정말 나가시겠습니까?';
+	String get drawerTitle => '채팅방 서랍';
+	String get members => '대화상대';
+	String get me => '나';
+	String get yesterday => '어제';
 }
 
 // Path: lobby
@@ -393,6 +420,7 @@ class _StringsEn extends Translations {
 	@override late final _StringsCommonEn common = _StringsCommonEn._(_root);
 	@override late final _StringsAuthEn auth = _StringsAuthEn._(_root);
 	@override late final _StringsHomeEn home = _StringsHomeEn._(_root);
+	@override late final _StringsChatEn chat = _StringsChatEn._(_root);
 	@override late final _StringsLobbyEn lobby = _StringsLobbyEn._(_root);
 	@override late final _StringsMissionSetupEn missionSetup = _StringsMissionSetupEn._(_root);
 	@override late final _StringsGameEn game = _StringsGameEn._(_root);
@@ -451,6 +479,7 @@ class _StringsHomeEn extends _StringsHomeKo {
 	// Translations
 	@override String get title => 'Manito';
 	@override String get tabHome => 'Home';
+	@override String get tabChat => 'Chat';
 	@override String get tabArchive => 'Archive';
 	@override String get tabFriends => 'Friends';
 	@override String get tabProfile => 'Profile';
@@ -461,6 +490,31 @@ class _StringsHomeEn extends _StringsHomeKo {
 	@override String get noInvitations => 'No invitations received';
 	@override String get accept => 'Accept';
 	@override String get decline => 'Decline';
+}
+
+// Path: chat
+class _StringsChatEn extends _StringsChatKo {
+	_StringsChatEn._(_StringsEn root) : this._root = root, super._(root);
+
+	@override final _StringsEn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Chat';
+	@override String get newChat => 'New Chat';
+	@override String get searchHint => 'Search by friend name or code';
+	@override String get groupTitleHint => 'Group chat title (optional)';
+	@override String get startDirect => 'Start 1:1 Chat';
+	@override String get startGroup => 'Start Group Chat ({count})';
+	@override String get emptyChats => 'No active chats right now.';
+	@override String get emptyChatsDesc => 'Select a friend to start a 1:1 or group chat!';
+	@override String get firstMessageDesc => 'Send the first message to start the conversation!';
+	@override String get leaveRoom => 'Leave Chat Room';
+	@override String get leaveConfirmTitle => 'Leave Chat Room';
+	@override String get leaveConfirmMessage => 'Leaving the room will delete all messages and remove it from your chat list.\n\nAre you sure you want to leave?';
+	@override String get drawerTitle => 'Chat Drawer';
+	@override String get members => 'Participants';
+	@override String get me => 'Me';
+	@override String get yesterday => 'Yesterday';
 }
 
 // Path: lobby
@@ -636,6 +690,7 @@ extension on Translations {
 			case 'auth.logoutConfirmMessage': return '로그아웃 하시겠습니까?';
 			case 'home.title': return '마니또';
 			case 'home.tabHome': return '홈';
+			case 'home.tabChat': return '채팅';
 			case 'home.tabArchive': return '기록';
 			case 'home.tabFriends': return '친구';
 			case 'home.tabProfile': return '프로필';
@@ -646,6 +701,22 @@ extension on Translations {
 			case 'home.noInvitations': return '받은 초대장이 없습니다';
 			case 'home.accept': return '수락';
 			case 'home.decline': return '거절';
+			case 'chat.title': return '채팅';
+			case 'chat.newChat': return '새로운 채팅';
+			case 'chat.searchHint': return '친구 이름 또는 고유 코드 검색';
+			case 'chat.groupTitleHint': return '그룹 대화방 제목 (선택 입력)';
+			case 'chat.startDirect': return '1:1 대화 시작';
+			case 'chat.startGroup': return '그룹 대화 시작 ({count}명)';
+			case 'chat.emptyChats': return '진행 중인 채팅이 없습니다.';
+			case 'chat.emptyChatsDesc': return '친구를 선택해 1:1 또는 그룹 대화를 시작해보세요!';
+			case 'chat.firstMessageDesc': return '첫 메시지를 보내 대화를 시작해보세요!';
+			case 'chat.leaveRoom': return '채팅방 나가기';
+			case 'chat.leaveConfirmTitle': return '채팅방 나가기';
+			case 'chat.leaveConfirmMessage': return '채팅방을 나가면 대화 내용이 모두 삭제되고 채팅 목록에서도 삭제됩니다.\n\n정말 나가시겠습니까?';
+			case 'chat.drawerTitle': return '채팅방 서랍';
+			case 'chat.members': return '대화상대';
+			case 'chat.me': return '나';
+			case 'chat.yesterday': return '어제';
 			case 'lobby.title': return '대기실';
 			case 'lobby.hostBadge': return '방장';
 			case 'lobby.roomTitleLabel': return '제목';
@@ -758,6 +829,7 @@ extension on _StringsEn {
 			case 'auth.logoutConfirmMessage': return 'Are you sure you want to log out?';
 			case 'home.title': return 'Manito';
 			case 'home.tabHome': return 'Home';
+			case 'home.tabChat': return 'Chat';
 			case 'home.tabArchive': return 'Archive';
 			case 'home.tabFriends': return 'Friends';
 			case 'home.tabProfile': return 'Profile';
@@ -768,6 +840,22 @@ extension on _StringsEn {
 			case 'home.noInvitations': return 'No invitations received';
 			case 'home.accept': return 'Accept';
 			case 'home.decline': return 'Decline';
+			case 'chat.title': return 'Chat';
+			case 'chat.newChat': return 'New Chat';
+			case 'chat.searchHint': return 'Search by friend name or code';
+			case 'chat.groupTitleHint': return 'Group chat title (optional)';
+			case 'chat.startDirect': return 'Start 1:1 Chat';
+			case 'chat.startGroup': return 'Start Group Chat ({count})';
+			case 'chat.emptyChats': return 'No active chats right now.';
+			case 'chat.emptyChatsDesc': return 'Select a friend to start a 1:1 or group chat!';
+			case 'chat.firstMessageDesc': return 'Send the first message to start the conversation!';
+			case 'chat.leaveRoom': return 'Leave Chat Room';
+			case 'chat.leaveConfirmTitle': return 'Leave Chat Room';
+			case 'chat.leaveConfirmMessage': return 'Leaving the room will delete all messages and remove it from your chat list.\n\nAre you sure you want to leave?';
+			case 'chat.drawerTitle': return 'Chat Drawer';
+			case 'chat.members': return 'Participants';
+			case 'chat.me': return 'Me';
+			case 'chat.yesterday': return 'Yesterday';
 			case 'lobby.title': return 'Waiting Room';
 			case 'lobby.hostBadge': return 'Host';
 			case 'lobby.roomTitleLabel': return 'Title';

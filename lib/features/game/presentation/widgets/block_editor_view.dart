@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/image/image_source_picker_modal.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -257,7 +258,7 @@ class _BlockEditorViewState extends State<BlockEditorView> {
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
-                            Icons.add_a_photo_outlined,
+                            LucideIcons.camera,
                             color: widget.hasError ? AppColors.statusRed : AppColors.primaryDark,
                             size: 22,
                           ),
@@ -334,7 +335,7 @@ class _BlockEditorViewState extends State<BlockEditorView> {
                                     height: 100,
                                     color: AppColors.surface,
                                     alignment: Alignment.center,
-                                    child: const Icon(Icons.broken_image_outlined, color: AppColors.textSecondary),
+                                    child: const Icon(LucideIcons.image_off, color: AppColors.textSecondary),
                                   ),
                                 )
                               : Image.file(
@@ -354,7 +355,7 @@ class _BlockEditorViewState extends State<BlockEditorView> {
                                 color: Colors.black54,
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.close, color: Colors.white, size: 18),
+                              child: const Icon(LucideIcons.x, color: Colors.white, size: 18),
                             ),
                           ),
                         ),
@@ -405,12 +406,12 @@ class _BlockEditorViewState extends State<BlockEditorView> {
                   Row(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.camera_alt_outlined, color: AppColors.textPrimary),
+                        icon: const Icon(LucideIcons.camera, color: AppColors.textPrimary),
                         tooltip: '카메라 촬영',
                         onPressed: _isUploading ? null : () => _pickImage(ImageSource.camera),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.photo_library_outlined, color: AppColors.textPrimary),
+                        icon: const Icon(LucideIcons.image, color: AppColors.textPrimary),
                         tooltip: '갤러리 사진 첨부',
                         onPressed: _isUploading ? null : () => _pickImage(ImageSource.gallery),
                       ),

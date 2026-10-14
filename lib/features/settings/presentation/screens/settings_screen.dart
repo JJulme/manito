@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
 import 'package:manito/core/theme/theme_provider.dart';
@@ -130,7 +131,7 @@ class SettingsScreen extends ConsumerWidget {
                   context: ctx,
                   title: '라이트 모드',
                   subtitle: '밝고 산뜻한 기본 테마',
-                  icon: Icons.light_mode_outlined,
+                  icon: LucideIcons.sun,
                   isSelected: currentTheme == ThemeMode.light,
                   onTap: () {
                     ref
@@ -148,7 +149,7 @@ class SettingsScreen extends ConsumerWidget {
                   context: ctx,
                   title: '다크 모드',
                   subtitle: '어두운 환경에서 눈이 편안한 테마',
-                  icon: Icons.dark_mode_outlined,
+                  icon: LucideIcons.moon,
                   isSelected: currentTheme == ThemeMode.dark,
                   onTap: () {
                     ref
@@ -166,7 +167,7 @@ class SettingsScreen extends ConsumerWidget {
                   context: ctx,
                   title: '시스템 설정 동기화',
                   subtitle: '기기 OS의 다크/라이트 설정에 자동 맞춤',
-                  icon: Icons.brightness_auto_outlined,
+                  icon: LucideIcons.smartphone,
                   isSelected: currentTheme == ThemeMode.system,
                   onTap: () {
                     ref
@@ -231,7 +232,7 @@ class SettingsScreen extends ConsumerWidget {
                   context: ctx,
                   title: t.settings.langKo,
                   subtitle: '한국어 (기본)',
-                  icon: Icons.language_rounded,
+                  icon: LucideIcons.globe,
                   isSelected: currentLocale == AppLocale.ko,
                   onTap: () {
                     ref.read(appLocaleProvider.notifier).setLocale(AppLocale.ko);
@@ -242,7 +243,7 @@ class SettingsScreen extends ConsumerWidget {
                   context: ctx,
                   title: t.settings.langEn,
                   subtitle: 'English (US)',
-                  icon: Icons.language_rounded,
+                  icon: LucideIcons.globe,
                   isSelected: currentLocale == AppLocale.en,
                   onTap: () {
                     ref.read(appLocaleProvider.notifier).setLocale(AppLocale.en);
@@ -290,9 +291,9 @@ class SettingsScreen extends ConsumerWidget {
         trailing:
             isSelected
                 ? const Icon(
-                  Icons.check_circle_rounded,
+                  LucideIcons.check,
                   color: AppColors.primary,
-                  size: 22,
+                  size: 20,
                 )
                 : null,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -312,7 +313,7 @@ class SettingsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(t.settings.title),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          icon: const Icon(LucideIcons.chevron_left),
           onPressed: () => Navigator.of(context).maybePop(),
         ),
       ),
@@ -333,7 +334,7 @@ class SettingsScreen extends ConsumerWidget {
                 children: [
                   ListTile(
                     leading: Icon(
-                      Icons.brightness_medium_rounded,
+                      LucideIcons.sun_medium,
                       color: AppColors.textPrimaryOf(context),
                     ),
                     title: Text(
@@ -353,8 +354,8 @@ class SettingsScreen extends ConsumerWidget {
                       ),
                     ),
                     trailing: const Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      size: 14,
+                      LucideIcons.chevron_right,
+                      size: 16,
                       color: AppColors.textDisabled,
                     ),
                     onTap: () => _showThemeModePicker(context, ref),
@@ -362,7 +363,7 @@ class SettingsScreen extends ConsumerWidget {
                   const Divider(height: 1),
                   ListTile(
                     leading: Icon(
-                      Icons.language_rounded,
+                      LucideIcons.globe,
                       color: AppColors.textPrimaryOf(context),
                     ),
                     title: Text(
@@ -380,8 +381,8 @@ class SettingsScreen extends ConsumerWidget {
                       ),
                     ),
                     trailing: const Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      size: 14,
+                      LucideIcons.chevron_right,
+                      size: 16,
                       color: AppColors.textDisabled,
                     ),
                     onTap: () => _showLanguagePicker(context, ref),
@@ -404,7 +405,7 @@ class SettingsScreen extends ConsumerWidget {
                 children: [
                   ListTile(
                     leading: Icon(
-                      Icons.mail_outline_rounded,
+                      LucideIcons.mail,
                       color: AppColors.textPrimaryOf(context),
                     ),
                     title: Text(
@@ -420,7 +421,7 @@ class SettingsScreen extends ConsumerWidget {
                       ),
                     ),
                     trailing: Icon(
-                      Icons.copy_rounded,
+                      LucideIcons.copy,
                       size: 16,
                       color: AppColors.textSecondaryOf(context),
                     ),
@@ -429,7 +430,7 @@ class SettingsScreen extends ConsumerWidget {
                   const Divider(height: 1),
                   ListTile(
                     leading: Icon(
-                      Icons.info_outline_rounded,
+                      LucideIcons.info,
                       color: AppColors.textPrimaryOf(context),
                     ),
                     title: Text(
@@ -463,7 +464,7 @@ class SettingsScreen extends ConsumerWidget {
                 children: [
                   ListTile(
                     leading: Icon(
-                      Icons.logout_rounded,
+                      LucideIcons.log_out,
                       color: AppColors.textPrimaryOf(context),
                     ),
                     title: Text(
@@ -473,8 +474,8 @@ class SettingsScreen extends ConsumerWidget {
                       ),
                     ),
                     trailing: const Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      size: 14,
+                      LucideIcons.chevron_right,
+                      size: 16,
                       color: AppColors.textDisabled,
                     ),
                     onTap: () => _showLogoutDialog(context, ref),
@@ -482,7 +483,7 @@ class SettingsScreen extends ConsumerWidget {
                   const Divider(height: 1),
                   ListTile(
                     leading: const Icon(
-                      Icons.person_remove_outlined,
+                      LucideIcons.user_minus,
                       color: AppColors.statusRed,
                     ),
                     title: Text(
@@ -492,8 +493,8 @@ class SettingsScreen extends ConsumerWidget {
                       ),
                     ),
                     trailing: const Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      size: 14,
+                      LucideIcons.chevron_right,
+                      size: 16,
                       color: AppColors.textDisabled,
                     ),
                     onTap: () => _showDeleteAccountDialog(context, ref),

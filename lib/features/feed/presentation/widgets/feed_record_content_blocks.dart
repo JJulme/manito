@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:manito/core/models/models.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
@@ -40,7 +41,7 @@ class FeedRecordContentBlocks extends StatelessWidget {
                         height: 100,
                         color: AppColors.surfaceLowOf(context),
                         alignment: Alignment.center,
-                        child: Icon(Icons.broken_image_outlined, color: AppColors.textSecondaryOf(context)),
+                        child: Icon(LucideIcons.image_off, color: AppColors.textSecondaryOf(context)),
                       ),
                     )
                   : Image.asset(

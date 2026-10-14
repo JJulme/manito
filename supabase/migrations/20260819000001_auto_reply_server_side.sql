@@ -8,11 +8,31 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
 DECLARE
+    v_room RECORD;
     v_member RECORD;
     v_user RECORD;
     v_perform_blocks JSONB;
     v_guess_blocks JSONB;
 BEGIN
+    -- 1. Check room existence and status
+    SELECT * INTO v_room 
+    FROM public.rooms 
+    WHERE room_id = p_room_id;
+
+    IF NOT FOUND THEN
+        RETURN jsonb_build_object('success', false, 'error', 'Room not found');
+    END IF;
+
+    -- If room is already ENDED, nothing to do
+    IF v_room.status = 'ENDED' THEN
+        RETURN jsonb_build_object('success', true, 'room_id', p_room_id, 'already_ended', true);
+    END IF;
+
+    -- Only ONGOING rooms can be finalized
+    IF v_room.status <> 'ONGOING' THEN
+        RETURN jsonb_build_object('success', false, 'error', 'Room is not in ONGOING status (current: ' || v_room.status || ')');
+    END IF;
+
     -- Loop through all accepted members of this room
     FOR v_member IN 
         SELECT rm.user_id 

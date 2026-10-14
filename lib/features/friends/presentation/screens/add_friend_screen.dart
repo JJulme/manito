@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -48,7 +49,7 @@ class _AddFriendScreenState extends ConsumerState<AddFriendScreen> {
       appBar: AppBar(
         title: const Text('친구 추가'),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          icon: const Icon(LucideIcons.chevron_left),
           onPressed: () => Navigator.of(context).maybePop(),
         ),
       ),
@@ -70,7 +71,7 @@ class _AddFriendScreenState extends ConsumerState<AddFriendScreen> {
               child: Row(
                 children: [
                   const SizedBox(width: 16),
-                  Icon(Icons.search, color: AppColors.textSecondaryOf(context)),
+                  Icon(LucideIcons.search, color: AppColors.textSecondaryOf(context)),
                   const SizedBox(width: 12),
                   Expanded(
                     child: TextField(
@@ -123,7 +124,7 @@ class _AddFriendScreenState extends ConsumerState<AddFriendScreen> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.info_outline, color: AppColors.textSecondaryOf(context)),
+                    Icon(LucideIcons.info, color: AppColors.textSecondaryOf(context)),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -363,7 +364,7 @@ class _AddFriendScreenState extends ConsumerState<AddFriendScreen> {
             ),
             // Accept Action Button
             IconButton(
-              icon: const Icon(Icons.check_rounded, color: AppColors.statusGreen, size: 28),
+              icon: const Icon(LucideIcons.check, color: AppColors.statusGreen, size: 28),
               tooltip: '수락',
               onPressed: () async {
                 ref.read(analyticsServiceProvider).logEvent(
@@ -383,7 +384,7 @@ class _AddFriendScreenState extends ConsumerState<AddFriendScreen> {
             ),
             // Reject Action Button
             IconButton(
-              icon: const Icon(Icons.close_rounded, color: AppColors.statusRed, size: 28),
+              icon: const Icon(LucideIcons.x, color: AppColors.statusRed, size: 28),
               tooltip: '거절',
               onPressed: () async {
                 ref.read(analyticsServiceProvider).logEvent(

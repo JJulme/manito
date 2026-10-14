@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import '../../../../core/models/models.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -83,7 +84,7 @@ class FriendSelectionCard extends StatelessWidget {
                 ),
               ),
               child: isSelected
-                  ? const Icon(Icons.check, size: 16, color: Color(0xFF1E1E24))
+                  ? const Icon(LucideIcons.check, size: 16, color: Color(0xFF1E1E24))
                   : null,
             ),
           ],

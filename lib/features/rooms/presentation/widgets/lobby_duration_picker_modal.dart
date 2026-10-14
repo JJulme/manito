@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/analytics/analytics_event.dart';
 import 'package:manito/core/analytics/analytics_service.dart';
@@ -107,7 +108,7 @@ class _LobbyDurationPickerModalState extends ConsumerState<LobbyDurationPickerMo
               children: [
                 const Text('마감시간 설정', style: AppTypography.headlineMd),
                 IconButton(
-                  icon: const Icon(Icons.close, color: AppColors.textSecondary),
+                  icon: const Icon(LucideIcons.x, color: AppColors.textSecondary),
                   onPressed: () => Navigator.pop(context),
                 ),
               ],

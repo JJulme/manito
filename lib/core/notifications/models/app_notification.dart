@@ -29,6 +29,9 @@ enum NotificationType {
   /// 인증글에 댓글 등록 알림
   commentCreated,
 
+  /// 채팅 메시지 수신 알림
+  chatMessage,
+
   /// 일반 시스템 / 공지 알림
   system,
 }
@@ -54,6 +57,8 @@ extension NotificationTypeExtension on NotificationType {
         return 'feed_uploaded';
       case NotificationType.commentCreated:
         return 'comment_created';
+      case NotificationType.chatMessage:
+        return 'chat_message';
       case NotificationType.system:
         return 'system';
     }
@@ -89,6 +94,10 @@ extension NotificationTypeExtension on NotificationType {
       case 'comment_created':
       case 'new_comment':
         return NotificationType.commentCreated;
+      case 'chat_message':
+      case 'new_chat':
+      case 'new_message':
+        return NotificationType.chatMessage;
       default:
         return NotificationType.system;
     }
@@ -167,6 +176,8 @@ class AppNotificationPayload {
       case NotificationType.commentCreated:
       case NotificationType.feedUploaded:
         return roomId != null ? '/result_feed/$roomId' : '/bottom_nav2';
+      case NotificationType.chatMessage:
+        return roomId != null ? '/chat_room/$roomId' : '/bottom_nav2';
       case NotificationType.friendRequest:
       case NotificationType.friendAccepted:
         return '/add_friend';

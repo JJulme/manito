@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/models/models.dart';
 import 'package:manito/core/providers.dart';
@@ -90,19 +91,11 @@ class _OngoingRoomCardState extends ConsumerState<OngoingRoomCard> {
             );
           } else {
             // 아직 SETUP 단계인 경우
-            if (me != null && !me.isMissionSelected) {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => MissionSetupScreen(roomId: room.roomId),
-                ),
-              );
-            } else {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => MainPlayDashboardScreen(roomId: room.roomId),
-                ),
-              );
-            }
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => MissionSetupScreen(roomId: room.roomId),
+              ),
+            );
           }
         }
       },
@@ -175,7 +168,7 @@ class _OngoingRoomCardState extends ConsumerState<OngoingRoomCard> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          Icons.timer_outlined,
+                          LucideIcons.timer,
                           size: 14,
                           color: isUrgent ? AppColors.statusRed : AppColors.primaryDark,
                         ),
@@ -218,7 +211,7 @@ class _OngoingRoomCardState extends ConsumerState<OngoingRoomCard> {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.access_time_rounded, size: 13, color: AppColors.textSecondary),
+                      const Icon(LucideIcons.clock, size: 13, color: AppColors.textSecondary),
                       const SizedBox(width: 4),
                       Text(
                         deadlineStr,

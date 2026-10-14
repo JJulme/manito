@@ -17,6 +17,7 @@ import 'package:manito/features/friends/presentation/screens/add_friend_screen.d
 import 'package:manito/features/friends/presentation/screens/friend_detail_screen.dart';
 import 'package:manito/features/friends/presentation/screens/invite_friends_screen.dart';
 import 'package:manito/features/game/presentation/screens/main_play_dashboard_screen.dart';
+import 'package:manito/features/chat/presentation/screens/chat_room_screen.dart';
 import 'package:manito/features/main/main_nav_screen.dart';
 import 'package:manito/features/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:manito/features/profile/presentation/screens/profile_screen.dart';
@@ -173,6 +174,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final roomId = state.pathParameters['roomId']!;
           return ResultFeedScreen(roomId: roomId);
+        },
+      ),
+      GoRoute(
+        path: '/chat_room/:roomId',
+        name: 'chatRoom',
+        builder: (context, state) {
+          final roomId = state.pathParameters['roomId']!;
+          return ChatRoomScreen(roomId: roomId);
         },
       ),
       GoRoute(

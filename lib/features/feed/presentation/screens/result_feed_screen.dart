@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:manito/core/theme/app_colors.dart';
@@ -92,7 +93,7 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
         appBar: AppBar(
           title: const Text('마니또 결과'),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded),
+            icon: const Icon(LucideIcons.chevron_left),
             onPressed: () => _handleBackNavigation(context),
           ),
         ),
@@ -111,7 +112,7 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
             appBar: AppBar(
               title: Text(roomTitle),
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                icon: const Icon(LucideIcons.chevron_left),
                 onPressed: () => _handleBackNavigation(context),
               ),
             ),
@@ -121,7 +122,7 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
             appBar: AppBar(
               title: Text(roomTitle),
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                icon: const Icon(LucideIcons.chevron_left),
                 onPressed: () => _handleBackNavigation(context),
               ),
             ),
@@ -140,7 +141,7 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
                 appBar: AppBar(
                   title: Text(roomTitle),
                   leading: IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                    icon: const Icon(LucideIcons.chevron_left),
                     onPressed: () => _handleBackNavigation(context),
                   ),
                 ),
@@ -170,7 +171,7 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
                 appBar: AppBar(
                   title: Text(roomTitle),
                   leading: IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                    icon: const Icon(LucideIcons.chevron_left),
                     onPressed: () => _handleBackNavigation(context),
                   ),
                 ),
@@ -180,7 +181,7 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
                 appBar: AppBar(
                   title: Text(roomTitle),
                   leading: IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                    icon: const Icon(LucideIcons.chevron_left),
                     onPressed: () => _handleBackNavigation(context),
                   ),
                 ),
@@ -218,7 +219,7 @@ class _ResultFeedScreenState extends ConsumerState<ResultFeedScreen> {
                     appBar: AppBar(
                       title: Text(roomTitle),
                       leading: IconButton(
-                        icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                        icon: const Icon(LucideIcons.chevron_left),
                         onPressed: () => _handleBackNavigation(context),
                       ),
                     ),

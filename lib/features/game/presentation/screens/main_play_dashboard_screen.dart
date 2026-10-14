@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manito/core/models/models.dart';
 import 'package:manito/core/providers.dart';
@@ -114,9 +115,8 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
       _scheduleDeadlineNotificationsOnce(room);
     }
 
-    final deadline = room?.gameEndTime ??
-        (room?.createdAt.add(const Duration(minutes: 30)) ??
-            GameTimeUtil.calculateCeiledDeadline(minutesToAdd: 30));
+    final deadline = room?.gameEndTime;
+    if (deadline == null) return;
 
     final diff = deadline.difference(DateTime.now());
     if (diff.isNegative || diff <= Duration.zero) {
@@ -274,6 +274,13 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
       if (r != null && r.status == RoomStatus.ended && !_hasNavigatedToResult && !_isHandlingDeadline) {
         _handleDeadlineReached();
       }
+      if (r != null && r.status == RoomStatus.preparing && mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => MissionSetupScreen(roomId: widget.roomId),
+          ),
+        );
+      }
     });
 
     ref.listen<AsyncValue<RoomMemberModel?>>(myMemberRecordProvider(widget.roomId), (prev, next) {
@@ -301,6 +308,21 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
     final lang = ref.watch(languageCodeProvider);
 
     final room = roomAsync.value;
+    if (room != null && room.status == RoomStatus.preparing) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => MissionSetupScreen(roomId: widget.roomId),
+            ),
+          );
+        }
+      });
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+      );
+    }
+
     final myMember = myMemberAsync.value;
     if (myMember != null && !myMember.isMissionSelected) {
       if (room?.status == RoomStatus.ongoing) {
@@ -340,7 +362,7 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          icon: const Icon(LucideIcons.chevron_left),
           onPressed: () => Navigator.of(context).maybePop(),
         ),
         centerTitle: true,
@@ -502,7 +524,7 @@ class _MainPlayDashboardScreenState extends ConsumerState<MainPlayDashboardScree
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Icon(Icons.assignment_outlined, size: 20, color: AppColors.primaryDark),
+                                    const Icon(LucideIcons.clipboard_list, size: 20, color: AppColors.primaryDark),
                                     const SizedBox(width: 10),
                                     Expanded(
                                       child: Text(

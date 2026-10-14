@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 
 enum ManitoMascotType {
   /// 기본 강아지 마스코트
@@ -73,7 +74,7 @@ class ManitoMascot extends StatelessWidget {
             color: Colors.grey.shade100,
             shape: BoxShape.circle,
           ),
-          child: const Icon(Icons.pets_rounded, color: Colors.grey),
+          child: const Icon(LucideIcons.dog, color: Colors.grey),
         );
       },
     );

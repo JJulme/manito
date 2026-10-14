@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:manito/core/models/models.dart';
@@ -193,13 +194,6 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> with Wi
       }
     });
 
-    ref.listen<AsyncValue<RoomMemberModel?>>(myMemberRecordProvider(widget.roomId), (prev, next) {
-      final member = next.value;
-      if (member != null && member.isMissionSelected && mounted) {
-        _navigateToDashboard();
-      }
-    });
-
     final room = ref.watch(roomDetailsProvider(widget.roomId)).value;
     if (room?.status == RoomStatus.ongoing) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -231,13 +225,6 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> with Wi
               return const Center(child: Text('참가자 정보를 찾을 수 없습니다.'));
             }
 
-            if (myMember.isMissionSelected) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted) _navigateToDashboard();
-              });
-              return const Center(child: CircularProgressIndicator(color: AppColors.primary));
-            }
-
             final targetUser = myMember.targetUserProfile;
 
             // Fetch candidate missions
@@ -257,7 +244,7 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> with Wi
                         children: [
                           Row(
                             children: [
-                              Icon(Icons.sync_rounded, size: 16, color: AppColors.textSecondaryOf(context)),
+                              Icon(LucideIcons.refresh_cw, size: 16, color: AppColors.textSecondaryOf(context)),
                               const SizedBox(width: 6),
                               Text(
                                 '다른 친구들 미션 선택 중...',
@@ -463,11 +450,11 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> with Wi
 
                                     if (context.mounted && success) {
                                       ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('미션이 선택되었습니다!')),
+                                        const SnackBar(content: Text('미션이 선택되었습니다! 다른 친구들이 선택할 때까지 잠시 기다려 주세요.')),
                                       );
-                                      // 모든 인원이 완료되었는지 검사
-                                      await ref.read(setupRepositoryProvider).checkAndStartOngoingGame(widget.roomId);
-                                      if (mounted) {
+                                      // 모든 인원이 완료되었는지 검사 (전원 완료 시에만 true 반환 및 게임 시작)
+                                      final isAllReady = await ref.read(setupRepositoryProvider).checkAndStartOngoingGame(widget.roomId);
+                                      if (mounted && isAllReady) {
                                         _navigateToDashboard();
                                       }
                                     }
@@ -491,10 +478,10 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> with Wi
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.check_circle_rounded, color: AppColors.statusGreen),
+                                const Icon(LucideIcons.circle_check, color: AppColors.statusGreen),
                                 const SizedBox(width: 8),
                                 Text(
-                                  '미션 선택 완료',
+                                  '미션 선택 완료! 다른 친구들을 기다리는 중...',
                                   style: AppTypography.titleSmall.copyWith(color: AppColors.statusGreen),
                                 ),
                               ],
@@ -550,7 +537,7 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> with Wi
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
-                Icons.assignment_outlined,
+                LucideIcons.clipboard_list,
                 color: isSelected ? const Color(0xFF1E1E24) : AppColors.textSecondaryOf(context),
               ),
             ),
@@ -575,7 +562,7 @@ class _MissionSetupScreenState extends ConsumerState<MissionSetupScreen> with Wi
               ),
             ),
             if (isSelected)
-              const Icon(Icons.check_circle_rounded, color: AppColors.primaryDark, size: 26)
+              const Icon(LucideIcons.circle_check, color: AppColors.primaryDark, size: 26)
             else
               Container(
                 width: 22,

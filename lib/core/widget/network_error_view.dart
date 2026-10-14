@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
 import 'package:manito/core/widget/manito_mascot.dart';
@@ -32,7 +33,7 @@ class NetworkErrorView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              Icons.wifi_off_rounded,
+              LucideIcons.wifi_off,
               size: 32,
               color: AppColors.textSecondaryOf(context),
             ),
@@ -57,7 +58,7 @@ class NetworkErrorView extends StatelessWidget {
               const SizedBox(height: 14),
               ElevatedButton.icon(
                 onPressed: onRetry,
-                icon: const Icon(Icons.refresh_rounded, size: 16),
+                icon: const Icon(LucideIcons.refresh_cw, size: 16),
                 label: const Text('다시 시도'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -107,7 +108,7 @@ class NetworkErrorView extends StatelessWidget {
                       ),
                     ),
                     child: const Icon(
-                      Icons.wifi_off_rounded,
+                      LucideIcons.wifi_off,
                       size: 20,
                       color: Colors.white,
                     ),
@@ -143,7 +144,7 @@ class NetworkErrorView extends StatelessWidget {
             if (onRetry != null)
               ElevatedButton.icon(
                 onPressed: onRetry,
-                icon: const Icon(Icons.refresh_rounded, size: 20),
+                icon: const Icon(LucideIcons.refresh_cw, size: 20),
                 label: const Text('다시 시도'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
@@ -187,7 +188,7 @@ class NetworkErrorScreen extends StatelessWidget {
         automaticallyImplyLeading: false,
         leading: showBackButton
             ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                icon: const Icon(LucideIcons.chevron_left),
                 onPressed: () => Navigator.of(context).maybePop(),
               )
             : null,

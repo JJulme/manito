@@ -12,19 +12,9 @@ class FeedRepository {
 
   String? get currentUserId => _supabase.auth.currentUser?.id;
 
-  /// Fetch all records of a completed room (ensures server-side auto-reply generation)
+  /// Fetch all records of a room
   Future<List<RecordModel>> fetchRoomRecords(String roomId) async {
     try {
-      // 1. 서버 RPC 호출로 누락된 참여자 자동응답 일괄 생성 및 완료 처리
-      try {
-        await _supabase.rpc('finalize_game_and_fill_auto_replies', params: {
-          'p_room_id': roomId,
-        });
-      } catch (rpcErr) {
-        AppLogger.w('finalize_game_and_fill_auto_replies RPC warning: $rpcErr', tag: 'FEED');
-      }
-
-      // 2. 전체 레코드 조회
       final response = await _supabase
           .from('records')
           .select('*, author:users!records_user_id_fkey(*), suspect_user:users!records_suspect_user_id_fkey(*), comments(*)')

@@ -1,12 +1,16 @@
 import { JWT } from "npm:google-auth-library@9";
 
-const serviceAccount = {
-  type: "service_account",
-  project_id: "manito-e305a",
-  private_key_id: "9a8276bfabe8f464083e25c95d76d0b802a643b9",
-  private_key: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCYw0inoQRWmsMo\nzEcBa5k2y0HuEsQsZU4tOQ3o9Ak/zo77d7V32rkWvPuQJ9J+/6gUnoinSrps8vJa\n32WkA2v4vN4xs5xLOAcEAkYo8u9sQ3CXBcwGxJ+7yYjl7uQdTZ0fgQMLAKMTue17\noklhHRwTvNIOXJKjElata1OXsklMR6VeFq3H7HM8bLJ8gLM8ZlLUYHHLC+cbKJPi\nFBL5EF9GckicVkkooQpABl9/3TXPb0uuzbrvj4vMiDu8Nmpff2+tJwVyJoXx12wf\nv6NMf/hTR1Jd2z5CbbMHmCRUG7Jc50LIobkiXxzrAs64rRGlAgv0wvGzgkcyomkl\nPSShnCSlAgMBAAECggEADzLq0SbPkDBQt4fvjqAee9moQyAh3YrsxsoU7LcPDoam\nKjXkW7rqzGzcGKElq9YS6o5FaWOhfcKEQ29TpQhkHzjnYImOxNsbs5XoVh2pnZtu\nIdCFVq0MeXoZQUtN7e5xchd7boZPM2C91J22cE+dogcY3S3vtwLVleaGSCMIcOrO\njw16YzugGctf7XZkn9VpPaw+xBcKzI+Bh/MFTNIDvI3PuOGNata3AlEmgoPRYUcd\nWlaBJEzq1v5lD34DuV//z7eY/wWvLq5nzBSTQA7405HHt2+HNTJyiUgQMXtqQ9EZ\nUoHPq6xL6FWGcS7UHQSO3TdMAqZWMtgLCPrmN/BHAQKBgQDPhuibbLMzwaoI1D4F\naiSD5Poy0bpclHzVBoe/IGZDxcFO5bKS3yUvMlZJ2c3ZStbDAITQwv7EtrwUbEkm\nLc09J66aMswTLK6sZDP6MsCORhYZw3NGn8KVj7iDgndTRPh5EZoe2pDlLX04K5nZ\nGm47p65SnkNbPKnXWiVQDaf3JQKBgQC8cb+ODw6jDE0WaoKhpD31Ngy72W05bcmF\ncMG7ZyYwXfuedrtV2ODwRc4MHxaR46V8HoR0XC/CPWwKf81q2chLOkASQhgwDT0R\nOAvpntVEdSuYeDNLGFOxGXeRhmoFLVrZCsmQSgtxGF+61un8QyzHQqaGd/QTtI2R\np66zqgS/gQKBgH3uVs6iCqiYl67d5HjyrQ/gbjdSb21oqcu3N76yUXxEz4Yp+tAH\nWxAl0pjj83ctY99XPEFWYrVKUh1ujID/gDDhGKH3u0DTd3ejIqtsCs8LFrQxl40+\nuxx45zXegLxl+QW2ubiJVy3LCdaBFs3YrRXELhNyeFswF7xXtpa6greFAoGAVw1p\nAzQbe+Db36YWcJuR76wnV8QKfAQmmxlKtcrhzmgsK7kHs5G73+MvW1QlNgHm2Z6z\na5mGioGbXoJJn7m5mF7xaD3WNKR4+HJetm6kcLp8CDRG5cL4LpDoNnbUlU2tcSRV\nlu1NudIbrxFHCDzz+5zjlqzlOREocQf4YZECHoECgYEAq8X4MRpnPwWJ61+neuHN\nrOKn5N/hpwVxR0LmfpknicYqBJ81A6ZpiAikpFbBr3s3p4B6oXE8UhbBXcS+4Vq2\nZOi2gtqarWcq9VySJtFwjx3kGcibWSF373zdI3WYtue57Favi485xv9+cqgkPmio\nzXHpCrVDG28FIMn4H0TD6UQ=\n-----END PRIVATE KEY-----\n",
-  client_email: "firebase-adminsdk-w9gtb@manito-e305a.iam.gserviceaccount.com",
-};
+// 🔒 Firebase Service Account 정보를 Supabase Secrets 환경변수에서 읽습니다.
+// Supabase Dashboard → Edge Functions → Secrets 에서 FIREBASE_SERVICE_ACCOUNT_JSON 등록 필요.
+// 값은 service-account.json 파일의 전체 JSON 문자열입니다.
+const serviceAccountJson = Deno.env.get("FIREBASE_SERVICE_ACCOUNT_JSON");
+if (!serviceAccountJson) {
+  throw new Error(
+    "FIREBASE_SERVICE_ACCOUNT_JSON 환경변수가 설정되지 않았습니다. " +
+    "Supabase Dashboard → Edge Functions → Secrets 에서 등록해 주세요."
+  );
+}
+const serviceAccount = JSON.parse(serviceAccountJson);
 
 async function getAccessToken(): Promise<string> {
   const jwtClient = new JWT({
@@ -23,8 +27,43 @@ async function sendFCM(
   title: string,
   body: string,
   data: Record<string, string>,
+  imageUrl?: string,
 ) {
   const accessToken = await getAccessToken();
+
+  const apnsPayload: Record<string, any> = {
+    aps: {
+      alert: {
+        title: title,
+        body: body,
+      },
+      sound: "default",
+      badge: 1,
+      "content-available": 1,
+      "mutable-content": 1,
+    },
+  };
+  if (imageUrl) {
+    apnsPayload.fcm_options = {
+      image: imageUrl,
+    };
+  }
+
+  const messagePayload: Record<string, any> = {
+    token: token,
+    data: data,
+    android: {
+      priority: "HIGH",
+    },
+    apns: {
+      headers: {
+        "apns-priority": "10",
+        "apns-push-type": "alert",
+      },
+      payload: apnsPayload,
+    },
+  };
+
   const res = await fetch(
     `https://fcm.googleapis.com/v1/projects/${serviceAccount.project_id}/messages:send`,
     {
@@ -33,45 +72,7 @@ async function sendFCM(
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
       },
-      body: JSON.stringify({
-        message: {
-          token: token,
-          notification: {
-            title: title,
-            body: body,
-          },
-          data: data,
-          android: {
-            priority: "HIGH",
-            notification: {
-              channel_id: "default_notification_channel",
-              sound: "default",
-              default_sound: true,
-              default_vibrate_timings: true,
-              notification_priority: "PRIORITY_MAX",
-              click_action: "FLUTTER_NOTIFICATION_CLICK",
-              icon: "ic_notification",
-            },
-          },
-          apns: {
-            headers: {
-              "apns-priority": "10",
-              "apns-push-type": "alert",
-            },
-            payload: {
-              aps: {
-                alert: {
-                  title: title,
-                  body: body,
-                },
-                sound: "default",
-                badge: 1,
-                "content-available": 1,
-              },
-            },
-          },
-        },
-      }),
+      body: JSON.stringify({ message: messagePayload }),
     },
   );
 
@@ -84,7 +85,7 @@ async function sendFCM(
 
 Deno.serve(async (req) => {
   try {
-    const { tokens, title, body, data } = await req.json();
+    const { tokens, title, body, data, imageUrl } = await req.json();
 
     if (!tokens || !Array.isArray(tokens) || tokens.length === 0) {
       return new Response(
@@ -95,12 +96,17 @@ Deno.serve(async (req) => {
 
     const notifTitle = title || "마니또 알림";
     const notifBody = body || "";
+    const finalImageUrl = imageUrl || data?.sender_profile_url || data?.image_url;
 
     const stringData: Record<string, string> = {
       click_action: "FLUTTER_NOTIFICATION_CLICK",
       title: notifTitle,
       body: notifBody,
     };
+    if (finalImageUrl) {
+      stringData.image_url = finalImageUrl;
+    }
+
     if (data && typeof data === "object") {
       for (const [key, value] of Object.entries(data)) {
         if (value !== null && value !== undefined) {
@@ -111,7 +117,7 @@ Deno.serve(async (req) => {
 
     const results = await Promise.allSettled(
       tokens.map((token: string) =>
-        sendFCM(token, notifTitle, notifBody, stringData)
+        sendFCM(token, notifTitle, notifBody, stringData, finalImageUrl)
       ),
     );
 

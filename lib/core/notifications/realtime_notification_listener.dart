@@ -65,12 +65,13 @@ class RealtimeNotificationListener {
   }
 
   void _handleRoomMemberChange(PostgresChangePayload payload, String userId) {
-    final record = payload.newRecord;
+    final isDelete = payload.eventType == PostgresChangeEvent.delete;
+    final record = isDelete ? payload.oldRecord : payload.newRecord;
     final targetUserId = record['user_id'] as String?;
     final roomId = record['room_id'] as String?;
     final joinStatus = record['join_status'] as String?;
 
-    if (targetUserId != userId) return;
+    if (targetUserId != null && targetUserId != userId) return;
 
     AppLogger.i('Realtime room_member change event: ${payload.eventType}, joinStatus: $joinStatus, roomId: $roomId', tag: 'REALTIME_NOTIF');
 
@@ -89,21 +90,28 @@ class RealtimeNotificationListener {
         _ref.invalidate(roomMembersProvider(roomId));
         _ref.invalidate(roomDetailsProvider(roomId));
       }
-    } else if (payload.eventType == PostgresChangeEvent.delete) {
+    } else if (isDelete) {
       _ref.invalidate(receivedRoomInvitationsProvider);
       _ref.invalidate(ongoingRoomsProvider);
+      if (roomId != null) {
+        _ref.invalidate(roomMembersProvider(roomId));
+        _ref.invalidate(roomDetailsProvider(roomId));
+      }
     }
   }
 
   void _handleFriendshipChange(PostgresChangePayload payload, String userId) {
-    final record = payload.newRecord;
+    final isDelete = payload.eventType == PostgresChangeEvent.delete;
+    final record = isDelete ? payload.oldRecord : payload.newRecord;
     final requesterId = record['requester_id'] as String?;
     final receiverId = record['receiver_id'] as String?;
     final status = record['status'] as String?;
 
-    if (requesterId != userId && receiverId != userId) return;
+    if (requesterId != null && receiverId != null && requesterId != userId && receiverId != userId) {
+      return;
+    }
 
-    AppLogger.i('Realtime friendship change: status=$status', tag: 'REALTIME_NOTIF');
+    AppLogger.i('Realtime friendship change: event=${payload.eventType}, status=$status', tag: 'REALTIME_NOTIF');
     _ref.invalidate(acceptedFriendsProvider);
     _ref.invalidate(receivedFriendRequestsProvider);
   }

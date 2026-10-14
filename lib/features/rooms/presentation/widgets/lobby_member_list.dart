@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:manito/core/models/models.dart';
 import 'package:manito/core/theme/app_colors.dart';
 import 'package:manito/core/theme/app_typography.dart';
@@ -42,7 +43,7 @@ class LobbyMemberList extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   child: Row(
                     children: [
-                      Icon(Icons.person_add_rounded, size: 14, color: AppColors.textSecondaryOf(context)),
+                      Icon(LucideIcons.user_plus, size: 14, color: AppColors.textSecondaryOf(context)),
                       const SizedBox(width: 4),
                       Text(
                         '친구 추가',
@@ -187,7 +188,7 @@ class LobbyMemberList extends StatelessWidget {
             child: Row(
               children: [
                 Icon(
-                  Icons.hourglass_top_rounded,
+                  LucideIcons.hourglass,
                   color: AppColors.isDark(context) ? AppColors.primary : AppColors.primaryDark,
                 ),
                 const SizedBox(width: 12),
